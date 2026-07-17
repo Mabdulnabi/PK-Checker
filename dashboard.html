@@ -144,7 +144,7 @@
   @keyframes spark-pulse{0%,100%{opacity:0.45;transform:scale(0.85);}50%{opacity:1;transform:scale(1.15);}}
 
   /* ===== TOPBAR ===== */
-  .topbar{position:relative;z-index:30;}
+  .topbar{position:sticky;top:0;z-index:40;background:var(--paper);}
   .topbar-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:18px 24px 0;gap:14px;flex-wrap:wrap;}
   .brand{display:flex;align-items:center;gap:10px;flex:none;}
   .brand img{width:auto;height:110px;}
@@ -279,11 +279,22 @@
   .notice-box{border-radius:11px;padding:13px 16px;margin-bottom:14px;font-size:12.5px;line-height:1.8;}
   .notice-box b{display:block;font-family:'Cairo',sans-serif;font-weight:800;font-size:13px;margin-bottom:6px;}
   .notice-box p{margin:0;}
+  .notice-box ul{margin:0;padding-inline-start:20px;list-style:disc;}
+  .notice-box ul li{margin-bottom:5px;}
+  .notice-box ul li:last-child{margin-bottom:0;}
   .notice-danger{background:var(--danger-wash);border:1.5px solid var(--danger);color:var(--danger);}
   .notice-danger b{color:var(--danger);}
   .notice-ok{background:var(--ok-wash);border:1.5px solid var(--ok);color:var(--ok);}
   .notice-ok-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
   .notice-ok-head b{margin-bottom:0;color:var(--ok);}
+  .data-tbl{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .data-tbl th{text-align:right;color:var(--muted);font-weight:700;padding:10px 12px;border-bottom:1.5px solid var(--paper-line);white-space:nowrap;}
+  .data-tbl td{padding:10px 12px;border-bottom:1px solid var(--paper-line);white-space:nowrap;}
+  .data-tbl tr:last-child td{border-bottom:none;}
+  .ph-status{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;}
+  .ph-status-completed{background:var(--ok-wash);color:var(--ok);}
+  .ph-status-pending{background:var(--warn-wash,#FDF1DC);color:var(--warn,#E8A20B);}
+  .ph-status-rejected{background:var(--danger-wash);color:var(--danger);}
 
   .file-chip{display:flex;align-items:center;gap:10px;background:var(--paper);border:1.5px solid var(--blue-wash);border-radius:11px;padding:12px 16px;margin-bottom:18px;}
   .file-chip .fchip-ic{color:var(--blue-deep);display:flex;flex:none;}
@@ -941,19 +952,6 @@
         <span data-i18n="upload_hint">PDF, DOC, DOCX — حتى 100MB · ملف واحد لكل طلب</span>
       </div>
 
-      <div class="notice-box notice-danger">
-        <b data-i18n="file_req_notice_title">متطلبات Turnitin لقبول ملفات الفحص</b>
-        <p data-i18n="file_req_notice_body">شروط Turnitin: لتقارير الاقتباس فقط، لا توجد قيود على عدد الصفحات ويدعم النظام جميع اللغات بصيغة DOCX أو PDF. أما إذا كان تقرير الذكاء الاصطناعي مطلوباً، فيشترط رفع ملف DOCX نصي فقط باللغة الإنجليزية أو الإسبانية أو اليابانية، بعدد كلمات يتراوح بين 300 و 30,000 كلمة، مع ضرورة حذف صفحة الغلاف التي تتضمن اسم وشعار الجامعة وكذلك الصور والجداول والمعادلات المعقدة. وفي كافة الأحوال، يجب ألا يتجاوز حجم الملف 100 ميجابايت. الالتزام بهذه الشروط هو مسؤولية الباحث بالكامل، وعدم التقيد بها سيؤدي إلى خصم الرصيد نظراً لاحتساب عملية الفحص تلقائياً.</p>
-      </div>
-
-      <div class="notice-box notice-ok">
-        <div class="notice-ok-head">
-          <svg class="ic" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;flex:none;"><path d="M12 2l8 4v6c0 5-4 8-8 10-4-2-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
-          <b data-i18n="file_privacy_notice_title">خصوصية الملفات</b>
-        </div>
-        <p data-i18n="file_privacy_notice_body">يتم رفع الأبحاث بإعداد "No Repository" مفعل دائماً (آمن 100%). ملفاتك آمنه تماماً ولن يتم حفظها أو تخزينها في أي قاعدة بيانات طلابية أو مستودع مؤسسي.</p>
-      </div>
-
       <div class="file-chip" id="fileChip" style="display:none;">
         <span class="fchip-ic"><svg class="ic" viewBox="0 0 24 24" style="width:16px;height:16px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span>
         <span class="fchip-name" id="fileChipName">JPI2_Preprint.pdf</span>
@@ -961,6 +959,27 @@
       </div>
 
       <div class="upload-error" id="uploadError" style="display:none;color:#E0445B;font-size:12px;margin-top:8px;"></div>
+
+      <div class="notice-box notice-danger">
+        <b data-i18n="file_req_notice_title">متطلبات Turnitin لقبول ملفات الفحص</b>
+        <ul>
+          <li data-i18n="file_req_li1">شروط Turnitin: لتقارير الاقتباس فقط، لا توجد قيود على عدد الصفحات ويدعم النظام جميع اللغات بصيغة DOCX أو PDF.</li>
+          <li data-i18n="file_req_li2">أما إذا كان تقرير الذكاء الاصطناعي مطلوباً، فيشترط رفع ملف DOCX نصي فقط باللغة الإنجليزية أو الإسبانية أو اليابانية، بعدد كلمات يتراوح بين 300 و 30,000 كلمة، مع ضرورة حذف صفحة الغلاف التي تتضمن اسم وشعار الجامعة وكذلك الصور والجداول والمعادلات المعقدة.</li>
+          <li data-i18n="file_req_li3">وفي كافة الأحوال، يجب ألا يتجاوز حجم الملف 100 ميجابايت.</li>
+          <li data-i18n="file_req_li4">الالتزام بهذه الشروط هو مسؤولية الباحث بالكامل، وعدم التقيد بها سيؤدي إلى خصم الرصيد نظراً لاحتساب عملية الفحص تلقائياً.</li>
+        </ul>
+      </div>
+
+      <div class="notice-box notice-ok">
+        <div class="notice-ok-head">
+          <svg class="ic" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;flex:none;"><path d="M12 2l8 4v6c0 5-4 8-8 10-4-2-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
+          <b data-i18n="file_privacy_notice_title">خصوصية الملفات</b>
+        </div>
+        <ul>
+          <li data-i18n="file_privacy_li1">يتم رفع الأبحاث بإعداد "No Repository" مفعل دائماً (آمن 100%).</li>
+          <li data-i18n="file_privacy_li2">ملفاتك آمنه تماماً ولن يتم حفظها أو تخزينها في أي قاعدة بيانات طلابية أو مستودع مؤسسي.</li>
+        </ul>
+      </div>
 
       <div class="panel-block">
         <div class="panel-block-head">
@@ -1191,6 +1210,27 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Payment history -->
+      <div class="pack-section-head" style="margin-top:36px;">
+        <h2 class="pack-section-title" data-i18n="payment_history_title">سجل المدفوعات</h2>
+        <p class="pack-section-desc" data-i18n="payment_history_desc">كل عمليات الشحن اللي عملتها وحالتها</p>
+      </div>
+      <div class="panel-block">
+        <div style="overflow-x:auto;">
+          <table class="data-tbl">
+            <thead><tr>
+              <th data-i18n="ph_col_code">كود العملية</th>
+              <th data-i18n="ph_col_method">وسيلة الدفع</th>
+              <th data-i18n="ph_col_amount">القيمة</th>
+              <th data-i18n="ph_col_credits">الكريديت</th>
+              <th data-i18n="ph_col_datetime">التاريخ والوقت</th>
+              <th data-i18n="ph_col_status">الحالة</th>
+            </tr></thead>
+            <tbody id="paymentHistoryBody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px;" data-i18n="loading_ellipsis">جاري التحميل...</td></tr></tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -1523,6 +1563,9 @@ const I18N = {
     ct_sim:"اقتباس فقط", ct_both:"اقتباس + ذكاء اصطناعي",
     filters_label:"فلاتر الاقتباس (اختياري)", exclude_bib:"استبعاد المراجع", exclude_quotes:"استبعاد الاقتباسات المنصوصة",
     payment_title:"وسيلة الدفع", pay_auto:"تلقائي", pay_ref:"رقم مرجعي", vf_cash:"فودافون كاش",
+    payment_history_title:"سجل المدفوعات", payment_history_desc:"كل عمليات الشحن اللي عملتها وحالتها",
+    ph_col_code:"كود العملية", ph_col_method:"وسيلة الدفع", ph_col_amount:"القيمة", ph_col_credits:"الكريديت", ph_col_datetime:"التاريخ والوقت", ph_col_status:"الحالة",
+    ph_status_completed:"مكتملة", ph_status_pending:"قيد المراجعة", ph_status_rejected:"مرفوضة", ph_empty:"لسه معملتش أي عملية شحن.",
     txid_label:"رقم العملية (TXID)", txid_placeholder:"الصق TXID هنا بعد التحويل",
     credits_deducted:"كريديت ستُخصم",
     orders_count_suffix:"طلب", f_all:"الكل", f_wait:"معلّق", f_run:"قيد الفحص", f_ok:"مكتمل", f_no:"مرفوض",
@@ -1530,8 +1573,14 @@ const I18N = {
     wallet_daily_credits:"كريديت يومي", wallet_total_done:"طلب مكتمل كليًا",
     ref_program:"برنامج الإحالة — +1 كريديت لكل دعوة ناجحة", copy:"نسخ",
     pg_rows_per_page:"عدد الصفوف",
-    file_req_notice_title:"متطلبات Turnitin لقبول ملفات الفحص", file_req_notice_body:"شروط Turnitin: لتقارير الاقتباس فقط، لا توجد قيود على عدد الصفحات ويدعم النظام جميع اللغات بصيغة DOCX أو PDF. أما إذا كان تقرير الذكاء الاصطناعي مطلوباً، فيشترط رفع ملف DOCX نصي فقط باللغة الإنجليزية أو الإسبانية أو اليابانية، بعدد كلمات يتراوح بين 300 و 30,000 كلمة، مع ضرورة حذف صفحة الغلاف التي تتضمن اسم وشعار الجامعة وكذلك الصور والجداول والمعادلات المعقدة. وفي كافة الأحوال، يجب ألا يتجاوز حجم الملف 100 ميجابايت. الالتزام بهذه الشروط هو مسؤولية الباحث بالكامل، وعدم التقيد بها سيؤدي إلى خصم الرصيد نظراً لاحتساب عملية الفحص تلقائياً.",
-    file_privacy_notice_title:"خصوصية الملفات", file_privacy_notice_body:"خصوصية الملفات: يتم رفع الأبحاث بإعداد \"No Repository\" مفعل دائماً (آمن 100%). ملفاتك آمنه تماماً ولن يتم حفظها أو تخزينها في أي قاعدة بيانات طلابية أو مستودع مؤسسي.",
+    file_req_notice_title:"متطلبات Turnitin لقبول ملفات الفحص",
+    file_req_li1:"شروط Turnitin: لتقارير الاقتباس فقط، لا توجد قيود على عدد الصفحات ويدعم النظام جميع اللغات بصيغة DOCX أو PDF.",
+    file_req_li2:"أما إذا كان تقرير الذكاء الاصطناعي مطلوباً، فيشترط رفع ملف DOCX نصي فقط باللغة الإنجليزية أو الإسبانية أو اليابانية، بعدد كلمات يتراوح بين 300 و 30,000 كلمة، مع ضرورة حذف صفحة الغلاف التي تتضمن اسم وشعار الجامعة وكذلك الصور والجداول والمعادلات المعقدة.",
+    file_req_li3:"وفي كافة الأحوال، يجب ألا يتجاوز حجم الملف 100 ميجابايت.",
+    file_req_li4:"الالتزام بهذه الشروط هو مسؤولية الباحث بالكامل، وعدم التقيد بها سيؤدي إلى خصم الرصيد نظراً لاحتساب عملية الفحص تلقائياً.",
+    file_privacy_notice_title:"خصوصية الملفات",
+    file_privacy_li1:"يتم رفع الأبحاث بإعداد \"No Repository\" مفعل دائماً (آمن 100%).",
+    file_privacy_li2:"ملفاتك آمنه تماماً ولن يتم حفظها أو تخزينها في أي قاعدة بيانات طلابية أو مستودع مؤسسي.",
     faq_q0:"هل البوت يوفر تقارير Turnitin رسمية؟", faq_a0:"نعم، نحن نستخدم واجهات Turnitin Instructor الرسمية مربوطة مباشرة بنظامنا لإصدار تقارير الذكاء الاصطناعي والانتحال.",
     faq_q1:"كيف يعمل هذا البوت؟", faq_a1:"يقوم النظام تلقائيًا بإجراء فحوصات بالتوازي من خلال عدد محدود من الـ Slots، بدون أي تعامل أو اطلاع بشري على الملفات. ويقوم فريق الدعم فقط بتأكيد الدفع ومتابعة العملية لضمان تسليم التقارير بنجاح، خاصة خلال أوقات الضغط.",
     faq_q2:"هل ملفاتي وبياناتي آمنة؟", faq_a2:"نعم بالكامل. ملفاتك لا يتم تخزينها داخل مستودع Turnitin، لذلك تبقى ملكيتك الفكرية محفوظة. جميع عمليات الفحص تعمل بنظام No Repository.",
@@ -1618,6 +1667,9 @@ const I18N = {
     ct_sim:"Similarity only", ct_both:"Similarity + AI",
     filters_label:"Similarity filters (optional)", exclude_bib:"Exclude bibliography", exclude_quotes:"Exclude quoted text",
     payment_title:"Payment method", pay_auto:"Automatic", pay_ref:"Reference number", vf_cash:"Vodafone Cash",
+    payment_history_title:"Payment History", payment_history_desc:"All your top-ups and their status",
+    ph_col_code:"Transaction code", ph_col_method:"Payment method", ph_col_amount:"Amount", ph_col_credits:"Credits", ph_col_datetime:"Date & time", ph_col_status:"Status",
+    ph_status_completed:"Completed", ph_status_pending:"Pending review", ph_status_rejected:"Rejected", ph_empty:"You haven't made any top-ups yet.",
     txid_label:"Transaction ID (TXID)", txid_placeholder:"Paste TXID here after transfer",
     credits_deducted:"credits will be deducted",
     orders_count_suffix:"orders", f_all:"All", f_wait:"Pending", f_run:"Processing", f_ok:"Completed", f_no:"Rejected",
@@ -1625,8 +1677,14 @@ const I18N = {
     wallet_daily_credits:"Daily credits", wallet_total_done:"fully completed orders",
     ref_program:"Referral program — +1 credit per successful invite", copy:"Copy",
     pg_rows_per_page:"Rows per page",
-    file_req_notice_title:"Turnitin requirements for accepted files", file_req_notice_body:"Turnitin requirements: for Similarity-only reports, there is no page limit and the system supports all languages in DOCX or PDF format. If an AI report is required, the file must be a text-only DOCX in English, Spanish, or Japanese, between 300 and 30,000 words, with the cover page (containing the university name/logo) removed, along with images, tables, and complex equations. In all cases, the file size must not exceed 100 MB. Compliance with these requirements is entirely the researcher's responsibility — failing to follow them will still result in a credit deduction, since the check is billed automatically.",
-    file_privacy_notice_title:"File privacy", file_privacy_notice_body:"File privacy: papers are uploaded with \"No Repository\" always enabled (100% safe). Your files are completely secure and will never be saved or stored in any student database or institutional repository.",
+    file_req_notice_title:"Turnitin requirements for accepted files",
+    file_req_li1:"Turnitin requirements: for Similarity-only reports, there is no page limit and the system supports all languages in DOCX or PDF format.",
+    file_req_li2:"If an AI report is required, the file must be a text-only DOCX in English, Spanish, or Japanese, between 300 and 30,000 words, with the cover page (containing the university name/logo) removed, along with images, tables, and complex equations.",
+    file_req_li3:"In all cases, the file size must not exceed 100 MB.",
+    file_req_li4:"Compliance with these requirements is entirely the researcher's responsibility — failing to follow them will still result in a credit deduction, since the check is billed automatically.",
+    file_privacy_notice_title:"File privacy",
+    file_privacy_li1:"File privacy: papers are uploaded with \"No Repository\" always enabled (100% safe).",
+    file_privacy_li2:"Your files are completely secure and will never be saved or stored in any student database or institutional repository.",
     faq_q0:"Is your bot providing official Turnitin reports?", faq_a0:"Yes. We use official Turnitin Instructor APIs integrated with our system to generate AI and Plagiarism reports.",
     faq_q1:"How does this bot work?", faq_a1:"Our system performs automatic checks in parallel through a limited number of slots, with no manual handling of your files. Our support team only supervises the process to confirm payment and ensure successful delivery, especially during high traffic.",
     faq_q2:"Is my data safe?", faq_a2:"Yes. Your files are not stored in the Turnitin repository, so your intellectual property remains yours. All checks are configured in No Repository mode.",
@@ -2726,10 +2784,54 @@ function goTab(tab){
   });
   window.scrollTo({ top: 0, behavior: 'smooth' });
   localStorage.setItem('prokeys-active-tab', tab);
+  if (tab === 'wallet') loadPaymentHistory();
 }
 document.querySelectorAll('.navtab[data-tab]').forEach(el => {
   el.addEventListener('click', () => goTab(el.dataset.tab));
 });
+
+async function loadPaymentHistory(){
+  if (!PROKEYS_USER_ID) return;
+  const tbody = document.getElementById('paymentHistoryBody');
+  try {
+    const { data, error } = await supabaseClient
+      .from('payments')
+      .select('*')
+      .eq('user_id', PROKEYS_USER_ID)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    if (!data || data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px;">${t('ph_empty')}</td></tr>`;
+      return;
+    }
+    const GATEWAY_LABELS = { binance:'Binance Pay', bybit:'Bybit Pay', bep20:'BEP20 / BSC', easykash:'EasyKash', instapay:'InstaPay', vodafone: t('vf_cash') };
+    const STATUS_CLASS = { completed:'ph-status-completed', pending:'ph-status-pending', rejected:'ph-status-rejected' };
+    const STATUS_LABEL = { completed: t('ph_status_completed'), pending: t('ph_status_pending'), rejected: t('ph_status_rejected') };
+    tbody.innerHTML = data.map(p => {
+      // Same code format the admin dashboard uses for this payment, so a
+      // customer reading their history can reference the exact same code
+      // when contacting support — no separate numbering scheme to confuse.
+      const code = 'PAY-' + String(p.id).slice(0, 8).toUpperCase();
+      const dt = new Date(p.created_at);
+      const dateStr = dt.toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : 'en-GB');
+      const timeStr = dt.toLocaleTimeString(currentLang === 'ar' ? 'ar-EG' : 'en-GB', { hour: '2-digit', minute: '2-digit' });
+      const statusClass = STATUS_CLASS[p.status] || 'ph-status-pending';
+      const statusLabel = STATUS_LABEL[p.status] || p.status;
+      return `<tr>
+        <td class="mono">${escapeHtml(code)}</td>
+        <td>${escapeHtml(GATEWAY_LABELS[p.gateway] || p.gateway || '—')}</td>
+        <td>${p.amount != null ? Number(p.amount).toFixed(2) + ' ' + (p.currency || '') : '—'}</td>
+        <td>${p.credits != null ? p.credits : '—'}</td>
+        <td>${dateStr} — ${timeStr}</td>
+        <td><span class="ph-status ${statusClass}">${escapeHtml(statusLabel)}</span></td>
+      </tr>`;
+    }).join('');
+  } catch (err) {
+    console.error('loadPaymentHistory failed:', err);
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--danger);padding:20px;">—</td></tr>`;
+  }
+}
+
 
 // Remember which tab was open and how far scrolled, so a refresh lands
 // back exactly where the customer was instead of jumping to New Check.
@@ -2743,6 +2845,7 @@ function restoreTabAndScroll(){
     document.querySelectorAll('.tabpane').forEach(el => {
       el.style.display = (el.id === 'pane-' + savedTab) ? 'block' : 'none';
     });
+    if (savedTab === 'wallet') loadPaymentHistory();
   }
   const y = _tabScrollPositions[savedTab || 'new-check'] || 0;
   // Content may still be loading/rendering async — try shortly after too.
@@ -4707,6 +4810,16 @@ async function refreshCheckSettings(){
   const { data: sessionData } = await supabaseClient.auth.getSession();
   if (!sessionData?.session) {
     window.location.href = 'index.html';
+    return;
+  }
+  // The session is valid, but must also belong to the SAME user as the
+  // cached id this whole page has been using for every query so far —
+  // otherwise every RLS-scoped operation (order creation, profile
+  // updates) silently targets the wrong user_id and gets rejected.
+  if (sessionData.session.user.id !== PROKEYS_USER_ID) {
+    console.warn('Cached user id did not match the live session — resyncing and reloading.');
+    localStorage.setItem('prokeys-user-id', sessionData.session.user.id);
+    window.location.reload();
   }
 })();
 
