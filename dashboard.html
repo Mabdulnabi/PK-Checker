@@ -2169,7 +2169,7 @@ async function confirmWalletPurchase(){
   const cfg = PAYMENT_DETAILS[gateway];
   const isEgp = cfg?.currency === 'EGP';
   // Amount: EGP gateways pay in EGP (price × exchange rate), USD gateways pay in USD
-  const amountUsd = packPriceNumber(selectedPack); // always in USD internally
+  const amountUsd = selectedPack.price; // true USD price, independent of display currency
   const amountForDb = isEgp ? Math.round(amountUsd * exchangeRate) : amountUsd;
   const credits = selectedPack.credits + (selectedPack.bonus || 0);
 
@@ -2203,7 +2203,8 @@ async function confirmWalletPurchase(){
     // Route these to manual admin review instead of calling a nonexistent
     // endpoint.
     if (!cfg.edge_fn) {
-      await supabaseClient.from('payments').update({ transaction_id: refValue }).eq('id', paymentRow.id);
+      const { error: updErr } = await supabaseClient.from('payments').update({ transaction_id: refValue }).eq('id', paymentRow.id);
+      if (updErr) throw updErr;
       document.getElementById('walletTxidInput').value = '';
       await appAlert(
         currentLang==='ar'
@@ -2259,7 +2260,13 @@ async function confirmWalletPurchase(){
     }
   } catch (err) {
     console.error('confirmWalletPurchase failed:', err);
-    await appAlert(currentLang==='ar' ? 'حدث خطأ أثناء التحقق. حاول مرة أخرى.' : 'Verification error. Please try again.', {icon:'error'});
+    let msg = currentLang==='ar' ? 'حدث خطأ أثناء التحقق. حاول مرة أخرى.' : 'Verification error. Please try again.';
+    if (err && err.code === '23505') {
+      msg = currentLang==='ar' ? 'رقم العملية ده اتسجل قبل كده. لو الدفع اتخصم، تواصل مع الدعم.' : 'This reference number was already used. If you were charged, contact support.';
+    } else if (err && err.message) {
+      msg += ` (${err.message})`;
+    }
+    await appAlert(msg, {icon:'error'});
   } finally {
     confirmBtn.disabled = false;
     confirmBtn.textContent = prevText;
