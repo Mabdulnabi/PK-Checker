@@ -2216,10 +2216,16 @@ function renderPaymentDetails(gateway){
     if(input) { input.style.display = ''; input.placeholder = ar ? cfg.input_ph_ar : cfg.input_ph_en; }
   }
 
-  // Reset the two-step easykash flow + button label whenever the gateway changes
+  // Reset the two-step easykash flow + button label whenever the gateway changes.
+  // Also stop any lingering polling from a previous easykash attempt and
+  // explicitly re-enable the button — otherwise a disabled state set by
+  // easykashStatusUI('polling') would leak forward and stay stuck on every
+  // other gateway's button too.
+  if(gateway !== 'easykash') stopEasykashPolling();
   easykashPendingPaymentId = null;
   const confirmBtn = document.querySelector('#walletPayBlock .btn-gold');
   if(confirmBtn){
+    confirmBtn.disabled = false;
     confirmBtn.textContent = cfg.dynamic
       ? (ar ? 'ادفع الآن' : 'Pay Now')
       : (ar ? 'تأكيد الشراء' : 'Confirm Purchase');
