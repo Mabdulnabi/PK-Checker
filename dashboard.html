@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Pro Keys — User Dashboard</title>
+<title>PK Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
@@ -977,7 +977,6 @@
         </div>
         <ul>
           <li data-i18n="file_privacy_li1">يتم رفع الأبحاث بإعداد "No Repository" مفعل دائماً (آمن 100%).</li>
-          <li data-i18n="file_privacy_li2">ملفاتك آمنه تماماً ولن يتم حفظها أو تخزينها في أي قاعدة بيانات طلابية أو مستودع مؤسسي.</li>
         </ul>
       </div>
 
@@ -1226,10 +1225,11 @@
               <th data-i18n="ph_col_method">وسيلة الدفع</th>
               <th data-i18n="ph_col_amount">القيمة</th>
               <th data-i18n="ph_col_credits">الكريديت</th>
+              <th data-i18n="ph_col_pack">اسم الباقة</th>
               <th data-i18n="ph_col_datetime">التاريخ والوقت</th>
               <th data-i18n="ph_col_status">الحالة</th>
             </tr></thead>
-            <tbody id="paymentHistoryBody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px;" data-i18n="loading_ellipsis">جاري التحميل...</td></tr></tbody>
+            <tbody id="paymentHistoryBody"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px;" data-i18n="loading_ellipsis">جاري التحميل...</td></tr></tbody>
           </table>
         </div>
         <div id="paymentHistoryPagination"></div>
@@ -1601,7 +1601,7 @@ const I18N = {
     filters_label:"فلاتر الاقتباس (اختياري)", exclude_bib:"استبعاد المراجع", exclude_quotes:"استبعاد الاقتباسات المنصوصة",
     payment_title:"وسيلة الدفع", pay_auto:"تلقائي", pay_ref:"رقم مرجعي", vf_cash:"فودافون كاش",
     payment_history_title:"سجل المدفوعات", payment_history_desc:"كل عمليات الشحن اللي عملتها وحالتها",
-    ph_col_code:"كود العملية", ph_col_method:"وسيلة الدفع", ph_col_amount:"القيمة", ph_col_credits:"الكريديت", ph_col_datetime:"التاريخ والوقت", ph_col_status:"الحالة",
+    ph_col_code:"كود العملية", ph_col_method:"وسيلة الدفع", ph_col_amount:"القيمة", ph_col_credits:"الكريديت", ph_col_pack:"اسم الباقة", ph_col_datetime:"التاريخ والوقت", ph_col_status:"الحالة",
     ph_status_completed:"مكتملة", ph_status_pending:"قيد المراجعة", ph_status_rejected:"مرفوضة", ph_empty:"لسه معملتش أي عملية شحن.",
     txid_label:"رقم العملية (TXID)", txid_placeholder:"الصق TXID هنا بعد التحويل",
     credits_deducted:"كريديت ستُخصم",
@@ -1705,7 +1705,7 @@ const I18N = {
     filters_label:"Similarity filters (optional)", exclude_bib:"Exclude bibliography", exclude_quotes:"Exclude quoted text",
     payment_title:"Payment method", pay_auto:"Automatic", pay_ref:"Reference number", vf_cash:"Vodafone Cash",
     payment_history_title:"Payment History", payment_history_desc:"All your top-ups and their status",
-    ph_col_code:"Transaction code", ph_col_method:"Payment method", ph_col_amount:"Amount", ph_col_credits:"Credits", ph_col_datetime:"Date & time", ph_col_status:"Status",
+    ph_col_code:"Transaction code", ph_col_method:"Payment method", ph_col_amount:"Amount", ph_col_credits:"Credits", ph_col_pack:"Package", ph_col_datetime:"Date & time", ph_col_status:"Status",
     ph_status_completed:"Completed", ph_status_pending:"Pending review", ph_status_rejected:"Rejected", ph_empty:"You haven't made any top-ups yet.",
     txid_label:"Transaction ID (TXID)", txid_placeholder:"Paste TXID here after transfer",
     credits_deducted:"credits will be deducted",
@@ -2600,7 +2600,7 @@ function renderInbox(){
             return `
             <div class="inbox-reply ${r.from==='admin'?'from-admin':'from-user'}">
               <div class="ir-av">${avatarHtml}</div>
-              <div class="ir-text"><b style="font-size:11px;margin-bottom:6px;display:block;">${escapeHtml(titleLabel)}</b>${escapeHtml(r.text)}${renderTicketAttachment(r.attachmentUrl, r.attachmentName)}</div>
+              <div class="ir-text"><b style="font-size:11px;margin-bottom:6px;display:block;">${escapeHtml(titleLabel)}</b>${escapeHtml(r.text)}${r.editedAt ? ` <i style="font-size:9px;opacity:.6;">(${currentLang==='ar'?'معدّلة':'edited'})</i>` : ''}${renderTicketAttachment(r.attachmentUrl, r.attachmentName)}</div>
             </div>
           `;}).join('') : ''}
           ${tk.status === 'closed' ? `
@@ -2751,7 +2751,7 @@ async function submitTicket(){
 async function loadTickets(){
   const { data, error } = await supabaseClient
     .from('support_tickets')
-    .select('*, support_ticket_replies(id, sender, message, created_at, attachment_url, attachment_name, admin_id)')
+    .select('*, support_ticket_replies(id, sender, message, created_at, attachment_url, attachment_name, admin_id, edited_at)')
     .eq('user_id', PROKEYS_USER_ID)
     .order('created_at', { ascending: false })
     .order('created_at', { foreignTable: 'support_ticket_replies', ascending: true });
@@ -2782,7 +2782,7 @@ async function loadTickets(){
       attachmentUrl: row.attachment_url,
       replies: [
         { from: 'user', text: row.description, attachmentUrl: row.attachment_url, attachmentName: row.attachment_name },
-        ...replies.map(r => ({ from: r.sender, text: r.message, attachmentUrl: r.attachment_url, attachmentName: r.attachment_name, adminId: r.admin_id })),
+        ...replies.map(r => ({ id: r.id, from: r.sender, text: r.message, attachmentUrl: r.attachment_url, attachmentName: r.attachment_name, adminId: r.admin_id, editedAt: r.edited_at })),
       ],
     };
   });
@@ -3045,14 +3045,32 @@ async function loadPaymentHistory(){
     renderPaymentHistory();
   } catch (err) {
     console.error('loadPaymentHistory failed:', err);
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--danger);padding:20px;">—</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--danger);padding:20px;">—</td></tr>`;
   }
+}
+// Converts a payment's stored amount (in whatever currency it was actually
+// charged in, e.g. USD for Binance, EGP for EasyKash) into the currency the
+// customer currently has selected in the wallet toggle, so switching the
+// currency toggle also updates this table instead of only the pack prices.
+function formatPaymentAmount(amount, storedCurrency){
+  const src = (storedCurrency || 'USD').toUpperCase();
+  let valueInDisplayCurrency;
+  if (src === currentCurrency) {
+    valueInDisplayCurrency = Number(amount);
+  } else if (src === 'USD' && currentCurrency === 'EGP') {
+    valueInDisplayCurrency = Number(amount) * exchangeRate;
+  } else if (src === 'EGP' && currentCurrency === 'USD') {
+    valueInDisplayCurrency = Number(amount) / exchangeRate;
+  } else {
+    valueInDisplayCurrency = Number(amount);
+  }
+  return valueInDisplayCurrency.toFixed(2) + ' ' + currencyLabel();
 }
 function renderPaymentHistory(){
   const tbody = document.getElementById('paymentHistoryBody');
   if (!tbody) return;
   if (paymentHistoryList.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px;">${t('ph_empty')}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px;">${t('ph_empty')}</td></tr>`;
     document.getElementById('paymentHistoryPagination').innerHTML = '';
     return;
   }
@@ -3073,8 +3091,9 @@ function renderPaymentHistory(){
     return `<tr>
       <td class="mono">${escapeHtml(code)}</td>
       <td>${escapeHtml(GATEWAY_LABELS[p.gateway] || p.gateway || '—')}</td>
-      <td>${p.amount != null ? Number(p.amount).toFixed(2) + ' ' + (p.currency || '') : '—'}</td>
+      <td>${p.amount != null ? formatPaymentAmount(p.amount, p.currency) : '—'}</td>
       <td>${p.credits != null ? p.credits : '—'}</td>
+      <td>${p.pack_id ? escapeHtml(packName(p.pack_id)) : '—'}</td>
       <td>${dateStr} — ${timeStr}</td>
       <td><span class="ph-status ${statusClass}">${escapeHtml(statusLabel)}</span></td>
     </tr>`;
@@ -3485,14 +3504,23 @@ function updateAdminOnlineUI(state){
   const dot = document.getElementById('chatStatusDot');
   const text = document.getElementById('chatStatusText');
   const nameEl = document.getElementById('chatAdminName');
+  const avEl = document.getElementById('chatAdminAv');
   if (onlineAdmins.length > 0) {
     dot.style.display = 'inline-block';
     text.textContent = t('chat_online');
-    nameEl.textContent = onlineAdmins[0].name || 'Pro Keys Support';
+    const a = onlineAdmins[0];
+    const label = a.display_title || a.name || 'Pro Keys Support';
+    nameEl.textContent = label;
+    if (avEl) {
+      avEl.innerHTML = a.avatar_url
+        ? `<img src="${escapeHtml(a.avatar_url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+        : escapeHtml(label.charAt(0));
+    }
   } else {
     dot.style.display = 'none';
     text.textContent = t('chat_offline');
     nameEl.textContent = 'Pro Keys Support';
+    if (avEl) avEl.innerHTML = 'S';
   }
 }
 
@@ -5073,6 +5101,19 @@ async function refreshCheckSettings(){
         await loadWallet();
         if (typeof renderKpis === 'function') renderKpis();
         if (typeof updatePrice === 'function') updatePrice();
+      })
+      .subscribe();
+  }
+  // Instant ticket reply updates — admin replies, edits, and deletes show
+  // immediately instead of waiting up to 15s for the next poll. No
+  // user_id column exists on support_ticket_replies to filter server-side
+  // (it lives on the parent ticket), so we just refetch — the query is
+  // already scoped to this user and reply volume is low.
+  if (PROKEYS_USER_ID) {
+    supabaseClient
+      .channel('ticket-replies-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'support_ticket_replies' }, () => {
+        loadTickets();
       })
       .subscribe();
   }

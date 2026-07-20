@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pro Keys — لوحة التحكم</title>
+<title>PK Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900;1000&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1486,7 +1486,7 @@ function trackPresence(){
   });
   presenceChannel.subscribe(async (status) => {
     if (status === 'SUBSCRIBED') {
-      await presenceChannel.track({ name: currentAdmin.name, admin_id: currentAdmin.id });
+      await presenceChannel.track({ name: currentAdmin.name, admin_id: currentAdmin.id, avatar_url: currentAdmin.avatarUrl || null, display_title: currentAdmin.displayTitle || null });
     }
   });
 }
@@ -2038,7 +2038,7 @@ const CATEGORY_LABEL = { payment: '💳 دفع', check: '📄 فحص', general: 
 async function loadTickets(){
   const { data, error } = await supabaseClient
     .from('support_tickets')
-    .select('*, support_ticket_replies(id, sender, message, created_at, attachment_url, attachment_name)')
+    .select('*, support_ticket_replies(id, sender, message, created_at, attachment_url, attachment_name, edited_at)')
     .order('created_at', { ascending: false });
   if (error) { console.error('loadTickets failed:', error); return; }
   tickets = (data || []).map(row => ({
@@ -2133,8 +2133,38 @@ function loadTicketThread(id){
   const replies = (tk.support_ticket_replies || []).slice().sort((a,b)=> new Date(a.created_at) - new Date(b.created_at));
   const detail = document.getElementById('tkDetail');
   detail.innerHTML = `<div class="tk-detail-msg">${escapeHtml(tk.description || '')}${renderTicketAttachment(tk.attachment_url, tk.attachment_name)}</div>` +
-    replies.map(r => `<div class="tk-reply from-${r.sender}">${escapeHtml(r.message || '')}${renderTicketAttachment(r.attachment_url, r.attachment_name)}</div>`).join('');
+    replies.map(r => {
+      // Only the admin's own text replies are editable/deletable (file
+      // attachments left as-is, customer replies never editable) — same
+      // rule as the live chat controls.
+      const controls = (r.sender === 'admin' && !r.attachment_name)
+        ? `<span class="tk-reply-controls" style="display:inline-flex;gap:5px;margin-inline-start:6px;opacity:.6;">
+            <span style="cursor:pointer;font-size:10px;" onclick="startEditTicketReply('${r.id}')" title="تعديل">✎</span>
+            <span style="cursor:pointer;font-size:10px;" onclick="deleteTicketReply('${r.id}')" title="حذف">🗑</span>
+          </span>`
+        : '';
+      return `<div class="tk-reply from-${r.sender}" id="tkreply-${r.id}"><span id="tkreply-text-${r.id}">${escapeHtml(r.message || '')}${r.edited_at ? ` <i style="font-size:9px;opacity:.6;">(معدّلة)</i>` : ''}</span>${controls}${renderTicketAttachment(r.attachment_url, r.attachment_name)}</div>`;
+    }).join('');
   detail.scrollTop = detail.scrollHeight;
+}
+let editingTicketReplyId = null;
+function startEditTicketReply(replyId){
+  const tk = tickets.find(t => t.id === openTicketId);
+  const reply = tk?.support_ticket_replies?.find(r => r.id === replyId);
+  if (!reply) return;
+  editingTicketReplyId = replyId;
+  const input = document.getElementById('tkReplyInput');
+  input.value = reply.message || '';
+  input.focus();
+}
+async function deleteTicketReply(replyId){
+  const confirmed = await adminConfirm('هتحذف الرد ده نهائيًا (هيتحذف عند العميل كمان). متأكد؟', {icon:'⚠️', danger:true, confirmLabel:'حذف'});
+  if (!confirmed) return;
+  const { error } = await supabaseClient.from('support_ticket_replies').delete().eq('id', replyId);
+  if (error) { await adminAlert('فشل الحذف: ' + error.message, {icon:'❌', danger:true}); return; }
+  const tk = tickets.find(t => t.id === openTicketId);
+  if (tk) tk.support_ticket_replies = (tk.support_ticket_replies || []).filter(r => r.id !== replyId);
+  loadTicketThread(openTicketId);
 }
 
 let tkAttachedFile = null;
@@ -2160,6 +2190,19 @@ async function sendTicketAdminReply(){
   const btn = document.getElementById('tkSendBtn');
   input.disabled = true; btn.disabled = true;
   try {
+    if (editingTicketReplyId) {
+      const { error } = await supabaseClient.from('support_ticket_replies')
+        .update({ message: val, edited_at: new Date().toISOString() })
+        .eq('id', editingTicketReplyId);
+      if (error) throw error;
+      const tk = tickets.find(t => t.id === openTicketId);
+      const reply = tk?.support_ticket_replies?.find(r => r.id === editingTicketReplyId);
+      if (reply) { reply.message = val; reply.edited_at = new Date().toISOString(); }
+      loadTicketThread(openTicketId);
+      editingTicketReplyId = null;
+      input.value = '';
+      return;
+    }
     let attachmentUrl = null, attachmentName = null;
     if (tkAttachedFile) {
       const path = `${openTicketId}/${Date.now()}_${tkAttachedFile.name}`;
