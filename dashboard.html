@@ -2184,17 +2184,15 @@ function renderPaymentDetails(gateway){
   }
 
   // UID label + value
-  const uidRow = document.getElementById('walletUidValue')?.closest('div');
   const uidLabel = document.getElementById('walletUidLabel');
   const uidValue = document.getElementById('walletUidValue');
   if(cfg.dynamic){
-    if(uidLabel) uidLabel.textContent = '';
-    if(uidValue) { uidValue.innerHTML = ''; delete uidValue.dataset.uid; }
-    if(uidRow) uidRow.style.display = 'none';
+    if(uidLabel) uidLabel.style.display = 'none';
+    if(uidValue) { uidValue.style.display = 'none'; uidValue.innerHTML = ''; delete uidValue.dataset.uid; }
   } else {
-    if(uidRow) uidRow.style.display = '';
-    if(uidLabel) uidLabel.textContent = ar ? cfg.uid_label_ar : cfg.uid_label_en;
+    if(uidLabel) { uidLabel.style.display = ''; uidLabel.textContent = ar ? cfg.uid_label_ar : cfg.uid_label_en; }
     if(uidValue) {
+      uidValue.style.display = 'block';
       uidValue.dataset.uid = cfg.uid;
       uidValue.innerHTML = escapeHtml(cfg.uid) + ' ' + ICONS.wal_copy;
     }
@@ -2207,7 +2205,6 @@ function renderPaymentDetails(gateway){
   // Input label + placeholder
   const inputLabel = document.getElementById('walletInputLabel');
   const input = document.getElementById('walletTxidInput');
-  const inputRow = input?.closest('div') || input;
   if(cfg.dynamic){
     if(inputLabel) inputLabel.style.display = 'none';
     if(input) input.style.display = 'none';
