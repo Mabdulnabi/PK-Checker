@@ -2012,7 +2012,10 @@ async function loadPaymentMethodsConfig(){
           input_label_en: m.uid_label_en || base.input_label_en,
           instructions_ar: m.instructions_ar || base.instructions_ar,
           instructions_en: m.instructions_en || base.instructions_en,
-          qr: m.qr_url || base.qr,
+          // DB is authoritative for qr now that every built-in gateway has
+          // a row: an explicit NULL (admin deleted it) must stay empty, not
+          // silently fall back to the hardcoded default image below.
+          qr: m.qr_url || null,
           qrSize: m.qr_size || 120,
         };
       }
