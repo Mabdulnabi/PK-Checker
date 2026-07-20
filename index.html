@@ -438,14 +438,18 @@ function applyCustomIcons(){
     const url = icons[key];
     const overridePx = sizes[key];
     const size = (overridePx ? overridePx + 'px' : null) || ICON_SIZE_MAP[key] || '18px';
+    const isLogo = key.indexOf('logo')===0 || key==='site_favicon';
     if (url) {
       if (el.tagName === 'IMG') {
         el.src = url;
-        el.style.width = size; el.style.height = size;
+        if (isLogo) { el.style.height = size; el.style.width = 'auto'; }
+        else { el.style.width = size; el.style.height = size; }
       } else {
         const img = document.createElement('img');
         img.src = url; img.alt = key;
-        img.style.cssText = `width:${size};height:${size};object-fit:contain;flex:none;display:inline-block;vertical-align:middle;border-radius:6px;`;
+        img.style.cssText = isLogo
+          ? `height:${size};width:auto;object-fit:contain;flex:none;display:inline-block;vertical-align:middle;border-radius:6px;`
+          : `width:${size};height:${size};object-fit:contain;flex:none;display:inline-block;vertical-align:middle;border-radius:6px;`;
         el.replaceWith(img);
       }
     } else if (overridePx) {
