@@ -180,6 +180,8 @@
   .badge-ok .dot{background:var(--ok);}
   .badge-no{background:var(--danger-wash);color:var(--danger);}
   .badge-no .dot{background:var(--danger);}
+  select.status-dd{border:none;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:9.5px;padding:3px 6px;border-radius:20px;font-weight:600;white-space:nowrap;-webkit-appearance:none;appearance:none;}
+  html[lang="ar"] select.status-dd{font-family:'Cairo',sans-serif;}
   .link-cell{display:flex;align-items:center;gap:5px;}
   .link-cell a{color:var(--blue-deep);text-decoration:none;font-size:11px;}
   .edit-link-btn{border:none;background:none;cursor:pointer;color:var(--muted);font-size:12px;padding:2px;}
@@ -633,7 +635,7 @@
           <div style="overflow-x:auto;">
             <table class="tbl">
               <thead><tr>
-                <th></th><th data-i18n="th_order">رقم الطلب</th><th data-i18n="th_user">المستخدم</th><th class="file-col" data-i18n="th_file">الملف</th><th data-i18n="th_sent">وقت الإرسال</th><th data-i18n="th_source">Source</th><th data-i18n="manual_queue_action">الإجراء</th>
+                <th></th><th data-i18n="th_order">رقم الطلب</th><th data-i18n="th_user">المستخدم</th><th class="file-col" data-i18n="th_file">الملف</th><th data-i18n="th_sent">وقت الإرسال</th><th data-i18n="th_source">Source</th><th data-i18n="th_status">الحالة</th><th data-i18n="manual_queue_action">الإجراء</th>
               </tr></thead>
               <tbody id="manualQueueBody"></tbody>
             </table>
@@ -2631,6 +2633,7 @@ function renderManualQueue(){
       <td class="file-col">${escapeHtml(o.file_name || '—')}<br>${checkTypeBadge(o.check_type)}${filterBadges(o)}</td>
       <td style="font-size:11px;color:var(--muted);">${formatDate(o.submitted_at)}</td>
       <td>${sourceCell}</td>
+      <td>${statusDropdown(o)}</td>
       <td>${actionCell}</td>
     </tr>`;
   }).join('');
@@ -2751,6 +2754,38 @@ async function openSourceFile(orderId){
 }
 
 /* ---------------- HELPERS ---------------- */
+const ORDER_STATUS_OPTIONS = ['floating','uploading','pending','processing','completed','error','failed_invalid','rejected'];
+function statusDropdown(o){
+  const cls = ORDER_BADGE_CLASS[o.status] || 'badge-wait';
+  const opts = ORDER_STATUS_OPTIONS.map(s =>
+    `<option value="${s}" ${s===o.status?'selected':''}>${escapeHtml(t(ORDER_STATUS_KEY[s]) || s)}</option>`
+  ).join('');
+  return `<select class="status-dd badge ${cls}" onchange="changeOrderStatus('${o.id}', this.value)">${opts}</select>`;
+}
+async function changeOrderStatus(orderId, newStatus){
+  const o = allOrders.find(x => x.id === orderId);
+  const prevStatus = o?.status;
+  if (!o || newStatus === prevStatus) return;
+
+  let errorReason = o.error_reason;
+  if (newStatus === 'rejected' || newStatus === 'error' || newStatus === 'failed_invalid') {
+    const reason = await adminPrompt('سبب الرفض/الخطأ (اختياري):', o.error_reason || '');
+    if (reason === null) { renderOrdersTable(); return; } // cancelled — revert dropdown to old value
+    errorReason = reason;
+  }
+
+  const updates = { status: newStatus, error_reason: errorReason || null, updated_at: new Date().toISOString() };
+  if (newStatus === 'completed' && !o.completed_at) updates.completed_at = new Date().toISOString();
+
+  const { error } = await supabaseClient.from('orders').update(updates).eq('id', orderId);
+  if (error) { await adminAlert('تعذر تغيير الحالة: ' + error.message, {icon:'❌', danger:true}); renderOrdersTable(); return; }
+
+  Object.assign(o, updates);
+  const p = profilesByUserId[o.user_id];
+  await logAdminActivity('order_status_change', o.user_id || null, p ? `PK${formatPkNumber(p.pk_number)}` : '', `تغيير حالة طلب ${o.display_id || orderId.slice(0,8)} من ${prevStatus} إلى ${newStatus}`);
+  renderOrdersTable();
+  renderProblemOrdersList();
+}
 function checkTypeBadge(ct){
   if (!ct) return '';
   const map = {
