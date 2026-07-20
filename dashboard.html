@@ -2238,49 +2238,110 @@ function copyPaymentUid(){
   });
 }
 
+const EASYKASH_LS_KEY = 'prokeys-easykash-pending-payment';
 let easykashPendingPaymentId = null;
+let easykashPollTimer = null;
+let easykashPollTimeout = null;
+
+function easykashStatusUI(state){
+  const confirmBtn = document.querySelector('#walletPayBlock .btn-gold');
+  if(!confirmBtn) return;
+  const ar = currentLang === 'ar';
+  if(state === 'polling'){
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = ar ? '⏳ في انتظار تأكيد الدفع...' : '⏳ Waiting for payment confirmation...';
+  } else if(state === 'timeout'){
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = ar ? 'إعادة المحاولة' : 'Retry';
+  } else if(state === 'idle'){
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = ar ? 'ادفع الآن' : 'Pay Now';
+  }
+}
+
+function stopEasykashPolling(){
+  if(easykashPollTimer){ clearInterval(easykashPollTimer); easykashPollTimer = null; }
+  if(easykashPollTimeout){ clearTimeout(easykashPollTimeout); easykashPollTimeout = null; }
+}
+
+function startEasykashPolling(paymentId){
+  localStorage.setItem(EASYKASH_LS_KEY, paymentId);
+  easykashPendingPaymentId = paymentId;
+  stopEasykashPolling();
+  easykashStatusUI('polling');
+  checkEasykashPayment(paymentId); // immediate check
+  easykashPollTimer = setInterval(()=>checkEasykashPayment(paymentId), 5000);
+  easykashPollTimeout = setTimeout(()=>{
+    stopEasykashPolling();
+    easykashStatusUI('timeout');
+  }, 15 * 60 * 1000); // give up nagging after 15min, row stays pending for manual admin review
+}
+
+async function checkEasykashPayment(paymentId){
+  try{
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if(!session) return;
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/verify-easykash`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ payment_id: paymentId }),
+    });
+    const json = await res.json();
+
+    if(json.success && json.verified){
+      stopEasykashPolling();
+      localStorage.removeItem(EASYKASH_LS_KEY);
+      easykashPendingPaymentId = null;
+      userBalance = json.newBalance ?? userBalance;
+      renderKpis();
+      const ar = currentLang === 'ar';
+      easykashStatusUI('idle');
+      await appAlert(ar ? '✅ تم تأكيد الدفع وشحن رصيدك!' : '✅ Payment confirmed and wallet credited!', {icon:'success'});
+      selectedPack = null;
+      const payBlock = document.getElementById('walletPayBlock');
+      if(payBlock) payBlock.style.display = 'none';
+      loadPaymentHistory?.();
+    } else if(json.success === false && json.alreadyProcessed){
+      // Someone else already confirmed this row (e.g. admin) — stop nagging.
+      stopEasykashPolling();
+      localStorage.removeItem(EASYKASH_LS_KEY);
+      easykashPendingPaymentId = null;
+      easykashStatusUI('idle');
+    }
+    // else: not verified yet (still pending / not found) — keep polling silently, no error shown
+  }catch(e){
+    // network hiccup — keep polling, don't bother the user
+  }
+}
+
+// Resume polling automatically if the user reloads, or opens the site in a
+// new tab, while a payment is still pending.
+function resumeEasykashPollingFromStorage(){
+  const pid = localStorage.getItem(EASYKASH_LS_KEY);
+  if(pid) startEasykashPolling(pid);
+}
+
+// If EasyKash redirected the payment tab back here, just close it — the
+// original tab is already polling for confirmation, so this tab has no job.
+(function closeEasykashReturnTab(){
+  if(/[?&]easykash_return=1/.test(window.location.search)){
+    try{ window.close(); }catch(e){}
+    setTimeout(()=>{ window.location.href = window.location.pathname; }, 400);
+  }
+})();
+
 async function handleDynamicGatewayPurchase(gateway, cfg){
   const ar = currentLang === 'ar';
   const confirmBtn = document.querySelector('#walletPayBlock .btn-gold');
   const prevText = confirmBtn.textContent;
 
-  // ── Step 2: already generated a link, buyer is back to confirm ──
+  // Already polling for this gateway — a click here just forces an immediate re-check.
   if(easykashPendingPaymentId){
-    confirmBtn.disabled = true;
-    confirmBtn.textContent = ar ? 'جاري التحقق...' : 'Verifying...';
-    try{
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/${cfg.edge_fn}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-        body: JSON.stringify({ payment_id: easykashPendingPaymentId }),
-      });
-      const json = await res.json();
-      if(!res.ok || !json.success) throw new Error(json.error || 'Verification failed');
-
-      if(json.verified){
-        easykashPendingPaymentId = null;
-        userBalance = json.newBalance ?? userBalance;
-        renderKpis();
-        await appAlert(ar ? '✅ تم تأكيد الدفع وشحن رصيدك!' : '✅ Payment confirmed and wallet credited!', {icon:'success'});
-        confirmBtn.textContent = ar ? 'ادفع الآن' : 'Pay Now';
-        selectedPack = null;
-        document.getElementById('walletPayBlock').style.display = 'none';
-        loadPaymentHistory?.();
-      } else {
-        await appAlert(ar ? 'لسه مش لاقيين الدفع. اتأكد إنك دفعت المبلغ كامل، واستنى شوية وجرب تاني.' : "We can't find your payment yet. Make sure you paid the full amount, wait a bit, and try again.", {icon:'warning'});
-        confirmBtn.textContent = ar ? 'تأكيد الدفع' : 'Confirm Payment';
-      }
-    }catch(e){
-      await appAlert(ar ? 'حصل خطأ أثناء التحقق، جرب تاني.' : 'Something went wrong verifying payment, please try again.', {icon:'error'});
-      confirmBtn.textContent = ar ? 'تأكيد الدفع' : 'Confirm Payment';
-    }finally{
-      confirmBtn.disabled = false;
-    }
+    checkEasykashPayment(easykashPendingPaymentId);
     return;
   }
 
-  // ── Step 1: create pending payment row + generate per-order pay link ──
+  // Create pending payment row + generate per-order pay link
   const isEgp = cfg.currency === 'EGP';
   const amountUsd = selectedPack.price;
   const amountForDb = isEgp ? Math.round(amountUsd * exchangeRate) : amountUsd;
@@ -2316,12 +2377,10 @@ async function handleDynamicGatewayPurchase(gateway, cfg){
     if(!res.ok || !json.success || !json.payUrl) throw new Error(json.error || 'Could not create payment link');
 
     window.open(json.payUrl, '_blank', 'noopener');
-    easykashPendingPaymentId = paymentRow.id;
-    confirmBtn.textContent = ar ? 'تأكيد الدفع' : 'Confirm Payment';
+    startEasykashPolling(paymentRow.id); // begins auto-checking every 5s, no button needed
   }catch(e){
     await appAlert(ar ? 'حصل خطأ أثناء تجهيز رابط الدفع، جرب تاني.' : 'Something went wrong creating the payment link, please try again.', {icon:'error'});
     confirmBtn.textContent = prevText;
-  }finally{
     confirmBtn.disabled = false;
   }
 }
@@ -4690,6 +4749,7 @@ function renderKpis(){
 }
 renderKpis();
 renderOrders();
+resumeEasykashPollingFromStorage();
 
 // ===== LOAD REAL DATA FROM SUPABASE =====
 async function loadUserProfile(){
