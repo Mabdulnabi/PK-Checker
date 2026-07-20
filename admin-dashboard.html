@@ -525,13 +525,13 @@
           </label>
         </div>
       </div>
-      <div class="side-foot">
-        <div class="status-line" style="cursor:pointer;" onclick="openAdminProfilePopup()">
-          <span class="d" id="sideAdminAvatar" style="width:20px;height:20px;border-radius:50%;background:var(--blue-wash);color:var(--blue-deep);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;overflow:hidden;">—</span>
-          <span id="sideAdminName">—</span>
-        </div>
-        <div class="logout-line" data-i18n="logout" onclick="handleLogout()">تسجيل الخروج</div>
+      <div class="side-foot" style="display:flex;align-items:center;justify-content:center;gap:14px;">
+        <span id="sideAdminAvatar" onclick="openAdminProfilePopup()" title="" data-i18n-title="user_profile" style="cursor:pointer;width:32px;height:32px;border-radius:50%;background:var(--blue-wash);color:var(--blue-deep);display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;overflow:hidden;flex:none;">—</span>
+        <span onclick="handleLogout()" title="" data-i18n-title="logout" style="cursor:pointer;width:32px;height:32px;border-radius:50%;background:var(--danger-wash);color:var(--danger);display:inline-flex;align-items:center;justify-content:center;flex:none;">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        </span>
       </div>
+      <div id="sideAdminName" style="display:none;"></div>
     </div>
 
     <!-- ============ MAIN ============ -->

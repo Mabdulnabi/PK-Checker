@@ -2593,9 +2593,11 @@ function renderInbox(){
         <div class="inbox-details">
           ${tk.replies ? tk.replies.map(r => {
             const adminProfile = r.from === 'admin' ? (adminProfilesById[r.adminId] || {}) : null;
-            // Deliberately generic here (no photo) — the admin's real photo
-            // is reserved for live chat messages only, not tickets.
-            const avatarHtml = r.from === 'admin' ? '🎧' : currentUser.name.charAt(0);
+            const avatarUrl = r.from === 'admin' ? adminProfile.avatar_url : currentUser.avatarUrl;
+            const initial = r.from === 'admin' ? (adminProfile.display_title || adminProfile.name || 'S').charAt(0) : (currentUser.name || '?').charAt(0);
+            const avatarHtml = avatarUrl
+              ? `<img src="${escapeHtml(avatarUrl)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+              : escapeHtml(initial);
             const titleLabel = r.from === 'admin' ? (adminProfile.display_title || (currentLang==='ar'?'فريق الدعم':'Support Team')) : currentUser.name;
             return `
             <div class="inbox-reply ${r.from==='admin'?'from-admin':'from-user'}">
@@ -4848,6 +4850,7 @@ async function loadUserProfile(){
       currentUser.avatarUrl = data.avatar_url;
       renderUserAvatar(document.getElementById('userAvatar'));
       renderUserAvatar(document.getElementById('userAvatarLg'));
+      if (typeof renderInbox === 'function' && document.getElementById('inboxList')) renderInbox();
     }
     // pk_number is a real sequential column from Postgres (BIGSERIAL) — see
     // add_pk_number.sql. PostgREST serializes bigint columns as strings in
