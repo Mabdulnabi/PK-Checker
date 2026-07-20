@@ -99,6 +99,7 @@
   .chip.on{background:var(--navy);color:#fff;border-color:var(--navy);}
   .search-box{flex:1;min-width:180px;padding:8px 14px;border-radius:20px;border:1.5px solid var(--paper-line);font-family:'Cairo',sans-serif;font-size:12.5px;}
   table.tbl{width:100%;border-collapse:collapse;}
+  html[lang="ar"] table.tbl, html[lang="ar"] table.tbl *{font-family:'Cairo',sans-serif !important;}
   table.tbl th{text-align:center;font-size:10.5px;color:var(--muted);font-weight:700;padding:0 8px 10px;border-bottom:1px solid var(--paper-line);white-space:nowrap;}
   table.tbl th.file-col,table.tbl td.file-col{text-align:right;}
   html[dir="ltr"] table.tbl th.file-col,html[dir="ltr"] table.tbl td.file-col{text-align:left;}
@@ -2659,9 +2660,23 @@ async function editOrderLink(orderId, field){
 
 async function openSourceFile(orderId){
   const order = allOrders.find(o => o.id === orderId);
-  if (!order || !order.source_file_path) { await adminAlert('الملف غير متاح (اتحذف بعد 24 ساعة أو لسه بيترفع).', {icon:'⚠️'}); return; }
+  if (!order || !order.source_file_path) { await adminAlert('الملف غير متاح (اتحذف بعد 48 ساعة أو لسه بيترفع).', {icon:'⚠️'}); return; }
   const { data, error } = await supabaseClient.storage.from('order-source-files').createSignedUrl(order.source_file_path, 60);
-  if (error) { await adminAlert('تعذر فتح الملف: ' + error.message, {icon:'❌'}); return; }
+  if (error) {
+    // "Object not found" means the file is already gone from storage (e.g.
+    // deleted by the 48h cleanup job or manually) but this order's DB row
+    // still references the old path — clear the stale reference instead
+    // of leaving a dead link the admin will hit again on every visit.
+    if (/not.?found/i.test(error.message || '')) {
+      await supabaseClient.from('orders').update({ source_file_path: null }).eq('id', orderId);
+      order.source_file_path = null;
+      renderOrdersTable();
+      await adminAlert('الملف ده اتحذف بالفعل من التخزين (على الأغلب بعد 48 ساعة). الرابط اتشال من الجدول.', {icon:'⚠️'});
+      return;
+    }
+    await adminAlert('تعذر فتح الملف: ' + error.message, {icon:'❌'});
+    return;
+  }
   window.open(data.signedUrl, '_blank');
 }
 
@@ -2679,9 +2694,9 @@ function checkTypeBadge(ct){
 }
 function filterBadges(o){
   const tags = [];
-  if (o.exclude_bibliography || o.excludeBibliography) tags.push('<span class="badge badge-wait" style="margin-top:2px;font-size:8px;padding:2px 5px;">−مراجع</span>');
-  if (o.exclude_quotes       || o.excludeQuotes)       tags.push('<span class="badge badge-wait" style="margin-top:2px;font-size:8px;padding:2px 5px;">−اقتباسات</span>');
-  return tags.length ? '<br>' + tags.join(' ') : '';
+  if (o.exclude_bibliography || o.excludeBibliography) tags.push('<span class="badge badge-no" style="margin-top:3px;font-size:8px;padding:2px 5px;">−مراجع</span>');
+  if (o.exclude_quotes       || o.excludeQuotes)       tags.push('<span class="badge badge-no" style="margin-top:3px;font-size:8px;padding:2px 5px;">−اقتباسات</span>');
+  return tags.length ? ' ' + tags.join(' ') : '';
 }
 function formatPkNumber(pk){
   if (pk === null || pk === undefined) return '—';
@@ -3645,7 +3660,8 @@ async function deleteOrder(orderId){
   // Delete source file from storage if present
   const order = allOrders.find(o => o.id === orderId);
   if (order?.source_file_path) {
-    await supabaseClient.storage.from('order-source-files').remove([order.source_file_path]);
+    const { error: removeErr } = await supabaseClient.storage.from('order-source-files').remove([order.source_file_path]);
+    if (removeErr) console.warn('deleteOrder: storage file removal failed (non-fatal):', removeErr.message);
   }
   const { error } = await supabaseClient.from('orders').delete().eq('id', orderId);
   if (error) { await adminAlert('فشل الحذف: ' + error.message, {icon:'❌', danger:true}); return; }
