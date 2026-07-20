@@ -1600,6 +1600,7 @@ const I18N = {
     ct_sim:"اقتباس فقط", ct_both:"اقتباس + ذكاء اصطناعي",
     filters_label:"فلاتر الاقتباس (اختياري)", exclude_bib:"استبعاد المراجع", exclude_quotes:"استبعاد الاقتباسات المنصوصة",
     payment_title:"وسيلة الدفع", pay_auto:"تلقائي", pay_ref:"رقم مرجعي", vf_cash:"فودافون كاش",
+    easykash_instructions:"اضغط \"ادفع الآن\" هيتفتح لك صفحة الدفع في تاب جديد. بعد ما تدفع، هنأكد تلقائيًا خلال ثواني من غير ما تعمل حاجة تانية.",
     payment_history_title:"سجل المدفوعات", payment_history_desc:"كل عمليات الشحن اللي عملتها وحالتها",
     ph_col_code:"كود العملية", ph_col_method:"وسيلة الدفع", ph_col_amount:"القيمة", ph_col_credits:"الكريديت", ph_col_datetime:"التاريخ والوقت", ph_col_status:"الحالة",
     ph_status_completed:"مكتملة", ph_status_pending:"قيد المراجعة", ph_status_rejected:"مرفوضة", ph_empty:"لسه معملتش أي عملية شحن.",
@@ -1704,6 +1705,7 @@ const I18N = {
     ct_sim:"Similarity only", ct_both:"Similarity + AI",
     filters_label:"Similarity filters (optional)", exclude_bib:"Exclude bibliography", exclude_quotes:"Exclude quoted text",
     payment_title:"Payment method", pay_auto:"Automatic", pay_ref:"Reference number", vf_cash:"Vodafone Cash",
+    easykash_instructions:"Click \"Pay Now\" — a payment page opens in a new tab. Once you pay, we'll confirm it automatically within seconds, no further action needed.",
     payment_history_title:"Payment History", payment_history_desc:"All your top-ups and their status",
     ph_col_code:"Transaction code", ph_col_method:"Payment method", ph_col_amount:"Amount", ph_col_credits:"Credits", ph_col_datetime:"Date & time", ph_col_status:"Status",
     ph_status_completed:"Completed", ph_status_pending:"Pending review", ph_status_rejected:"Rejected", ph_empty:"You haven't made any top-ups yet.",
@@ -1932,8 +1934,8 @@ const PAYMENT_DETAILS = {
     input_label_en: '',
     input_ph_ar: '',
     input_ph_en: '',
-    instructions_ar: 'اضغط "ادفع الآن" هيتفتح لك صفحة الدفع في تاب جديد. بعد ما تدفع، ارجع هنا واضغط "تأكيد الدفع".',
-    instructions_en: 'Click "Pay Now" — a payment page opens in a new tab. After paying, come back and click "Confirm Payment".',
+    instructions_ar: '', // unused for easykash — see t('easykash_instructions'), admin-editable
+    instructions_en: '',
     edge_fn: 'verify-easykash',
     payload_key: null,
     currency: 'EGP',
@@ -2200,7 +2202,7 @@ function renderPaymentDetails(gateway){
 
   // Instructions
   const instr = document.getElementById('walletPayInstructions');
-  if(instr) instr.textContent = ar ? cfg.instructions_ar : cfg.instructions_en;
+  if(instr) instr.textContent = gateway === 'easykash' ? t('easykash_instructions') : (ar ? cfg.instructions_ar : cfg.instructions_en);
 
   // Input label + placeholder
   const inputLabel = document.getElementById('walletInputLabel');
