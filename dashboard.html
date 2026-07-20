@@ -4406,9 +4406,11 @@ async function submitOrder(){
   const fileToSubmit = currentFile; // hold a reference: currentFile gets reset before the API call returns
   const fileName = fileToSubmit.name;
   const checkTypeDb = checkType==='sim' ? 'sim_only' : 'sim_ai';
-  // sim+AI always goes through the API (no manual alternative exists for
-  // AI detection); sim-only is routed per the admin's api_settings toggle.
-  const willUseApi = checkType === 'both' ? true : simOnlyViaApi;
+  // sim+AI used to always force the API path ("no manual alternative for
+  // AI"), but the admin panel now has full manual-upload support for AI
+  // report files too — so once the admin turns the global API toggle off,
+  // EVERY check type must go manual, not just sim-only.
+  const willUseApi = checkSettings.api_mode_enabled && (checkType === 'both' ? true : simOnlyViaApi);
   const balanceBefore = userBalance;
   const balanceAfter = userBalance - cost;
 
