@@ -1658,7 +1658,7 @@ const I18N = {
     chat_offline:"سنرد عليك في أقرب وقت", chat_upload_error:"تعذر رفع الملف، حاول مرة أخرى", chat_send_error:"تعذر إرسال الرسالة، حاول مرة أخرى",
     notif_title:"الإشعارات", notif_mark_all:"تحديد الكل كمقروء", notif_empty:"لا توجد إشعارات حالياً",
     user_profile:"الملف الشخصي", user_signout:"تسجيل الخروج",
-    phase_floating:"جاهز للإرسال", phase_uploading:"جاري الرفع", phase_pending:"في انتظار المعالجة", phase_processing:"قيد الفحص", phase_completed:"مكتمل", phase_error:"خطأ في الفحص", phase_failed_invalid:"ملف غير صالح",
+    phase_floating:"جاهز للإرسال", phase_uploading:"جاري الرفع", phase_pending:"في انتظار المعالجة", phase_processing:"قيد الفحص", phase_completed:"مكتمل", phase_error:"خطأ في الفحص", phase_failed_invalid:"ملف غير صالح", phase_rejected:"مرفوض",
     similarity:"اقتباس", ai:"AI", sim_only:"اقتباس فقط", sim_ai:"اقتباس + AI",
     col_order_id:"رقم الطلب", col_file:"اسم الملف", col_submitted:"وقت الإرسال", col_completed:"اكتمل", col_handle:"وقت المعالجة",
     stat_completed:"مكتمل", stat_pending:"قيد الانتظار", stat_rejected:"مرفوض",
@@ -1762,7 +1762,7 @@ const I18N = {
     chat_offline:"We'll reply as soon as we can", chat_upload_error:"Couldn't upload the file, please try again", chat_send_error:"Couldn't send the message, please try again",
     notif_title:"Notifications", notif_mark_all:"Mark all as read", notif_empty:"No notifications yet",
     user_profile:"Profile", user_signout:"Sign out",
-    phase_floating:"Ready to send", phase_uploading:"Uploading", phase_pending:"Awaiting processing", phase_processing:"Processing", phase_completed:"Completed", phase_error:"Check error", phase_failed_invalid:"Invalid file",
+    phase_floating:"Ready to send", phase_uploading:"Uploading", phase_pending:"Awaiting processing", phase_processing:"Processing", phase_completed:"Completed", phase_error:"Check error", phase_failed_invalid:"Invalid file", phase_rejected:"Rejected",
     similarity:"Similarity", ai:"AI", sim_only:"Similarity only", sim_ai:"Similarity + AI",
     col_order_id:"Order ID", col_file:"File", col_submitted:"Submitted", col_completed:"Completed", col_handle:"Handle time",
     stat_completed:"Completed", stat_pending:"Pending", stat_rejected:"Rejected",
@@ -4574,7 +4574,7 @@ let handleTime = {};
 // uploaded custom icons only later (async), so that snapshot never picked
 // up custom uploads. A function that reads ICONS fresh on every call does.
 function statusIconFor(phase){
-  const map = { completed: 'check', processing: 'clock', pending: 'hourglass', uploading: 'hourglass', floating: 'hourglass', error: 'x', failed_invalid: 'x' };
+  const map = { completed: 'check', processing: 'clock', pending: 'hourglass', uploading: 'hourglass', floating: 'hourglass', error: 'x', failed_invalid: 'x', rejected: 'x' };
   return ICONS[map[phase]] || '';
 }
 
@@ -4599,7 +4599,7 @@ function getOrderDate(o){
   return new Date(o.phaseStart).toISOString().split('T')[0];
 }
 
-const ORDER_BADGE_CLASS = { completed:'badge-ok', processing:'badge-run', pending:'badge-wait', uploading:'badge-wait', floating:'badge-wait', error:'badge-no', failed_invalid:'badge-no' };
+const ORDER_BADGE_CLASS = { completed:'badge-ok', processing:'badge-run', pending:'badge-wait', uploading:'badge-wait', floating:'badge-wait', error:'badge-no', failed_invalid:'badge-no', rejected:'badge-no' };
 
 // Formats a timestamp as "Jun 25, 2026 03:57 AM" — using the viewer's own
 // device/browser timezone (not a fixed one), in 12-hour format with AM/PM.
@@ -4648,7 +4648,7 @@ function buildOrderRow(o){
   }
 
   const badge = `<span class="badge ${ORDER_BADGE_CLASS[o.phase]}"><span class="dot"></span>${t('phase_'+o.phase)}</span>`;
-  const errorReasonLine = (o.phase === 'error' || o.phase === 'failed_invalid') && o.errorReason
+  const errorReasonLine = (o.phase === 'error' || o.phase === 'failed_invalid' || o.phase === 'rejected') && o.errorReason
     ? `<div class="order-error-reason">${escapeHtml(o.errorReason)}</div>` : '';
   const submittedLabel = formatOrderDate(o.phaseStart);
   const handle = handleTime[o.id];
@@ -4746,14 +4746,14 @@ function renderOrders(){
   // Then apply status filter
   const list = activeFilter==='all' ? dateFiltered
     : activeFilter==='floating' ? dateFiltered.filter(o=>['floating','uploading','pending'].includes(o.phase))
-    : activeFilter==='no' ? dateFiltered.filter(o=>o.phase==='error' || o.phase==='failed_invalid')
+    : activeFilter==='no' ? dateFiltered.filter(o=>o.phase==='error' || o.phase==='failed_invalid' || o.phase==='rejected')
     : dateFiltered.filter(o=>o.phase===activeFilter);
   document.getElementById('ordersCount').textContent = dateFiltered.length;
   
   // Update statistics (based on date-filtered set)
   const completed = dateFiltered.filter(o=>o.phase==='completed').length;
   const pending = dateFiltered.filter(o=>['floating','uploading','pending','processing'].includes(o.phase)).length;
-  const rejected = dateFiltered.filter(o=>o.phase==='error' || o.phase==='failed_invalid').length;
+  const rejected = dateFiltered.filter(o=>o.phase==='error' || o.phase==='failed_invalid' || o.phase==='rejected').length;
   document.getElementById('statCompleted').textContent = completed;
   document.getElementById('statPending').textContent = pending;
   document.getElementById('statRejected').textContent = rejected;
@@ -4783,7 +4783,7 @@ function renderKpis(){
   document.getElementById('kpiFloatingNum').textContent = orders.filter(o=>o.phase==='floating' || o.phase==='uploading' || o.phase==='pending').length;
   document.getElementById('kpiProcessingNum').textContent = orders.filter(o=>o.phase==='pending' || o.phase==='processing').length;
   document.getElementById('kpiCompletedNum').textContent = orders.filter(o=>o.phase==='completed').length;
-  document.getElementById('kpiRejectedNum').textContent = orders.filter(o=>o.phase==='error' || o.phase==='failed_invalid').length;
+  document.getElementById('kpiRejectedNum').textContent = orders.filter(o=>o.phase==='error' || o.phase==='failed_invalid' || o.phase==='rejected').length;
   document.getElementById('kpiCancelledNum').textContent = orders.filter(o=>o.phase==='cancelled').length;
 }
 renderKpis();
