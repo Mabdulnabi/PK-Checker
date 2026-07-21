@@ -42,33 +42,25 @@
   .btn-hero{background:var(--gold);color:#fff;padding:15px 34px;font-size:15px;box-shadow:0 8px 22px rgba(255,165,0,.35);}
   .btn-hero:hover{background:var(--gold-deep);transform:translateY(-2px);box-shadow:0 10px 26px rgba(255,165,0,.45);}
   .btn-hero-outline{background:var(--paper);color:var(--navy);border:1.5px solid var(--paper-line);padding:15px 30px;font-size:15px;}
+  .btn-hero-outline:hover{border-color:var(--blue);color:var(--blue-deep);background:var(--blue-wash);transform:translateY(-2px);}
 
   /* ===== HERO ===== */
   .hero{position:relative;padding:76px 0 88px;background:radial-gradient(1200px 500px at 85% -10%, var(--blue-wash), transparent 60%);}
   html[dir="ltr"] .hero{background:radial-gradient(1200px 500px at 15% -10%, var(--blue-wash), transparent 60%);}
   .hero-grid{display:grid;grid-template-columns:1.1fr 0.9fr;gap:48px;align-items:center;}
-  .eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--blue-wash);color:var(--blue-deep);font-size:12.5px;font-weight:700;padding:7px 16px;border-radius:20px;margin-bottom:20px;}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--blue-wash);color:var(--blue-deep);font-size:12.5px;font-weight:700;padding:7px 16px;border-radius:20px;margin-bottom:20px;transition:all .2s;}
+  .eyebrow:hover{background:var(--blue);color:#fff;transform:translateY(-2px);}
   .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--ok);}
   .hero h1{font-size:38px;font-weight:800;line-height:1.32;color:var(--navy);margin-bottom:20px;}
   .hero p.sub{font-size:16px;color:var(--muted);max-width:520px;margin-bottom:32px;}
   .hero-cta-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:28px;}
-  .hero-trust{display:flex;gap:26px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);}
-  .hero-trust span{display:flex;align-items:center;gap:6px;}
-  .hero-trust b{color:var(--navy);}
-
-  .hero-panel{background:var(--paper);border:1px solid var(--paper-line);border-radius:20px;padding:26px;box-shadow:0 30px 60px -20px rgba(27,37,86,.18);}
-  .hp-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--paper-line);}
-  .hp-row:last-child{border-bottom:none;}
-  .hp-label{font-size:13px;color:var(--muted);}
-  .hp-value{font-weight:800;font-size:15px;color:var(--navy);}
-  .hp-badge{display:inline-flex;align-items:center;gap:6px;background:var(--ok-wash);color:var(--ok);font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:8px;}
-  .hp-progress{height:8px;background:var(--paper-soft);border-radius:6px;overflow:hidden;margin-top:8px;}
-  .hp-progress-fill{height:100%;width:78%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:6px;}
+  .hero-visual{width:100%;min-height:280px;border-radius:20px;background:linear-gradient(135deg,var(--blue-wash),var(--paper));border:1.5px dashed var(--paper-line);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:20px;transition:all .25s;}
+  .hero-visual:hover{transform:translateY(-4px);box-shadow:0 20px 40px -16px rgba(27,37,86,.2);border-color:var(--blue);}
+  .hero-visual-img{max-width:100%;height:auto;display:block;}
 
   /* ===== SECTION SHARED ===== */
   section{padding:80px 0;}
   .section-head{text-align:center;max-width:640px;margin:0 auto 52px;}
-  .section-eyebrow{color:var(--blue-deep);font-weight:700;font-size:12.5px;letter-spacing:.5px;margin-bottom:10px;}
   .section-head h2{font-size:30px;font-weight:800;color:var(--navy);margin-bottom:12px;}
   .section-head p{color:var(--muted);font-size:15px;}
 
@@ -77,36 +69,48 @@
   .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
   .feature-card{background:var(--paper);border:1px solid var(--paper-line);border-radius:16px;padding:26px;transition:all .2s;}
   .feature-card:hover{transform:translateY(-3px);box-shadow:0 16px 32px -12px rgba(27,37,86,.14);border-color:var(--blue-wash);}
-  .feature-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:21px;margin-bottom:16px;}
+  .feature-icon{font-size:26px;margin-bottom:16px;line-height:1;}
   .feature-card h3{font-size:16px;font-weight:800;color:var(--navy);margin-bottom:8px;}
   .feature-card p{font-size:13.5px;color:var(--muted);}
+  .why-title{font-size:30px;font-weight:800;line-height:1.3;color:var(--navy);}
+  .grad-text{background:linear-gradient(90deg,var(--blue),var(--ok));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+  .pricing-card{display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;background:var(--paper);border:1.5px solid var(--paper-line);border-radius:16px;padding:32px 26px;overflow:hidden;transition:all .2s;}
+  .pricing-card:hover{transform:translateY(-3px);box-shadow:0 16px 32px -12px rgba(27,37,86,.14);}
+  .pricing-card.featured{background:var(--blue-wash);border-color:var(--blue);}
+  .pricing-card h3{font-size:17px;font-weight:800;color:var(--navy);margin:0 0 14px;}
+  .pricing-price{font-size:17px;font-weight:800;color:var(--blue-deep);}
+  .pricing-price .unit{font-size:12.5px;font-weight:600;color:var(--muted);margin-inline-start:4px;}
+  .pricing-badge-slot{min-height:26px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;}
+  .pricing-badge{display:inline-block;background:var(--blue-deep);color:#fff;font-size:11px;font-weight:700;padding:5px 14px;border-radius:20px;}
+  .pricing-badge.danger{display:none;background:#E0445B;}
+  .pricing-card.sim-off .pricing-badge.danger{display:inline-block;}
+  .pricing-card.sim-off{opacity:.6;}
 
   /* ===== SERVICES (pricing-style cards, admin-editable titles) ===== */
-  .services-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;max-width:760px;margin:0 auto;}
-  .service-card{background:var(--paper);border:1.5px solid var(--paper-line);border-radius:16px;padding:24px;text-align:center;}
-  .service-card h3{font-size:16px;font-weight:800;color:var(--navy);margin-bottom:6px;}
-  .service-card span{font-size:12.5px;color:var(--muted);}
 
   /* ===== HOW IT WORKS ===== */
   .steps{display:grid;grid-template-columns:repeat(5,1fr);gap:0;position:relative;}
-  .step{text-align:center;padding:0 12px;position:relative;}
-  .step-num{width:48px;height:48px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;margin:0 auto 16px;position:relative;z-index:2;font-family:'Manrope',sans-serif;}
-  .step h3{font-size:14px;font-weight:800;color:var(--navy);margin-bottom:6px;}
-  .step-line{position:absolute;top:24px;right:calc(-50% + 24px);left:calc(50% + 24px);height:2px;background:var(--paper-line);z-index:1;}
-  html[dir="ltr"] .step-line{right:calc(50% + 24px);left:calc(-50% + 24px);}
+  .step{text-align:center;padding:0 14px;position:relative;}
+  .step-num{width:64px;height:64px;border-radius:18px;background:var(--paper);box-shadow:0 10px 24px -10px rgba(27,37,86,.16);border:1px solid var(--paper-line);color:var(--blue-deep);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:24px;margin:0 auto 20px;position:relative;z-index:2;font-family:'Manrope',sans-serif;transition:all .2s;}
+  .step:hover .step-num{background:var(--blue-deep);color:#fff;transform:translateY(-3px);box-shadow:0 16px 28px -10px rgba(27,37,86,.28);}
+  .step h3{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:6px;}
+  .step p{font-size:12.5px;color:var(--muted);line-height:1.6;}
+  .step-line{position:absolute;top:32px;right:calc(50% + 32px);left:calc(-50% + 32px);height:2px;background:linear-gradient(90deg,var(--paper-line),var(--blue-wash));z-index:1;}
+  html[dir="ltr"] .step-line{right:calc(-50% + 32px);left:calc(50% + 32px);background:linear-gradient(90deg,var(--blue-wash),var(--paper-line));}
   .step:last-child .step-line{display:none;}
 
   /* ===== FAQ ===== */
-  .faq-list{max-width:760px;margin:0 auto;}
+  .faq-list{max-width:920px;margin:0 auto;}
   .faq-item{border:1px solid var(--paper-line);border-radius:12px;margin-bottom:12px;overflow:hidden;}
-  .faq-q{padding:18px 22px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-weight:700;font-size:14.5px;color:var(--navy);background:var(--paper);gap:14px;}
+  .faq-q{padding:20px 26px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-weight:700;font-size:15px;color:var(--navy);background:var(--paper);gap:14px;}
   .faq-q-left{display:flex;align-items:center;gap:12px;min-width:0;}
   .faq-icon{flex:none;width:26px;height:26px;border-radius:8px;background:var(--blue-wash);color:var(--blue-deep);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;}
   .faq-q .chev{transition:transform .2s;color:var(--muted);font-size:12px;flex:none;}
   .faq-item.open .faq-q .chev{transform:rotate(180deg);}
-  .faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;}
-  .faq-item.open .faq-a{max-height:400px;}
-  .faq-a-inner{padding:0 22px 18px;font-size:13.5px;color:var(--muted);line-height:1.8;}
+  .faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;background:var(--paper-soft);}
+  .faq-item.open .faq-a{max-height:600px;}
+  .faq-a-inner{padding:18px 26px 24px;font-size:14px;color:var(--muted);line-height:1.9;border-top:1px solid var(--paper-line);}
 
   /* ===== FINAL CTA ===== */
   .final-cta{background:linear-gradient(135deg,var(--navy),var(--navy-soft));border-radius:24px;padding:56px 40px;text-align:center;color:#fff;margin:0 24px;}
@@ -120,11 +124,17 @@
     .hero-grid{grid-template-columns:1fr;}
     .hero h1{font-size:28px;}
     .features-grid{grid-template-columns:1fr;}
-    .services-grid{grid-template-columns:1fr;}
+    .pricing-grid{grid-template-columns:1fr;}
     .steps{grid-template-columns:1fr;gap:24px;}
     .step-line{display:none;}
     .header-nav{display:none;}
     .header-actions .btn span.full-label{display:none;}
+    .wrap{padding:0 14px;}
+    .header-inner{gap:8px;}
+    .header-actions{gap:6px;}
+    .header-actions .btn{padding:8px 12px;font-size:12px;}
+    .btn-lang{padding:8px 10px;font-size:11.5px;}
+    .logo-img{max-width:90px;}
   }
 </style>
 </head>
@@ -132,14 +142,15 @@
 
 <header>
   <div class="wrap header-inner">
-    <img class="logo-img" data-icon-key="logo_index" alt="Pro Keys" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E" data-icon-key="site_logo">
+    <img class="logo-img" data-icon-key="logo_index" alt="Pro Keys" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E">
     <nav class="header-nav">
       <a data-scroll="features" data-i18n="idx_nav_features">المميزات</a>
+      <a data-scroll="services" data-i18n="idx_nav_services">الخدمات المتاحة</a>
       <a data-scroll="how" data-i18n="idx_nav_how">إزاي بيشتغل</a>
       <a data-scroll="faq" data-i18n="idx_nav_faq">أسئلة شائعة</a>
     </nav>
     <div class="header-actions">
-      <button class="btn btn-lang" id="langBtn" onclick="toggleLang()">EN</button>
+      <button class="btn btn-lang" id="langBtn" onclick="toggleLang()">🇬🇧 EN</button>
       <a class="btn btn-store" href="https://www.pro-keys.store/" target="_blank" rel="noopener"><span class="full-label">🛍️</span> <span data-i18n="idx_store_btn">متجر Pro Keys</span></a>
       <a class="btn btn-signin" href="auth.html" data-i18n="idx_signin_btn">تسجيل الدخول</a>
     </div>
@@ -153,35 +164,12 @@
       <h1 data-i18n="hero_title">كشف الاقتباس والذكاء الاصطناعي بدقة Turnitin الأصلية</h1>
       <p class="sub" data-i18n="hero_sub">فحوصات آلية رسمية 100% عبر Turnitin Instructor API · بدون أي تدخل بشري · تقارير دقيقة ومفصلة</p>
       <div class="hero-cta-row">
-        <a class="btn btn-hero" href="auth.html" data-i18n="hero_cta">ابدأ فحص جديد الآن</a>
-        <a class="btn btn-hero-outline" data-scroll="how" data-i18n="hero_cta_secondary"><span data-icon-key="home_watch"></span> شاهد كيف يعمل</a>
-      </div>
-      <div class="hero-trust">
-        <span>⚡ <b data-i18n="idx_trust_1">النتيجة خلال دقائق</b></span>
-        <span>🔒 <b data-i18n="idx_trust_2">ملفك مايتخزنش في أرشيف Turnitin</b></span>
-        <span>💳 <b data-i18n="idx_trust_3">دفع محلي وبسيط</b></span>
+        <a class="btn btn-hero" href="auth.html"><span data-icon-key="hero_cta_icon"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></span> <span data-i18n="hero_cta">ابدأ فحص جديد الآن</span></a>
+        <a class="btn btn-hero-outline" id="watchDemoBtn" href="#how" data-i18n="hero_cta_secondary"><span data-icon-key="home_watch"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;"><circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z"/></svg></span> شاهد كيف يعمل</a>
       </div>
     </div>
-    <div class="hero-panel">
-      <div class="hp-row">
-        <span class="hp-label" data-i18n="idx_hp_filename_label">اسم الملف</span>
-        <span class="hp-value" data-i18n="idx_hp_filename_value">بحث_تخرج.docx</span>
-      </div>
-      <div class="hp-row">
-        <span class="hp-label" data-i18n="idx_hp_status_label">حالة الفحص</span>
-        <span class="hp-badge">✓ <span data-i18n="idx_hp_status_value">اكتمل</span></span>
-      </div>
-      <div class="hp-row" style="flex-direction:column;align-items:stretch;">
-        <div style="display:flex;justify-content:space-between;">
-          <span class="hp-label" data-i18n="idx_hp_sim_label">نسبة الاقتباس</span>
-          <span class="hp-value" style="color:var(--blue-deep);">12%</span>
-        </div>
-        <div class="hp-progress"><div class="hp-progress-fill"></div></div>
-      </div>
-      <div class="hp-row">
-        <span class="hp-label" data-i18n="idx_hp_ai_label">نسبة الذكاء الاصطناعي</span>
-        <span class="hp-value" style="color:var(--ok);">4%</span>
-      </div>
+    <div class="hero-visual">
+      <img class="hero-visual-img" data-icon-key="hero_visual" alt="Pro Keys" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E">
     </div>
   </div>
 </section>
@@ -189,75 +177,87 @@
 <section class="features-bg" id="features">
   <div class="wrap">
     <div class="section-head">
-      <div class="section-eyebrow" data-i18n="services_title">الخدمات المتاحة</div>
-      <h2 data-i18n="hero_title2">كل حاجة محتاجها قبل ما تسلّم بحثك</h2>
+      <span class="eyebrow"><span class="dot"></span> <span data-i18n="why_badge">ليه تختارنا</span></span>
+      <h2 class="why-title"><span data-i18n="why_title_1">شريكك الموثوق في</span> <span class="grad-text" data-i18n="why_title_2">فحص الاقتباس</span></h2>
     </div>
-    <div class="features-grid" style="margin-bottom:44px;">
+    <div class="features-grid">
       <div class="feature-card">
-        <div class="feature-icon" data-icon-key="home_g1" style="background:var(--blue-wash);color:var(--blue-deep);">📄</div>
+        <div class="feature-icon" data-icon-key="home_g1" style="color:var(--blue-deep);">📄</div>
         <h3 data-i18n="g1_title">No Repository</h3>
         <p data-i18n="g1_sub">فحص آلي بالكامل دون تخزين ملفك في مستودع Turnitin</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon" data-icon-key="home_g2" style="background:var(--ok-wash);color:var(--ok);">🤝</div>
+        <div class="feature-icon" data-icon-key="home_g2" style="color:var(--ok);">🤝</div>
         <h3 data-i18n="g2_title">تكامل رسمي مباشر</h3>
         <p data-i18n="g2_sub">عبر Turnitin Instructor API الرسمي بالكامل</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon" data-icon-key="home_g3" style="background:#FFF4E0;color:var(--gold-deep);">♾️</div>
+        <div class="feature-icon" data-icon-key="home_g3" style="color:var(--gold-deep);">♾️</div>
         <h3 data-i18n="g3_title">الكريديت لا تنتهي</h3>
         <p data-i18n="g3_sub">رصيدك يبقى محفوظًا لحين استخدامه بالكامل</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon" style="background:var(--cyan-wash);color:#0891B2;">🔒</div>
+        <div class="feature-icon" data-icon-key="home_g4" style="color:#0891B2;">🔒</div>
         <h3 data-i18n="idx_feat4_title">خصوصية تامة</h3>
         <p data-i18n="idx_feat4_desc">ملفك بيتفحص من غير ما يتضاف لأرشيف Turnitin العالمي — يفضل ملكك وبس.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon" style="background:#F3E8FF;color:#8B5CF6;">💳</div>
+        <div class="feature-icon" data-icon-key="home_g5" style="color:#8B5CF6;">💳</div>
         <h3 data-i18n="idx_feat5_title">محفظة كريديت مرنة</h3>
         <p data-i18n="idx_feat5_desc">اشحن رصيدك مرة واستخدمه في أي وقت، بوسائل دفع مصرية سهلة ومباشرة.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon" style="background:var(--danger-wash,#FCE7EA);color:#E0445B;">💬</div>
+        <div class="feature-icon" data-icon-key="home_g6" style="color:#E0445B;">💬</div>
         <h3 data-i18n="idx_feat6_title">دعم فني حقيقي</h3>
         <p data-i18n="idx_feat6_desc">لايف شات وتذاكر دعم بيرد عليها فريق حقيقي، مش بوت آلي.</p>
       </div>
     </div>
-    <div class="services-grid">
-      <div class="service-card">
-        <h3 data-i18n="srv_sim_title">فحص الاقتباس فقط</h3>
-        <span data-i18n="srv_sim_unit">/ فحص</span>
-      </div>
-      <div class="service-card">
+  </div>
+</section>
+
+<section id="services">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow"><span class="dot"></span> <span data-i18n="services_title">الخدمات المتاحة</span></span>
+      <h2 class="why-title"><span data-i18n="srv_title_1">اختار</span> <span class="grad-text" data-i18n="srv_title_2">الباقة المناسبة</span></h2>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card featured">
+        <div class="pricing-badge-slot"><span class="pricing-badge" data-i18n="srv_ai_badge">الأكثر طلبًا</span></div>
         <h3 data-i18n="srv_ai_title">اقتباس + ذكاء اصطناعي</h3>
-        <span data-i18n="srv_ai_unit">/ فحص</span>
+        <div class="pricing-price"><span data-i18n="srv_ai_price">100 جنيه مصري أو 2 دولار</span> <span class="unit" data-i18n="srv_ai_unit">/ فحص</span></div>
+      </div>
+      <div class="pricing-card" id="simOnlyCard">
+        <div class="pricing-badge-slot"><span class="pricing-badge danger" id="simUnavailableBadge" data-i18n="srv_unavailable_badge">غير متاح حالياً</span></div>
+        <h3 data-i18n="srv_sim_title">فحص الاقتباس فقط</h3>
+        <div class="pricing-price"><span data-i18n="srv_sim_price">50 جنيه مصري أو 1 دولار</span> <span class="unit" data-i18n="srv_sim_unit">/ فحص</span></div>
       </div>
     </div>
   </div>
 </section>
 
-<section id="how">
+<section class="features-bg" id="how">
   <div class="wrap">
     <div class="section-head">
-      <div class="section-eyebrow" data-i18n="idx_nav_how">إزاي بيشتغل</div>
-      <h2 data-i18n="how_title">كيف تعمل الخدمة؟</h2>
+      <span class="eyebrow"><span class="dot"></span> <span data-i18n="idx_nav_how">إزاي بيشتغل</span></span>
+      <h2 class="why-title"><span data-i18n="how_title_1">كيف تعمل</span> <span class="grad-text" data-i18n="how_title_2">الخدمة؟</span></h2>
+      <p data-i18n="how_sub">احصل على تقرير الاقتباس في 5 خطوات بسيطة</p>
     </div>
     <div class="steps">
-      <div class="step"><div class="step-line"></div><div class="step-num">١</div><h3 data-i18n="step1">اختر نوع الفحص</h3></div>
-      <div class="step"><div class="step-line"></div><div class="step-num">٢</div><h3 data-i18n="step2">حدّد الاستثناءات المطلوبة</h3></div>
-      <div class="step"><div class="step-line"></div><div class="step-num">٣</div><h3 data-i18n="step3">ارفع ملفك</h3></div>
-      <div class="step"><div class="step-line"></div><div class="step-num">٤</div><h3 data-i18n="step4">يُخصم الكريديت من رصيدك فورًا ويبدأ الفحص</h3></div>
-      <div class="step"><div class="step-num">٥</div><h3 data-i18n="step5">استلم تقريرك خلال 10–30 دقيقة تقريبًا</h3></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">1</div><h3 data-i18n="step1">اختر نوع الفحص</h3><p data-i18n="step1_desc">حدد هتفحص اقتباس بس ولا اقتباس + ذكاء اصطناعي</p></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">2</div><h3 data-i18n="step2">حدّد الاستثناءات</h3><p data-i18n="step2_desc">استبعد المراجع أو الاقتباسات المنصوصة لو حابب</p></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">3</div><h3 data-i18n="step3">ارفع ملفك</h3><p data-i18n="step3_desc">ارفع ملف DOC أو DOCX بأمان في دقائق</p></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">4</div><h3 data-i18n="step4">يبدأ الفحص فورًا</h3><p data-i18n="step4_desc">يُخصم الكريديت من رصيدك فورًا ويبدأ الفحص</p></div>
+      <div class="step"><div class="step-num">5</div><h3 data-i18n="step5">استلم تقريرك</h3><p data-i18n="step5_desc">هيوصلك تقرير PDF رسمي خلال 10–30 دقيقة تقريبًا</p></div>
     </div>
   </div>
 </section>
 
-<section class="features-bg" id="faq">
+<section id="faq">
   <div class="wrap">
     <div class="section-head">
-      <div class="section-eyebrow" data-i18n="idx_nav_faq">أسئلة شائعة</div>
-      <h2 data-i18n="faq_title">الأسئلة الشائعة</h2>
+      <span class="eyebrow"><span class="dot"></span> <span data-i18n="idx_nav_faq">أسئلة شائعة</span></span>
+      <h2 class="why-title"><span data-i18n="faq_title_1">الأسئلة</span> <span class="grad-text" data-i18n="faq_title_2">الشائعة</span></h2>
     </div>
     <div class="faq-list" id="faqList"></div>
   </div>
@@ -272,7 +272,7 @@
 </section>
 
 <footer>
-  <div class="wrap" data-i18n="idx_footer_text">© 2026 Pro Keys. جميع الحقوق محفوظة.</div>
+  <div class="wrap"><strong>Pro Keys Checker</strong> <span data-i18n="idx_footer_text">© 2026 — All rights reserved</span></div>
 </footer>
 
 <script>
@@ -285,29 +285,32 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 // uses. uiOverrides below gets merged on top of these at load time.
 const LANG_DICT = {
   ar: {
-    idx_nav_features:"المميزات", idx_nav_how:"إزاي بيشتغل", idx_nav_faq:"أسئلة شائعة",
+    idx_nav_features:"المميزات", idx_nav_services:"الخدمات المتاحة", idx_nav_how:"إزاي بيشتغل", idx_nav_faq:"أسئلة شائعة",
     idx_store_btn:"متجر Pro Keys", idx_signin_btn:"تسجيل الدخول",
     hero_badge:"تكامل رسمي مع Turnitin Instructor API",
     hero_title:"كشف الاقتباس والذكاء الاصطناعي بدقة Turnitin الأصلية",
     hero_sub:"فحوصات آلية رسمية 100% عبر Turnitin Instructor API · بدون أي تدخل بشري · تقارير دقيقة ومفصلة",
-    hero_cta:"ابدأ فحص جديد الآن", hero_cta_secondary:"شاهد كيف يعمل",
-    idx_trust_1:"النتيجة خلال دقائق", idx_trust_2:"ملفك مايتخزنش في أرشيف Turnitin", idx_trust_3:"دفع محلي وبسيط",
-    idx_hp_filename_label:"اسم الملف", idx_hp_filename_value:"بحث_تخرج.docx", idx_hp_status_label:"حالة الفحص", idx_hp_status_value:"اكتمل",
-    idx_hp_sim_label:"نسبة الاقتباس", idx_hp_ai_label:"نسبة الذكاء الاصطناعي",
-    services_title:"الخدمات المتاحة", hero_title2:"كل حاجة محتاجها قبل ما تسلّم بحثك",
+    hero_cta:"ابدأ فحص جديد الآن", hero_cta_secondary:"شاهد كيف يعمل", hero_video_url:"",
+    services_title:"الخدمات المتاحة", srv_title_1:"اختار", srv_title_2:"الباقة المناسبة",
+    why_badge:"ليه تختارنا", why_title_1:"شريكك الموثوق في", why_title_2:"فحص الاقتباس",
     g1_title:"No Repository", g1_sub:"فحص آلي بالكامل دون تخزين ملفك في مستودع Turnitin",
     g2_title:"تكامل رسمي مباشر", g2_sub:"عبر Turnitin Instructor API الرسمي بالكامل",
     g3_title:"الكريديت لا تنتهي", g3_sub:"رصيدك يبقى محفوظًا لحين استخدامه بالكامل",
     idx_feat4_title:"خصوصية تامة", idx_feat4_desc:"ملفك بيتفحص من غير ما يتضاف لأرشيف Turnitin العالمي — يفضل ملكك وبس.",
     idx_feat5_title:"محفظة كريديت مرنة", idx_feat5_desc:"اشحن رصيدك مرة واستخدمه في أي وقت، بوسائل دفع مصرية سهلة ومباشرة.",
     idx_feat6_title:"دعم فني حقيقي", idx_feat6_desc:"لايف شات وتذاكر دعم بيرد عليها فريق حقيقي، مش بوت آلي.",
-    srv_sim_title:"فحص الاقتباس فقط", srv_sim_unit:"/ فحص", srv_ai_title:"اقتباس + ذكاء اصطناعي", srv_ai_unit:"/ فحص",
-    how_title:"كيف تعمل الخدمة؟",
-    step1:"اختر نوع الفحص", step2:"حدّد الاستثناءات المطلوبة", step3:"ارفع ملفك",
-    step4:"يُخصم الكريديت من رصيدك فورًا ويبدأ الفحص", step5:"استلم تقريرك خلال 10–30 دقيقة تقريبًا",
-    faq_title:"الأسئلة الشائعة",
+    srv_sim_title:"فحص الاقتباس فقط", srv_sim_unit:"/ فحص", srv_sim_price:"50 جنيه مصري أو 1 دولار",
+    srv_ai_title:"اقتباس + ذكاء اصطناعي", srv_ai_unit:"/ فحص", srv_ai_price:"100 جنيه مصري أو 2 دولار", srv_ai_badge:"الأكثر طلبًا",
+    srv_unavailable_badge:"غير متاح حالياً",
+    how_title_1:"كيف تعمل", how_title_2:"الخدمة؟", how_sub:"احصل على تقرير الاقتباس في 5 خطوات بسيطة",
+    step1:"اختر نوع الفحص", step1_desc:"حدد هتفحص اقتباس بس ولا اقتباس + ذكاء اصطناعي",
+    step2:"حدّد الاستثناءات", step2_desc:"استبعد المراجع أو الاقتباسات المنصوصة لو حابب",
+    step3:"ارفع ملفك", step3_desc:"ارفع ملف DOC أو DOCX بأمان في دقائق",
+    step4:"يبدأ الفحص فورًا", step4_desc:"يُخصم الكريديت من رصيدك فورًا ويبدأ الفحص",
+    step5:"استلم تقريرك", step5_desc:"هيوصلك تقرير PDF رسمي خلال 10–30 دقيقة تقريبًا",
+    faq_title_1:"الأسئلة", faq_title_2:"الشائعة",
     idx_final_title:"جاهز تطمّن على بحثك؟", idx_final_sub:"سجّل دلوقتي وابدأ أول فحص في أقل من دقيقتين.", idx_final_cta:"سجّل دخولك مجانًا",
-    idx_footer_text:"© 2026 Pro Keys. جميع الحقوق محفوظة.",
+    idx_footer_text:"© 2026 — All rights reserved",
     faq_q0:"هل البوت يوفر تقارير Turnitin رسمية؟", faq_a0:"نعم، نحن نستخدم واجهات Turnitin Instructor الرسمية مربوطة مباشرة بنظامنا لإصدار تقارير الذكاء الاصطناعي والانتحال.",
     faq_q1:"كيف يعمل هذا البوت؟", faq_a1:"يقوم النظام تلقائيًا بإجراء فحوصات بالتوازي من خلال عدد محدود من الـ Slots، بدون أي تعامل أو اطلاع بشري على الملفات. ويقوم فريق الدعم فقط بتأكيد الدفع ومتابعة العملية لضمان تسليم التقارير بنجاح، خاصة خلال أوقات الضغط.",
     faq_q2:"هل ملفاتي وبياناتي آمنة؟", faq_a2:"نعم بالكامل. ملفاتك لا يتم تخزينها داخل مستودع Turnitin، لذلك تبقى ملكيتك الفكرية محفوظة. جميع عمليات الفحص تعمل بنظام No Repository.",
@@ -320,29 +323,32 @@ const LANG_DICT = {
     faq_q9:"ماذا تعني علامة % في تقرير Turnitin AI؟", faq_a9:"منذ 16 يوليو 2024، إذا قدّر Turnitin أن نسبة محتوى الذكاء الاصطناعي تتراوح بين 1% و19%، فسيظهر الرمز % بدلًا من رقم محدد. النسبة الدقيقة تظهر فقط عند 0% أو 20% فأكثر، لأن دقة الكشف تكون أقل ضمن هذا النطاق.",
   },
   en: {
-    idx_nav_features:"Features", idx_nav_how:"How it works", idx_nav_faq:"FAQ",
+    idx_nav_features:"Features", idx_nav_services:"Services", idx_nav_how:"How it works", idx_nav_faq:"FAQ",
     idx_store_btn:"Pro Keys Store", idx_signin_btn:"Sign in",
     hero_badge:"Official Turnitin Instructor API Integration",
     hero_title:"Welcome to Pro Keys Turnitin Checker",
     hero_sub:"Fully automated official Similarity and AI checks.",
-    hero_cta:"Start a new check now", hero_cta_secondary:"See how it works",
-    idx_trust_1:"Results in minutes", idx_trust_2:"Never added to the Turnitin repository", idx_trust_3:"Simple local payment",
-    idx_hp_filename_label:"File name", idx_hp_filename_value:"thesis_final.docx", idx_hp_status_label:"Check status", idx_hp_status_value:"Completed",
-    idx_hp_sim_label:"Similarity score", idx_hp_ai_label:"AI score",
-    services_title:"Available services", hero_title2:"Everything you need before you submit",
+    hero_cta:"Start a new check now", hero_cta_secondary:"See how it works", hero_video_url:"",
+    services_title:"Available services", srv_title_1:"Choose", srv_title_2:"Your Plan",
+    why_badge:"WHY CHOOSE US", why_title_1:"Your Trusted Partner for", why_title_2:"Plagiarism Checking",
     g1_title:"No Repository", g1_sub:"Fully automated checks without storing your file in the Turnitin repository",
     g2_title:"Official direct integration", g2_sub:"Through the official Turnitin Instructor API",
     g3_title:"Credits never expire", g3_sub:"Your balance stays saved until you use it",
     idx_feat4_title:"Complete privacy", idx_feat4_desc:"Your file is checked without ever being added to Turnitin's global repository — it stays yours.",
     idx_feat5_title:"Flexible credit wallet", idx_feat5_desc:"Top up once, use it whenever you need — simple, local Egyptian payment methods.",
     idx_feat6_title:"Real support", idx_feat6_desc:"Live chat and support tickets answered by a real team, not a bot.",
-    srv_sim_title:"Similarity only check", srv_sim_unit:"/ check", srv_ai_title:"Similarity + AI", srv_ai_unit:"/ check",
-    how_title:"How does it work?",
-    step1:"Choose the check type", step2:"Pick your exclusions", step3:"Upload your file",
-    step4:"Credits are deducted instantly and the check starts", step5:"Receive your report within roughly 10\u201330 minutes",
-    faq_title:"Frequently Asked Questions",
+    srv_sim_title:"Similarity only check", srv_sim_unit:"/ check", srv_sim_price:"50 EGP or $1",
+    srv_ai_title:"Similarity + AI", srv_ai_unit:"/ check", srv_ai_price:"100 EGP or $2", srv_ai_badge:"Most popular",
+    srv_unavailable_badge:"Currently unavailable",
+    how_title_1:"How Does", how_title_2:"It Work?", how_sub:"Get your plagiarism report in 5 simple steps",
+    step1:"Choose the check type", step1_desc:"Pick Similarity only or Similarity + AI",
+    step2:"Pick your exclusions", step2_desc:"Exclude bibliography or quoted text if you like",
+    step3:"Upload your file", step3_desc:"Upload your DOC or DOCX file safely in minutes",
+    step4:"The check starts instantly", step4_desc:"Credits are deducted instantly and the check starts",
+    step5:"Get your report", step5_desc:"Receive an official PDF report within roughly 10–30 minutes",
+    faq_title_1:"Frequently", faq_title_2:"Asked Questions",
     idx_final_title:"Ready to check your paper?", idx_final_sub:"Sign up now and run your first check in under two minutes.", idx_final_cta:"Sign in for free",
-    idx_footer_text:"© 2026 Pro Keys. All rights reserved.",
+    idx_footer_text:"© 2026 — All rights reserved",
     faq_q0:"Is your bot providing official Turnitin reports?", faq_a0:"Yes. We use official Turnitin Instructor APIs integrated with our system to generate AI and Plagiarism reports.",
     faq_q1:"How does this bot work?", faq_a1:"Our system performs automatic checks in parallel through a limited number of slots, with no manual handling of your files. Our support team only supervises the process to confirm payment and ensure successful delivery, especially during high traffic.",
     faq_q2:"Is my data safe?", faq_a2:"Yes. Your files are not stored in the Turnitin repository, so your intellectual property remains yours. All checks are configured in No Repository mode.",
@@ -397,7 +403,7 @@ function toggleFaq(el){
 function applyLang(){
   document.getElementById('htmlRoot').setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
   document.getElementById('htmlRoot').setAttribute('lang', currentLang);
-  document.getElementById('langBtn').textContent = currentLang === 'ar' ? 'EN' : 'AR';
+  document.getElementById('langBtn').textContent = currentLang === 'ar' ? '🇬🇧 EN' : '🇪🇬 AR';
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
   renderFaq();
 }
@@ -407,6 +413,14 @@ function toggleLang(){
   localStorage.setItem('prokeys-lang', currentLang);
   applyLang();
 }
+
+document.getElementById('watchDemoBtn')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  const videoUrl = (uiOverrides[currentLang] && uiOverrides[currentLang].hero_video_url)
+    || (uiOverrides.ar && uiOverrides.ar.hero_video_url) || '';
+  if (videoUrl) { window.open(videoUrl, '_blank', 'noopener'); return; }
+  document.getElementById('how')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
 
 document.querySelectorAll('[data-scroll]').forEach(el => {
   el.addEventListener('click', () => {
@@ -418,7 +432,7 @@ document.querySelectorAll('[data-scroll]').forEach(el => {
 // Same override mechanism the customer dashboard uses: an element tagged
 // data-icon-key="X" gets swapped for the admin's uploaded image (or just
 // resized) if a matching override exists in ui_config.icons/icon_sizes.
-const ICON_SIZE_MAP = { logo_index:'46px', home_watch:'18px', home_g1:'20px', home_g2:'20px', home_g3:'20px',
+const ICON_SIZE_MAP = { logo_index:'46px', home_watch:'18px', hero_cta_icon:'18px', home_g1:'20px', home_g2:'20px', home_g3:'20px', home_g4:'20px', home_g5:'20px', home_g6:'20px', hero_visual:'260px',
   faq_icon_0:'14px', faq_icon_1:'14px', faq_icon_2:'14px', faq_icon_3:'14px', faq_icon_4:'14px',
   faq_icon_5:'14px', faq_icon_6:'14px', faq_icon_7:'14px', faq_icon_8:'14px', faq_icon_9:'14px' };
 function applyFavicon(){
@@ -436,7 +450,7 @@ function applyCustomIcons(){
     const url = icons[key];
     const overridePx = sizes[key];
     const size = (overridePx ? overridePx + 'px' : null) || ICON_SIZE_MAP[key] || '18px';
-    const isLogo = key.indexOf('logo')===0 || key==='site_favicon';
+    const isLogo = key.indexOf('logo')===0 || key==='site_favicon' || key==='hero_visual';
     if (url) {
       if (el.tagName === 'IMG') {
         el.src = url;
@@ -477,6 +491,30 @@ async function loadUIConfig(){
 applyLang();
 loadUIConfig();
 
+// "Similarity only" service availability badge — reflects check_settings.sim_only_visible,
+// toggled from the admin dashboard, updated live via Supabase Realtime.
+function applySimOnlyState(visible){
+  const card = document.getElementById('simOnlyCard');
+  if (!card) return;
+  card.classList.toggle('sim-off', visible === false);
+}
+async function loadCheckSettings(){
+  try {
+    const { data, error } = await supabaseClient.from('check_settings').select('sim_only_visible').single();
+    if (error || !data) return;
+    applySimOnlyState(data.sim_only_visible);
+  } catch (err) {
+    console.warn('loadCheckSettings failed (non-fatal):', err);
+  }
+}
+loadCheckSettings();
+supabaseClient
+  .channel('check_settings_public')
+  .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'check_settings' }, payload => {
+    applySimOnlyState(payload.new.sim_only_visible);
+  })
+  .subscribe();
+
 // If the visitor already has a live session, skip the marketing page and
 // go straight to the dashboard — no point showing a logged-in user the
 // sign-up pitch again.
@@ -487,6 +525,442 @@ loadUIConfig();
       window.location.href = 'dashboard.html';
     }
   } catch (e) { /* localStorage unavailable — just show the landing page */ }
+})();
+</script>
+
+<!-- ===== Back To Top + Scroll Progress ===== -->
+<style>
+  #pkScrollBar{
+    position:fixed;
+    top:0;
+    left:0;
+    height:3px;
+    width:0;
+    background:var(--blue-deep);
+    z-index:999999;
+    opacity:.9;
+  }
+  #pkTopBtn{
+    position:fixed;
+    right:18px;
+    bottom:90px;
+    z-index:999999;
+    width:46px;
+    height:46px;
+    border:0 !important;
+    border-radius:999px !important;
+    background:var(--blue-deep) !important;
+    cursor:pointer;
+    display:inline-flex !important;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 8px 22px rgba(27,37,86,.28);
+    transition:transform .25s ease, filter .25s ease, opacity .25s ease;
+    opacity:0;
+    pointer-events:none;
+    transform:translateY(10px);
+    outline:2px solid transparent;
+    outline-offset:2px;
+    -webkit-tap-highlight-color: rgba(255,255,255,0.15);
+  }
+  #pkTopBtn.pkShow{
+    opacity:1;
+    pointer-events:auto;
+    transform:translateY(0);
+  }
+  #pkTopBtn::before,
+  #pkTopBtn::after{
+    content:"" !important;
+    display:none !important;
+    border:0 !important;
+    background:transparent !important;
+    clip-path:none !important;
+  }
+  #pkTopBtn:focus{
+    outline:2px solid rgba(255,255,255,0.35);
+  }
+  #pkTopBtn:hover{
+    transform:translateY(-3px);
+    filter:brightness(1.08);
+  }
+  #pkTopBtn svg{display:block}
+  #pkTopBtn .pkRingBg{stroke:rgba(255,255,255,.25)}
+  #pkTopBtn .pkRingProg{stroke:#ffffff}
+  #pkTopBtn .pkArrow{stroke:#ffffff}
+  @media(max-width:600px){
+    #pkTopBtn{bottom:80px}
+  }
+</style>
+<div id="pkScrollBar"></div>
+<button id="pkTopBtn" aria-label="Back to top">
+  <svg width="46" height="46" viewBox="0 0 46 46" aria-hidden="true">
+    <circle class="pkRingBg" cx="23" cy="23" r="18" fill="none" stroke-width="3"></circle>
+    <circle id="pkRingProg" class="pkRingProg" cx="23" cy="23" r="18" fill="none" stroke-width="3"
+            stroke-linecap="round" transform="rotate(-90 23 23)"></circle>
+    <path class="pkArrow" d="M17 26L23 20L29 26" fill="none" stroke-width="2.4"
+          stroke-linecap="round" stroke-linejoin="round"></path>
+  </svg>
+</button>
+<script>
+(function(){
+  try{
+    var bar = document.getElementById('pkScrollBar');
+    var btn = document.getElementById('pkTopBtn');
+    var ring = document.getElementById('pkRingProg');
+    if(!bar || !btn || !ring) return;
+    var r = 18;
+    var C = 2 * Math.PI * r;
+    ring.style.strokeDasharray = C;
+    ring.style.strokeDashoffset = C;
+    function onScroll(){
+      var h = document.documentElement;
+      var sc = h.scrollTop || document.body.scrollTop;
+      var max = (h.scrollHeight - h.clientHeight) || 1;
+      var p = sc / max;
+      bar.style.width = (p * 100) + '%';
+      ring.style.strokeDashoffset = C * (1 - p);
+      if(sc > 500){
+        if(!btn.classList.contains('pkShow')) btn.classList.add('pkShow');
+      }else{
+        btn.classList.remove('pkShow');
+      }
+    }
+    window.addEventListener('scroll', onScroll, {passive:true});
+    onScroll();
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+  }catch(e){}
+})();
+</script>
+
+<!-- ===== WhatsApp Floating Button ===== -->
+<script>
+(function(){
+  try{
+    if(window.ChatWidget_wa) return;
+
+    var config = {
+      number:  "201035707561",
+      message: "فريق الدعم في خدمتك .. ارسل سؤالك وسنقوم بالرد عليك فوراً",
+
+      textA: "تواصل معنا",
+      textB: "متاح الآن ✅",
+
+      color: "#0E7AFE",
+
+      position: "right", // right | left
+      mx: 30,
+      mb: 30,
+      radius: 35,
+
+      showAfterScrollPx: 160,
+      hideNearFooterPx: 180,
+      footerSelector: "#pkFooter, footer",
+
+      holdMs: 3000,
+      iconHoverScale: 1.18,
+
+      pulse: true,
+      pulseDuration: 2.2,
+      pulseMaxScale: 2.3,
+      dot: true
+    };
+
+    function enc(s){ return encodeURIComponent(s || ""); }
+
+    function isMobile(){
+      if(window.matchMedia) return window.matchMedia("(max-width:600px)").matches;
+      return (window.innerWidth || 9999) <= 600;
+    }
+
+    function findFooter(){
+      try{
+        var sels = (config.footerSelector || "footer").split(",");
+        for(var i=0;i<sels.length;i++){
+          var el = document.querySelector(sels[i].trim());
+          if(el) return el;
+        }
+      }catch(e){}
+      return null;
+    }
+
+    function injectStyles(){
+      if(document.getElementById("cw-wa-style")) return;
+
+      var st = document.createElement("style");
+      st.id = "cw-wa-style";
+      st.textContent = `
+#chat-widget-wa .cw-ico-wrap{
+  position: relative;
+  overflow: visible;
+  --cwColor: #0E7AFE;
+  --cwPulseDur: 2.2s;
+  --cwPulseScale: 2.3;
+}
+
+#chat-widget-wa .cw-ico-wrap.cw-pulse::before,
+#chat-widget-wa .cw-ico-wrap.cw-pulse::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:100%;
+  height:100%;
+  border-radius:999px;
+  transform: translate(-50%,-50%) scale(1);
+  pointer-events:none;
+  z-index:0;
+
+  border: 2px solid rgba(14,122,254,.35);
+  box-shadow: 0 0 0 0 rgba(14,122,254,.22), 0 0 18px rgba(14,122,254,.22);
+
+  animation: cwPulse var(--cwPulseDur) ease-out infinite;
+}
+
+#chat-widget-wa .cw-ico-wrap.cw-pulse::after{
+  animation-delay: calc(var(--cwPulseDur) / 2);
+}
+
+@keyframes cwPulse{
+  0%   { opacity: .75; transform: translate(-50%,-50%) scale(1); }
+  70%  { opacity: 0;   transform: translate(-50%,-50%) scale(var(--cwPulseScale)); }
+  100% { opacity: 0;   transform: translate(-50%,-50%) scale(var(--cwPulseScale)); }
+}
+
+#chat-widget-wa .cw-dot{
+  position:absolute;
+  width:9px;
+  height:9px;
+  border-radius:999px;
+  top:-1px;
+  right:-1px;
+  background:#ff2b2b;
+  box-shadow: 0 0 0 2px #fff, 0 4px 10px rgba(0,0,0,.25);
+  z-index:3;
+  pointer-events:none;
+}
+      `;
+      document.head.appendChild(st);
+    }
+
+    function build(){
+      injectStyles();
+
+      var widget = document.createElement("div");
+      widget.id = "chat-widget-wa";
+      widget.style.position = "fixed";
+      widget.style.zIndex = "999999";
+      widget.style.cursor = "pointer";
+      widget.style.userSelect = "none";
+      widget.style.webkitTapHighlightColor = "transparent";
+
+      widget.style.opacity = "0";
+      widget.style.transform = "translateY(18px)";
+      widget.style.transition = "opacity .35s ease, transform .35s ease";
+      widget.style.pointerEvents = "none";
+
+      widget.style.bottom = config.mb + "px";
+      widget.style.left = "auto";
+      widget.style.right = "auto";
+      widget.style[config.position] = config.mx + "px";
+
+      var btn2 = document.createElement("div");
+      btn2.style.background = config.color;
+      btn2.style.color = "#ffffff";
+      btn2.style.padding = "12px 18px";
+      btn2.style.borderRadius = config.radius + "px";
+      btn2.style.display = "flex";
+      btn2.style.alignItems = "center";
+      btn2.style.gap = "10px";
+      btn2.style.fontFamily = "'Cairo',-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif";
+      btn2.style.fontSize = "14px";
+      btn2.style.fontWeight = "600";
+      btn2.style.boxShadow = "0 6px 18px rgba(0,0,0,.18)";
+      btn2.style.transition = "transform .22s ease, filter .22s ease";
+      btn2.style.willChange = "transform";
+
+      var iconWrap = document.createElement("span");
+      iconWrap.className = "cw-ico-wrap";
+      iconWrap.style.width = "28px";
+      iconWrap.style.height = "28px";
+      iconWrap.style.borderRadius = "999px";
+      iconWrap.style.background = "#ffffff";
+      iconWrap.style.display = "inline-flex";
+      iconWrap.style.alignItems = "center";
+      iconWrap.style.justifyContent = "center";
+      iconWrap.style.flex = "0 0 auto";
+
+      if(config.pulse){
+        iconWrap.classList.add("cw-pulse");
+        iconWrap.style.setProperty("--cwColor", config.color);
+        iconWrap.style.setProperty("--cwPulseDur", (config.pulseDuration || 2.2) + "s");
+        iconWrap.style.setProperty("--cwPulseScale", String(config.pulseMaxScale || 2.3));
+
+        var dynId = "cw-wa-dyn-" + config.color.replace(/[^a-z0-9]/gi,"");
+        if(!document.getElementById(dynId)){
+          var dyn = document.createElement("style");
+          dyn.id = dynId;
+          dyn.textContent = `
+#chat-widget-wa .cw-ico-wrap{
+  --cwR1: ${hexToRgba(config.color, .35)};
+  --cwR2: ${hexToRgba(config.color, .22)};
+}
+#chat-widget-wa .cw-ico-wrap.cw-pulse::before,
+#chat-widget-wa .cw-ico-wrap.cw-pulse::after{
+  border-color: var(--cwR1);
+  box-shadow: 0 0 0 0 var(--cwR2), 0 0 18px var(--cwR2);
+}
+          `;
+          document.head.appendChild(dyn);
+        }
+      }
+
+      iconWrap.innerHTML =
+        '<svg class="cw-ico" width="18" height="18" viewBox="0 0 25 25" fill="' + config.color + '" aria-hidden="true" style="transition:transform .18s ease;will-change:transform; position:relative; z-index:2;">' +
+        '<path d="M18.1225 14.9458C17.8183 14.7895 16.3033 14.0473 16.0215 13.9469C15.7397 13.8409 15.5332 13.7907 15.3295 14.1032C15.123 14.4129 14.5371 15.102 14.3529 15.3113C14.1744 15.5178 13.993 15.5429 13.6889 15.3894C11.8808 14.4854 10.695 13.7767 9.50361 11.7315C9.18832 11.1874 9.8189 11.2265 10.4076 10.0518C10.5081 9.84534 10.4578 9.66956 10.3797 9.51331C10.3016 9.35706 9.68776 7.84478 9.43106 7.22815C9.18274 6.62826 8.92604 6.71197 8.7391 6.70081C8.56053 6.68965 8.35684 6.68965 8.15037 6.68965C7.9439 6.68965 7.61187 6.76777 7.33006 7.0719C7.04825 7.38161 6.25305 8.12659 6.25305 9.63887C6.25305 11.1511 7.35517 12.616 7.50584 12.8225C7.66209 13.0289 9.67381 16.1316 12.7625 17.4681C14.7157 18.3107 15.4802 18.3833 16.4567 18.2382C17.051 18.1489 18.2759 17.496 18.5298 16.7734C18.7837 16.0535 18.7837 15.4369 18.7084 15.3085C18.6331 15.1718 18.4266 15.0937 18.1225 14.9458Z"></path>' +
+        '<path d="M24.0292 7.65625C23.3986 6.15792 22.4946 4.81306 21.3422 3.65792C20.198 2.50948 18.8395 1.5966 17.3439 0.970982C15.8093 0.326451 14.1798 0 12.5002 0H12.4444C10.7535 0.00837054 9.11567 0.343192 7.57549 1.00167C6.09267 1.63371 4.74699 2.54821 3.61344 3.6942C2.47226 4.84654 1.57661 6.18583 0.95719 7.67857C0.315449 9.22433 -0.00821224 10.8677 0.000158294 12.5586C0.00962607 14.4963 0.468048 16.4054 1.33944 18.1362V22.3772C1.33944 22.7176 1.47467 23.0441 1.71537 23.2848C1.95607 23.5255 2.28253 23.6607 2.62293 23.6607H6.86679C8.59752 24.5321 10.5067 24.9905 12.4444 25H12.5029C14.1743 25 15.7954 24.6763 17.3216 24.043C18.8097 23.4248 20.163 22.5226 21.306 21.3867C22.4583 20.2455 23.3651 18.9118 23.9985 17.4247C24.657 15.8845 24.9918 14.2467 25.0002 12.5558C25.0085 10.8566 24.6793 9.20759 24.0292 7.65625ZM19.8132 19.8772C17.8573 21.8136 15.2624 22.8795 12.5002 22.8795H12.4527C10.7702 22.8711 9.09893 22.4526 7.62293 21.6657L7.38855 21.5402H3.45998V17.6116L3.33442 17.3772C2.54759 15.9012 2.12906 14.2299 2.12069 12.5474C2.10953 9.76562 3.17259 7.15402 5.12293 5.18694C7.07047 3.21987 9.67371 2.1317 12.4555 2.12054H12.5029C13.898 2.12054 15.2513 2.39118 16.5264 2.9269C17.7708 3.44866 18.8869 4.19922 19.8467 5.15904C20.8037 6.11607 21.5571 7.23493 22.0788 8.47935C22.6201 9.76841 22.8908 11.1356 22.8852 12.5474C22.8685 15.3265 21.7775 17.9297 19.8132 19.8772Z"></path>' +
+        '</svg>';
+
+      if(config.dot){
+        var dot = document.createElement("span");
+        dot.className = "cw-dot";
+        iconWrap.appendChild(dot);
+      }
+
+      var txt = document.createElement("span");
+      txt.className = "cw-txt";
+      txt.textContent = config.textA;
+
+      btn2.appendChild(iconWrap);
+      btn2.appendChild(txt);
+      widget.appendChild(btn2);
+      document.body.appendChild(widget);
+
+      function applyResponsive(){
+        if(isMobile()){
+          widget.style.bottom = "18px";
+          widget.style[config.position] = "18px";
+          btn2.style.padding = "11px 16px";
+          btn2.style.fontSize = "13px";
+          iconWrap.style.width = "26px";
+          iconWrap.style.height = "26px";
+        }else{
+          widget.style.bottom = config.mb + "px";
+          widget.style[config.position] = config.mx + "px";
+          btn2.style.padding = "12px 18px";
+          btn2.style.fontSize = "14px";
+          iconWrap.style.width = "28px";
+          iconWrap.style.height = "28px";
+        }
+      }
+      applyResponsive();
+
+      var ico = iconWrap.querySelector(".cw-ico");
+      var holdTimer = null;
+      var hovering = false;
+
+      function iconGrow(){
+        if(ico) ico.style.transform = "scale(" + config.iconHoverScale + ")";
+      }
+      function iconReset(){
+        if(ico) ico.style.transform = "scale(1)";
+      }
+
+      function showAvailable(){
+        if(holdTimer) clearTimeout(holdTimer);
+        txt.textContent = config.textB;
+        iconGrow();
+        holdTimer = setTimeout(function(){
+          if(hovering) return;
+          txt.textContent = config.textA;
+          iconReset();
+        }, config.holdMs);
+      }
+
+      btn2.onmouseover = function(){
+        hovering = true;
+        showAvailable();
+        btn2.style.transform = "translateY(-2px) scale(1.04)";
+        btn2.style.filter = "brightness(1.04)";
+      };
+
+      btn2.onmouseout = function(){
+        hovering = false;
+        btn2.style.transform = "translateY(0) scale(1)";
+        btn2.style.filter = "brightness(1)";
+        showAvailable();
+      };
+
+      btn2.ontouchstart = function(){
+        hovering = true;
+        showAvailable();
+      };
+
+      btn2.ontouchend = function(){
+        hovering = false;
+      };
+
+      widget.onclick = function(){
+        window.open("https://wa.me/" + config.number + "?text=" + enc(config.message), "_blank");
+      };
+
+      var footer = findFooter();
+      function sync(){
+        applyResponsive();
+        var y = window.pageYOffset || 0;
+
+        if(footer){
+          var r2 = footer.getBoundingClientRect();
+          if(r2.top < window.innerHeight - config.hideNearFooterPx){
+            widget.style.opacity = "0";
+            widget.style.pointerEvents = "none";
+            return;
+          }
+        }
+
+        if(y > config.showAfterScrollPx){
+          widget.style.opacity = "1";
+          widget.style.transform = "translateY(0)";
+          widget.style.pointerEvents = "auto";
+        }else{
+          widget.style.opacity = "0";
+          widget.style.pointerEvents = "none";
+        }
+      }
+
+      sync();
+      window.addEventListener("scroll", sync, {passive:true});
+      window.addEventListener("resize", sync);
+    }
+
+    function hexToRgba(hex, a){
+      try{
+        hex = (hex || "").replace("#","").trim();
+        if(hex.length === 3){
+          hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+        }
+        var r = parseInt(hex.slice(0,2),16);
+        var g = parseInt(hex.slice(2,4),16);
+        var b = parseInt(hex.slice(4,6),16);
+        return "rgba(" + r + "," + g + "," + b + "," + (a==null?1:a) + ")";
+      }catch(e){
+        return "rgba(14,122,254," + (a==null?1:a) + ")";
+      }
+    }
+
+    if(document.readyState === "loading"){
+      document.addEventListener("DOMContentLoaded", build);
+    }else{
+      build();
+    }
+
+    window.ChatWidget_wa = true;
+
+  }catch(e){
+    window.ChatWidget_wa = true;
+  }
 })();
 </script>
 
