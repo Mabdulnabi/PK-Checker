@@ -118,7 +118,7 @@
     .chat-shell{position:relative;overflow:hidden;}
     #tab-chat .conv-sidebar, #tab-tickets .conv-sidebar{position:absolute;inset:0;width:100%;max-height:none;border-left:none;}
     #tab-chat .chat-main, #tab-tickets .chat-main{position:absolute;inset:0;width:100%;background:var(--paper);transform:translateX(100%);transition:transform .25s ease;z-index:2;}
-    .chat-shell.conv-open .chat-main{transform:translateX(0);}
+    #tab-chat .chat-shell.conv-open .chat-main, #tab-tickets .chat-shell.conv-open .chat-main{transform:translateX(0);}
     /* extra class on these two selectors bumps specificity above the later,
        unconditional base rules for the same properties (.chat-back-btn's
        display:none and .cp-head's padding) — same-specificity + later
@@ -310,7 +310,7 @@
   .tk-reply.from-user{background:var(--paper);border:1px solid var(--paper-line);}
   .tk-reply.from-admin{background:var(--blue);color:#fff;margin-right:auto;border-bottom-left-radius:3px;}
   /* ===== TOOLBAR (lang / currency) ===== */
-  .toolbar{display:flex;justify-content:flex-end;gap:10px;margin-bottom:14px;}
+  .toolbar{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-bottom:14px;}
   .lang-switch,.currency-switch{display:flex;align-items:center;gap:6px;height:34px;padding:0 14px;border-radius:10px;background:var(--paper);border:1px solid var(--paper-line);cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12px;color:var(--navy);}
   .lang-switch:hover,.currency-switch:hover{border-color:var(--blue);color:var(--blue-deep);}
 
@@ -475,6 +475,12 @@
   .admin-notif-text span{font-size:11px;color:var(--muted);line-height:1.5;}
   .admin-notif-time{font-size:10px;color:var(--muted);margin-top:3px;display:block;}
   .admin-notif-empty{padding:30px 16px;text-align:center;color:var(--muted);font-size:12px;}
+  .admin-menu-panel{position:absolute;top:42px;left:0;width:230px;background:var(--paper);border:1px solid var(--paper-line);border-radius:14px;box-shadow:0 20px 46px -16px rgba(0,0,0,0.3);z-index:200;display:none;overflow:hidden;padding:6px;}
+  .admin-menu-panel.open{display:block;}
+  .admin-menu-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:9px;font-family:'Cairo',sans-serif;font-size:13px;color:var(--ink);cursor:pointer;white-space:nowrap;}
+  .admin-menu-item:hover{background:var(--paper-soft);}
+  .admin-menu-item.danger{color:var(--danger);}
+  .admin-menu-divider{height:1px;background:var(--paper-line);margin:6px 4px;}
 
   /* Dark mode toggle */
   .dark-toggle{display:flex;align-items:center;gap:6px;height:34px;padding:0 14px;border-radius:10px;background:var(--paper);border:1px solid var(--paper-line);cursor:pointer;font-size:12px;font-weight:700;color:var(--navy);font-family:'Cairo',sans-serif;transition:all 0.2s;}
@@ -624,11 +630,6 @@
     <div class="main">
 
       <div class="toolbar" style="position:relative;">
-        <button class="qa-btn" onclick="qaAddCredit()" data-i18n="add_credit_btn" data-i18n-title="add_credit_title" title="إضافة كريديت">💳 إضافة كريديت</button>
-        <button class="qa-btn" onclick="qaSendBroadcast()" data-i18n="broadcast_btn" data-i18n-title="broadcast_title" title="رسالة جماعية">📢 رسالة</button>
-        <button class="dark-toggle" onclick="toggleDarkMode()" id="darkToggleBtn" data-i18n="dark_mode_btn">🌙 وضع ليلي</button>
-        <div class="lang-switch" id="langSwitch" onclick="toggleLang()">🌐 <span id="langSwitchLabel">EN</span></div>
-        <div class="currency-switch" id="currencySwitch" onclick="toggleCurrency()">💱 <span id="currencySwitchLabel">USD</span></div>
         <button class="admin-bell-btn" onclick="toggleAdminNotifPanel()" id="adminBellBtn" data-i18n-title="notif_bell_title" title="الإشعارات">
           <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           <span class="admin-bell-dot" id="adminBellDot"></span>
@@ -641,6 +642,18 @@
           <div class="admin-notif-list" id="adminNotifList">
             <div class="admin-notif-empty" data-i18n="notif_empty">لا توجد إشعارات</div>
           </div>
+        </div>
+
+        <span id="topAdminAvatar" onclick="toggleAdminMenu()" title="" data-i18n-title="user_profile" style="cursor:pointer;width:34px;height:34px;border-radius:50%;background:var(--blue-wash);color:var(--blue-deep);display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;overflow:hidden;flex:none;">—</span>
+        <div class="admin-menu-panel" id="adminMenuPanel">
+          <div class="admin-menu-item" onclick="toggleAdminMenu(false);openAdminProfilePopup()">👤 <span data-i18n="user_profile">ملف الأدمن</span></div>
+          <div class="admin-menu-item" onclick="toggleCurrency()">💱 <span data-i18n="currency_btn_lbl">العملة</span>: <span id="currencySwitchLabel">USD</span></div>
+          <div class="admin-menu-item" onclick="toggleLang()">🌐 <span data-i18n="lang_btn_lbl">اللغة</span>: <span id="langSwitchLabel">EN</span></div>
+          <div class="admin-menu-item" onclick="toggleDarkMode()" id="darkToggleBtn" data-i18n="dark_mode_btn">🌙 وضع ليلي</div>
+          <div class="admin-menu-item" onclick="toggleAdminMenu(false);qaSendBroadcast()" data-i18n="broadcast_btn" data-i18n-title="broadcast_title">📢 رسالة</div>
+          <div class="admin-menu-item" onclick="toggleAdminMenu(false);qaAddCredit()" data-i18n="add_credit_btn" data-i18n-title="add_credit_title">💳 إضافة كريديت</div>
+          <div class="admin-menu-divider"></div>
+          <div class="admin-menu-item danger" onclick="handleLogout()" data-i18n="logout">🚪 تسجيل الخروج</div>
         </div>
       </div>
 
@@ -1154,7 +1167,7 @@ let lastOverviewSnapshot = null;
 const I18N = {
   ar: {
     nav_overview:'نظرة عامة', nav_orders:'الطلبات', nav_chat:'الشات المباشر', nav_tickets:'تذاكر الدعم', nav_uidesign:'تصميم الواجهة', nav_checksettings:'إعدادات الفحص',
-    logout:'تسجيل الخروج', refresh:'⟲ تحديث',
+    logout:'تسجيل الخروج', refresh:'⟲ تحديث', user_profile:'ملف الأدمن', currency_btn_lbl:'العملة', lang_btn_lbl:'اللغة',
     overview_title:'نظرة عامة', overview_sub:'أداء المنصة',
     sec_credits:'الكريديت والطلبات الآن', sec_orders_count:'عدد الطلبات', sec_revenue:'الإيرادات (من شحن المحفظة)',
     lbl_api_credits:'الكريديت المتبقي في الـ API', lbl_floating:'Floating', lbl_processing:'قيد التنفيذ',
@@ -1248,7 +1261,7 @@ const I18N = {
   },
   en: {
     nav_overview:'Overview', nav_orders:'Orders', nav_chat:'Live Chat', nav_tickets:'Support Tickets', nav_uidesign:'UI Design', nav_checksettings:'Check Settings',
-    logout:'Logout', refresh:'⟲ Refresh',
+    logout:'Logout', refresh:'⟲ Refresh', user_profile:'Admin Profile', currency_btn_lbl:'Currency', lang_btn_lbl:'Language',
     overview_title:'Overview', overview_sub:'Platform performance',
     sec_credits:'Credits & current orders', sec_orders_count:'Order count', sec_revenue:'Revenue (from wallet top-ups)',
     lbl_api_credits:'Remaining API credits', lbl_floating:'Floating', lbl_processing:'Processing',
@@ -1451,10 +1464,12 @@ async function handleLogout(){
 // pass; anyone missing the specific permission key does not.
 /* ---------------- ADMIN'S OWN PROFILE ---------------- */
 function renderSideAdminAvatar(){
-  const el = document.getElementById('sideAdminAvatar');
-  if (!el) return;
-  if (currentAdmin.avatarUrl) el.innerHTML = `<img src="${escapeHtml(currentAdmin.avatarUrl)}" alt="" style="width:100%;height:100%;object-fit:cover;">`;
-  else el.textContent = (currentAdmin.name || '؟').charAt(0).toUpperCase();
+  ['sideAdminAvatar','topAdminAvatar'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (currentAdmin.avatarUrl) el.innerHTML = `<img src="${escapeHtml(currentAdmin.avatarUrl)}" alt="" style="width:100%;height:100%;object-fit:cover;">`;
+    else el.textContent = (currentAdmin.name || '؟').charAt(0).toUpperCase();
+  });
 }
 function openAdminProfilePopup(){
   document.getElementById('adminProfileName').value = currentAdmin.name || '';
@@ -2609,9 +2624,9 @@ function renderProblemOrdersList(){
     const p = profilesByUserId[o.user_id] || {};
     const reason = o.error_reason ? escapeHtml(o.error_reason) : (currentLang === 'ar' ? 'غير معروف' : 'Unknown');
     return `<tr>
-      <td class="mono" style="font-size:10.5px;color:var(--muted);">${escapeHtml(o.display_id||o.id.slice(0,8))}</td>
-      <td class="mono" style="color:var(--blue-deep);font-weight:700;">${clickablePk(o.user_id, p.pk_number)}</td>
-      <td><b style="font-size:12px;">${escapeHtml(p.full_name||'—')}</b></td>
+      <td class="mono" style="font-size:10.5px;color:var(--muted);white-space:nowrap;">${escapeHtml(o.display_id||o.id.slice(0,8))}</td>
+      <td class="mono" style="color:var(--blue-deep);font-weight:700;white-space:nowrap;">${clickablePk(o.user_id, p.pk_number)}</td>
+      <td style="white-space:nowrap;"><b style="font-size:12px;">${escapeHtml(p.full_name||'—')}</b></td>
       <td style="font-size:11px;white-space:nowrap;">${escapeHtml(o.file_name||'—')}</td>
       <td style="font-size:11px;color:var(--danger);white-space:nowrap;">${reason}</td>
       <td>${o.user_id ? `<button class="msg-btn" onclick="composeMessage('${o.user_id}','${o.display_id||o.id.slice(0,8)}')">✉</button>` : ''}</td>
@@ -4811,9 +4826,21 @@ function renderAdminNotifs(){
 }
 
 function toggleAdminNotifPanel(){
+  document.getElementById('adminMenuPanel')?.classList.remove('open');
   const p = document.getElementById('adminNotifPanel');
   p && p.classList.toggle('open');
 }
+function toggleAdminMenu(force){
+  document.getElementById('adminNotifPanel')?.classList.remove('open');
+  const p = document.getElementById('adminMenuPanel');
+  if (!p) return;
+  const open = typeof force === 'boolean' ? force : !p.classList.contains('open');
+  p.classList.toggle('open', open);
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#adminNotifPanel, #adminBellBtn')) document.getElementById('adminNotifPanel')?.classList.remove('open');
+  if (!e.target.closest('#adminMenuPanel, #topAdminAvatar')) document.getElementById('adminMenuPanel')?.classList.remove('open');
+});
 
 async function markAdminNotifRead(id){
   await supabaseClient.from('admin_notifications').update({is_read:true}).eq('id',id);
