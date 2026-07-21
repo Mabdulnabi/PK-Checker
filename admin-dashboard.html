@@ -126,7 +126,7 @@
        display:none and .cp-head's padding) — same-specificity + later
        source position was silently winning and hiding the back button */
     .chat-shell .chat-back-btn{display:inline-flex;}
-    .cp-head-row2{flex-wrap:nowrap;overflow-x:auto;row-gap:0;padding-bottom:2px;}
+    #tab-chat .cp-head-row2, #tab-tickets .cp-head-row2{flex-wrap:nowrap;overflow-x:auto;row-gap:0;padding-bottom:2px;}
     .cp-head-row2 > *{flex:none;}
     .chart-card{min-width:0;overflow:hidden;}
     .bar-chart{overflow-x:auto;}
@@ -393,7 +393,7 @@
   .ma-label{font-size:10.5px;color:var(--muted);font-weight:700;}
 
   /* problem-orders table (item 3) */
-  .prob-tbl{width:100%;border-collapse:collapse;}
+  .prob-tbl{width:100%;border-collapse:collapse;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
   .prob-tbl th{font-size:10px;color:var(--muted);font-weight:700;padding:0 8px 8px;text-align:right;border-bottom:1px solid var(--paper-line);white-space:nowrap;}
   .prob-tbl td{padding:8px;border-bottom:1px solid var(--paper-line);font-size:12px;vertical-align:middle;text-align:right;}
   html[dir="ltr"] .prob-tbl th,html[dir="ltr"] .prob-tbl td{text-align:left;}
