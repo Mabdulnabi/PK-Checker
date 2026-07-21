@@ -367,6 +367,20 @@ const LANG_DICT = {
 // every word, icon, and image on this page editable from the admin panel.
 let uiOverrides = { ar: {}, en: {}, icons: {}, iconSizes: {} };
 
+// Apply the last-known UI config from localStorage immediately (before the
+// network round-trip), so refreshes don't flash the hardcoded default text
+// and icons while ui_config is loading. Live data still fetched below and
+// re-cached for next time.
+try {
+  const cached = JSON.parse(localStorage.getItem('pk_ui_config_cache') || 'null');
+  if (cached) {
+    uiOverrides.ar = cached.i18n_ar || {};
+    uiOverrides.en = cached.i18n_en || {};
+    uiOverrides.icons = cached.icons || {};
+    uiOverrides.iconSizes = cached.icon_sizes || {};
+  }
+} catch (err) { /* corrupt cache, ignore */ }
+
 let currentLang = localStorage.getItem('prokeys-lang') || 'ar';
 
 function t(key){
@@ -482,6 +496,7 @@ async function loadUIConfig(){
     uiOverrides.en        = data.i18n_en    || {};
     uiOverrides.icons     = data.icons      || {};
     uiOverrides.iconSizes = data.icon_sizes || {};
+    try { localStorage.setItem('pk_ui_config_cache', JSON.stringify(data)); } catch (err) { /* storage full/disabled, ignore */ }
     applyLang();      // re-render text with the now-loaded overrides
     applyCustomIcons(); // header logo, "watch" icon, guarantee-card icons
     applyFavicon();
@@ -491,6 +506,8 @@ async function loadUIConfig(){
 }
 
 applyLang();
+applyCustomIcons();
+applyFavicon();
 loadUIConfig();
 
 // "Similarity only" service availability badge — reflects check_settings.sim_only_visible,
