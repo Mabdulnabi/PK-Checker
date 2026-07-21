@@ -1730,12 +1730,14 @@ async function loadConversations(){
   }
 }
 
-function subscribeRealtime(){
+function subscribeConversationsChannel(){
   supabaseClient.channel('admin-conversations-changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_conversations' }, (payload) => {
       upsertLocalConversation(payload.new || payload.old, payload.eventType);
     }).subscribe();
+}
 
+function subscribeMessagesChannel(){
   supabaseClient.channel('admin-messages-changes')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, (payload) => {
       const row = payload.new;
@@ -1754,17 +1756,23 @@ function subscribeRealtime(){
       const msg = openMessages.find(m => m.id === row.id);
       if (msg) { msg.read_at = row.read_at; renderChatThread(); }
     }).subscribe();
+}
 
+function subscribeTicketsChannel(){
   supabaseClient.channel('admin-tickets-changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'support_tickets' }, () => { loadTickets(); })
     .subscribe();
+}
 
+function subscribeTicketRepliesChannel(){
   supabaseClient.channel('admin-ticket-replies-changes')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'support_ticket_replies' }, (payload) => {
       if (payload.new.ticket_id === openTicketId) loadTicketThread(openTicketId);
       loadTickets();
     }).subscribe();
+}
 
+function subscribeWalletChannel(){
   supabaseClient.channel('admin-wallet-changes')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'wallet_transactions' }, () => {
       // Refresh whichever view is currently showing this data — no point
@@ -1773,29 +1781,46 @@ function subscribeRealtime(){
       if (document.getElementById('tab-overview')?.classList.contains('on')) loadOverview();
       if (document.getElementById('tab-accounts')?.classList.contains('on')) loadUsersTab();
     }).subscribe();
+}
 
-  // New orders, status changes (API polling, manual accept/reject) — keeps
-  // the Orders tab and Overview's problem-orders list current without a
-  // manual refresh button.
+// New orders, status changes (API polling, manual accept/reject) — keeps
+// the Orders tab and Overview's problem-orders list current without a
+// manual refresh button.
+function subscribeOrdersChannel(){
   supabaseClient.channel('admin-orders-changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
       if (document.getElementById('tab-orders')?.classList.contains('on')) loadOrders();
       if (document.getElementById('tab-overview')?.classList.contains('on')) loadOverview();
     }).subscribe();
+}
 
-  // Activity log — new entries appear live while the tab is open.
+// Activity log — new entries appear live while the tab is open.
+function subscribeActivityChannel(){
   supabaseClient.channel('admin-activity-changes')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admin_activity_log' }, () => {
       if (document.getElementById('tab-activity')?.classList.contains('on')) loadActivityTab();
     }).subscribe();
+}
 
-  // User profile changes (name/whatsapp/phone edited by the customer, or
-  // credits changing via wallet_transactions above) — keeps the Accounts
-  // tab's user list current.
+// User profile changes (name/whatsapp/phone edited by the customer, or
+// credits changing via wallet_transactions above) — keeps the Accounts
+// tab's user list current.
+function subscribeUsersChannel(){
   supabaseClient.channel('admin-users-changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'users_profile' }, () => {
       if (document.getElementById('tab-accounts')?.classList.contains('on')) loadUsersTab();
     }).subscribe();
+}
+
+function subscribeRealtime(){
+  subscribeConversationsChannel();
+  subscribeMessagesChannel();
+  subscribeTicketsChannel();
+  subscribeTicketRepliesChannel();
+  subscribeWalletChannel();
+  subscribeOrdersChannel();
+  subscribeActivityChannel();
+  subscribeUsersChannel();
 }
 
 function upsertLocalConversation(row, eventType){
@@ -2577,55 +2602,48 @@ function restoreTabScroll(tab){
 })();
 
 /* ---------------- OVERVIEW ---------------- */
-async function loadOverview(){
-  document.getElementById('overviewSub').textContent = 'جاري التحميل...';
+function countSince(list, dateField, since){
+  return list.filter(o => new Date(o[dateField]) >= since).length;
+}
+function sumSince(list, dateField, amountField, since){
+  return list.filter(o => new Date(o[dateField]) >= since)
+    .reduce((s, o) => s + (Number(o[amountField]) || 0), 0);
+}
 
-  const [ordersRes, profilesRes, walletRes] = await Promise.all([
-    supabaseClient.from('orders').select('id, status, submitted_at, check_type'),
-    supabaseClient.from('users_profile_numbered').select('user_id', { count: 'exact', head: true }),
-    supabaseClient.from('wallet_transactions').select('amount, created_at').eq('type', 'credit'),
-  ]);
-
-  if (ordersRes.error) { console.error(ordersRes.error); document.getElementById('overviewSub').textContent = 'تعذر التحميل'; return; }
-
-  const orders = ordersRes.data || [];
-  const wallet = walletRes.data || [];
-  const usersCount = profilesRes.count ?? '—';
-
-  const now = new Date();
+function getOverviewDateRanges(now){
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const startOfWeek = new Date(startOfToday); startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const startOfYear = new Date(now.getFullYear(), 0, 1);
+  return { startOfToday, startOfWeek, startOfMonth, startOfYear };
+}
 
-  function countSince(list, dateField, since){
-    return list.filter(o => new Date(o[dateField]) >= since).length;
-  }
-  function sumSince(list, dateField, amountField, since){
-    return list.filter(o => new Date(o[dateField]) >= since)
-      .reduce((s, o) => s + (Number(o[amountField]) || 0), 0);
-  }
+function renderOverviewOrderKpis(orders, ranges){
+  document.getElementById('kpiOrdersToday').textContent = countSince(orders, 'submitted_at', ranges.startOfToday);
+  document.getElementById('kpiOrdersWeek').textContent = countSince(orders, 'submitted_at', ranges.startOfWeek);
+  document.getElementById('kpiOrdersMonth').textContent = countSince(orders, 'submitted_at', ranges.startOfMonth);
+  document.getElementById('kpiOrdersYear').textContent = countSince(orders, 'submitted_at', ranges.startOfYear);
+}
 
-  document.getElementById('kpiOrdersToday').textContent = countSince(orders, 'submitted_at', startOfToday);
-  document.getElementById('kpiOrdersWeek').textContent = countSince(orders, 'submitted_at', startOfWeek);
-  document.getElementById('kpiOrdersMonth').textContent = countSince(orders, 'submitted_at', startOfMonth);
-  document.getElementById('kpiOrdersYear').textContent = countSince(orders, 'submitted_at', startOfYear);
-
-  // Net profit = revenue from wallet top-ups - API cost per completed check
-  // (sim_only: cost 0 → full profit; sim_ai/both: cost 32.5 EGP each)
-  const revToday = sumSince(wallet, 'created_at', 'amount', startOfToday) * EGP_PER_CREDIT;
-  const revWeek  = sumSince(wallet, 'created_at', 'amount', startOfWeek)  * EGP_PER_CREDIT;
-  const revMonth = sumSince(wallet, 'created_at', 'amount', startOfMonth) * EGP_PER_CREDIT;
-  const revYear  = sumSince(wallet, 'created_at', 'amount', startOfYear)  * EGP_PER_CREDIT;
-  const profToday = calcNetProfit(orders, startOfToday);
-  const profWeek  = calcNetProfit(orders, startOfWeek);
-  const profMonth = calcNetProfit(orders, startOfMonth);
-  const profYear  = calcNetProfit(orders, startOfYear);
+// Net profit = revenue from wallet top-ups - API cost per completed check
+// (sim_only: cost 0 → full profit; sim_ai/both: cost 32.5 EGP each)
+function renderOverviewRevenueKpis(orders, wallet, ranges){
+  const revToday = sumSince(wallet, 'created_at', 'amount', ranges.startOfToday) * EGP_PER_CREDIT;
+  const revWeek  = sumSince(wallet, 'created_at', 'amount', ranges.startOfWeek)  * EGP_PER_CREDIT;
+  const revMonth = sumSince(wallet, 'created_at', 'amount', ranges.startOfMonth) * EGP_PER_CREDIT;
+  const revYear  = sumSince(wallet, 'created_at', 'amount', ranges.startOfYear)  * EGP_PER_CREDIT;
+  const profToday = calcNetProfit(orders, ranges.startOfToday);
+  const profWeek  = calcNetProfit(orders, ranges.startOfWeek);
+  const profMonth = calcNetProfit(orders, ranges.startOfMonth);
+  const profYear  = calcNetProfit(orders, ranges.startOfYear);
   document.getElementById('kpiRevToday').innerHTML = `${formatMoney(revToday)}<div style="font-size:10px;color:var(--ok);">${t('profit_label')}: ${formatMoney(profToday)}</div>`;
   document.getElementById('kpiRevWeek').innerHTML  = `${formatMoney(revWeek)}<div style="font-size:10px;color:var(--ok);">${t('profit_label')}: ${formatMoney(profWeek)}</div>`;
   document.getElementById('kpiRevMonth').innerHTML = `${formatMoney(revMonth)}<div style="font-size:10px;color:var(--ok);">${t('profit_label')}: ${formatMoney(profMonth)}</div>`;
   document.getElementById('kpiRevYear').innerHTML  = `${formatMoney(revYear)}<div style="font-size:10px;color:var(--ok);">${t('profit_label')}: ${formatMoney(profYear)}</div>`;
+  return { revToday, revWeek, revMonth, revYear };
+}
 
+function renderOverviewStatusKpis(orders, usersCount){
   const floating = orders.filter(o => o.status === 'floating').length;
   const processing = orders.filter(o => ['uploading','pending','processing'].includes(o.status)).length;
   const completed = orders.filter(o => o.status === 'completed').length;
@@ -2642,6 +2660,30 @@ async function loadOverview(){
   document.getElementById('kpiCompleted').textContent = completed;
   document.getElementById('kpiStuck').textContent = stuck;
   document.getElementById('kpiUsers').textContent = usersCount;
+  return { floating, processing, completed, problem };
+}
+
+async function loadOverview(){
+  document.getElementById('overviewSub').textContent = 'جاري التحميل...';
+
+  const [ordersRes, profilesRes, walletRes] = await Promise.all([
+    supabaseClient.from('orders').select('id, status, submitted_at, check_type'),
+    supabaseClient.from('users_profile_numbered').select('user_id', { count: 'exact', head: true }),
+    supabaseClient.from('wallet_transactions').select('amount, created_at').eq('type', 'credit'),
+  ]);
+
+  if (ordersRes.error) { console.error(ordersRes.error); document.getElementById('overviewSub').textContent = 'تعذر التحميل'; return; }
+
+  const orders = ordersRes.data || [];
+  const wallet = walletRes.data || [];
+  const usersCount = profilesRes.count ?? '—';
+
+  const now = new Date();
+  const ranges = getOverviewDateRanges(now);
+
+  renderOverviewOrderKpis(orders, ranges);
+  const { revToday, revWeek, revMonth, revYear } = renderOverviewRevenueKpis(orders, wallet, ranges);
+  const { floating, processing, completed, problem } = renderOverviewStatusKpis(orders, usersCount);
 
   // API credit balance — proxied through the get-api-credits Edge
   // Function so the turnitin.blog token never reaches the browser.
@@ -2653,8 +2695,8 @@ async function loadOverview(){
   // Snapshot for CSV export — kept in EGP (the ledger's real currency);
   // exportOverviewCSV() converts to USD at export time if that's selected.
   lastOverviewSnapshot = {
-    ordersToday: countSince(orders, 'submitted_at', startOfToday), ordersWeek: countSince(orders, 'submitted_at', startOfWeek),
-    ordersMonth: countSince(orders, 'submitted_at', startOfMonth), ordersYear: countSince(orders, 'submitted_at', startOfYear),
+    ordersToday: countSince(orders, 'submitted_at', ranges.startOfToday), ordersWeek: countSince(orders, 'submitted_at', ranges.startOfWeek),
+    ordersMonth: countSince(orders, 'submitted_at', ranges.startOfMonth), ordersYear: countSince(orders, 'submitted_at', ranges.startOfYear),
     revToday, revWeek, revMonth, revYear,
     floating, processing, completed, problem, usersCount,
   };
@@ -5243,6 +5285,64 @@ async function initBroadcastTab(){
   await loadBroadcastHistory();
 }
 
+// Get target user ids — always fetched fresh from the DB rather than the
+// client-side profilesByUserId cache, which may not be populated yet
+// (e.g. admin opens the Broadcast tab before the Orders tab has loaded).
+async function resolveBroadcastTargets(filter){
+  if (filter === 'zero_credits') {
+    const { data, error } = await supabaseClient.from('users_profile_numbered').select('user_id').eq('credits', 0);
+    if (error) console.error('sendBroadcast (zero_credits):', error);
+    return (data || []).map(u => u.user_id);
+  }
+  if (filter === 'has_credits') {
+    const { data, error } = await supabaseClient.from('users_profile_numbered').select('user_id').gt('credits', 0);
+    if (error) console.error('sendBroadcast (has_credits):', error);
+    return (data || []).map(u => u.user_id);
+  }
+  // 'all' and 'inactive_30d' (simple: all users for now)
+  const { data, error } = await supabaseClient.from('users_profile_numbered').select('user_id');
+  if (error) console.error('sendBroadcast (all):', error);
+  return (data || []).map(u => u.user_id);
+}
+
+// Insert notifications via a SECURITY DEFINER RPC — a direct client insert
+// into `notifications` for other users is blocked by RLS (that table has
+// no INSERT policy at all), which is why this always reported "0 عميل"
+// before: the insert silently failed and cnt never incremented.
+async function sendBroadcastNotifications(targetIds, titleAr, titleEn, bodyAr, bodyEn){
+  let cnt = 0;
+  const BATCH = 200;
+  for (let i = 0; i < targetIds.length; i += BATCH) {
+    const { data, error } = await supabaseClient.rpc('send_broadcast_notifications', {
+      target_user_ids: targetIds.slice(i, i + BATCH),
+      p_title_ar: titleAr, p_title_en: titleEn || titleAr,
+      p_body_ar: bodyAr || '', p_body_en: bodyEn || bodyAr || '',
+    });
+    if (error) console.error('sendBroadcast (rpc):', error);
+    else cnt += (data || 0);
+  }
+  return cnt;
+}
+
+async function logBroadcast(titleAr, titleEn, bodyAr, bodyEn, filter, cnt){
+  await supabaseClient.from('broadcast_messages').insert({
+    title_ar: titleAr, title_en: titleEn || titleAr,
+    body_ar: bodyAr, body_en: bodyEn,
+    target_filter: { type: filter },
+    recipient_count: cnt,
+    admin_id: currentAdmin?.id || null,
+    admin_name: currentAdmin?.name || 'أدمن'
+  });
+  await logAdminActivity('broadcast_send', null, '', `إرسال رسالة جماعية: "${titleAr}" → ${cnt} مستلم`);
+}
+
+function resetBroadcastForm(){
+  document.getElementById('bcTitleAr').value = '';
+  document.getElementById('bcTitleEn').value = '';
+  document.getElementById('bcBodyAr').value = '';
+  document.getElementById('bcBodyEn').value = '';
+}
+
 async function sendBroadcast(){
   const titleAr = document.getElementById('bcTitleAr').value.trim();
   const titleEn = document.getElementById('bcTitleEn').value.trim();
@@ -5254,59 +5354,14 @@ async function sendBroadcast(){
   const st  = document.getElementById('bcStatus');
   btn.disabled=true; st.textContent='جاري إرسال الرسالة...';
 
-  // Get target user ids — always fetched fresh from the DB rather than the
-  // client-side profilesByUserId cache, which may not be populated yet
-  // (e.g. admin opens the Broadcast tab before the Orders tab has loaded).
-  let targetIds = [];
-  if(filter==='zero_credits'){
-    const { data, error } = await supabaseClient.from('users_profile_numbered').select('user_id').eq('credits',0);
-    if(error) console.error('sendBroadcast (zero_credits):', error);
-    targetIds = (data||[]).map(u=>u.user_id);
-  } else if(filter==='has_credits'){
-    const { data, error } = await supabaseClient.from('users_profile_numbered').select('user_id').gt('credits',0);
-    if(error) console.error('sendBroadcast (has_credits):', error);
-    targetIds = (data||[]).map(u=>u.user_id);
-  } else {
-    // 'all' and 'inactive_30d' (simple: all users for now)
-    const { data, error } = await supabaseClient.from('users_profile_numbered').select('user_id');
-    if(error) console.error('sendBroadcast (all):', error);
-    targetIds = (data||[]).map(u=>u.user_id);
-  }
-
-  // Insert notifications via a SECURITY DEFINER RPC — a direct client insert
-  // into `notifications` for other users is blocked by RLS (that table has
-  // no INSERT policy at all), which is why this always reported "0 عميل"
-  // before: the insert silently failed and cnt never incremented.
-  let cnt = 0;
-  const BATCH = 200;
-  for(let i=0;i<targetIds.length;i+=BATCH){
-    const { data, error } = await supabaseClient.rpc('send_broadcast_notifications', {
-      target_user_ids: targetIds.slice(i,i+BATCH),
-      p_title_ar: titleAr, p_title_en: titleEn||titleAr,
-      p_body_ar: bodyAr||'', p_body_en: bodyEn||bodyAr||'',
-    });
-    if(error) console.error('sendBroadcast (rpc):', error);
-    else cnt += (data || 0);
-  }
-
-  // Log broadcast
-  await supabaseClient.from('broadcast_messages').insert({
-    title_ar:titleAr, title_en:titleEn||titleAr,
-    body_ar:bodyAr, body_en:bodyEn,
-    target_filter:{type:filter},
-    recipient_count:cnt,
-    admin_id: currentAdmin?.id || null,
-    admin_name: currentAdmin?.name || 'أدمن'
-  });
-  await logAdminActivity('broadcast_send',null,'',`إرسال رسالة جماعية: "${titleAr}" → ${cnt} مستلم`);
+  const targetIds = await resolveBroadcastTargets(filter);
+  const cnt = await sendBroadcastNotifications(targetIds, titleAr, titleEn, bodyAr, bodyEn);
+  await logBroadcast(titleAr, titleEn, bodyAr, bodyEn, filter, cnt);
 
   btn.disabled=false;
   st.textContent=`✅ تم الإرسال لـ ${cnt} عميل`;
   setTimeout(()=>st.textContent='',5000);
-  document.getElementById('bcTitleAr').value='';
-  document.getElementById('bcTitleEn').value='';
-  document.getElementById('bcBodyAr').value='';
-  document.getElementById('bcBodyEn').value='';
+  resetBroadcastForm();
   await loadBroadcastHistory();
 }
 

@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="shared/pk-shared.js"></script>
 <style>
   :root{
     --navy:#1B2556;
@@ -1554,29 +1555,7 @@ function applyFavicon(){
 }
 
 function applyCustomIcons(){
-  const icons = uiConfigOverrides.icons || {};
-  const sizes = uiConfigOverrides.iconSizes || {};
-  document.querySelectorAll('[data-icon-key]').forEach(el => {
-    const key = el.dataset.iconKey;
-    const url = icons[key];
-    const overridePx = sizes[key];
-    const size = (overridePx ? overridePx + 'px' : null) || ICON_SIZE_MAP[key] || '18px';
-    if (url) {
-      const img = document.createElement('img');
-      img.src = url;
-      img.alt = key;
-      const isLogo = key.indexOf('logo')===0 || key==='site_favicon';
-      img.style.cssText = isLogo
-        ? `height:${size};width:auto;max-width:none;object-fit:contain;flex:none;display:inline-block;vertical-align:middle;`
-        : `width:${size};height:${size};object-fit:contain;flex:none;display:inline-block;vertical-align:middle;`;
-      el.replaceWith(img);
-    } else if (overridePx) {
-      // No custom image, just a size change — keep the original icon/emoji, just bigger/smaller.
-      el.style.width = size;
-      el.style.height = size;
-      if (el.tagName === 'SPAN') el.style.fontSize = size; // emoji-based icons (e.g. dark mode toggle)
-    }
-  });
+  PK.applyIcons(() => uiConfigOverrides, ICON_SIZE_MAP);
 }
 
 const I18N = {
@@ -2395,6 +2374,93 @@ async function handleDynamicGatewayPurchase(gateway, cfg){
   }
 }
 
+// Step 1: creates the pending payment row before any verification happens.
+async function createPendingPayment(gateway, amountForDb, isEgp, credits){
+  const { data: paymentRow, error: insertErr } = await supabaseClient
+    .from('payments')
+    .insert({
+      user_id: PROKEYS_USER_ID,
+      amount: amountForDb,
+      currency: isEgp ? 'EGP' : 'USD',
+      gateway: gateway,
+      status: 'pending',
+      credits: credits,
+      pack_id: selectedPack.id || null,
+      transaction_id: null, // will be set by edge function on success
+    })
+    .select('id')
+    .single();
+
+  if (insertErr) throw insertErr;
+  return paymentRow;
+}
+
+// Custom payment methods (added via the admin's Payment Gateways tab) have
+// no automated verification edge function — an actual integration per
+// gateway needs real API credentials, which this tool can't invent. Route
+// these to manual admin review instead of calling a nonexistent endpoint.
+async function markPaymentForManualReview(paymentRow, refValue){
+  const { error: updErr } = await supabaseClient.from('payments').update({ transaction_id: refValue }).eq('id', paymentRow.id);
+  if (updErr) throw updErr;
+  document.getElementById('walletTxidInput').value = '';
+  await appAlert(
+    currentLang==='ar'
+      ? '✅ تم استلام طلبك وهيتم مراجعته يدويًا من فريق الدعم قريبًا.'
+      : '✅ Your request was received and will be reviewed manually by our team shortly.',
+    {icon:'success'}
+  );
+}
+
+// Step 2: calls the gateway-specific verify edge function. Throws on any
+// transport/response-level failure, exactly as the inline code did.
+async function callVerifyEdgeFunction(cfg, paymentRow, refValue){
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  const payload = { payment_id: paymentRow.id, [cfg.payload_key]: refValue };
+
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/${cfg.edge_fn}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+    body: JSON.stringify(payload),
+  });
+  const json = await res.json();
+
+  if (!res.ok || !json.success) {
+    throw new Error(json.error || 'Verification failed');
+  }
+  return json;
+}
+
+// Step 3: handles both outcomes of a returned verify-edge-function result —
+// verified (credit the wallet) or not verified (show the specific reason).
+async function handleVerificationResult(json, credits){
+  if (json.verified) {
+    // Payment confirmed, wallet credited
+    document.getElementById('walletTxidInput').value = '';
+    userBalance = json.newBalance ?? userBalance;
+    renderKpis();
+    await appAlert(
+      currentLang==='ar'
+        ? `✅ تم التحقق وإضافة ${credits} كريديت لرصيدك!`
+        : `✅ Verified! ${credits} credits added to your wallet.`,
+      {icon:'success'}
+    );
+    loadDashboardData();
+  } else {
+    // Not verified — show specific reason
+    const reasonMessages = {
+      tx_not_found: { ar: 'لم يتم العثور على هذه العملية. تأكد من صحة الرقم وحاول مرة أخرى.', en: 'Transaction not found. Check the ID and try again.' },
+      wrong_amount: { ar: `المبلغ المدفوع (${json.paid?.toFixed(2)}) أقل من المطلوب. تواصل مع الدعم.`, en: `Amount paid (${json.paid?.toFixed(2)}) is less than required. Contact support.` },
+      not_paid: { ar: 'العملية لم تكتمل بعد. انتظر قليلاً وحاول مرة أخرى.', en: 'Payment not completed yet. Wait a moment and try again.' },
+      not_found: { ar: 'لم يتم العثور على الرقم المرجعي في سجلاتنا. تأكد من الرقم.', en: 'Reference number not found. Please check and try again.' },
+      already_used: { ar: 'هذا الرقم المرجعي استُخدم مسبقاً. تواصل مع الدعم.', en: 'This reference number has already been used. Contact support.' },
+      wrong_amount_egp: { ar: `المبلغ المدفوع (${json.paid?.toFixed(0)} جنيه) غير صحيح. تواصل مع الدعم.`, en: `Wrong amount paid. Contact support.` },
+    };
+    const reason = json.reason || 'tx_not_found';
+    const msg = reasonMessages[reason] || reasonMessages['tx_not_found'];
+    await appAlert(currentLang==='ar' ? msg.ar : msg.en, {icon:'error'});
+  }
+}
+
 async function confirmWalletPurchase(){
   if (!PROKEYS_USER_ID) { window.location.href = 'index.html'; return; }
   if(!selectedPack){ await appAlert(currentLang==='ar' ? 'من فضلك اختر باقة أولاً' : 'Please select a pack first', {icon:'warning'}); return; }
@@ -2420,84 +2486,20 @@ async function confirmWalletPurchase(){
 
   try {
     // Step 1: create pending payment row
-    const { data: paymentRow, error: insertErr } = await supabaseClient
-      .from('payments')
-      .insert({
-        user_id: PROKEYS_USER_ID,
-        amount: amountForDb,
-        currency: isEgp ? 'EGP' : 'USD',
-        gateway: gateway,
-        status: 'pending',
-        credits: credits,
-        pack_id: selectedPack.id || null,
-        transaction_id: null, // will be set by edge function on success
-      })
-      .select('id')
-      .single();
+    const paymentRow = await createPendingPayment(gateway, amountForDb, isEgp, credits);
 
-    if (insertErr) throw insertErr;
-
-    // Custom payment methods (added via the admin's Payment Gateways tab)
-    // have no automated verification edge function — an actual integration
-    // per gateway needs real API credentials, which this tool can't invent.
-    // Route these to manual admin review instead of calling a nonexistent
-    // endpoint.
     if (!cfg.edge_fn) {
-      const { error: updErr } = await supabaseClient.from('payments').update({ transaction_id: refValue }).eq('id', paymentRow.id);
-      if (updErr) throw updErr;
-      document.getElementById('walletTxidInput').value = '';
-      await appAlert(
-        currentLang==='ar'
-          ? '✅ تم استلام طلبك وهيتم مراجعته يدويًا من فريق الدعم قريبًا.'
-          : '✅ Your request was received and will be reviewed manually by our team shortly.',
-        {icon:'success'}
-      );
+      await markPaymentForManualReview(paymentRow, refValue);
       confirmBtn.disabled = false;
       confirmBtn.textContent = prevText;
       return;
     }
 
     // Step 2: call the appropriate verify edge function
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    const payload = { payment_id: paymentRow.id, [cfg.payload_key]: refValue };
+    const json = await callVerifyEdgeFunction(cfg, paymentRow, refValue);
 
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/${cfg.edge_fn}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-      body: JSON.stringify(payload),
-    });
-    const json = await res.json();
-
-    if (!res.ok || !json.success) {
-      throw new Error(json.error || 'Verification failed');
-    }
-
-    if (json.verified) {
-      // Payment confirmed, wallet credited
-      document.getElementById('walletTxidInput').value = '';
-      userBalance = json.newBalance ?? userBalance;
-      renderKpis();
-      await appAlert(
-        currentLang==='ar'
-          ? `✅ تم التحقق وإضافة ${credits} كريديت لرصيدك!`
-          : `✅ Verified! ${credits} credits added to your wallet.`,
-        {icon:'success'}
-      );
-      loadDashboardData();
-    } else {
-      // Not verified — show specific reason
-      const reasonMessages = {
-        tx_not_found: { ar: 'لم يتم العثور على هذه العملية. تأكد من صحة الرقم وحاول مرة أخرى.', en: 'Transaction not found. Check the ID and try again.' },
-        wrong_amount: { ar: `المبلغ المدفوع (${json.paid?.toFixed(2)}) أقل من المطلوب. تواصل مع الدعم.`, en: `Amount paid (${json.paid?.toFixed(2)}) is less than required. Contact support.` },
-        not_paid: { ar: 'العملية لم تكتمل بعد. انتظر قليلاً وحاول مرة أخرى.', en: 'Payment not completed yet. Wait a moment and try again.' },
-        not_found: { ar: 'لم يتم العثور على الرقم المرجعي في سجلاتنا. تأكد من الرقم.', en: 'Reference number not found. Please check and try again.' },
-        already_used: { ar: 'هذا الرقم المرجعي استُخدم مسبقاً. تواصل مع الدعم.', en: 'This reference number has already been used. Contact support.' },
-        wrong_amount_egp: { ar: `المبلغ المدفوع (${json.paid?.toFixed(0)} جنيه) غير صحيح. تواصل مع الدعم.`, en: `Wrong amount paid. Contact support.` },
-      };
-      const reason = json.reason || 'tx_not_found';
-      const msg = reasonMessages[reason] || reasonMessages['tx_not_found'];
-      await appAlert(currentLang==='ar' ? msg.ar : msg.en, {icon:'error'});
-    }
+    // Step 3: handle the result
+    await handleVerificationResult(json, credits);
   } catch (err) {
     console.error('confirmWalletPurchase failed:', err);
     let msg = currentLang==='ar' ? 'حدث خطأ أثناء التحقق. حاول مرة أخرى.' : 'Verification error. Please try again.';
@@ -2668,6 +2670,36 @@ function toggleTicket(idx){
 }
 renderInbox();
 
+// Uploads the attached file (if any) for a just-created ticket. Returns
+// { attachmentUrl, attachmentName } (both null if there's no attachment or
+// the upload fails — a failed attachment upload must never fail the ticket
+// itself, since the ticket row is already saved by the time this runs).
+async function uploadTicketAttachment(ticketId){
+  if (!ticketAttachedFile) return { attachmentUrl: null, attachmentName: null };
+  try {
+    const path = `${ticketId}/${Date.now()}_${ticketAttachedFile.name}`;
+    const { error: upErr } = await supabaseClient.storage.from('ticket-attachments').upload(path, ticketAttachedFile);
+    if (upErr) throw upErr;
+    const { data: signed } = await supabaseClient.storage.from('ticket-attachments').createSignedUrl(path, 60 * 60 * 24 * 365);
+    const attachmentUrl = signed?.signedUrl || null;
+    const attachmentName = ticketAttachedFile.name;
+    await supabaseClient.from('support_tickets').update({ attachment_url: attachmentUrl, attachment_name: attachmentName }).eq('id', ticketId);
+    return { attachmentUrl, attachmentName };
+  } catch (attachErr) {
+    console.error('ticket attachment upload failed:', attachErr);
+    return { attachmentUrl: null, attachmentName: null };
+  }
+}
+
+// Clears the "new ticket" form back to its empty state after a successful submit.
+function resetTicketForm(){
+  document.getElementById('supportOrderId').value = '';
+  document.getElementById('supportMessage').value = '';
+  ticketAttachedFile = null;
+  ticketFileInput.value = '';
+  renderTicketAttachChip();
+}
+
 async function submitTicket(){
   if (!PROKEYS_USER_ID) { window.location.href = 'index.html'; return; }
   const name = document.getElementById('supportName').value.trim();
@@ -2710,20 +2742,7 @@ async function submitTicket(){
     // Actually upload the attached file (previously only its name was kept
     // in memory locally — the file itself never reached storage, so admins
     // had no way to see it). Non-fatal: the ticket itself is already saved.
-    let attachmentUrl = null, attachmentName = null;
-    if (ticketAttachedFile) {
-      try {
-        const path = `${newTicket.id}/${Date.now()}_${ticketAttachedFile.name}`;
-        const { error: upErr } = await supabaseClient.storage.from('ticket-attachments').upload(path, ticketAttachedFile);
-        if (upErr) throw upErr;
-        const { data: signed } = await supabaseClient.storage.from('ticket-attachments').createSignedUrl(path, 60 * 60 * 24 * 365);
-        attachmentUrl = signed?.signedUrl || null;
-        attachmentName = ticketAttachedFile.name;
-        await supabaseClient.from('support_tickets').update({ attachment_url: attachmentUrl, attachment_name: attachmentName }).eq('id', newTicket.id);
-      } catch (attachErr) {
-        console.error('ticket attachment upload failed:', attachErr);
-      }
-    }
+    const { attachmentUrl, attachmentName } = await uploadTicketAttachment(newTicket.id);
 
     tickets.unshift({
       id: 'TCK-' + newTicket.id.slice(0, 6).toUpperCase(),
@@ -2741,11 +2760,7 @@ async function submitTicket(){
     renderInbox();
 
     await appAlert(currentLang==='ar' ? 'تم إرسال التذكرة بنجاح، سيتواصل معك فريق الدعم قريبًا.' : 'Ticket submitted successfully — our support team will reach out soon.', {icon:'success'});
-    document.getElementById('supportOrderId').value = '';
-    document.getElementById('supportMessage').value = '';
-    ticketAttachedFile = null;
-    ticketFileInput.value = '';
-    renderTicketAttachChip();
+    resetTicketForm();
   } catch (err) {
     console.error('submitTicket failed:', err);
     await appAlert(currentLang==='ar' ? 'حدث خطأ أثناء إرسال التذكرة. حاول مرة أخرى.' : 'Something went wrong submitting your ticket. Please try again.', {icon:'error'});
@@ -3895,14 +3910,7 @@ function toggleFaq(i){
 function t(key){ return (uiConfigOverrides[currentLang]||{})[key] ?? I18N[currentLang][key] ?? key; }
 
 function applyLang(){
-  document.getElementById('htmlRoot').setAttribute('dir', currentLang==='ar' ? 'rtl' : 'ltr');
-  document.getElementById('htmlRoot').setAttribute('lang', currentLang);
-  document.querySelectorAll('[data-i18n]').forEach(el=>{
-    el.textContent = t(el.dataset.i18n);
-  });
-  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
-    el.setAttribute('placeholder', t(el.dataset.i18nPh));
-  });
+  PK.translateDom(currentLang, t);
   document.getElementById('langSwitch').textContent = currentLang==='ar' ? 'EN' : 'AR';
   document.getElementById('userIdTag').textContent = currentUser.id;
   document.getElementById('userNameDropdown').textContent = currentUser.name;
@@ -4422,6 +4430,147 @@ function applyCheckSettings(){
   }
 }
 
+// Step 1: creates the order row. The file itself is never written to
+// Supabase Storage here — it goes to the check provider via the
+// submit-check Edge Function later (or stays unsubmitted for manual admin
+// processing, if this check type is configured that way).
+async function insertOrderRow(fileName, fileToSubmit, checkTypeDb, willUseApi){
+  const { data: orderRow, error: orderError } = await supabaseClient
+    .from('orders')
+    .insert({
+      user_id: PROKEYS_USER_ID,
+      file_name: fileName,
+      file_size: fileToSubmit.size,
+      check_type: checkTypeDb,
+      status: 'floating',
+      processing_mode: willUseApi ? 'api' : 'manual',
+      exclude_bibliography: document.getElementById('exBib')?.checked || false,
+      exclude_quotes:       document.getElementById('exQuo')?.checked || false,
+    })
+    .select()
+    .single();
+
+  if (orderError) throw orderError;
+
+  await supabaseClient.from('orders').update({ status: 'uploading' }).eq('id', orderRow.id);
+  return orderRow;
+}
+
+// Best-effort temporary copy of the original file (auto-deleted after 48h
+// by the cleanup_expired_order_source_files() DB function, run hourly via
+// pg_cron) so admins can open the exact file that was sent to the check
+// provider — e.g. for manual processing, resubmission, or investigating a
+// dispute. Must never block the actual check submission, so failures here
+// are only logged, never thrown.
+async function backupOrderSourceFile(orderRow, fileToSubmit, fileName){
+  try {
+    const sourcePath = `${orderRow.id}/${fileName}`;
+    const { error: uploadErr } = await supabaseClient.storage
+      .from('order-source-files')
+      .upload(sourcePath, fileToSubmit);
+    if (uploadErr) throw uploadErr;
+    await supabaseClient.from('orders').update({ source_file_path: sourcePath }).eq('id', orderRow.id);
+  } catch (err) {
+    console.error('temporary source file upload failed (non-blocking):', err);
+  }
+}
+
+// Step 2: deducts credits server-side — cost and current balance are both
+// computed authoritatively inside this RPC, never trusting client-supplied
+// numbers (see deduct_credits_for_order() migration for the full security
+// rationale). Throws on failure, same as before extraction.
+async function deductOrderCredits(orderRow, checkTypeDb){
+  const { data: newBalance, error: walletError } = await supabaseClient
+    .rpc('deduct_credits_for_order', { p_order_id: orderRow.id, p_check_type: checkTypeDb });
+  if (walletError) throw walletError;
+  return newBalance;
+}
+
+// Step 3: optimistic local UI state for the new order — unchanged from the
+// original inline code, just named.
+function addOrderToLocalState(orderRow, fileName, fileToSubmit, checkTypeDb, willUseApi){
+  orders.unshift({
+    id: orderRow.id,
+    displayId: orderRow.display_id || orderRow.id, // set by the set_order_display_id trigger
+    file: fileName,
+    fileSize: fileToSubmit.size,
+    checkType: checkTypeDb,
+    tags: [],
+    phase: 'uploading',
+    phaseStart: Date.now(),
+    processingMode: willUseApi ? 'api' : 'manual',
+    externalOrderId: null,
+  });
+  lastSubmittedOrderId = orderRow.id;
+  submittedAt[orderRow.id] = new Date().toISOString().slice(0,16).replace('T',' ');
+}
+
+// Step 4 (API path): marks the order "uploading" before the slow file
+// transfer, then hands the file to the check provider. Handles all three
+// outcomes (manual-mode-disabled bailout, API success, API failure)
+// exactly as before extraction.
+async function submitOrderViaApi(orderRow, fileToSubmit){
+  // Mark the order as "uploading" in the DB BEFORE the slow file transfer
+  // starts. This matters because large files (up to the 100MB limit) can
+  // legitimately take several minutes to upload — long enough to trip
+  // auto_reject_stuck_orders' 5-minute "floating" cutoff, which exists to
+  // catch orders that never even started sending (e.g. a dropped
+  // connection right at submission). Without this status change, a
+  // slow-but-healthy upload looks identical to a dead one and gets wrongly
+  // rejected mid-transfer — credits get refunded for an order that was
+  // actually still in flight and later succeeds.
+  await supabaseClient.from('orders').update({ status: 'uploading' }).eq('id', orderRow.id);
+  const localOrderUploading = orders.find(o => o.id === orderRow.id);
+  if (localOrderUploading) localOrderUploading.phase = 'uploading';
+  renderOrders();
+
+  // Manual mode: skip API call, leave as floating — user sees same experience
+  if (!checkSettings.api_mode_enabled) {
+    const lm = orders.find(o => o.id === orderRow.id);
+    if (lm) { lm.phase = 'floating'; lm.status = 'floating'; }
+    renderOrders(); renderKpis();
+    await appAlert(
+      currentLang === 'ar'
+        ? 'تم إرسال ملفك بنجاح وسيتم فحصه قريباً.'
+        : 'Your file was submitted successfully and will be checked shortly.',
+      { icon: 'success' }
+    );
+    return;
+  }
+
+  const apiResult = await submitCheckToApi(orderRow.id, fileToSubmit);
+  if (apiResult.ok) {
+    const localOrder = orders.find(o => o.id === orderRow.id);
+    if (localOrder) {
+      localOrder.phase = 'pending';
+      localOrder.externalOrderId = apiResult.externalOrderId; // critical: without this, pollPendingApiOrders() never picks up this order until a full page reload
+    }
+    renderOrders();
+    renderKpis();
+    await appAlert(currentLang==='ar' ? 'تم إرسال ملفك لخدمة الفحص بنجاح.' : 'Your file was submitted to the check service successfully.', {icon:'success'});
+  } else {
+    // The order and the wallet deduction already happened — we do not
+    // reverse them automatically here. Persist the failure reason so the
+    // admin dashboard's problem-orders list can show exactly what went
+    // wrong (previously this was only shown in a transient alert and lost
+    // forever).
+    await supabaseClient.from('orders').update({ status: 'error', error_reason: apiResult.error }).eq('id', orderRow.id);
+    const localOrderFailed = orders.find(o => o.id === orderRow.id);
+    if (localOrderFailed) localOrderFailed.phase = 'error';
+    renderOrders();
+    await appAlert((currentLang==='ar' ? 'تم إنشاء الطلب لكن حدث خطأ أثناء إرساله لخدمة الفحص: ' : 'Order created, but something went wrong submitting it to the check service: ') + apiResult.error, {icon:'error'});
+  }
+}
+
+// Step 4 (manual path): no API call — order just sits pending for manual admin processing.
+async function finalizeManualOrder(orderRow){
+  const localOrderManual = orders.find(o => o.id === orderRow.id);
+  if (localOrderManual) localOrderManual.phase = 'pending';
+  renderOrders();
+  renderKpis();
+  await appAlert(currentLang==='ar' ? 'تم إرسال ملفك لخدمة الفحص بنجاح.' : 'Your file was submitted to the check service successfully.', {icon:'success'});
+}
+
 async function submitOrder(){
   if (!PROKEYS_USER_ID) { window.location.href = 'index.html'; return; }
   if (!currentFile) {
@@ -4449,71 +4598,18 @@ async function submitOrder(){
   btn.textContent = currentLang==='ar' ? 'جاري الإرسال...' : 'Submitting...';
 
   try {
-    // 1) Insert the order row first. The file itself is never written to
-    // Supabase Storage — it goes straight to the check provider via the
-    // submit-check Edge Function below (or stays unsubmitted for manual
-    // admin processing, if this check type is configured that way).
-    const { data: orderRow, error: orderError } = await supabaseClient
-      .from('orders')
-      .insert({
-        user_id: PROKEYS_USER_ID,
-        file_name: fileName,
-        file_size: fileToSubmit.size,
-        check_type: checkTypeDb,
-        status: 'floating',
-        processing_mode: willUseApi ? 'api' : 'manual',
-        exclude_bibliography: document.getElementById('exBib')?.checked || false,
-        exclude_quotes:       document.getElementById('exQuo')?.checked || false,
-      })
-      .select()
-      .single();
+    // 1) Create the order row.
+    const orderRow = await insertOrderRow(fileName, fileToSubmit, checkTypeDb, willUseApi);
 
-    if (orderError) throw orderError;
+    // Best-effort temp copy of the original file — never blocks the check submission.
+    await backupOrderSourceFile(orderRow, fileToSubmit, fileName);
 
-    await supabaseClient.from('orders').update({ status: 'uploading' }).eq('id', orderRow.id);
-
-    // Best-effort temporary copy of the original file (auto-deleted after
-    // 48h by the cleanup_expired_order_source_files() DB function, run
-    // hourly via pg_cron) so admins can open the exact file that was sent
-    // to the check provider — e.g. for manual processing, resubmission, or
-    // investigating a dispute. This must never block the actual check
-    // submission below, so failures here are only logged.
-    try {
-      const sourcePath = `${orderRow.id}/${fileName}`;
-      const { error: uploadErr } = await supabaseClient.storage
-        .from('order-source-files')
-        .upload(sourcePath, fileToSubmit);
-      if (uploadErr) throw uploadErr;
-      await supabaseClient.from('orders').update({ source_file_path: sourcePath }).eq('id', orderRow.id);
-    } catch (err) {
-      console.error('temporary source file upload failed (non-blocking):', err);
-    }
-
-    // 2) Deduct credits server-side — the cost and current balance are both
-    // computed authoritatively inside this function, never trusting
-    // client-supplied numbers (see deduct_credits_for_order() migration
-    // for the full security rationale).
-    const { data: newBalance, error: walletError } = await supabaseClient
-      .rpc('deduct_credits_for_order', { p_order_id: orderRow.id, p_check_type: checkTypeDb });
-
-    if (walletError) throw walletError;
+    // 2) Deduct credits server-side.
+    const newBalance = await deductOrderCredits(orderRow, checkTypeDb);
 
     // 3) Update local state to reflect the new order immediately (optimistic UI)
     userBalance = newBalance;
-    orders.unshift({
-      id: orderRow.id,
-      displayId: orderRow.display_id || orderRow.id, // set by the set_order_display_id trigger
-      file: fileName,
-      fileSize: fileToSubmit.size,
-      checkType: checkTypeDb,
-      tags: [],
-      phase: 'uploading',
-      phaseStart: Date.now(),
-      processingMode: willUseApi ? 'api' : 'manual',
-      externalOrderId: null,
-    });
-    lastSubmittedOrderId = orderRow.id;
-    submittedAt[orderRow.id] = new Date().toISOString().slice(0,16).replace('T',' ');
+    addOrderToLocalState(orderRow, fileName, fileToSubmit, checkTypeDb, willUseApi);
 
     currentFile = null;
     renderFileChip();
@@ -4521,66 +4617,11 @@ async function submitOrder(){
     renderOrders();
     renderKpis();
 
+    // 4) Hand the file to the check provider (or leave it pending for manual processing).
     if (willUseApi) {
-      // 4) Mark the order as "uploading" in the DB BEFORE the slow file
-      // transfer starts. This matters because large files (up to the 100MB
-      // limit) can legitimately take several minutes to upload — long
-      // enough to trip auto_reject_stuck_orders' 5-minute "floating" cutoff,
-      // which exists to catch orders that never even started sending (e.g.
-      // a dropped connection right at submission). Without this status
-      // change, a slow-but-healthy upload looks identical to a dead one and
-      // gets wrongly rejected mid-transfer — credits get refunded for an
-      // order that was actually still in flight and later succeeds.
-      await supabaseClient.from('orders').update({ status: 'uploading' }).eq('id', orderRow.id);
-      const localOrderUploading = orders.find(o => o.id === orderRow.id);
-      if (localOrderUploading) localOrderUploading.phase = 'uploading';
-      renderOrders();
-
-      // 5) Hand the actual file to the check provider via our Edge Function.
-      // This happens after the optimistic UI update above so the order
-      // already shows in "My Orders" / "Last Order" even while this call
-      // is in flight.
-      // Manual mode: skip API call, leave as floating — user sees same experience
-      if (!checkSettings.api_mode_enabled) {
-        const lm = orders.find(o => o.id === orderRow.id);
-        if (lm) { lm.phase = 'floating'; lm.status = 'floating'; }
-        renderOrders(); renderKpis();
-        await appAlert(
-          currentLang === 'ar'
-            ? 'تم إرسال ملفك بنجاح وسيتم فحصه قريباً.'
-            : 'Your file was submitted successfully and will be checked shortly.',
-          { icon: 'success' }
-        );
-        return;
-      }
-      const apiResult = await submitCheckToApi(orderRow.id, fileToSubmit);
-      if (apiResult.ok) {
-        const localOrder = orders.find(o => o.id === orderRow.id);
-        if (localOrder) {
-          localOrder.phase = 'pending';
-          localOrder.externalOrderId = apiResult.externalOrderId; // critical: without this, pollPendingApiOrders() never picks up this order until a full page reload
-        }
-        renderOrders();
-        renderKpis();
-        await appAlert(currentLang==='ar' ? 'تم إرسال ملفك لخدمة الفحص بنجاح.' : 'Your file was submitted to the check service successfully.', {icon:'success'});
-      } else {
-        // The order and the wallet deduction already happened — we do not
-        // reverse them automatically here. Persist the failure reason so
-        // the admin dashboard's problem-orders list can show exactly what
-        // went wrong (previously this was only shown in a transient alert
-        // and lost forever).
-        await supabaseClient.from('orders').update({ status: 'error', error_reason: apiResult.error }).eq('id', orderRow.id);
-        const localOrderFailed = orders.find(o => o.id === orderRow.id);
-        if (localOrderFailed) localOrderFailed.phase = 'error';
-        renderOrders();
-        await appAlert((currentLang==='ar' ? 'تم إنشاء الطلب لكن حدث خطأ أثناء إرساله لخدمة الفحص: ' : 'Order created, but something went wrong submitting it to the check service: ') + apiResult.error, {icon:'error'});
-      }
+      await submitOrderViaApi(orderRow, fileToSubmit);
     } else {
-      const localOrderManual = orders.find(o => o.id === orderRow.id);
-      if (localOrderManual) localOrderManual.phase = 'pending';
-      renderOrders();
-      renderKpis();
-      await appAlert(currentLang==='ar' ? 'تم إرسال ملفك لخدمة الفحص بنجاح.' : 'Your file was submitted to the check service successfully.', {icon:'success'});
+      await finalizeManualOrder(orderRow);
     }
   } catch (err) {
     console.error('submitOrder failed:', err);
@@ -4828,6 +4869,91 @@ renderOrders();
 resumeEasykashPollingFromStorage();
 
 // ===== LOAD REAL DATA FROM SUPABASE =====
+// Email and (for Google sign-ins) profile picture live on the auth user
+// object, not in users_profile, since they're managed by Supabase Auth /
+// the OAuth provider rather than by our own app data. Applied regardless of
+// whether the profile query succeeds — previously, any error from that
+// query caused an early return before applyLang() ever ran, so a Google
+// avatar could silently stop appearing even though it was already stored
+// in currentUser.
+function applyAuthProfileFields(authUser, profileData){
+  if (!authUser) return;
+  currentUser.email = authUser.email || '';
+  const meta = authUser.user_metadata || {};
+  // Google sends this under "avatar_url" in most setups, but some OAuth
+  // configurations expose it as "picture" instead — check both.
+  currentUser.avatarUrl = meta.avatar_url || meta.picture || '';
+  renderUserAvatar(document.getElementById('userAvatar'));
+  renderUserAvatar(document.getElementById('userAvatarLg'));
+  document.getElementById('userEmailDropdown').textContent = currentUser.email || '—';
+
+  // Defensive backfill: users_profile.email was added after some accounts
+  // already existed (see add_admin_dashboard_v2.sql — the migration
+  // backfills existing rows once, but this keeps it correct going forward
+  // for any row that still slips through, e.g. a profile created by a
+  // trigger that predates the email column). Fire-and-forget — never
+  // blocks the UI, and RLS already lets a user update their own row.
+  if (profileData && currentUser.email && profileData.email !== currentUser.email) {
+    supabaseClient.from('users_profile').update({ email: currentUser.email }).eq('user_id', PROKEYS_USER_ID)
+      .then(({ error }) => { if (error) console.error('email backfill failed:', error); });
+  }
+  // Same idea for the avatar — previously captured into currentUser for
+  // display here, but never persisted, so admins had no way to see a
+  // customer's profile picture in chat/tickets. Only fills in a MISSING
+  // avatar_url — never overwrites an existing one, since the customer may
+  // have deliberately uploaded a custom photo that should always win over
+  // the auto-derived Google picture.
+  if (profileData && currentUser.avatarUrl && !profileData.avatar_url) {
+    supabaseClient.from('users_profile').update({ avatar_url: currentUser.avatarUrl }).eq('user_id', PROKEYS_USER_ID)
+      .then(({ error }) => { if (error) console.error('avatar backfill failed:', error); });
+  }
+}
+
+function applyProfileRowFields(data){
+  currentUser.name = data.full_name || currentUser.name;
+  currentUser.whatsapp = data.whatsapp || '';
+  currentUser.phone = data.phone || '';
+  // A custom-uploaded avatar (via the profile popup) should win over the
+  // auto-derived Google OAuth picture set earlier in this function.
+  if (data.avatar_url) {
+    currentUser.avatarUrl = data.avatar_url;
+    renderUserAvatar(document.getElementById('userAvatar'));
+    renderUserAvatar(document.getElementById('userAvatarLg'));
+    if (typeof renderInbox === 'function' && document.getElementById('inboxList')) renderInbox();
+  }
+  // pk_number is a real sequential column from Postgres (BIGSERIAL) — see
+  // add_pk_number.sql. PostgREST serializes bigint columns as strings in
+  // JSON, so we coerce with Number() rather than assuming a JS number.
+  // We check `!= null` (not truthy) so a legitimate pk_number of 0 still
+  // renders as PK000 instead of falling back to the UUID fragment.
+  currentUser.id = (data.pk_number !== null && data.pk_number !== undefined)
+    ? 'PK' + String(Number(data.pk_number)).padStart(3, '0')
+    : (PROKEYS_USER_ID ? PROKEYS_USER_ID.slice(0,8).toUpperCase() : 'PK000');
+  // Language: localStorage (the user's own toggle on THIS device) wins over
+  // whatever is stored in users_profile — otherwise, if the DB still has an
+  // old value, it overwrites the user's live choice the moment this async
+  // profile fetch resolves (this was the actual bug: language flips back to
+  // Arabic "after a bit" once loadUserProfile() finishes).
+  const savedLang = localStorage.getItem('prokeys-lang');
+  if (savedLang === 'ar' || savedLang === 'en') {
+    currentLang = savedLang;
+  } else if (data.language && (data.language === 'ar' || data.language === 'en')) {
+    currentLang = data.language; // no local preference yet — fall back to the DB value
+  }
+  // Currency: same precedence as language — a live choice already made on
+  // this device wins, otherwise fall back to whatever's saved for the
+  // account so the preference follows the customer across devices/browsers.
+  const savedCurrency = localStorage.getItem('prokeys-currency');
+  if (savedCurrency === 'USD' || savedCurrency === 'EGP') {
+    currentCurrency = savedCurrency;
+  } else if (data.currency && (data.currency === 'USD' || data.currency === 'EGP')) {
+    currentCurrency = data.currency;
+  }
+  document.getElementById('currencySwitch').textContent = currentCurrency;
+  applyLang(); // re-applies name/id/avatar + all i18n strings consistently
+  updateAllPrices();
+}
+
 async function loadUserProfile(){
   // Reads from users_profile_numbered (a view — see fix_gapless_numbering.sql)
   // instead of the raw users_profile table. The view computes pk_number on
@@ -4839,93 +4965,14 @@ async function loadUserProfile(){
     supabaseClient.auth.getSession(),
   ]);
 
-  // Email and (for Google sign-ins) profile picture live on the auth user
-  // object, not in users_profile, since they're managed by Supabase Auth /
-  // the OAuth provider rather than by our own app data. We apply these
-  // (and re-render the avatar) regardless of whether the profile query
-  // below succeeds — previously, any error from that query caused an early
-  // return before applyLang() ever ran, so a Google avatar could silently
-  // stop appearing even though it was already stored in currentUser.
-  const authUser = sessionData?.session?.user;
-  if (authUser) {
-    currentUser.email = authUser.email || '';
-    const meta = authUser.user_metadata || {};
-    // Google sends this under "avatar_url" in most setups, but some OAuth
-    // configurations expose it as "picture" instead — check both.
-    currentUser.avatarUrl = meta.avatar_url || meta.picture || '';
-    renderUserAvatar(document.getElementById('userAvatar'));
-    renderUserAvatar(document.getElementById('userAvatarLg'));
-    document.getElementById('userEmailDropdown').textContent = currentUser.email || '—';
-
-    // Defensive backfill: users_profile.email was added after some accounts
-    // already existed (see add_admin_dashboard_v2.sql — the migration
-    // backfills existing rows once, but this keeps it correct going forward
-    // for any row that still slips through, e.g. a profile created by a
-    // trigger that predates the email column). Fire-and-forget — never
-    // blocks the UI, and RLS already lets a user update their own row.
-    if (data && currentUser.email && data.email !== currentUser.email) {
-      supabaseClient.from('users_profile').update({ email: currentUser.email }).eq('user_id', PROKEYS_USER_ID)
-        .then(({ error }) => { if (error) console.error('email backfill failed:', error); });
-    }
-    // Same idea for the avatar — previously captured into currentUser for
-    // display here, but never persisted, so admins had no way to see a
-    // customer's profile picture in chat/tickets. Only fills in a MISSING
-    // avatar_url — never overwrites an existing one, since the customer may
-    // have deliberately uploaded a custom photo that should always win over
-    // the auto-derived Google picture.
-    if (data && currentUser.avatarUrl && !data.avatar_url) {
-      supabaseClient.from('users_profile').update({ avatar_url: currentUser.avatarUrl }).eq('user_id', PROKEYS_USER_ID)
-        .then(({ error }) => { if (error) console.error('avatar backfill failed:', error); });
-    }
-  }
+  applyAuthProfileFields(sessionData?.session?.user, data);
 
   if (error) {
     console.error('loadUserProfile failed:', error);
     return;
   }
   if (data) {
-    currentUser.name = data.full_name || currentUser.name;
-    currentUser.whatsapp = data.whatsapp || '';
-    currentUser.phone = data.phone || '';
-    // A custom-uploaded avatar (via the profile popup) should win over the
-    // auto-derived Google OAuth picture set earlier in this function.
-    if (data.avatar_url) {
-      currentUser.avatarUrl = data.avatar_url;
-      renderUserAvatar(document.getElementById('userAvatar'));
-      renderUserAvatar(document.getElementById('userAvatarLg'));
-      if (typeof renderInbox === 'function' && document.getElementById('inboxList')) renderInbox();
-    }
-    // pk_number is a real sequential column from Postgres (BIGSERIAL) — see
-    // add_pk_number.sql. PostgREST serializes bigint columns as strings in
-    // JSON, so we coerce with Number() rather than assuming a JS number.
-    // We check `!= null` (not truthy) so a legitimate pk_number of 0 still
-    // renders as PK000 instead of falling back to the UUID fragment.
-    currentUser.id = (data.pk_number !== null && data.pk_number !== undefined)
-      ? 'PK' + String(Number(data.pk_number)).padStart(3, '0')
-      : (PROKEYS_USER_ID ? PROKEYS_USER_ID.slice(0,8).toUpperCase() : 'PK000');
-    // Language: localStorage (the user's own toggle on THIS device) wins
-    // over whatever is stored in users_profile — otherwise, if the DB still
-    // has an old value, it overwrites the user's live choice the moment
-    // this async profile fetch resolves (this was the actual bug: language
-    // flips back to Arabic "after a bit" once loadUserProfile() finishes).
-    const savedLang = localStorage.getItem('prokeys-lang');
-    if (savedLang === 'ar' || savedLang === 'en') {
-      currentLang = savedLang;
-    } else if (data.language && (data.language === 'ar' || data.language === 'en')) {
-      currentLang = data.language; // no local preference yet — fall back to the DB value
-    }
-    // Currency: same precedence as language — a live choice already made on
-    // this device wins, otherwise fall back to whatever's saved for the
-    // account so the preference follows the customer across devices/browsers.
-    const savedCurrency = localStorage.getItem('prokeys-currency');
-    if (savedCurrency === 'USD' || savedCurrency === 'EGP') {
-      currentCurrency = savedCurrency;
-    } else if (data.currency && (data.currency === 'USD' || data.currency === 'EGP')) {
-      currentCurrency = data.currency;
-    }
-    document.getElementById('currencySwitch').textContent = currentCurrency;
-    applyLang(); // re-applies name/id/avatar + all i18n strings consistently
-    updateAllPrices();
+    applyProfileRowFields(data);
   }
 }
 
