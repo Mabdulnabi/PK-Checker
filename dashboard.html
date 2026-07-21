@@ -5144,6 +5144,14 @@ async function refreshCheckSettings(){
 (async function verifySession(){
   const { data: sessionData } = await supabaseClient.auth.getSession();
   if (!sessionData?.session) {
+    // Real Supabase session is gone/invalid (expired refresh token, or a
+    // browser like Edge blocking/evicting its storage) while our own
+    // "logged in" flag below is still set. If we redirect to index.html
+    // without clearing that flag, index.html sees it, assumes we're still
+    // logged in, and bounces straight back here — index <-> dashboard
+    // infinite refresh loop. Clear it first so index.html shows the
+    // normal logged-out landing page instead.
+    localStorage.removeItem('prokeys-user-id');
     window.location.href = 'index.html';
     return;
   }
