@@ -134,7 +134,7 @@
     .header-actions{gap:6px;}
     .header-actions .btn{padding:8px 12px;font-size:12px;}
     .btn-lang{padding:8px 10px;font-size:11.5px;}
-    .logo-img{max-width:90px;}
+    .logo-img{height:36px;}
   }
 </style>
 </head>
@@ -463,6 +463,7 @@ function applyCustomIcons(){
           ? `height:${size};width:auto;object-fit:contain;flex:none;display:inline-block;vertical-align:middle;border-radius:6px;`
           : `width:${size};height:${size};object-fit:contain;flex:none;display:inline-block;vertical-align:middle;border-radius:6px;`;
         img.onerror = () => { img.replaceWith(el); };
+        img.onload = () => { if (!img.naturalWidth) img.replaceWith(el); };
         el.replaceWith(img);
       }
     } else if (overridePx) {
