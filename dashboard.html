@@ -3736,13 +3736,13 @@ async function sendChatMsg(){
   if(btn) btn.disabled = true;
 
   try {
-    const { error } = await supabaseClient.from('chat_messages').insert({
+    const { data, error } = await supabaseClient.from('chat_messages').insert({
       conversation_id: chatConversationId,
       sender_type: 'user',
       sender_id: PROKEYS_USER_ID,
       sender_name: currentUser.name,
       message: val,
-    });
+    }).select('id').single();
     if (error) throw error;
 
     await supabaseClient.rpc('chat_new_user_message', {
@@ -3750,7 +3750,7 @@ async function sendChatMsg(){
       p_preview: val.slice(0, 120),
     });
 
-    chatMessages.push({ from: 'user', text: val });
+    chatMessages.push({ id: data?.id, from: 'user', text: val });
     input.value = '';
     renderChat();
   } catch (err) {
@@ -3819,14 +3819,14 @@ chatFileInput.addEventListener('change', async ()=>{
     const { error: upErr } = await supabaseClient.storage.from('chat-attachments').upload(path, file);
     if (upErr) throw upErr;
 
-    const { error: msgErr } = await supabaseClient.from('chat_messages').insert({
+    const { data: msgData, error: msgErr } = await supabaseClient.from('chat_messages').insert({
       conversation_id: chatConversationId,
       sender_type: 'user',
       sender_id: PROKEYS_USER_ID,
       sender_name: currentUser.name,
       file_url: path,
       file_name: file.name,
-    });
+    }).select('id').single();
     if (msgErr) throw msgErr;
 
     await supabaseClient.rpc('chat_new_user_message', {
@@ -3834,7 +3834,7 @@ chatFileInput.addEventListener('change', async ()=>{
       p_preview: currentLang==='ar' ? '📎 مرفق' : '📎 Attachment',
     });
 
-    chatMessages.push({ from: 'user', fileName: file.name, fileUrl: path });
+    chatMessages.push({ id: msgData?.id, from: 'user', fileName: file.name, fileUrl: path });
     renderChat();
   } catch (err) {
     console.error('chat attachment upload failed:', err);
