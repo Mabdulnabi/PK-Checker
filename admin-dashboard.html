@@ -41,7 +41,7 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;overflow-x:hidden;max-width:100%;}
-  body{background:var(--paper-soft);color:var(--ink);font-family:'Cairo','Manrope',sans-serif;font-weight:500;-webkit-font-smoothing:antialiased;touch-action:pan-y;}
+  body{background:var(--paper-soft);color:var(--ink);font-family:'Cairo','Manrope',sans-serif;font-weight:500;-webkit-font-smoothing:antialiased;}
   .latin{font-family:'Space Grotesk','Manrope',sans-serif;}
   .mono{font-family:'IBM Plex Mono',monospace;}
 
@@ -112,11 +112,19 @@
     }
     .uid-row{grid-template-columns:1fr;gap:2px;}
     .manual-upload-row{flex-direction:column;align-items:stretch;}
-    .chat-shell{position:relative;overflow:hidden;height:calc(100vh - 190px);}
+    #tab-chat.tabpane.on, #tab-tickets.tabpane.on{display:flex;flex-direction:column;height:calc(100vh - 88px);}
+    #tab-chat .main-head, #tab-tickets .main-head{flex:none;margin-bottom:12px;}
+    #tab-chat .chat-shell, #tab-tickets .chat-shell{flex:1;min-height:0;height:auto;}
+    .chat-shell{position:relative;overflow:hidden;}
     .conv-sidebar{position:absolute;inset:0;width:100%;max-height:none;border-left:none;}
     .chat-main{position:absolute;inset:0;width:100%;background:var(--paper);transform:translateX(100%);transition:transform .25s ease;z-index:2;}
     .chat-shell.conv-open .chat-main{transform:translateX(0);}
     .chat-back-btn{display:inline-flex;}
+    .cp-head{flex-wrap:wrap;row-gap:8px;padding:10px 14px;}
+    .cp-head-info{min-width:0;flex:1 1 100px;}
+    .cp-head-info b, .cp-head-info span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    #cpAssignedTag, #tkHeadCategory{display:none;}
+    #cpTransferSelect, #tkPrioritySelect{flex:1 1 100%;order:5;max-width:100%;}
   }
 
   /* ===== MAIN ===== */
