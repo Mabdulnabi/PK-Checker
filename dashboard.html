@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>PK Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <style>
@@ -3253,6 +3254,33 @@ function splitPhoneValue(value){
 async function openAvatarUploader(){
   document.getElementById('profileAvatarInput').click();
 }
+// Avatars only ever render at ~32-64px, but uploads were sending the raw
+// original file straight through — a multi-MB phone photo, downloaded in
+// full every time the avatar shows up anywhere. Downscale + re-encode first.
+function compressImageForUpload(file, maxDim = 256, quality = 0.85){
+  return new Promise((resolve) => {
+    if (!file.type.startsWith('image/') || file.type === 'image/gif') { resolve(file); return; }
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      if (width <= maxDim && height <= maxDim) { resolve(file); return; }
+      const scale = maxDim / Math.max(width, height);
+      width = Math.round(width * scale);
+      height = Math.round(height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob((blob) => {
+        resolve(blob ? new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' }) : file);
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
+}
+
 document.getElementById('profileAvatarInput').addEventListener('change', async () => {
   const input = document.getElementById('profileAvatarInput');
   const file = input.files[0];
@@ -3261,8 +3289,9 @@ document.getElementById('profileAvatarInput').addEventListener('change', async (
   const statusEl = document.getElementById('profileAvatarStatus');
   statusEl.textContent = currentLang === 'ar' ? 'جاري الرفع...' : 'Uploading...';
   try {
-    const path = `${PROKEYS_USER_ID}/${Date.now()}_${file.name}`;
-    const { error: upErr } = await supabaseClient.storage.from('avatars').upload(path, file, { upsert: true });
+    const uploadFile = await compressImageForUpload(file);
+    const path = `${PROKEYS_USER_ID}/${Date.now()}_${uploadFile.name}`;
+    const { error: upErr } = await supabaseClient.storage.from('avatars').upload(path, uploadFile, { upsert: true });
     if (upErr) throw upErr;
     const { data } = supabaseClient.storage.from('avatars').getPublicUrl(path);
     const { error: dbErr } = await supabaseClient.from('users_profile').update({ avatar_url: data.publicUrl }).eq('user_id', PROKEYS_USER_ID);
