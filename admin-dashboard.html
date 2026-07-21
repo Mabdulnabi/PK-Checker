@@ -1825,15 +1825,15 @@ async function openConversation(id){
   subscribeToCustomerPresence(convo?.user_id);
 }
 
-let presenceChannel = null;
+let customerPresenceChannel = null;
 function subscribeToCustomerPresence(userId){
-  if (presenceChannel) { supabaseClient.removeChannel(presenceChannel); presenceChannel = null; }
+  if (customerPresenceChannel) { supabaseClient.removeChannel(customerPresenceChannel); customerPresenceChannel = null; }
   setCustomerPresence(false);
   if (!userId) return;
-  presenceChannel = supabaseClient.channel('presence-site-' + userId, { config: { presence: {} } });
-  presenceChannel
+  customerPresenceChannel = supabaseClient.channel('presence-site-' + userId, { config: { presence: {} } });
+  customerPresenceChannel
     .on('presence', { event: 'sync' }, () => {
-      const state = presenceChannel.presenceState();
+      const state = customerPresenceChannel.presenceState();
       setCustomerPresence(Object.keys(state).length > 0);
     })
     .subscribe();
