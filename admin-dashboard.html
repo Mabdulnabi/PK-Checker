@@ -105,15 +105,15 @@
     .shell{min-width:0;}
     .main-head{flex-direction:column;align-items:flex-start;}
     .kpi-row{grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;}
-    table.tbl{font-size:12px;}
-    .panel table.tbl td.file-col{white-space:nowrap;min-width:190px;}
+    table.tbl{font-size:12px;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+    .panel table.tbl td.file-col{white-space:nowrap;min-width:190px;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
     .order-filters{flex-wrap:wrap;}
     .kpi-mini-grid,.chart-grid,.profile-stat-grid,.cr-form-row,.cs-msg-row,.uid-icons-grid,#adminPermsGrid,#newAdminPermsGrid,#payMethodsList{
       grid-template-columns:1fr !important;
     }
     .uid-row{grid-template-columns:1fr;gap:2px;}
     .manual-upload-row{flex-direction:column;align-items:stretch;}
-    .toolbar{position:fixed;top:9px;left:14px;z-index:220;margin:0;}
+    #appScreen .toolbar{position:fixed;top:9px;left:14px;z-index:220;margin:0;}
     #tab-chat.tabpane.on, #tab-tickets.tabpane.on{display:flex;flex-direction:column;}
     #tab-chat .main-head, #tab-tickets .main-head{flex:none;margin-bottom:12px;}
     #tab-chat .chat-shell, #tab-tickets .chat-shell{flex:1;min-height:0;}
@@ -126,7 +126,8 @@
        display:none and .cp-head's padding) — same-specificity + later
        source position was silently winning and hiding the back button */
     .chat-shell .chat-back-btn{display:inline-flex;}
-    .cp-head-row2{row-gap:6px;}
+    .cp-head-row2{flex-wrap:nowrap;overflow-x:auto;row-gap:0;padding-bottom:2px;}
+    .cp-head-row2 > *{flex:none;}
     .chart-card{min-width:0;overflow:hidden;}
     .bar-chart{overflow-x:auto;}
     .bar-wrap{min-width:26px;}
@@ -284,12 +285,11 @@
   .cp-head{display:flex;flex-direction:column;gap:8px;padding:12px 18px;background:var(--paper);border-bottom:1px solid var(--paper-line);flex:none;}
   .cp-head-row1{display:flex;align-items:center;gap:12px;}
   .cp-head-row2{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-  .chat-back-btn{transform:scaleX(-1);}
-  html[dir="ltr"] .chat-back-btn{transform:scaleX(1);}
+  html[dir="ltr"] .chat-back-btn{transform:scaleX(-1);}
   .cp-head-av-wrap{position:relative;flex:none;}
   .cp-presence-dot{position:absolute;bottom:-1px;left:-1px;width:10px;height:10px;border-radius:50%;background:var(--muted);border:2px solid var(--paper);}
   .cp-presence-dot.online{background:#22C55E;}
-  .cp-presence-label{font-size:10.5px;color:var(--muted);font-family:'Cairo',sans-serif;}
+  .cp-head-info .cp-presence-label{font-size:10.5px;color:var(--muted);font-family:'Cairo',sans-serif;}
   .cp-presence-label.online{color:#22C55E;font-weight:700;}
   .cp-head-av{width:34px;height:34px;border-radius:50%;background:var(--navy);color:var(--cyan);display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'Space Grotesk',sans-serif;flex:none;}
   .cp-head-info{flex:1;min-width:0;}
@@ -319,7 +319,7 @@
   .tk-reply.from-user{background:var(--paper);border:1px solid var(--paper-line);}
   .tk-reply.from-admin{background:var(--blue);color:#fff;margin-right:auto;border-bottom-left-radius:3px;}
   /* ===== TOOLBAR (lang / currency) ===== */
-  .toolbar{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-bottom:14px;}
+  .toolbar{position:relative;display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-bottom:14px;}
   .lang-switch,.currency-switch{display:flex;align-items:center;gap:6px;height:34px;padding:0 14px;border-radius:10px;background:var(--paper);border:1px solid var(--paper-line);cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12px;color:var(--navy);}
   .lang-switch:hover,.currency-switch:hover{border-color:var(--blue);color:var(--blue-deep);}
 
@@ -636,7 +636,7 @@
     <!-- ============ MAIN ============ -->
     <div class="main">
 
-      <div class="toolbar" style="position:relative;">
+      <div class="toolbar">
         <button class="admin-bell-btn" onclick="toggleAdminNotifPanel()" id="adminBellBtn" data-i18n-title="notif_bell_title" title="الإشعارات">
           <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           <span class="admin-bell-dot" id="adminBellDot"></span>
