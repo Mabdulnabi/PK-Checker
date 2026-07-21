@@ -112,19 +112,29 @@
     }
     .uid-row{grid-template-columns:1fr;gap:2px;}
     .manual-upload-row{flex-direction:column;align-items:stretch;}
-    #tab-chat.tabpane.on, #tab-tickets.tabpane.on{display:flex;flex-direction:column;height:calc(100vh - 88px);}
+    #tab-chat.tabpane.on, #tab-tickets.tabpane.on{display:flex;flex-direction:column;}
     #tab-chat .main-head, #tab-tickets .main-head{flex:none;margin-bottom:12px;}
-    #tab-chat .chat-shell, #tab-tickets .chat-shell{flex:1;min-height:0;height:auto;}
+    #tab-chat .chat-shell, #tab-tickets .chat-shell{flex:1;min-height:0;}
     .chat-shell{position:relative;overflow:hidden;}
     .conv-sidebar{position:absolute;inset:0;width:100%;max-height:none;border-left:none;}
     .chat-main{position:absolute;inset:0;width:100%;background:var(--paper);transform:translateX(100%);transition:transform .25s ease;z-index:2;}
     .chat-shell.conv-open .chat-main{transform:translateX(0);}
-    .chat-back-btn{display:inline-flex;}
-    .cp-head{flex-wrap:wrap;row-gap:8px;padding:10px 14px;}
+    /* extra class on these two selectors bumps specificity above the later,
+       unconditional base rules for the same properties (.chat-back-btn's
+       display:none and .cp-head's padding) — same-specificity + later
+       source position was silently winning and hiding the back button */
+    .chat-shell .chat-back-btn{display:inline-flex;}
+    .chat-shell .cp-head{flex-wrap:wrap;row-gap:8px;padding:10px 14px;}
     .cp-head-info{min-width:0;flex:1 1 100px;}
     .cp-head-info b, .cp-head-info span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     #cpAssignedTag, #tkHeadCategory{display:none;}
     #cpTransferSelect, #tkPrioritySelect{flex:1 1 100%;order:5;max-width:100%;}
+    .chart-card{min-width:0;overflow:hidden;}
+    .bar-chart{overflow-x:auto;}
+    .bar-wrap{min-width:26px;}
+    .pie-wrap{min-width:0;}
+    .pie-legend{min-width:0;}
+    #problemOrdersList{overflow-x:auto;}
   }
 
   /* ===== MAIN ===== */
@@ -1375,6 +1385,18 @@ function closeConvMobile(which){
   const shell = document.querySelector('#tab-' + which + ' .chat-shell');
   if (shell) shell.classList.remove('conv-open');
 }
+function fitChatShellHeight(){
+  if (window.innerWidth > 860) return;
+  document.querySelectorAll('#tab-chat, #tab-tickets').forEach(pane => {
+    if (!pane.classList.contains('on')) return;
+    const rect = pane.getBoundingClientRect();
+    const h = window.innerHeight - rect.top - 14; // 14px bottom breathing room
+    pane.style.height = Math.max(h, 320) + 'px';
+  });
+}
+window.addEventListener('resize', fitChatShellHeight);
+window.addEventListener('orientationchange', () => setTimeout(fitChatShellHeight, 200));
+
 function toggleDesktopSidebar(force){
   const shell = document.querySelector('.shell');
   const sb = document.querySelector('.sidebar');
@@ -2395,6 +2417,7 @@ function switchTab(tab){
   if (tab === 'activity') initActivityTab();
   if (tab === 'accounts') { initUsersTab(); initAdminMgmtTab(); }
   if (tab === 'backup') loadCreditBackupsList();
+  if (tab === 'chat' || tab === 'tickets') setTimeout(fitChatShellHeight, 30);
   localStorage.setItem('prokeys-admin-tab', tab);
   restoreTabScroll(tab);
 }
