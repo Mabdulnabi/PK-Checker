@@ -54,7 +54,7 @@
   .hero h1{font-size:38px;font-weight:800;line-height:1.32;color:var(--navy);margin-bottom:20px;}
   .hero p.sub{font-size:16px;color:var(--muted);max-width:520px;margin-bottom:32px;}
   .hero-cta-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:28px;}
-  .hero-visual{width:100%;min-height:280px;border-radius:20px;background:linear-gradient(135deg,var(--blue-wash),var(--paper));border:1.5px dashed var(--paper-line);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:20px;transition:all .25s;}
+  .hero-visual{width:100%;min-height:280px;border-radius:20px;background:var(--paper);border:1.5px dashed var(--paper-line);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:20px;transition:all .25s;}
   .hero-visual:hover{transform:translateY(-4px);box-shadow:0 20px 40px -16px rgba(27,37,86,.2);border-color:var(--blue);}
   .hero-visual-img{max-width:100%;height:auto;display:block;}
 
@@ -462,6 +462,7 @@ function applyCustomIcons(){
         img.style.cssText = isLogo
           ? `height:${size};width:auto;object-fit:contain;flex:none;display:inline-block;vertical-align:middle;border-radius:6px;`
           : `width:${size};height:${size};object-fit:contain;flex:none;display:inline-block;vertical-align:middle;border-radius:6px;`;
+        img.onerror = () => { img.replaceWith(el); };
         el.replaceWith(img);
       }
     } else if (overridePx) {
