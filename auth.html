@@ -252,9 +252,15 @@ body {
   // page immediately so the login form never flashes — we go straight from
   // "blank" to the dashboard once the session exchange finishes.
   (function(){
+    var pendingAt = parseInt(sessionStorage.getItem('prokeys-oauth-pending') || '0', 10);
+    // A stale/abandoned attempt (closed the Google popup, hit back, etc.)
+    // must not keep covering unrelated future visits — only trust the flag
+    // for ~30s, a real redirect back from Google is near-instant.
+    var pendingFresh = pendingAt && (Date.now() - pendingAt < 30000);
+    if (!pendingFresh) sessionStorage.removeItem('prokeys-oauth-pending');
     var isOauthReturn = /[?&]code=/.test(window.location.search)
       || /access_token=/.test(window.location.hash)
-      || sessionStorage.getItem('prokeys-oauth-pending') === '1';
+      || pendingFresh;
     if (isOauthReturn) {
       document.getElementById('oauthOverlay').style.display = 'flex';
       // Safety net: if the session exchange never completes (network issue,
@@ -899,7 +905,7 @@ body {
       triggerBtn.disabled = true;
       triggerBtn.querySelector('span').textContent = text[lang].googleRedirecting;
     }
-    sessionStorage.setItem('prokeys-oauth-pending', '1');
+    sessionStorage.setItem('prokeys-oauth-pending', String(Date.now()));
     supabaseClient.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin + window.location.pathname.replace(/auth\.html$/, 'dashboard.html') }
@@ -939,7 +945,7 @@ body {
   // plain email/password sign-in (which also fires 'SIGNED_IN' internally)
   // from racing with this Google-specific profile-creation/redirect logic.
   supabaseClient.auth.onAuthStateChange(function(event, session) {
-    var oauthPending = sessionStorage.getItem('prokeys-oauth-pending') === '1';
+    var oauthPending = !!parseInt(sessionStorage.getItem('prokeys-oauth-pending') || '0', 10);
     if (event === 'SIGNED_IN' && session && session.user && oauthPending) {
       sessionStorage.removeItem('prokeys-oauth-pending'); // only ever handle this once
       var user = session.user;

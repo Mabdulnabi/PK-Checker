@@ -4441,6 +4441,8 @@ async function submitOrder(){
 
     if (orderError) throw orderError;
 
+    await supabaseClient.from('orders').update({ status: 'uploading' }).eq('id', orderRow.id);
+
     // Best-effort temporary copy of the original file (auto-deleted after
     // 48h by the cleanup_expired_order_source_files() DB function, run
     // hourly via pg_cron) so admins can open the exact file that was sent
@@ -4476,7 +4478,7 @@ async function submitOrder(){
       fileSize: fileToSubmit.size,
       checkType: checkTypeDb,
       tags: [],
-      phase: 'floating',
+      phase: 'uploading',
       phaseStart: Date.now(),
       processingMode: willUseApi ? 'api' : 'manual',
       externalOrderId: null,
@@ -4545,7 +4547,11 @@ async function submitOrder(){
         await appAlert((currentLang==='ar' ? 'تم إنشاء الطلب لكن حدث خطأ أثناء إرساله لخدمة الفحص: ' : 'Order created, but something went wrong submitting it to the check service: ') + apiResult.error, {icon:'error'});
       }
     } else {
-      await appAlert(currentLang==='ar' ? 'تم إرسال طلبك إلى قائمة الانتظار للمراجعة اليدوية وخصم الكريديت من رصيدك.' : 'Your order was submitted to the manual review queue and credits were deducted from your balance.', {icon:'success'});
+      const localOrderManual = orders.find(o => o.id === orderRow.id);
+      if (localOrderManual) localOrderManual.phase = 'pending';
+      renderOrders();
+      renderKpis();
+      await appAlert(currentLang==='ar' ? 'تم إرسال ملفك لخدمة الفحص بنجاح.' : 'Your file was submitted to the check service successfully.', {icon:'success'});
     }
   } catch (err) {
     console.error('submitOrder failed:', err);
@@ -5137,6 +5143,17 @@ async function refreshCheckSettings(){
         loadPaymentHistory();
       })
       .subscribe();
+
+    // Site-wide presence (separate from the chat-window-only presence
+    // above) — lets the admin see "online" on the tickets header too,
+    // since a ticket has no open/closed widget state like chat does.
+    const sitePresenceChannel = supabaseClient.channel('presence-site-' + PROKEYS_USER_ID, {
+      config: { presence: { key: PROKEYS_USER_ID } }
+    });
+    sitePresenceChannel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') await sitePresenceChannel.track({ online_at: new Date().toISOString() });
+    });
+    window.addEventListener('beforeunload', () => supabaseClient.removeChannel(sitePresenceChannel));
   }
 })();
 

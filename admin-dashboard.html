@@ -106,6 +106,7 @@
     .main-head{flex-direction:column;align-items:flex-start;}
     .kpi-row{grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;}
     table.tbl{font-size:12px;}
+    .panel table.tbl td.file-col{white-space:nowrap;min-width:190px;}
     .order-filters{flex-wrap:wrap;}
     .kpi-mini-grid,.chart-grid,.profile-stat-grid,.cr-form-row,.cs-msg-row,.uid-icons-grid,#adminPermsGrid,#newAdminPermsGrid,#payMethodsList{
       grid-template-columns:1fr !important;
@@ -125,11 +126,7 @@
        display:none and .cp-head's padding) — same-specificity + later
        source position was silently winning and hiding the back button */
     .chat-shell .chat-back-btn{display:inline-flex;}
-    .chat-shell .cp-head{flex-wrap:wrap;row-gap:8px;padding:10px 14px;}
-    .cp-head-info{min-width:0;flex:1 1 100px;}
-    .cp-head-info b, .cp-head-info span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    #cpAssignedTag, #tkHeadCategory{display:none;}
-    #cpTransferSelect, #tkPrioritySelect{flex:1 1 100%;order:5;max-width:100%;}
+    .cp-head-row2{row-gap:6px;}
     .chart-card{min-width:0;overflow:hidden;}
     .bar-chart{overflow-x:auto;}
     .bar-wrap{min-width:26px;}
@@ -139,7 +136,9 @@
   }
 
   /* ===== MAIN ===== */
-  .main{padding:24px 28px;overflow-y:auto;height:100vh;}
+  @media (min-width: 861px){
+    .main{padding:24px 28px;overflow-y:auto;height:100vh;}
+  }
   .tabpane{display:none;}
   .tabpane.on{display:block;}
   .main-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:10px;}
@@ -282,10 +281,19 @@
   .chat-main{flex:1;display:flex;flex-direction:column;background:var(--paper-soft);}
   .chat-panel-empty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;}
   .chat-back-btn{display:none;background:none;border:none;font-size:20px;line-height:1;cursor:pointer;color:var(--navy);padding:4px;flex:none;}
-  .cp-head{display:flex;align-items:center;gap:12px;padding:14px 20px;background:var(--paper);border-bottom:1px solid var(--paper-line);flex:none;}
+  .cp-head{display:flex;flex-direction:column;gap:8px;padding:12px 18px;background:var(--paper);border-bottom:1px solid var(--paper-line);flex:none;}
+  .cp-head-row1{display:flex;align-items:center;gap:12px;}
+  .cp-head-row2{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .chat-back-btn{transform:scaleX(-1);}
+  html[dir="ltr"] .chat-back-btn{transform:scaleX(1);}
+  .cp-head-av-wrap{position:relative;flex:none;}
+  .cp-presence-dot{position:absolute;bottom:-1px;left:-1px;width:10px;height:10px;border-radius:50%;background:var(--muted);border:2px solid var(--paper);}
+  .cp-presence-dot.online{background:#22C55E;}
+  .cp-presence-label{font-size:10.5px;color:var(--muted);font-family:'Cairo',sans-serif;}
+  .cp-presence-label.online{color:#22C55E;font-weight:700;}
   .cp-head-av{width:34px;height:34px;border-radius:50%;background:var(--navy);color:var(--cyan);display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'Space Grotesk',sans-serif;flex:none;}
-  .cp-head-info{flex:1;}
-  .cp-head-info b{display:block;font-size:13.5px;color:var(--navy);}
+  .cp-head-info{flex:1;min-width:0;}
+  .cp-head-info b{display:block;font-size:13.5px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .cp-head-info span{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
   .cp-close-btn{padding:7px 14px;border-radius:8px;border:1.5px solid var(--paper-line);background:var(--paper);font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;color:var(--ink-soft);cursor:pointer;}
   .cp-close-btn.is-closed{background:var(--ok-wash);color:var(--ok);border-color:transparent;}
@@ -783,20 +791,28 @@
             <div class="chat-panel-empty" id="chatEmptyState" data-i18n="chat_pick_conv">اختر محادثة من القائمة</div>
             <div id="chatActive" style="display:none;height:100%;flex-direction:column;">
               <div class="cp-head">
-                <button class="chat-back-btn" onclick="closeConvMobile('chat')" title="رجوع">←</button>
-                <div class="cp-head-av" id="cpHeadAv">?</div>
-                <div class="cp-head-info">
-                  <b id="cpHeadName">—</b>
-                  <span id="cpHeadId">—</span>
+                <div class="cp-head-row1">
+                  <button class="chat-back-btn" onclick="closeConvMobile('chat')" title="رجوع">→</button>
+                  <div class="cp-head-av-wrap">
+                    <div class="cp-head-av" id="cpHeadAv">?</div>
+                    <span class="cp-presence-dot" id="cpPresenceDot"></span>
+                  </div>
+                  <div class="cp-head-info">
+                    <b id="cpHeadName">—</b>
+                    <span id="cpHeadId">—</span>
+                    <span class="cp-presence-label" id="cpPresenceLabel" data-i18n="presence_offline">غير متصل</span>
+                  </div>
                 </div>
-                <span id="cpAssignedTag" style="font-size:10.5px;color:var(--muted);white-space:nowrap;"></span>
-                <button id="cpClaimBtn" class="msg-btn" style="white-space:nowrap;" onclick="claimConversation()" title="استلام المحادثة">🙋 استلام</button>
-                <select id="cpTransferSelect" onchange="transferConversation(this.value)" style="font-size:11px;padding:4px 6px;border:1.5px solid var(--paper-line);border-radius:7px;font-family:'Cairo',sans-serif;cursor:pointer;">
-                  <option value="">تحويل لـ...</option>
-                </select>
-                <button class="cp-close-btn" id="cpCloseBtn" onclick="toggleConversationStatus()" data-i18n="chat_end_btn">إنهاء المحادثة</button>
-                <button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);" onclick="deleteEntireChat()" title="حذف المحادثة بالكامل">🗑</button>
-                <button class="msg-btn" onclick="toggleNotesPanel('chat')" title="ملاحظات داخلية">📝</button>
+                <div class="cp-head-row2">
+                  <span id="cpAssignedTag" style="font-size:10.5px;color:var(--muted);white-space:nowrap;"></span>
+                  <button id="cpClaimBtn" class="msg-btn" style="white-space:nowrap;" onclick="claimConversation()" title="استلام المحادثة">🙋 استلام</button>
+                  <select id="cpTransferSelect" onchange="transferConversation(this.value)" style="font-size:11px;padding:4px 6px;border:1.5px solid var(--paper-line);border-radius:7px;font-family:'Cairo',sans-serif;cursor:pointer;">
+                    <option value="">تحويل لـ...</option>
+                  </select>
+                  <button class="cp-close-btn" id="cpCloseBtn" onclick="toggleConversationStatus()" data-i18n="chat_end_btn">إنهاء المحادثة</button>
+                  <button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);" onclick="deleteEntireChat()" title="حذف المحادثة بالكامل">🗑</button>
+                  <button class="msg-btn" onclick="toggleNotesPanel('chat')" title="ملاحظات داخلية">📝</button>
+                </div>
               </div>
               <div id="chatNotesPanel" style="display:none;background:#FFF9E6;border-bottom:1px solid var(--paper-line);padding:12px 16px;">
                 <div style="display:flex;gap:6px;margin-bottom:8px;">
@@ -833,21 +849,29 @@
             <div class="chat-panel-empty" id="ticketsEmptyState" data-i18n="ticket_pick">اختر تذكرة من القائمة</div>
             <div id="ticketActive" style="display:none;height:100%;flex-direction:column;">
               <div class="cp-head">
-                <button class="chat-back-btn" onclick="closeConvMobile('tickets')" title="رجوع">←</button>
-                <div class="cp-head-av" id="tkHeadAv">?</div>
-                <div class="cp-head-info">
-                  <b id="tkHeadName">—</b>
-                  <span id="tkHeadId">—</span>
+                <div class="cp-head-row1">
+                  <button class="chat-back-btn" onclick="closeConvMobile('tickets')" title="رجوع">→</button>
+                  <div class="cp-head-av-wrap">
+                    <div class="cp-head-av" id="tkHeadAv">?</div>
+                    <span class="cp-presence-dot" id="tkPresenceDot"></span>
+                  </div>
+                  <div class="cp-head-info">
+                    <b id="tkHeadName">—</b>
+                    <span id="tkHeadId">—</span>
+                    <span class="cp-presence-label" id="tkPresenceLabel" data-i18n="presence_offline">غير متصل</span>
+                  </div>
                 </div>
-                <span id="tkHeadCategory" style="font-size:11px;color:var(--muted);white-space:nowrap;"></span>
-                <select id="tkPrioritySelect" onchange="changeTicketPriority(this.value)" style="font-size:11px;padding:4px 6px;border:1.5px solid var(--paper-line);border-radius:7px;font-family:'Cairo',sans-serif;cursor:pointer;">
-                  <option value="urgent">🔴 عاجلة</option>
-                  <option value="high">🟠 مرتفعة</option>
-                  <option value="normal">🟡 عادية</option>
-                  <option value="low">⚪ منخفضة</option>
-                </select>
-                <button class="cp-close-btn" id="tkCloseBtn" onclick="toggleTicketStatus()" data-i18n="ticket_close_btn">إغلاق التذكرة</button>
-                <button class="msg-btn" onclick="toggleNotesPanel('ticket')" title="ملاحظات داخلية">📝</button>
+                <div class="cp-head-row2">
+                  <span id="tkHeadCategory" style="font-size:11px;color:var(--muted);white-space:nowrap;"></span>
+                  <select id="tkPrioritySelect" onchange="changeTicketPriority(this.value)" style="font-size:11px;padding:4px 6px;border:1.5px solid var(--paper-line);border-radius:7px;font-family:'Cairo',sans-serif;cursor:pointer;">
+                    <option value="urgent">🔴 عاجلة</option>
+                    <option value="high">🟠 مرتفعة</option>
+                    <option value="normal">🟡 عادية</option>
+                    <option value="low">⚪ منخفضة</option>
+                  </select>
+                  <button class="cp-close-btn" id="tkCloseBtn" onclick="toggleTicketStatus()" data-i18n="ticket_close_btn">إغلاق التذكرة</button>
+                  <button class="msg-btn" onclick="toggleNotesPanel('ticket')" title="ملاحظات داخلية">📝</button>
+                </div>
               </div>
               <div id="ticketNotesPanel" style="display:none;background:#FFF9E6;border-bottom:1px solid var(--paper-line);padding:12px 16px;">
                 <div style="display:flex;gap:6px;margin-bottom:8px;">
@@ -1165,7 +1189,7 @@ let lastOverviewSnapshot = null;
 const I18N = {
   ar: {
     nav_overview:'نظرة عامة', nav_orders:'الطلبات', nav_chat:'الشات المباشر', nav_tickets:'تذاكر الدعم', nav_uidesign:'تصميم الواجهة', nav_checksettings:'إعدادات الفحص',
-    logout:'تسجيل الخروج', refresh:'⟲ تحديث', user_profile:'ملف الأدمن', currency_btn_lbl:'العملة', lang_btn_lbl:'اللغة',
+    logout:'تسجيل الخروج', refresh:'⟲ تحديث', user_profile:'ملف الأدمن', currency_btn_lbl:'العملة', lang_btn_lbl:'اللغة', presence_online:'متصل الآن', presence_offline:'غير متصل',
     overview_title:'نظرة عامة', overview_sub:'أداء المنصة',
     sec_credits:'الكريديت والطلبات الآن', sec_orders_count:'عدد الطلبات', sec_revenue:'الإيرادات (من شحن المحفظة)',
     lbl_api_credits:'الكريديت المتبقي في الـ API', lbl_floating:'Floating', lbl_processing:'قيد التنفيذ',
@@ -1259,7 +1283,7 @@ const I18N = {
   },
   en: {
     nav_overview:'Overview', nav_orders:'Orders', nav_chat:'Live Chat', nav_tickets:'Support Tickets', nav_uidesign:'UI Design', nav_checksettings:'Check Settings',
-    logout:'Logout', refresh:'⟲ Refresh', user_profile:'Admin Profile', currency_btn_lbl:'Currency', lang_btn_lbl:'Language',
+    logout:'Logout', refresh:'⟲ Refresh', user_profile:'Admin Profile', currency_btn_lbl:'Currency', lang_btn_lbl:'Language', presence_online:'Online now', presence_offline:'Offline',
     overview_title:'Overview', overview_sub:'Platform performance',
     sec_credits:'Credits & current orders', sec_orders_count:'Order count', sec_revenue:'Revenue (from wallet top-ups)',
     lbl_api_credits:'Remaining API credits', lbl_floating:'Floating', lbl_processing:'Processing',
@@ -1798,6 +1822,30 @@ async function openConversation(id){
     .eq('conversation_id', id).eq('sender_type', 'user').is('read_at', null);
 
   subscribeToTypingChannel(id);
+  subscribeToCustomerPresence(convo?.user_id);
+}
+
+let presenceChannel = null;
+function subscribeToCustomerPresence(userId){
+  if (presenceChannel) { supabaseClient.removeChannel(presenceChannel); presenceChannel = null; }
+  setCustomerPresence(false);
+  if (!userId) return;
+  presenceChannel = supabaseClient.channel('presence-site-' + userId, { config: { presence: {} } });
+  presenceChannel
+    .on('presence', { event: 'sync' }, () => {
+      const state = presenceChannel.presenceState();
+      setCustomerPresence(Object.keys(state).length > 0);
+    })
+    .subscribe();
+}
+function setCustomerPresence(online){
+  const dot = document.getElementById('cpPresenceDot');
+  const label = document.getElementById('cpPresenceLabel');
+  if (dot) dot.classList.toggle('online', online);
+  if (label) {
+    label.classList.toggle('online', online);
+    label.textContent = online ? t('presence_online') : t('presence_offline');
+  }
 }
 
 let typingChannel = null;
@@ -2250,8 +2298,31 @@ function openTicket(id){
   document.getElementById('ticketNotesPanel').style.display = 'none';
   renderTicketSidebar();
   const tk = tickets.find(t => t.id === id);
-  if (tk) renderTicketHead(tk);
+  if (tk) { renderTicketHead(tk); subscribeToTicketPresence(tk.user_id); }
   loadTicketThread(id);
+}
+
+let ticketPresenceChannel = null;
+function subscribeToTicketPresence(userId){
+  if (ticketPresenceChannel) { supabaseClient.removeChannel(ticketPresenceChannel); ticketPresenceChannel = null; }
+  setTicketPresence(false);
+  if (!userId) return;
+  ticketPresenceChannel = supabaseClient.channel('presence-site-' + userId, { config: { presence: {} } });
+  ticketPresenceChannel
+    .on('presence', { event: 'sync' }, () => {
+      const state = ticketPresenceChannel.presenceState();
+      setTicketPresence(Object.keys(state).length > 0);
+    })
+    .subscribe();
+}
+function setTicketPresence(online){
+  const dot = document.getElementById('tkPresenceDot');
+  const label = document.getElementById('tkPresenceLabel');
+  if (dot) dot.classList.toggle('online', online);
+  if (label) {
+    label.classList.toggle('online', online);
+    label.textContent = online ? t('presence_online') : t('presence_offline');
+  }
 }
 
 function renderTicketHead(tk){
