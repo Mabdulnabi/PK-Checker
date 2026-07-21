@@ -101,7 +101,8 @@
       display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:240;
     }
     .sidebar-overlay.on{display:block;}
-    .main{padding:16px 14px;height:auto;overflow-y:visible;}
+    .main{padding:16px 14px;height:auto;overflow-y:visible;overflow-x:hidden;min-width:0;}
+    .shell{min-width:0;}
     .main-head{flex-direction:column;align-items:flex-start;}
     .kpi-row{grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;}
     table.tbl{font-size:12px;}
@@ -111,9 +112,11 @@
     }
     .uid-row{grid-template-columns:1fr;gap:2px;}
     .manual-upload-row{flex-direction:column;align-items:stretch;}
-    .chat-shell{flex-direction:column;height:auto;}
-    .conv-sidebar{width:100%;max-height:260px;border-left:none;border-bottom:1px solid var(--paper-line);}
-    .chat-main{min-height:420px;}
+    .chat-shell{position:relative;overflow:hidden;height:calc(100vh - 190px);}
+    .conv-sidebar{position:absolute;inset:0;width:100%;max-height:none;border-left:none;}
+    .chat-main{position:absolute;inset:0;width:100%;background:var(--paper);transform:translateX(100%);transition:transform .25s ease;z-index:2;}
+    .chat-shell.conv-open .chat-main{transform:translateX(0);}
+    .chat-back-btn{display:inline-flex;}
   }
 
   /* ===== MAIN ===== */
@@ -259,6 +262,7 @@
   .empty-list{padding:30px 16px;text-align:center;color:var(--muted);font-size:12px;}
   .chat-main{flex:1;display:flex;flex-direction:column;background:var(--paper-soft);}
   .chat-panel-empty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;}
+  .chat-back-btn{display:none;background:none;border:none;font-size:20px;line-height:1;cursor:pointer;color:var(--navy);padding:4px;flex:none;}
   .cp-head{display:flex;align-items:center;gap:12px;padding:14px 20px;background:var(--paper);border-bottom:1px solid var(--paper-line);flex:none;}
   .cp-head-av{width:34px;height:34px;border-radius:50%;background:var(--navy);color:var(--cyan);display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'Space Grotesk',sans-serif;flex:none;}
   .cp-head-info{flex:1;}
@@ -748,6 +752,7 @@
             <div class="chat-panel-empty" id="chatEmptyState" data-i18n="chat_pick_conv">اختر محادثة من القائمة</div>
             <div id="chatActive" style="display:none;height:100%;flex-direction:column;">
               <div class="cp-head">
+                <button class="chat-back-btn" onclick="closeConvMobile('chat')" title="رجوع">←</button>
                 <div class="cp-head-av" id="cpHeadAv">?</div>
                 <div class="cp-head-info">
                   <b id="cpHeadName">—</b>
@@ -797,6 +802,7 @@
             <div class="chat-panel-empty" id="ticketsEmptyState" data-i18n="ticket_pick">اختر تذكرة من القائمة</div>
             <div id="ticketActive" style="display:none;height:100%;flex-direction:column;">
               <div class="cp-head">
+                <button class="chat-back-btn" onclick="closeConvMobile('tickets')" title="رجوع">←</button>
                 <div class="cp-head-av" id="tkHeadAv">?</div>
                 <div class="cp-head-info">
                   <b id="tkHeadName">—</b>
@@ -1357,6 +1363,10 @@ function formatMoney(amountEgp){
 // مسؤول" tab) is the single place admins log in. Here we only check
 // whether a valid admin session already exists; if not, we bounce to
 // auth.html#admin, and back here again once that login succeeds.
+function closeConvMobile(which){
+  const shell = document.querySelector('#tab-' + which + ' .chat-shell');
+  if (shell) shell.classList.remove('conv-open');
+}
 function toggleDesktopSidebar(force){
   const shell = document.querySelector('.shell');
   const sb = document.querySelector('.sidebar');
@@ -1716,6 +1726,10 @@ function updateSideBadge(id, count){
 }
 
 async function openConversation(id){
+  if (window.innerWidth <= 860) {
+    const shell = document.querySelector('#tab-chat .chat-shell');
+    if (shell) shell.classList.add('conv-open');
+  }
   openConversationId = id;
   document.getElementById('chatEmptyState').style.display = 'none';
   document.getElementById('chatActive').style.display = 'flex';
@@ -2181,6 +2195,10 @@ function renderTicketSidebar(){
 }
 
 function openTicket(id){
+  if (window.innerWidth <= 860) {
+    const shell = document.querySelector('#tab-tickets .chat-shell');
+    if (shell) shell.classList.add('conv-open');
+  }
   openTicketId = id;
   document.getElementById('ticketsEmptyState').style.display = 'none';
   document.getElementById('ticketActive').style.display = 'flex';
