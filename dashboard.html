@@ -15,6 +15,12 @@
 <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/relativeTime.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dayjs@1/locale/ar.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/photoswipe@5/dist/photoswipe.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@5/dist/umd/photoswipe.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@5/dist/umd/photoswipe-lightbox.umd.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/css/intlTelInput.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/js/intlTelInput.min.js"></script>
 <style>
   :root{
     --navy:#1B2556;
@@ -468,6 +474,8 @@
   .order-row .stat-ic svg{width:14px;height:14px;}
 
   .oid-cell{font-family:'IBM Plex Mono',monospace;}
+  .copy-btn{cursor:pointer;opacity:.55;font-size:11px;transition:opacity .15s;}
+  .copy-btn:hover{opacity:1;}
   .order-row-highlighted{background:var(--blue-wash);border-radius:10px;box-shadow:inset 3px 0 0 var(--blue);}
   [dir="rtl"] .order-row-highlighted{box-shadow:inset -3px 0 0 var(--blue);}
   .new-order-badge{display:block;font-size:10px;color:var(--blue-deep);font-weight:700;margin-top:3px;white-space:nowrap;}
@@ -2651,7 +2659,7 @@ function renderTicketAttachment(url, name){
   if (!url) return '';
   const isImage = /\.(jpe?g|png|gif|webp)$/i.test(name || url);
   if (isImage) {
-    return `<div class="ticket-attach-preview"><a href="${escapeHtml(url)}" target="_blank" rel="noopener"><img src="${escapeHtml(url)}" alt="${escapeHtml(name||'')}" style="max-width:160px;max-height:120px;border-radius:8px;display:block;margin-top:8px;object-fit:cover;"></a></div>`;
+    return `<div class="ticket-attach-preview"><a href="${escapeHtml(url)}" class="pswp-trigger" data-pswp-width="1600" data-pswp-height="1200" target="_blank" rel="noopener"><img src="${escapeHtml(url)}" alt="${escapeHtml(name||'')}" style="max-width:160px;max-height:120px;border-radius:8px;display:block;margin-top:8px;object-fit:cover;"></a></div>`;
   }
   return `<a class="ticket-attach-chip" href="${escapeHtml(url)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 10px;border:1px solid var(--paper-line);border-radius:8px;font-size:11px;color:var(--blue-deep);text-decoration:none;"><svg class="ic" viewBox="0 0 24 24" style="width:13px;height:13px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>${escapeHtml(name || (currentLang==='ar'?'مرفق':'Attachment'))}</a>`;
 }
@@ -2772,6 +2780,19 @@ function toggleTicket(idx){
   }
 }
 renderInbox();
+
+if (window.ClipboardJS) {
+  const clip = new ClipboardJS('.copy-btn');
+  clip.on('success', () => toast(currentLang==='ar' ? 'اتنسخ ✓' : 'Copied ✓', 'success'));
+}
+if (window.PhotoSwipeLightbox) {
+  const lightbox = new PhotoSwipeLightbox({
+    gallery: '#inboxList',
+    children: 'a.pswp-trigger',
+    pswpModule: () => window.PhotoSwipe,
+  });
+  lightbox.init();
+}
 
 // Delegated (not per-render) listener: the reply file inputs are recreated
 // every renderInbox() call, so a direct addEventListener would be lost on
@@ -4961,7 +4982,7 @@ function buildOrderRow(o){
 
   return `<div class="order-row${isJustSubmitted ? ' order-row-highlighted' : ''}">
     <div class="stat-ic ${o.phase}">${statusIconFor(o.phase)}</div>
-    <div class="ocell oid-cell"><b class="mono">${o.displayId || o.id}</b>${newBadge}</div>
+    <div class="ocell oid-cell"><b class="mono">${o.displayId || o.id}</b> <span class="copy-btn" data-clipboard-text="${escapeHtml(o.displayId || o.id)}" title="${currentLang==='ar'?'نسخ':'Copy'}">📋</span>${newBadge}</div>
     <div class="ofile">
       <div class="oname-row">
         ${ICONS.doc}

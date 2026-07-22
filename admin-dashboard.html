@@ -11,6 +11,11 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <link href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/photoswipe@5/dist/photoswipe.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@5/dist/umd/photoswipe.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@5/dist/umd/photoswipe-lightbox.umd.min.js"></script>
 <style>
   :root{
     --navy:#1B2556; --navy-soft:#2A3A78; --ink:#16213D; --ink-soft:#3D4A6B;
@@ -192,6 +197,8 @@
   .u-cell b{font-size:12.5px;display:block;color:var(--navy);}
   .u-cell span{font-size:10.5px;color:var(--muted);}
   .msg-btn{border:1.5px solid var(--paper-line);background:var(--paper);border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--blue-deep);font-size:11px;}
+  .copy-btn{cursor:pointer;opacity:.55;font-size:11px;transition:opacity .15s;}
+  .copy-btn:hover{opacity:1;}
   .msg-btn:hover{border-color:var(--blue);background:var(--blue-wash);}
   .filter-badge-row{margin:-4px 0 12px;}
   .pg-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 4px 4px;flex-wrap:wrap;}
@@ -1675,6 +1682,25 @@ function startApp(){
   subscribeRealtime();
   loadAdminNotifications();
 
+  // Copy buttons (order codes, etc.) — uses event delegation internally,
+  // so it works for rows rendered/re-rendered after this point too.
+  if (window.ClipboardJS) {
+    const clip = new ClipboardJS('.copy-btn');
+    clip.on('success', () => toast(currentLang==='ar' ? 'اتنسخ ✓' : 'Copied ✓', 'success'));
+  }
+
+  // Lightbox for ticket attachment images — targets the real ticket detail
+  // container; chat file attachments use a different (non-image-preview)
+  // pattern and aren't wired in here.
+  if (window.PhotoSwipeLightbox) {
+    const lightbox = new PhotoSwipeLightbox({
+      gallery: '#tkDetail',
+      children: 'a.pswp-trigger',
+      pswpModule: () => window.PhotoSwipe,
+    });
+    lightbox.init();
+  }
+
   document.getElementById('cpInput').addEventListener('keydown', e=>{
     if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendAdminReply(); }
   });
@@ -2427,7 +2453,7 @@ function renderTicketAttachment(url, name){
   if (!url) return '';
   const isImage = /\.(jpe?g|png|gif|webp)$/i.test(name || url);
   if (isImage) {
-    return `<div style="margin-top:6px;"><a href="${escapeHtml(url)}" target="_blank" rel="noopener"><img src="${escapeHtml(url)}" alt="${escapeHtml(name||'')}" style="max-width:160px;max-height:120px;border-radius:8px;display:block;object-fit:cover;"></a></div>`;
+    return `<div style="margin-top:6px;"><a href="${escapeHtml(url)}" class="pswp-trigger" data-pswp-width="1600" data-pswp-height="1200" target="_blank" rel="noopener"><img src="${escapeHtml(url)}" alt="${escapeHtml(name||'')}" style="max-width:160px;max-height:120px;border-radius:8px;display:block;object-fit:cover;"></a></div>`;
   }
   return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:6px 10px;border:1px solid var(--paper-line);border-radius:8px;font-size:11px;color:var(--blue-deep);text-decoration:none;">📎 ${escapeHtml(name || 'مرفق')}</a>`;
 }
@@ -2868,7 +2894,7 @@ function renderOrdersTable(){
 
     const mainRow = `<tr>
       <td>📄</td>
-      <td class="mono" style="font-size:11px;">${escapeHtml(o.display_id || o.id.slice(0,8))}</td>
+      <td class="mono" style="font-size:11px;">${escapeHtml(o.display_id || o.id.slice(0,8))} <span class="copy-btn" data-clipboard-text="${escapeHtml(o.display_id || o.id.slice(0,8))}" title="نسخ">📋</span></td>
       <td class="u-cell">${userCell}</td>
       <td class="file-col">${escapeHtml(o.file_name || '—')}<br>${checkTypeBadge(o.check_type)}${filterBadges(o)}</td>
       <td><span class="badge ${badgeClass}"><span class="dot"></span>${badgeLabel}</span></td>
@@ -4359,16 +4385,29 @@ function renderCreditsTable(rows){
   renderPaginationBar('credits', 'creditsPagination', rows.length);
 }
 
+let _creditsFuse = null;
 function filterCreditsTable(q){
-  q = q.toLowerCase().trim();
-  const rows = q ? allTxRows.filter(r =>
-    (r.full_name||'').toLowerCase().includes(q) ||
-    (r.tx_code||'').toLowerCase().includes(q) ||
-    String(r.pk_number||'').includes(q) ||
-    (r.pack_id||'').toLowerCase().includes(q) ||
-    (r.admin_note||'').toLowerCase().includes(q)
-  ) : allTxRows;
-  renderCreditsTable(rows);
+  q = q.trim();
+  if (!q) { renderCreditsTable(allTxRows); return; }
+  if (window.Fuse) {
+    if (!_creditsFuse || _creditsFuse._list !== allTxRows) {
+      _creditsFuse = new Fuse(allTxRows, {
+        keys: ['full_name', 'tx_code', 'pk_number', 'pack_id', 'admin_note'],
+        threshold: 0.35,
+      });
+      _creditsFuse._list = allTxRows;
+    }
+    renderCreditsTable(_creditsFuse.search(q).map(r => r.item));
+    return;
+  }
+  const ql = q.toLowerCase();
+  renderCreditsTable(allTxRows.filter(r =>
+    (r.full_name||'').toLowerCase().includes(ql) ||
+    (r.tx_code||'').toLowerCase().includes(ql) ||
+    String(r.pk_number||'').includes(ql) ||
+    (r.pack_id||'').toLowerCase().includes(ql) ||
+    (r.admin_note||'').toLowerCase().includes(ql)
+  ));
 }
 
 // ── User lookup by PK ──
@@ -4982,15 +5021,29 @@ async function deleteUser(userId, fullName){
   await adminAlert(currentLang==='ar' ? '✅ تم حذف الحساب' : '✅ Account deleted', {icon:'✅'});
 }
 
+let _usersFuse = null;
 function filterUsersTable(q){
-  q = q.toLowerCase().trim();
-  const rows = q ? allUsersRows.filter(r =>
-    (r.full_name||'').toLowerCase().includes(q) ||
-    (r.email||'').toLowerCase().includes(q) ||
-    (r.whatsapp||'').includes(q) ||
-    String(r.pk_number||'').includes(q)
-  ) : allUsersRows;
-  renderUsersTable(rows);
+  q = q.trim();
+  if (!q) { renderUsersTable(allUsersRows); return; }
+  if (window.Fuse) {
+    if (!_usersFuse || _usersFuse._list !== allUsersRows) {
+      _usersFuse = new Fuse(allUsersRows, {
+        keys: ['full_name', 'email', 'whatsapp', 'pk_number'],
+        threshold: 0.35, // 0 = exact match only, 1 = match anything — 0.35 tolerates a typo or two
+      });
+      _usersFuse._list = allUsersRows;
+    }
+    renderUsersTable(_usersFuse.search(q).map(r => r.item));
+    return;
+  }
+  // Fallback if the CDN failed to load — same exact-substring behavior as before.
+  const ql = q.toLowerCase();
+  renderUsersTable(allUsersRows.filter(r =>
+    (r.full_name||'').toLowerCase().includes(ql) ||
+    (r.email||'').toLowerCase().includes(ql) ||
+    (r.whatsapp||'').includes(ql) ||
+    String(r.pk_number||'').includes(ql)
+  ));
 }
 </script>
 <script>
