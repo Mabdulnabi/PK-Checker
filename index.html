@@ -9,6 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="shared/pk-shared.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;}
   :root{
@@ -431,37 +433,37 @@
 
 <section class="features-bg" id="features">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head" data-aos="fade-up">
       <span class="eyebrow"><span class="dot"></span> <span data-i18n="why_badge">ليه تختارنا</span></span>
       <h2 class="why-title"><span data-i18n="why_title_1">شريكك الموثوق في</span> <span class="grad-text" data-i18n="why_title_2">فحص الاقتباس</span></h2>
     </div>
     <div class="features-grid">
-      <div class="feature-card">
+      <div class="feature-card" data-aos="fade-up" data-aos-delay="0">
         <div class="feature-icon" data-icon-key="home_g1" style="color:var(--blue-deep);">📄</div>
         <h3 data-i18n="g1_title">No Repository</h3>
         <p data-i18n="g1_sub">فحص آلي بالكامل دون تخزين ملفك في مستودع Turnitin</p>
       </div>
-      <div class="feature-card">
+      <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
         <div class="feature-icon" data-icon-key="home_g2" style="color:var(--ok);">🤝</div>
         <h3 data-i18n="g2_title">تكامل رسمي مباشر</h3>
         <p data-i18n="g2_sub">عبر Turnitin Instructor API الرسمي بالكامل</p>
       </div>
-      <div class="feature-card">
+      <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
         <div class="feature-icon" data-icon-key="home_g3" style="color:var(--gold-deep);">♾️</div>
         <h3 data-i18n="g3_title">الكريديت لا تنتهي</h3>
         <p data-i18n="g3_sub">رصيدك يبقى محفوظًا لحين استخدامه بالكامل</p>
       </div>
-      <div class="feature-card">
+      <div class="feature-card" data-aos="fade-up" data-aos-delay="0">
         <div class="feature-icon" data-icon-key="home_g4" style="color:#0891B2;">🔒</div>
         <h3 data-i18n="idx_feat4_title">خصوصية تامة</h3>
         <p data-i18n="idx_feat4_desc">ملفك بيتفحص من غير ما يتضاف لأرشيف Turnitin العالمي — يفضل ملكك وبس.</p>
       </div>
-      <div class="feature-card">
+      <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
         <div class="feature-icon" data-icon-key="home_g5" style="color:#8B5CF6;">💳</div>
         <h3 data-i18n="idx_feat5_title">محفظة كريديت مرنة</h3>
         <p data-i18n="idx_feat5_desc">اشحن رصيدك مرة واستخدمه في أي وقت، بوسائل دفع مصرية سهلة ومباشرة.</p>
       </div>
-      <div class="feature-card">
+      <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
         <div class="feature-icon" data-icon-key="home_g6" style="color:#E0445B;">💬</div>
         <h3 data-i18n="idx_feat6_title">دعم فني حقيقي</h3>
         <p data-i18n="idx_feat6_desc">لايف شات وتذاكر دعم بيرد عليها فريق حقيقي، مش بوت آلي.</p>
@@ -472,17 +474,17 @@
 
 <section id="services">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head" data-aos="fade-up">
       <span class="eyebrow"><span class="dot"></span> <span data-i18n="services_title">الخدمات المتاحة</span></span>
       <h2 class="why-title"><span data-i18n="srv_title_1">اختار</span> <span class="grad-text" data-i18n="srv_title_2">الباقة المناسبة</span></h2>
     </div>
     <div class="pricing-grid">
-      <div class="pricing-card featured">
+      <div class="pricing-card featured" data-aos="fade-up">
         <div class="pricing-badge-slot"><span class="pricing-badge" data-i18n="srv_ai_badge">الأكثر طلبًا</span></div>
         <h3 data-i18n="srv_ai_title">اقتباس + ذكاء اصطناعي</h3>
         <div class="pricing-price"><span data-i18n="srv_ai_price">100 جنيه مصري أو 2 دولار</span> <span class="unit" data-i18n="srv_ai_unit">/ فحص</span></div>
       </div>
-      <div class="pricing-card" id="simOnlyCard">
+      <div class="pricing-card" id="simOnlyCard" data-aos="fade-up" data-aos-delay="100">
         <div class="pricing-badge-slot"><span class="pricing-badge danger" id="simUnavailableBadge" data-i18n="srv_unavailable_badge">غير متاح حالياً</span></div>
         <h3 data-i18n="srv_sim_title">فحص الاقتباس فقط</h3>
         <div class="pricing-price"><span data-i18n="srv_sim_price">50 جنيه مصري أو 1 دولار</span> <span class="unit" data-i18n="srv_sim_unit">/ فحص</span></div>
@@ -493,24 +495,24 @@
 
 <section class="features-bg" id="how">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head" data-aos="fade-up">
       <span class="eyebrow"><span class="dot"></span> <span data-i18n="idx_nav_how">إزاي بيشتغل</span></span>
       <h2 class="why-title"><span data-i18n="how_title_1">كيف تعمل</span> <span class="grad-text" data-i18n="how_title_2">الخدمة؟</span></h2>
       <p data-i18n="how_sub">احصل على تقرير الاقتباس في 5 خطوات بسيطة</p>
     </div>
     <div class="steps">
-      <div class="step"><div class="step-line"></div><div class="step-num">1</div><h3 data-i18n="step1">اختر نوع الفحص</h3><p data-i18n="step1_desc">حدد هتفحص اقتباس بس ولا اقتباس + ذكاء اصطناعي</p></div>
-      <div class="step"><div class="step-line"></div><div class="step-num">2</div><h3 data-i18n="step2">حدّد الاستثناءات</h3><p data-i18n="step2_desc">استبعد المراجع أو الاقتباسات المنصوصة لو حابب</p></div>
-      <div class="step"><div class="step-line"></div><div class="step-num">3</div><h3 data-i18n="step3">ارفع ملفك</h3><p data-i18n="step3_desc">ارفع ملف DOC أو DOCX بأمان في دقائق</p></div>
-      <div class="step"><div class="step-line"></div><div class="step-num">4</div><h3 data-i18n="step4">يبدأ الفحص فورًا</h3><p data-i18n="step4_desc">يُخصم الكريديت من رصيدك فورًا ويبدأ الفحص</p></div>
-      <div class="step"><div class="step-num">5</div><h3 data-i18n="step5">استلم تقريرك</h3><p data-i18n="step5_desc">هيوصلك تقرير PDF رسمي خلال 10–30 دقيقة تقريبًا</p></div>
+      <div class="step" data-aos="fade-up" data-aos-delay="0"><div class="step-line"></div><div class="step-num">1</div><h3 data-i18n="step1">اختر نوع الفحص</h3><p data-i18n="step1_desc">حدد هتفحص اقتباس بس ولا اقتباس + ذكاء اصطناعي</p></div>
+      <div class="step" data-aos="fade-up" data-aos-delay="80"><div class="step-line"></div><div class="step-num">2</div><h3 data-i18n="step2">حدّد الاستثناءات</h3><p data-i18n="step2_desc">استبعد المراجع أو الاقتباسات المنصوصة لو حابب</p></div>
+      <div class="step" data-aos="fade-up" data-aos-delay="160"><div class="step-line"></div><div class="step-num">3</div><h3 data-i18n="step3">ارفع ملفك</h3><p data-i18n="step3_desc">ارفع ملف DOC أو DOCX بأمان في دقائق</p></div>
+      <div class="step" data-aos="fade-up" data-aos-delay="240"><div class="step-line"></div><div class="step-num">4</div><h3 data-i18n="step4">يبدأ الفحص فورًا</h3><p data-i18n="step4_desc">يُخصم الكريديت من رصيدك فورًا ويبدأ الفحص</p></div>
+      <div class="step" data-aos="fade-up" data-aos-delay="320"><div class="step-num">5</div><h3 data-i18n="step5">استلم تقريرك</h3><p data-i18n="step5_desc">هيوصلك تقرير PDF رسمي خلال 10–30 دقيقة تقريبًا</p></div>
     </div>
   </div>
 </section>
 
 <section id="faq">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head" data-aos="fade-up">
       <span class="eyebrow"><span class="dot"></span> <span data-i18n="idx_nav_faq">أسئلة شائعة</span></span>
       <h2 class="why-title"><span data-i18n="faq_title_1">الأسئلة</span> <span class="grad-text" data-i18n="faq_title_2">الشائعة</span></h2>
     </div>
@@ -519,7 +521,7 @@
 </section>
 
 <section>
-  <div class="final-cta">
+  <div class="final-cta" data-aos="zoom-in">
     <h2 data-i18n="idx_final_title">جاهز تطمّن على بحثك؟</h2>
     <p data-i18n="idx_final_sub">سجّل دلوقتي وابدأ أول فحص في أقل من دقيقتين.</p>
     <a class="btn btn-hero" href="auth.html" data-i18n="idx_final_cta">سجّل دخولك مجانًا</a>
@@ -735,6 +737,16 @@ applyLang();
 applyCustomIcons();
 applyFavicon();
 loadUIConfig();
+
+if (window.AOS) {
+  AOS.init({
+    duration: 650,
+    easing: 'ease-out-cubic',
+    once: true,       // animate each element in only once, not every scroll pass
+    offset: 60,
+    disable: false,
+  });
+}
 
 // "Similarity only" service availability badge — reflects check_settings.sim_only_visible,
 // toggled from the admin dashboard, updated live via Supabase Realtime.
