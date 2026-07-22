@@ -701,6 +701,9 @@
   .inbox-reply .ir-text b{display:block;font-weight:700;margin-bottom:5px;color:var(--muted);font-size:11px;}
   .inbox-reply{margin-top:0;}
   .inbox-reply-form{display:flex;gap:8px;margin-top:2px;}
+  .ir-attach-btn{display:flex;align-items:center;justify-content:center;flex:none;width:36px;height:36px;border-radius:9px;background:var(--paper-soft);border:1.5px solid var(--paper-line);color:var(--ink-soft);cursor:pointer;}
+  .ir-attach-btn:hover{background:var(--blue-wash);color:var(--blue-deep);}
+  .ir-attach-chip-row{margin-top:6px;}
   .inbox-reply-form input{flex:1;background:var(--paper);border:1.5px solid var(--paper-line);border-radius:20px;padding:9px 14px;font-size:12px;font-family:'Cairo','Manrope',sans-serif;}
   .inbox-reply-form input:focus{outline:none;border-color:var(--blue);}
   .inbox-reply-form button{width:34px;height:34px;border-radius:50%;background:var(--blue);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;color:#fff;}
@@ -2614,6 +2617,27 @@ function escapeHtml(str){
   }[c]));
 }
 
+// Per-ticket attachment state for the reply box (keyed by ticket index,
+// since several tickets can be expanded/replied-to independently).
+let replyAttachedFile = {};
+
+// Same upload pattern as uploadTicketAttachment() (used for the initial
+// ticket), but for a reply row — separate function since it needs the
+// reply's own file reference, not the initial-ticket one.
+async function uploadReplyAttachment(ticketDbId, file){
+  if (!file) return { attachmentUrl: null, attachmentName: null };
+  try {
+    const path = `${ticketDbId}/${Date.now()}_${file.name}`;
+    const { error: upErr } = await supabaseClient.storage.from('ticket-attachments').upload(path, file);
+    if (upErr) throw upErr;
+    const { data: signed } = await supabaseClient.storage.from('ticket-attachments').createSignedUrl(path, 60 * 60 * 24 * 365);
+    return { attachmentUrl: signed?.signedUrl || null, attachmentName: file.name };
+  } catch (err) {
+    console.error('reply attachment upload failed:', err);
+    return { attachmentUrl: null, attachmentName: null };
+  }
+}
+
 function renderTicketAttachment(url, name){
   if (!url) return '';
   const isImage = /\.(jpe?g|png|gif|webp)$/i.test(name || url);
@@ -2673,11 +2697,16 @@ function renderInbox(){
             <div class="inbox-closed-note" data-i18n="inbox_closed_note">${t('inbox_closed_note')}</div>
           ` : `
             <div class="inbox-reply-form">
+              <label class="ir-attach-btn" for="ticketReplyFile-${i}" aria-label="${t('support_attach_cta')}">
+                <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3.5 3.5 0 0 1 4.95 4.95l-9.2 9.19a1.5 1.5 0 0 1-2.12-2.12l8.49-8.48"/></svg>
+              </label>
+              <input type="file" id="ticketReplyFile-${i}" data-reply-idx="${i}" accept="image/*,.pdf,.doc,.docx" style="display:none;">
               <input type="text" id="ticketReplyInput-${i}" data-i18n-ph="inbox_reply_ph" placeholder="${t('inbox_reply_ph')}" onkeydown="if(event.key==='Enter') sendTicketReply(${i})">
               <button type="button" onclick="sendTicketReply(${i})" aria-label="${t('inbox_reply_send')}">
                 <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor;"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
               </button>
             </div>
+            <div class="ir-attach-chip-row" id="replyAttachRow-${i}"></div>
           `}
         </div>
       ` : ''}
@@ -2691,23 +2720,32 @@ async function sendTicketReply(idx){
   const input = document.getElementById('ticketReplyInput-'+idx);
   if(!input) return;
   const msg = input.value.trim();
-  if(!msg) return;
+  const file = replyAttachedFile[idx];
+  if(!msg && !file) return;
 
   const btn = input.nextElementSibling;
   input.disabled = true;
   if(btn) btn.disabled = true;
 
   try {
+    const { attachmentUrl, attachmentName } = await uploadReplyAttachment(tk.dbId, file);
     const { error } = await supabaseClient
       .from('support_ticket_replies')
-      .insert({ ticket_id: tk.dbId, sender: 'user', message: msg });
+      .insert({
+        ticket_id: tk.dbId,
+        sender: 'user',
+        message: msg || (currentLang==='ar' ? '📎 مرفق' : '📎 Attachment'),
+        attachment_url: attachmentUrl,
+        attachment_name: attachmentName,
+      });
 
     if (error) throw error;
 
-    tk.replies.push({ from: 'user', text: msg });
+    tk.replies.push({ from: 'user', text: msg || (currentLang==='ar' ? '📎 مرفق' : '📎 Attachment'), attachmentUrl, attachmentName });
     if (tk.status === 'open') {
       // keep as-is; status flips to "answered" once an admin responds
     }
+    replyAttachedFile[idx] = null;
     renderInbox();
   } catch (err) {
     console.error('sendTicketReply failed:', err);
@@ -2724,6 +2762,34 @@ function toggleTicket(idx){
   }
 }
 renderInbox();
+
+// Delegated (not per-render) listener: the reply file inputs are recreated
+// every renderInbox() call, so a direct addEventListener would be lost on
+// re-render — attaching once on the stable inboxList container survives that.
+document.getElementById('inboxList')?.addEventListener('change', (e) => {
+  const input = e.target.closest('[id^="ticketReplyFile-"]');
+  if (!input) return;
+  const idx = Number(input.dataset.replyIdx);
+  replyAttachedFile[idx] = input.files[0] || null;
+  renderReplyAttachChip(idx);
+});
+document.getElementById('inboxList')?.addEventListener('click', (e) => {
+  const remove = e.target.closest('[id^="replyAttachRemove-"]');
+  if (!remove) return;
+  const idx = Number(remove.dataset.replyIdx);
+  replyAttachedFile[idx] = null;
+  const input = document.getElementById('ticketReplyFile-' + idx);
+  if (input) input.value = '';
+  renderReplyAttachChip(idx);
+});
+function renderReplyAttachChip(idx){
+  const row = document.getElementById('replyAttachRow-' + idx);
+  if (!row) return;
+  const file = replyAttachedFile[idx];
+  row.innerHTML = file
+    ? `<span class="attach-chip"><span>${escapeHtml(file.name)}</span><span class="ac-remove" id="replyAttachRemove-${idx}" data-reply-idx="${idx}">×</span></span>`
+    : '';
+}
 
 // Uploads the attached file (if any) for a just-created ticket. Returns
 // { attachmentUrl, attachmentName } (both null if there's no attachment or
