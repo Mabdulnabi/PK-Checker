@@ -519,6 +519,10 @@
   /* ===== WALLET PAGE ===== */
   /* Full-width credit card */
   .credit-card-full{background:linear-gradient(150deg, var(--navy) 0%, #243873 65%, #0B5FC9 130%);border-radius:18px;padding:30px 34px;color:var(--paper);position:relative;overflow:hidden;margin-bottom:18px;}
+  .btn-show-packs{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--paper);border:1.5px solid var(--blue-wash);color:var(--blue-deep);font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;padding:14px;border-radius:12px;cursor:pointer;margin-bottom:18px;transition:background .2s;}
+  .btn-show-packs:hover{background:var(--blue-wash);}
+  .packs-toggle-chevron{transition:transform .2s;}
+  .btn-show-packs.open .packs-toggle-chevron{transform:rotate(180deg);}
   .credit-card-full::after{content:'';position:absolute;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle, rgba(0,186,247,0.22), transparent 70%);top:-110px;right:-80px;}
   .credit-card-full .ctag{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--cyan);letter-spacing:.08em;text-transform:uppercase;margin-bottom:18px;position:relative;}
   .credit-card-full .cbal{font-family:'Space Grotesk',sans-serif;font-size:44px;font-weight:700;position:relative;}
@@ -1130,34 +1134,42 @@
         <div class="ref-link"><span>t.me/Prokeys_Turnbot?ref=MO812K</span><span style="color:var(--gold-deep);font-weight:700;cursor:pointer;" data-i18n="copy">نسخ</span></div>
       </div>
 
-      <!-- Top-up packs slider -->
-      <div class="pack-section-head">
-        <h2 class="pack-section-title" data-i18n="packs_topup_tab">باقات الشحن</h2>
-        <p class="pack-section-desc" data-i18n="packs_topup_desc">كريديت لا تنتهي صلاحيتها — مثالية للأساتذة والباحثين</p>
-      </div>
-      <div class="pack-slider-wrap">
-        <button class="slider-arrow slider-arrow-prev" id="topupPrev" aria-label="prev">
-          <svg class="ic" data-icon-key="wal_slider_prev" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <div class="pack-slider" id="topupSlider"></div>
-        <button class="slider-arrow slider-arrow-next" id="topupNext" aria-label="next">
-          <svg class="ic" data-icon-key="wal_slider_next" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-        </button>
-      </div>
+      <!-- Packs are hidden by default (they take a lot of vertical space) —
+           revealed on demand via this button instead of always showing. -->
+      <button type="button" class="btn-show-packs" id="showPacksBtn" onclick="togglePacksVisibility()">
+        <span data-i18n="topup_now">اشحن المحفظة الآن</span>
+        <svg class="ic packs-toggle-chevron" viewBox="0 0 24 24" style="width:14px;height:14px;"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div id="packsCollapsible" style="display:none;">
+        <!-- Top-up packs slider -->
+        <div class="pack-section-head">
+          <h2 class="pack-section-title" data-i18n="packs_topup_tab">باقات الشحن</h2>
+          <p class="pack-section-desc" data-i18n="packs_topup_desc">كريديت لا تنتهي صلاحيتها — مثالية للأساتذة والباحثين</p>
+        </div>
+        <div class="pack-slider-wrap">
+          <button class="slider-arrow slider-arrow-prev" id="topupPrev" aria-label="prev">
+            <svg class="ic" data-icon-key="wal_slider_prev" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <div class="pack-slider" id="topupSlider"></div>
+          <button class="slider-arrow slider-arrow-next" id="topupNext" aria-label="next">
+            <svg class="ic" data-icon-key="wal_slider_next" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
 
-      <!-- Daily packs slider -->
-      <div class="pack-section-head" style="margin-top:36px;">
-        <h2 class="pack-section-title" data-i18n="packs_daily_tab">الباقات اليومية</h2>
-        <p class="pack-section-desc" data-i18n="packs_daily_desc">لعمليات الفحص الكثيفة — صلاحية 24 ساعة فقط</p>
-      </div>
-      <div class="pack-slider-wrap">
-        <button class="slider-arrow slider-arrow-prev" id="dailyPrev" aria-label="prev">
-          <svg class="ic" data-icon-key="wal_slider_prev" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <div class="pack-slider" id="dailySlider"></div>
-        <button class="slider-arrow slider-arrow-next" id="dailyNext" aria-label="next">
-          <svg class="ic" data-icon-key="wal_slider_next" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-        </button>
+        <!-- Daily packs slider -->
+        <div class="pack-section-head" style="margin-top:36px;">
+          <h2 class="pack-section-title" data-i18n="packs_daily_tab">الباقات اليومية</h2>
+          <p class="pack-section-desc" data-i18n="packs_daily_desc">لعمليات الفحص الكثيفة — صلاحية 24 ساعة فقط</p>
+        </div>
+        <div class="pack-slider-wrap">
+          <button class="slider-arrow slider-arrow-prev" id="dailyPrev" aria-label="prev">
+            <svg class="ic" data-icon-key="wal_slider_prev" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <div class="pack-slider" id="dailySlider"></div>
+          <button class="slider-arrow slider-arrow-next" id="dailyNext" aria-label="next">
+            <svg class="ic" data-icon-key="wal_slider_next" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
       </div>
 
       <!-- Full-width payment section, shown only after pack selection -->
@@ -2112,6 +2124,16 @@ function buildPackCard(p, tab, index){
       <button class="pselect-btn" onclick='selectPack("${tab}","${p.id}")'>${t('choose')}</button>
     </div>
   `;
+}
+
+function togglePacksVisibility(){
+  const box = document.getElementById('packsCollapsible');
+  const btn = document.getElementById('showPacksBtn');
+  if (!box || !btn) return;
+  const opening = box.style.display === 'none';
+  box.style.display = opening ? '' : 'none';
+  btn.classList.toggle('open', opening);
+  if (opening) box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function renderPacks(){
@@ -4014,6 +4036,7 @@ function applyLang(){
   renderInbox();
   applyCheckSettings();
   renderPaymentHistory();
+  renderOrderTransactions();
 }
 document.getElementById('langSwitch').onclick = ()=>{
   currentLang = currentLang==='ar' ? 'en' : 'ar';
