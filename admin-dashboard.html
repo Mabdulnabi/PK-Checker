@@ -5456,7 +5456,7 @@ const API_COST_BOTH=32.5, API_COST_SIM=0;
 
 function initRevenueTab(orders, wallet){
   renderDailyChart(wallet);
-  renderPackChart(orders);
+  renderPackChart();
 }
 
 let _dailyChartInstance = null;
@@ -5502,15 +5502,33 @@ function renderDailyChart(wallet){
 }
 
 let _packChartInstance = null;
-function renderPackChart(orders){
+async function renderPackChart(){
   const el = document.getElementById('packSalesChart');
   if(!el) return;
-  const counts={};
-  orders.forEach(o=>{ const k=o.check_type||'unknown'; counts[k]=(counts[k]||0)+1; });
-  const colors=['#0E7AFE','#00BAF7','#0E9F6E','#E8A20B','#E0445B'];
-  const items=Object.entries(counts).map(([k,v],i)=>({k,v,c:colors[i%colors.length]}));
+
+  // Pulls from completed *payments* (top-up + daily credit packs), not
+  // orders.check_type — that's the check TYPE (similarity/AI), a totally
+  // different thing from which purchased pack was most popular.
+  const { data, error } = await supabaseClient
+    .from('payments')
+    .select('pack_id')
+    .eq('status', 'completed')
+    .not('pack_id', 'is', null);
+  if (error) { console.error('renderPackChart:', error); return; }
+
+  const counts = {};
+  (data || []).forEach(p => { counts[p.pack_id] = (counts[p.pack_id] || 0) + 1; });
+  const colors = ['#0E7AFE', '#00BAF7', '#0E9F6E', '#E8A20B', '#E0445B', '#8B5CF6', '#FF7A59', '#14B8A6'];
+  const items = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([k, v], i) => ({ k: PACK_NAMES[k] || k, v, c: colors[i % colors.length] }));
+
   if (!window.Chart) return;
   if (_packChartInstance) { _packChartInstance.destroy(); }
+  if (!items.length) {
+    el.getContext('2d').clearRect(0, 0, el.width, el.height);
+    return;
+  }
   _packChartInstance = new Chart(el.getContext('2d'), {
     type: 'doughnut',
     data: {
