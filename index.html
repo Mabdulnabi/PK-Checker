@@ -23,6 +23,11 @@
   html{scroll-behavior:smooth;}
   body{font-family:'Cairo',sans-serif;background:var(--paper);color:var(--ink);line-height:1.7;overflow-x:hidden;}
   a{text-decoration:none;color:inherit;}
+  /* Any text controlled from the UI Design tab respects a literal line
+     break (Enter) typed into its field — nothing changes unless the admin
+     actually types one. .btn keeps its own nowrap rule below, which wins
+     for buttons since it's declared later. */
+  [data-i18n]{white-space:pre-line;}
   .wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
 
   /* ===== HEADER ===== */
