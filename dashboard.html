@@ -519,8 +519,8 @@
   /* ===== WALLET PAGE ===== */
   /* Full-width credit card */
   .credit-card-full{background:linear-gradient(150deg, var(--navy) 0%, #243873 65%, #0B5FC9 130%);border-radius:18px;padding:30px 34px;color:var(--paper);position:relative;overflow:hidden;margin-bottom:18px;}
-  .btn-show-packs{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--paper);border:1.5px solid var(--blue-wash);color:var(--blue-deep);font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;padding:14px;border-radius:12px;cursor:pointer;margin-bottom:18px;transition:background .2s;}
-  .btn-show-packs:hover{background:var(--blue-wash);}
+  .btn-show-packs{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--navy);border:1.5px solid var(--navy);color:#fff;font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;padding:14px;border-radius:12px;cursor:pointer;margin-bottom:18px;transition:background .2s;}
+  .btn-show-packs:hover{background:var(--navy-soft);}
   .packs-toggle-chevron{transition:transform .2s;}
   .btn-show-packs.open .packs-toggle-chevron{transform:rotate(180deg);}
   .credit-card-full::after{content:'';position:absolute;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle, rgba(0,186,247,0.22), transparent 70%);top:-110px;right:-80px;}
@@ -4907,7 +4907,7 @@ function renderPaginationBar(key, containerId, totalItems){
       <div class="pg-size">
         <span>${t('pg_rows_per_page')}</span>
         <select onchange="_pgSetSize('${key}', this.value)">
-          ${[10,20,30,50].map(n=>`<option value="${n}" ${st.pageSize===n?'selected':''}>${n}</option>`).join('')}
+          ${[5,10,20,30,50].map(n=>`<option value="${n}" ${st.pageSize===n?'selected':''}>${n}</option>`).join('')}
         </select>
       </div>
       <div class="pg-nav">
