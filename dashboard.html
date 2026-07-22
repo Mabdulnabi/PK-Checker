@@ -9,6 +9,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="shared/pk-shared.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/relativeTime.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/locale/ar.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1/dist/confetti.browser.min.js"></script>
 <style>
   :root{
     --navy:#1B2556;
@@ -2496,6 +2502,9 @@ async function handleVerificationResult(json, credits){
     document.getElementById('walletTxidInput').value = '';
     userBalance = json.newBalance ?? userBalance;
     renderKpis();
+    if (window.confetti) {
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ['#0E7AFE', '#00BAF7', '#0E9F6E', '#FFA500'] });
+    }
     await appAlert(
       currentLang==='ar'
         ? `✅ تم التحقق وإضافة ${credits} كريديت لرصيدك!`
@@ -2747,6 +2756,7 @@ async function sendTicketReply(idx){
     }
     replyAttachedFile[idx] = null;
     renderInbox();
+    toast(currentLang==='ar' ? 'تم إرسال الرد ✓' : 'Reply sent ✓', 'success');
   } catch (err) {
     console.error('sendTicketReply failed:', err);
     await appAlert(currentLang==='ar' ? 'تعذر إرسال الرد. حاول مرة أخرى.' : 'Could not send your reply. Please try again.', {icon:'error'});
@@ -2936,7 +2946,14 @@ async function loadTickets(){
 }
 
 // Minimal relative-time formatter for ticket timestamps (no extra dependency).
+if (window.dayjs && dayjs.extend) {
+  dayjs.extend(window.dayjs_plugin_relativeTime);
+}
 function formatRelativeTime(isoString, lang){
+  if (window.dayjs) {
+    return dayjs(isoString).locale(lang === 'ar' ? 'ar' : 'en').fromNow();
+  }
+  // Fallback if the CDN failed to load — same behavior as before Day.js.
   const diffMs = Date.now() - new Date(isoString).getTime();
   const mins = Math.floor(diffMs / 60000);
   if (mins < 1) return lang === 'ar' ? 'الآن' : 'Just now';
@@ -4340,6 +4357,22 @@ function showAppModal({ icon = 'info', title, body = '', buttons, autoDismissMs 
 }
 
 // Drop-in replacement for alert(message) — single OK button, no return value needed.
+// Lightweight, non-blocking confirmation for things the customer doesn't
+// need to actively dismiss — appAlert() (a modal) stays reserved for
+// anything that needs to be seen and acknowledged (errors, warnings).
+function toast(msg, type = 'success'){
+  if (!window.Toastify) return;
+  const colors = { success: '#0E9F6E', error: '#E0445B', info: '#0E7AFE' };
+  Toastify({
+    text: msg,
+    duration: 3200,
+    gravity: 'top',
+    position: currentLang === 'ar' ? 'left' : 'right',
+    style: { background: colors[type] || colors.info, borderRadius: '10px', fontFamily: "'Cairo',sans-serif", fontWeight: '600' },
+    stopOnFocus: true,
+  }).showToast();
+}
+
 function appAlert(message, { icon = 'info', title } = {}) {
   if (!title) title = { success: currentLang==='ar'?'تم بنجاح':'Success', error: currentLang==='ar'?'حدث خطأ':'Error', warning: currentLang==='ar'?'تنبيه':'Warning', info: currentLang==='ar'?'تنبيه':'Notice' }[icon];
   return showAppModal({

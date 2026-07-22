@@ -8,6 +8,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900;1000&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<link href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <style>
   :root{
     --navy:#1B2556; --navy-soft:#2A3A78; --ink:#16213D; --ink-soft:#3D4A6B;
@@ -714,14 +717,12 @@
           <!-- Daily Revenue Bar Chart -->
           <div class="chart-card">
             <h3 data-i18n="rev_daily_chart">الإيراد اليومي (آخر 14 يوم)</h3>
-            <div class="bar-chart" id="dailyRevenueChart"></div>
+            <canvas id="dailyRevenueChart" height="220"></canvas>
           </div>
           <!-- Pack Sales Pie Chart -->
           <div class="chart-card">
             <h3 data-i18n="rev_pack_chart">أكثر الباقات مبيعاً</h3>
-            <div class="pie-wrap" id="packSalesChart">
-              <div style="color:var(--muted);font-size:12px;" data-i18n="loading_ellipsis">جاري التحميل...</div>
-            </div>
+            <canvas id="packSalesChart" height="220"></canvas>
           </div>
         </div>
 
@@ -3944,6 +3945,23 @@ async function saveCheckSettings(){
 
 let _admResolve = null;
 
+// Lightweight, non-blocking confirmation for low-stakes actions (settings
+// saved, broadcast sent, etc.) — separate from adminAlert(), which is a
+// modal the admin must dismiss and stays reserved for things that need to
+// be seen and acknowledged (errors, destructive-action confirmations).
+function toast(msg, type = 'success'){
+  if (!window.Toastify) { console.log('[toast]', msg); return; }
+  const colors = { success: '#0E9F6E', error: '#E0445B', info: '#0E7AFE' };
+  Toastify({
+    text: msg,
+    duration: 3200,
+    gravity: 'top',
+    position: currentLang === 'ar' ? 'left' : 'right',
+    style: { background: colors[type] || colors.info, borderRadius: '10px', fontFamily: "'Cairo',sans-serif", fontWeight: '600' },
+    stopOnFocus: true,
+  }).showToast();
+}
+
 function adminAlert(msg, { icon='ℹ️', danger=false } = {}){
   return new Promise(resolve => {
     _admResolve = resolve;
@@ -4422,6 +4440,7 @@ async function adminAdjustCredit(action){
   banner.className = 'cr-save-banner ok';
   banner.textContent = `✅ تم ${action==='add'?'إضافة':'خصم'} ${amount} كريديت ${action==='add'?'لـ':'من'} ${crUserFound?.full_name||'المستخدم'} بنجاح.`;
   banner.style.display = 'block';
+  toast(`تم ${action==='add'?'إضافة':'خصم'} ${amount} كريديت بنجاح`, 'success');
   setTimeout(()=>{ banner.style.display='none'; }, 5000);
   loadCreditsTab();
 }
@@ -5393,6 +5412,7 @@ async function sendBroadcast(){
 
   btn.disabled=false;
   st.textContent=`✅ تم الإرسال لـ ${cnt} عميل`;
+  toast(`تم إرسال الرسالة لـ ${cnt} عميل`, 'success');
   setTimeout(()=>st.textContent='',5000);
   resetBroadcastForm();
   await loadBroadcastHistory();
@@ -5438,6 +5458,7 @@ function initRevenueTab(orders, wallet){
   renderPackChart(orders);
 }
 
+let _dailyChartInstance = null;
 function renderDailyChart(wallet){
   const el = document.getElementById('dailyRevenueChart');
   if(!el) return;
@@ -5450,30 +5471,65 @@ function renderDailyChart(wallet){
     day:d.slice(5),
     rev:wallet.filter(w=>w.created_at?.split('T')[0]===d).reduce((s,w)=>s+w.amount,0)*EGP_PER_CREDIT
   }));
-  const max = Math.max(...dailyRev.map(d=>d.rev),1);
-  el.innerHTML = dailyRev.map(d=>`
-    <div class="bar-wrap">
-      <div class="bar-val">${d.rev?Math.round(d.rev):''}</div>
-      <div class="bar" style="height:${Math.max(4,Math.round(d.rev/max*100))}px;" title="${d.day}: ${Math.round(d.rev)} ج"></div>
-      <div class="bar-lbl">${d.day.replace('-','/')}</div>
-    </div>`).join('');
+  if (!window.Chart) return; // library failed to load — chart card just stays empty, non-fatal
+  if (_dailyChartInstance) { _dailyChartInstance.destroy(); }
+  _dailyChartInstance = new Chart(el.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: dailyRev.map(d => d.day.replace('-', '/')),
+      datasets: [{
+        label: t('rev_daily_chart'),
+        data: dailyRev.map(d => Math.round(d.rev)),
+        borderColor: '#0E7AFE',
+        backgroundColor: 'rgba(14,122,254,.12)',
+        tension: 0.35,
+        fill: true,
+        pointRadius: 3,
+        pointBackgroundColor: '#0E7AFE',
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.06)' } },
+        x: { grid: { display: false } },
+      },
+    },
+  });
 }
 
+let _packChartInstance = null;
 function renderPackChart(orders){
   const el = document.getElementById('packSalesChart');
   if(!el) return;
   const counts={};
   orders.forEach(o=>{ const k=o.check_type||'unknown'; counts[k]=(counts[k]||0)+1; });
-  const colors=['var(--blue)','var(--cyan)','var(--ok)','var(--warn)','var(--danger)'];
-  const total=orders.length||1;
-  const items=Object.entries(counts).map(([k,v],i)=>({k,v,pct:Math.round(v/total*100),c:colors[i%colors.length]}));
-  el.innerHTML=`
-    <svg width="90" height="90" viewBox="0 0 36 36">
-      ${(()=>{let off=0;return items.map(it=>{const s=it.pct/100*100;const el=`<circle r="15.9" cx="18" cy="18" fill="none" stroke="${it.c}" stroke-width="4" stroke-dasharray="${s} ${100-s}" stroke-dashoffset="${-off}" transform="rotate(-90 18 18)"/>`;off+=s;return el;}).join('');})()}
-    </svg>
-    <div class="pie-legend">
-      ${items.map(it=>`<div class="pie-leg-item"><div class="pie-dot" style="background:${it.c};"></div>${escapeHtml(it.k)}: ${it.v} (${it.pct}%)</div>`).join('')}
-    </div>`;
+  const colors=['#0E7AFE','#00BAF7','#0E9F6E','#E8A20B','#E0445B'];
+  const items=Object.entries(counts).map(([k,v],i)=>({k,v,c:colors[i%colors.length]}));
+  if (!window.Chart) return;
+  if (_packChartInstance) { _packChartInstance.destroy(); }
+  _packChartInstance = new Chart(el.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: items.map(it => it.k),
+      datasets: [{
+        data: items.map(it => it.v),
+        backgroundColor: items.map(it => it.c),
+        borderWidth: 2,
+        borderColor: '#fff',
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } },
+      },
+    },
+  });
 }
 
 /* ================================================================
