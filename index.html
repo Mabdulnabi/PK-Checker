@@ -416,16 +416,16 @@
 
 <section class="hero">
   <div class="wrap hero-grid">
-    <div>
+    <div data-aos="fade-up">
       <span class="eyebrow"><span class="dot"></span> <span data-i18n="hero_badge">تكامل رسمي مع Turnitin Instructor API</span></span>
       <h1><span class="grad-text" data-i18n="hero_title_1">تقارير الاقتباس و AI</span> <span data-i18n="hero_title_2">في دقائق</span></h1>
       <p class="sub" data-i18n="hero_sub">فحوصات آلية رسمية 100% عبر Turnitin Instructor API · بدون أي تدخل بشري · تقارير دقيقة ومفصلة</p>
-      <div class="hero-cta-row">
+      <div class="hero-cta-row" data-aos="fade-up" data-aos-delay="150">
         <a class="btn btn-hero" href="auth.html"><span data-icon-key="hero_cta_icon"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></span> <span data-i18n="hero_cta">ابدأ فحص جديد الآن</span></a>
         <a class="btn btn-hero-outline" id="watchDemoBtn" href="#how" data-i18n="hero_cta_secondary"><span data-icon-key="home_watch"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;"><circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z"/></svg></span> شاهد كيف يعمل</a>
       </div>
     </div>
-    <div class="hero-visual">
+    <div class="hero-visual" data-aos="zoom-in" data-aos-delay="200">
       <img class="hero-visual-img" data-icon-key="hero_visual" alt="Pro Keys" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E">
     </div>
   </div>
@@ -516,7 +516,7 @@
       <span class="eyebrow"><span class="dot"></span> <span data-i18n="idx_nav_faq">أسئلة شائعة</span></span>
       <h2 class="why-title"><span data-i18n="faq_title_1">الأسئلة</span> <span class="grad-text" data-i18n="faq_title_2">الشائعة</span></h2>
     </div>
-    <div class="faq-list" id="faqList"></div>
+    <div class="faq-list" id="faqList" data-aos="fade-up" data-aos-delay="100"></div>
   </div>
 </section>
 
@@ -742,7 +742,8 @@ if (window.AOS) {
   AOS.init({
     duration: 650,
     easing: 'ease-out-cubic',
-    once: true,       // animate each element in only once, not every scroll pass
+    once: false,      // replay every time the element re-enters the viewport
+    mirror: true,     // also animate out when scrolling back past it
     offset: 60,
     disable: false,
   });
