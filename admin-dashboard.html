@@ -2962,6 +2962,45 @@ async function manualAccept(orderId){
   renderOrdersTable();
 }
 
+// Refunds the credits originally deducted for this order, if not already
+// refunded. Mirrors auto_reject_stuck_orders()'s refund logic exactly (same
+// wallet_transactions shape), since that's the automatic path for stuck
+// orders — manual admin rejection must behave the same way, or a customer
+// loses credits for an order that was never actually checked.
+async function refundOrderCredits(orderId, userId){
+  // Guard against double refund (e.g. double-click, or an order that was
+  // already refunded by auto_reject_stuck_orders before the admin got to it).
+  const { data: existingRefund } = await supabaseClient
+    .from('wallet_transactions').select('id')
+    .eq('order_id', orderId).eq('type', 'credit').limit(1);
+  if (existingRefund && existingRefund.length > 0) return;
+
+  const { data: debitRows } = await supabaseClient
+    .from('wallet_transactions').select('amount')
+    .eq('order_id', orderId).eq('type', 'debit')
+    .order('created_at', { ascending: false }).limit(1);
+  const debitAmount = debitRows?.[0]?.amount;
+  if (!debitAmount) return; // nothing was ever deducted for this order
+
+  const { data: balRows } = await supabaseClient
+    .from('wallet_transactions').select('balance_after')
+    .eq('user_id', userId).order('created_at', { ascending: false }).limit(1);
+  const balBefore = Number(balRows?.[0]?.balance_after ?? 0);
+  const balAfter = balBefore + debitAmount;
+
+  await supabaseClient.from('wallet_transactions').insert({
+    user_id: userId,
+    type: 'credit',
+    amount: debitAmount,
+    balance_before: balBefore,
+    balance_after: balAfter,
+    order_id: orderId,
+    description: 'استرداد كريديت — رُفض الطلب يدوياً من الأدمن',
+    admin_id: currentAdmin?.id || null,
+    admin_name: currentAdmin?.name || 'أدمن',
+  });
+}
+
 async function manualReject(orderId){
   const reason = await adminPrompt('سبب الرفض:', '');
   if (reason === null) return; // cancelled
@@ -2970,6 +3009,10 @@ async function manualReject(orderId){
   if (error) { await adminAlert('تعذر التحديث: ' + error.message, {icon:'❌', danger:true}); return; }
   const o = allOrders.find(x => x.id === orderId);
   const p1 = o ? profilesByUserId[o.user_id] : null;
+  if (o?.user_id) {
+    try { await refundOrderCredits(orderId, o.user_id); }
+    catch (err) { console.error('refundOrderCredits failed:', err); }
+  }
   await logAdminActivity('order_reject', o?.user_id || null, p1 ? `PK${formatPkNumber(p1.pk_number)}` : '', `رفض يدوي لطلب: ${o?.display_id || orderId.slice(0,8)}${reason ? ' — ' + reason : ''}`);
   if (o) { o.status = 'rejected'; o.error_reason = reason; }
   renderOrdersTable();
@@ -3091,6 +3134,14 @@ async function changeOrderStatus(orderId, newStatus){
 
   const { error } = await supabaseClient.from('orders').update(updates).eq('id', orderId);
   if (error) { await adminAlert('تعذر تغيير الحالة: ' + error.message, {icon:'❌', danger:true}); renderOrdersTable(); return; }
+
+  // Any transition INTO a failure state must refund the original debit —
+  // refundOrderCredits() is a no-op if this order was already refunded, so
+  // it's safe to call even if the admin flips the status back and forth.
+  if (['rejected', 'error', 'failed_invalid'].includes(newStatus) && o.user_id) {
+    try { await refundOrderCredits(orderId, o.user_id); }
+    catch (err) { console.error('refundOrderCredits failed:', err); }
+  }
 
   Object.assign(o, updates);
   const p = profilesByUserId[o.user_id];
