@@ -8,7 +8,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="shared/pk-shared.js"></script>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;}
   :root{
@@ -390,6 +389,7 @@
 })();
 </script>
 
+
 <header>
   <div class="wrap header-inner">
     <img class="logo-img" data-icon-key="logo_index" alt="Pro Keys" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E">
@@ -665,8 +665,10 @@ function toggleFaq(el){
 }
 
 function applyLang(){
-  PK.translateDom(currentLang, t);
+  document.getElementById('htmlRoot').setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
+  document.getElementById('htmlRoot').setAttribute('lang', currentLang);
   document.getElementById('langBtn').textContent = currentLang === 'ar' ? '🇬🇧 EN' : '🇪🇬 AR';
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
   renderFaq();
 }
 
@@ -705,7 +707,34 @@ function applyFavicon(){
   link.href = url;
 }
 function applyCustomIcons(){
-  PK.applyIcons(() => uiOverrides, ICON_SIZE_MAP, ['hero_visual']);
+  const icons = uiOverrides.icons || {};
+  const sizes = uiOverrides.iconSizes || {};
+  document.querySelectorAll('[data-icon-key]').forEach(el => {
+    const key = el.dataset.iconKey;
+    const url = icons[key];
+    const overridePx = sizes[key];
+    const size = (overridePx ? overridePx + 'px' : null) || ICON_SIZE_MAP[key] || '18px';
+    const isLogo = key.indexOf('logo')===0 || key==='site_favicon' || key==='hero_visual';
+    if (url) {
+      if (el.tagName === 'IMG') {
+        el.src = url;
+        if (isLogo) { el.style.height = size; el.style.width = 'auto'; }
+        else { el.style.width = size; el.style.height = size; }
+      } else {
+        const img = document.createElement('img');
+        img.src = url; img.alt = key;
+        img.style.cssText = isLogo
+          ? `height:${size};width:auto;object-fit:contain;flex:none;display:inline-block;vertical-align:middle;border-radius:6px;`
+          : `width:${size};height:${size};object-fit:contain;flex:none;display:inline-block;vertical-align:middle;border-radius:6px;`;
+        img.onerror = () => { img.replaceWith(el); };
+        img.onload = () => { if (!img.naturalWidth) img.replaceWith(el); };
+        el.replaceWith(img);
+      }
+    } else if (overridePx) {
+      el.style.width = size; el.style.height = size;
+      if (el.tagName === 'SPAN') el.style.fontSize = size;
+    }
+  });
 }
 
 async function loadUIConfig(){
