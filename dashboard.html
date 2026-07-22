@@ -297,6 +297,9 @@
   .ph-status-completed{background:var(--ok-wash);color:var(--ok);}
   .ph-status-pending{background:var(--warn-wash,#FDF1DC);color:var(--warn,#E8A20B);}
   .ph-status-rejected{background:var(--danger-wash);color:var(--danger);}
+  .tx-icon-dot{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;}
+  .tx-icon-debit{background:var(--danger-wash);color:var(--danger);}
+  .tx-icon-credit{background:var(--ok-wash);color:var(--ok);}
 
   .file-chip{display:flex;align-items:center;gap:10px;background:var(--paper);border:1.5px solid var(--blue-wash);border-radius:11px;padding:12px 16px;margin-bottom:18px;}
   .file-chip .fchip-ic{color:var(--blue-deep);display:flex;flex:none;}
@@ -1236,6 +1239,30 @@
         </div>
         <div id="paymentHistoryPagination"></div>
       </div>
+
+      <!-- Order credit transactions (debit on submit, refund on reject) -->
+      <div class="pack-section-head" style="margin-top:36px;">
+        <h2 class="pack-section-title" data-i18n="order_tx_title">المعاملات</h2>
+        <p class="pack-section-desc" data-i18n="order_tx_desc">عمليات خصم واسترداد الكريديت على ملفات الفحص</p>
+      </div>
+      <div class="panel-block">
+        <div style="overflow-x:auto;">
+          <table class="data-tbl">
+            <thead><tr>
+              <th></th>
+              <th data-i18n="col_order_id">رقم الطلب</th>
+              <th data-i18n="col_file">اسم الملف</th>
+              <th data-i18n="ph_col_credits">الكريديت</th>
+              <th data-i18n="ph_col_bal_before">الرصيد قبل</th>
+              <th data-i18n="ph_col_bal_after">الرصيد بعد</th>
+              <th data-i18n="ph_col_datetime">التاريخ والوقت</th>
+              <th data-i18n="ph_col_status">الحالة</th>
+            </tr></thead>
+            <tbody id="orderTxBody"><tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px;" data-i18n="loading_ellipsis">جاري التحميل...</td></tr></tbody>
+          </table>
+        </div>
+        <div id="orderTxPagination"></div>
+      </div>
     </div>
 
     <!-- ============ SUPPORT (formal ticket) ============ -->
@@ -1583,6 +1610,9 @@ const I18N = {
     payment_history_title:"سجل المدفوعات", payment_history_desc:"كل عمليات الشحن اللي عملتها وحالتها",
     ph_col_code:"كود العملية", ph_col_method:"وسيلة الدفع", ph_col_amount:"القيمة", ph_col_credits:"الكريديت", ph_col_pack:"اسم الباقة", ph_col_datetime:"التاريخ والوقت", ph_col_status:"الحالة",
     ph_status_completed:"مكتملة", ph_status_pending:"قيد المراجعة", ph_status_rejected:"مرفوضة", ph_empty:"لسه معملتش أي عملية شحن.",
+    order_tx_title:"المعاملات", order_tx_desc:"عمليات خصم واسترداد الكريديت على ملفات الفحص",
+    ph_col_bal_before:"الرصيد قبل", ph_col_bal_after:"الرصيد بعد",
+    order_tx_debit:"خصم", order_tx_credit:"استرداد",
     txid_label:"رقم العملية (TXID)", txid_placeholder:"الصق TXID هنا بعد التحويل",
     credits_deducted:"كريديت ستُخصم",
     orders_count_suffix:"طلب", f_all:"الكل", f_wait:"معلّق", f_run:"قيد الفحص", f_ok:"مكتمل", f_no:"مرفوض",
@@ -1687,6 +1717,9 @@ const I18N = {
     payment_history_title:"Payment History", payment_history_desc:"All your top-ups and their status",
     ph_col_code:"Transaction code", ph_col_method:"Payment method", ph_col_amount:"Amount", ph_col_credits:"Credits", ph_col_pack:"Package", ph_col_datetime:"Date & time", ph_col_status:"Status",
     ph_status_completed:"Completed", ph_status_pending:"Pending review", ph_status_rejected:"Rejected", ph_empty:"You haven't made any top-ups yet.",
+    order_tx_title:"Transactions", order_tx_desc:"Credit debits and refunds on your check files",
+    ph_col_bal_before:"Balance before", ph_col_bal_after:"Balance after",
+    order_tx_debit:"Debit", order_tx_credit:"Refund",
     txid_label:"Transaction ID (TXID)", txid_placeholder:"Paste TXID here after transfer",
     credits_deducted:"credits will be deducted",
     orders_count_suffix:"orders", f_all:"All", f_wait:"Pending", f_run:"Processing", f_ok:"Completed", f_no:"Rejected",
@@ -3048,7 +3081,7 @@ function goTab(tab){
   });
   window.scrollTo({ top: 0, behavior: 'smooth' });
   localStorage.setItem('prokeys-active-tab', tab);
-  if (tab === 'wallet') loadPaymentHistory();
+  if (tab === 'wallet') { loadPaymentHistory(); loadOrderTransactions(); }
 }
 document.querySelectorAll('.navtab[data-tab]').forEach(el => {
   el.addEventListener('click', () => goTab(el.dataset.tab));
@@ -3125,6 +3158,61 @@ function renderPaymentHistory(){
   renderPaginationBar('payhist', 'paymentHistoryPagination', paymentHistoryList.length);
 }
 
+let orderTxList = [];
+async function loadOrderTransactions(){
+  if (!PROKEYS_USER_ID) return;
+  const tbody = document.getElementById('orderTxBody');
+  try {
+    const { data, error } = await supabaseClient
+      .from('wallet_transactions')
+      .select('id, type, amount, balance_before, balance_after, created_at, order_id, orders(display_id, file_name)')
+      .eq('user_id', PROKEYS_USER_ID)
+      .not('order_id', 'is', null)
+      .in('type', ['debit', 'credit'])
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    orderTxList = data || [];
+    renderOrderTransactions();
+  } catch (err) {
+    console.error('loadOrderTransactions failed:', err);
+    if (tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--danger);padding:20px;">—</td></tr>`;
+  }
+}
+function renderOrderTransactions(){
+  const tbody = document.getElementById('orderTxBody');
+  if (!tbody) return;
+  if (orderTxList.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px;">${t('ph_empty')}</td></tr>`;
+    document.getElementById('orderTxPagination').innerHTML = '';
+    return;
+  }
+  const pageList = paginateList('ordertx', orderTxList, renderOrderTransactions);
+  tbody.innerHTML = pageList.map(tx => {
+    const isDebit = tx.type === 'debit';
+    const dt = new Date(tx.created_at);
+    const dateStr = dt.toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : 'en-GB');
+    const timeStr = dt.toLocaleTimeString(currentLang === 'ar' ? 'ar-EG' : 'en-GB', { hour: '2-digit', minute: '2-digit' });
+    const orderCode = tx.orders?.display_id || (tx.order_id ? tx.order_id.slice(0, 8).toUpperCase() : '—');
+    const fileName = tx.orders?.file_name || '—';
+    const amountStr = (isDebit ? '-' : '+') + Number(tx.amount);
+    const statusClass = isDebit ? 'ph-status-rejected' : 'ph-status-completed';
+    const statusLabel = isDebit ? t('order_tx_debit') : t('order_tx_credit');
+    const iconClass = isDebit ? 'tx-icon-debit' : 'tx-icon-credit';
+    const icon = isDebit ? '↓' : '↑';
+    return `<tr>
+      <td><span class="tx-icon-dot ${iconClass}">${icon}</span></td>
+      <td class="mono">${escapeHtml(orderCode)}</td>
+      <td>${escapeHtml(fileName)}</td>
+      <td class="mono" style="color:${isDebit?'var(--danger)':'var(--ok)'};font-weight:700;">${amountStr}</td>
+      <td class="mono">${Number(tx.balance_before ?? 0)}</td>
+      <td class="mono">${Number(tx.balance_after ?? 0)}</td>
+      <td>${dateStr} — ${timeStr}</td>
+      <td><span class="ph-status ${statusClass}">${escapeHtml(statusLabel)}</span></td>
+    </tr>`;
+  }).join('');
+  renderPaginationBar('ordertx', 'orderTxPagination', orderTxList.length);
+}
+
 
 // Remember which tab was open and how far scrolled, so a refresh lands
 // back exactly where the customer was instead of jumping to New Check.
@@ -3138,7 +3226,7 @@ function restoreTabAndScroll(){
     document.querySelectorAll('.tabpane').forEach(el => {
       el.style.display = (el.id === 'pane-' + savedTab) ? 'block' : 'none';
     });
-    if (savedTab === 'wallet') loadPaymentHistory();
+    if (savedTab === 'wallet') { loadPaymentHistory(); loadOrderTransactions(); }
   }
   const y = _tabScrollPositions[savedTab || 'new-check'] || 0;
   // Content may still be loading/rendering async — try shortly after too.
@@ -4564,8 +4652,17 @@ async function submitOrderViaApi(orderRow, fileToSubmit){
 
 // Step 4 (manual path): no API call — order just sits pending for manual admin processing.
 async function finalizeManualOrder(orderRow){
+  // The DB row was force-set to 'uploading' back in insertOrderRow() before
+  // the (best-effort) source file backup ran. That's correct while the
+  // upload is in flight, but for the manual (non-API) path nothing ever
+  // moved it forward afterward — so the admin dashboard, which reads this
+  // column directly, showed every manual order stuck on "Uploading" forever
+  // even though the file had long since finished uploading and was just
+  // waiting on an accept/reject decision. Must persist this to the DB, not
+  // just the local `orders` array, since the admin is a different client.
+  await supabaseClient.from('orders').update({ status: 'floating' }).eq('id', orderRow.id);
   const localOrderManual = orders.find(o => o.id === orderRow.id);
-  if (localOrderManual) localOrderManual.phase = 'pending';
+  if (localOrderManual) { localOrderManual.phase = 'floating'; localOrderManual.status = 'floating'; }
   renderOrders();
   renderKpis();
   await appAlert(currentLang==='ar' ? 'تم إرسال ملفك لخدمة الفحص بنجاح.' : 'Your file was submitted to the check service successfully.', {icon:'success'});
@@ -5194,6 +5291,7 @@ async function refreshCheckSettings(){
         await loadWallet();
         if (typeof renderKpis === 'function') renderKpis();
         if (typeof updatePrice === 'function') updatePrice();
+        if (typeof loadOrderTransactions === 'function') loadOrderTransactions();
       })
       .subscribe();
   }

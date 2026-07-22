@@ -2970,25 +2970,28 @@ async function manualAccept(orderId){
 async function refundOrderCredits(orderId, userId){
   // Guard against double refund (e.g. double-click, or an order that was
   // already refunded by auto_reject_stuck_orders before the admin got to it).
-  const { data: existingRefund } = await supabaseClient
+  const { data: existingRefund, error: checkErr } = await supabaseClient
     .from('wallet_transactions').select('id')
     .eq('order_id', orderId).eq('type', 'credit').limit(1);
+  if (checkErr) throw checkErr;
   if (existingRefund && existingRefund.length > 0) return;
 
-  const { data: debitRows } = await supabaseClient
+  const { data: debitRows, error: debitErr } = await supabaseClient
     .from('wallet_transactions').select('amount')
     .eq('order_id', orderId).eq('type', 'debit')
     .order('created_at', { ascending: false }).limit(1);
+  if (debitErr) throw debitErr;
   const debitAmount = debitRows?.[0]?.amount;
   if (!debitAmount) return; // nothing was ever deducted for this order
 
-  const { data: balRows } = await supabaseClient
+  const { data: balRows, error: balErr } = await supabaseClient
     .from('wallet_transactions').select('balance_after')
     .eq('user_id', userId).order('created_at', { ascending: false }).limit(1);
+  if (balErr) throw balErr;
   const balBefore = Number(balRows?.[0]?.balance_after ?? 0);
   const balAfter = balBefore + debitAmount;
 
-  await supabaseClient.from('wallet_transactions').insert({
+  const { error: insertErr } = await supabaseClient.from('wallet_transactions').insert({
     user_id: userId,
     type: 'credit',
     amount: debitAmount,
@@ -2999,6 +3002,7 @@ async function refundOrderCredits(orderId, userId){
     admin_id: currentAdmin?.id || null,
     admin_name: currentAdmin?.name || 'أدمن',
   });
+  if (insertErr) throw insertErr;
 }
 
 async function manualReject(orderId){
@@ -3011,7 +3015,10 @@ async function manualReject(orderId){
   const p1 = o ? profilesByUserId[o.user_id] : null;
   if (o?.user_id) {
     try { await refundOrderCredits(orderId, o.user_id); }
-    catch (err) { console.error('refundOrderCredits failed:', err); }
+    catch (err) {
+      console.error('refundOrderCredits failed:', err);
+      await adminAlert('⚠️ اتحفظ الرفض لكن استرداد الكريديت فشل: ' + (err?.message || err) + '. راجع "تعديل كريديت" وارجعه يدوي.', {icon:'⚠️', danger:true});
+    }
   }
   await logAdminActivity('order_reject', o?.user_id || null, p1 ? `PK${formatPkNumber(p1.pk_number)}` : '', `رفض يدوي لطلب: ${o?.display_id || orderId.slice(0,8)}${reason ? ' — ' + reason : ''}`);
   if (o) { o.status = 'rejected'; o.error_reason = reason; }
@@ -3140,7 +3147,10 @@ async function changeOrderStatus(orderId, newStatus){
   // it's safe to call even if the admin flips the status back and forth.
   if (['rejected', 'error', 'failed_invalid'].includes(newStatus) && o.user_id) {
     try { await refundOrderCredits(orderId, o.user_id); }
-    catch (err) { console.error('refundOrderCredits failed:', err); }
+    catch (err) {
+      console.error('refundOrderCredits failed:', err);
+      await adminAlert('⚠️ اتحفظت الحالة لكن استرداد الكريديت فشل: ' + (err?.message || err) + '. راجع "تعديل كريديت" وارجعه يدوي.', {icon:'⚠️', danger:true});
+    }
   }
 
   Object.assign(o, updates);
