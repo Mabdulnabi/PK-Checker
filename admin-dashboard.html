@@ -5913,94 +5913,124 @@ function toggleDarkMode(){
    ================================================================ */
 </script>
 
-<!-- ===== PDF Preview Modal ===== -->
-<style>
-  #pdfPreviewOverlay{position:fixed;inset:0;z-index:99998;background:rgba(15,23,42,.6);display:none;align-items:center;justify-content:center;padding:16px;}
-  #pdfPreviewOverlay.open{display:flex;}
-  #pdfPreviewCard{width:100%;max-width:820px;height:min(88vh,900px);background:var(--paper);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 30px 70px rgba(0,0,0,.35);}
-  .pdf-preview-head{flex:none;display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--paper-line);}
-  .pdf-preview-head b{font-size:13.5px;color:var(--navy);}
-  .pdf-preview-nav{display:flex;align-items:center;gap:10px;}
-  .pdf-preview-nav button{border:1.5px solid var(--paper-line);background:var(--paper);border-radius:8px;width:30px;height:30px;cursor:pointer;color:var(--navy);font-size:14px;}
-  .pdf-preview-nav button:disabled{opacity:.35;cursor:not-allowed;}
-  .pdf-preview-nav span{font-size:12px;color:var(--muted);min-width:60px;text-align:center;}
-  .pdf-preview-close{border:none;background:var(--paper-soft);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;color:var(--ink-soft);}
-  .pdf-preview-body{flex:1;min-height:0;overflow:auto;display:flex;align-items:flex-start;justify-content:center;background:#525659;padding:16px;}
-  #pdfPreviewCanvas{max-width:100%;box-shadow:0 4px 18px rgba(0,0,0,.3);background:#fff;}
-  .pdf-preview-loading{color:#fff;font-size:13px;padding:40px;text-align:center;}
-  .pdf-preview-fallback{color:#fff;font-size:13px;padding:40px;text-align:center;}
-  .pdf-preview-fallback a{color:#8ec5ff;font-weight:700;}
-  .pdf-preview-body::-webkit-scrollbar{width:8px;}
-  .pdf-preview-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25);border-radius:4px;}
-</style>
-
-<div id="pdfPreviewOverlay" onclick="if(event.target===this) closePdfPreview();">
-  <div id="pdfPreviewCard">
-    <div class="pdf-preview-head">
-      <b id="pdfPreviewTitle">Report.pdf</b>
-      <div class="pdf-preview-nav">
-        <button type="button" onclick="pdfPreviewPage(-1)" id="pdfPrevBtn" aria-label="prev">‹</button>
-        <span id="pdfPageIndicator">1 / 1</span>
-        <button type="button" onclick="pdfPreviewPage(1)" id="pdfNextBtn" aria-label="next">›</button>
-      </div>
-      <button type="button" class="pdf-preview-close" onclick="closePdfPreview()" aria-label="close">✕</button>
-    </div>
-    <div class="pdf-preview-body" id="pdfPreviewBody">
-      <canvas id="pdfPreviewCanvas" style="display:none;"></canvas>
-    </div>
-  </div>
-</div>
-
 <script>
+// PDF preview modal — built entirely in JS on first use rather than static
+// HTML in the page, so it can't be affected by this file's markup quirks
+// (this file's real </body></html> sits earlier mid-document; anything
+// appended as static HTML after that point risks being parsed unreliably).
 (function(){
-  if (window.pdfjsLib) {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.worker.min.js';
+  let pdfDoc = null, pdfPageNum = 1, elements = null;
+
+  function ensureModal(){
+    if (elements) return elements;
+
+    const style = document.createElement('style');
+    style.textContent = `
+      #pdfPreviewOverlay{position:fixed;inset:0;z-index:99998;background:rgba(15,23,42,.6);display:none;align-items:center;justify-content:center;padding:16px;}
+      #pdfPreviewOverlay.open{display:flex;}
+      #pdfPreviewCard{width:100%;max-width:820px;height:min(88vh,900px);background:var(--paper);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 30px 70px rgba(0,0,0,.35);}
+      .pdf-preview-head{flex:none;display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--paper-line);}
+      .pdf-preview-head b{font-size:13.5px;color:var(--navy);}
+      .pdf-preview-nav{display:flex;align-items:center;gap:10px;}
+      .pdf-preview-nav button{border:1.5px solid var(--paper-line);background:var(--paper);border-radius:8px;width:30px;height:30px;cursor:pointer;color:var(--navy);font-size:14px;}
+      .pdf-preview-nav button:disabled{opacity:.35;cursor:not-allowed;}
+      .pdf-preview-nav span{font-size:12px;color:var(--muted);min-width:60px;text-align:center;}
+      .pdf-preview-close{border:none;background:var(--paper-soft);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;color:var(--ink-soft);}
+      .pdf-preview-body{flex:1;min-height:0;overflow:auto;display:flex;align-items:flex-start;justify-content:center;background:#525659;padding:16px;}
+      #pdfPreviewCanvas{max-width:100%;box-shadow:0 4px 18px rgba(0,0,0,.3);background:#fff;}
+      .pdf-preview-loading,.pdf-preview-fallback{color:#fff;font-size:13px;padding:40px;text-align:center;}
+      .pdf-preview-fallback a{color:#8ec5ff;font-weight:700;}
+      .pdf-preview-body::-webkit-scrollbar{width:8px;}
+      .pdf-preview-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25);border-radius:4px;}
+    `;
+    document.head.appendChild(style);
+
+    const overlay = document.createElement('div');
+    overlay.id = 'pdfPreviewOverlay';
+    overlay.innerHTML = `
+      <div id="pdfPreviewCard">
+        <div class="pdf-preview-head">
+          <b id="pdfPreviewTitle">Report.pdf</b>
+          <div class="pdf-preview-nav">
+            <button type="button" id="pdfPrevBtn" aria-label="prev">‹</button>
+            <span id="pdfPageIndicator">1 / 1</span>
+            <button type="button" id="pdfNextBtn" aria-label="next">›</button>
+          </div>
+          <button type="button" class="pdf-preview-close" id="pdfCloseBtn" aria-label="close">✕</button>
+        </div>
+        <div class="pdf-preview-body" id="pdfPreviewBody">
+          <canvas id="pdfPreviewCanvas" style="display:none;"></canvas>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    elements = {
+      overlay,
+      card: overlay.querySelector('#pdfPreviewCard'),
+      title: overlay.querySelector('#pdfPreviewTitle'),
+      body: overlay.querySelector('#pdfPreviewBody'),
+      canvas: overlay.querySelector('#pdfPreviewCanvas'),
+      prevBtn: overlay.querySelector('#pdfPrevBtn'),
+      nextBtn: overlay.querySelector('#pdfNextBtn'),
+      pageIndicator: overlay.querySelector('#pdfPageIndicator'),
+    };
+
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closePdfPreview(); });
+    overlay.querySelector('#pdfCloseBtn').addEventListener('click', closePdfPreview);
+    elements.prevBtn.addEventListener('click', () => pdfPreviewPage(-1));
+    elements.nextBtn.addEventListener('click', () => pdfPreviewPage(1));
+
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.worker.min.js';
+    }
+
+    return elements;
   }
-  let pdfDoc = null, pdfPageNum = 1;
+
+  function isAr(){ return typeof currentLang !== 'undefined' && currentLang === 'ar'; }
 
   window.openPdfPreview = async function(url){
     if (!url) return;
-    const overlay = document.getElementById('pdfPreviewOverlay');
-    const body = document.getElementById('pdfPreviewBody');
-    const canvas = document.getElementById('pdfPreviewCanvas');
-    overlay.classList.add('open');
+    const el = ensureModal();
+    el.overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
-    document.getElementById('pdfPreviewTitle').textContent = decodeURIComponent(url.split('/').pop().split('?')[0] || 'Report.pdf');
-    canvas.style.display = 'none';
+    el.title.textContent = decodeURIComponent(url.split('/').pop().split('?')[0] || 'Report.pdf');
+    el.canvas.style.display = 'none';
 
     if (!window.pdfjsLib) {
-      body.innerHTML = `<div class="pdf-preview-fallback">${(typeof currentLang!=='undefined'&&currentLang==='ar') ? 'تعذر تحميل عارض PDF.' : 'Could not load the PDF viewer.'} <a href="${url}" target="_blank" rel="noopener">${(typeof currentLang!=='undefined'&&currentLang==='ar')?'افتح الملف مباشرة':'Open the file directly'}</a></div>`;
+      el.body.innerHTML = `<div class="pdf-preview-fallback">${isAr() ? 'تعذر تحميل عارض PDF.' : 'Could not load the PDF viewer.'} <a href="${url}" target="_blank" rel="noopener">${isAr() ? 'افتح الملف مباشرة' : 'Open the file directly'}</a></div>`;
       return;
     }
-    body.innerHTML = `<div class="pdf-preview-loading" id="pdfLoadingMsg">${(typeof currentLang!=='undefined'&&currentLang==='ar') ? 'جاري تحميل التقرير...' : 'Loading report...'}</div>`;
-    body.appendChild(canvas);
+    el.body.innerHTML = `<div class="pdf-preview-loading" id="pdfLoadingMsg">${isAr() ? 'جاري تحميل التقرير...' : 'Loading report...'}</div>`;
+    el.body.appendChild(el.canvas);
 
     try {
       pdfDoc = await pdfjsLib.getDocument(url).promise;
       pdfPageNum = 1;
       document.getElementById('pdfLoadingMsg')?.remove();
-      canvas.style.display = 'block';
+      el.canvas.style.display = 'block';
       await renderPdfPage(pdfPageNum);
     } catch (err) {
       console.error('PDF preview failed:', err);
-      body.innerHTML = `<div class="pdf-preview-fallback">${(typeof currentLang!=='undefined'&&currentLang==='ar') ? 'تعذرت معاينة الملف.' : 'Could not preview this file.'} <a href="${url}" target="_blank" rel="noopener">${(typeof currentLang!=='undefined'&&currentLang==='ar')?'افتح الملف مباشرة':'Open the file directly'}</a></div>`;
+      el.body.innerHTML = `<div class="pdf-preview-fallback">${isAr() ? 'تعذرت معاينة الملف.' : 'Could not preview this file.'} <a href="${url}" target="_blank" rel="noopener">${isAr() ? 'افتح الملف مباشرة' : 'Open the file directly'}</a></div>`;
     }
   };
 
   async function renderPdfPage(num){
-    if (!pdfDoc) return;
+    if (!pdfDoc || !elements) return;
     const page = await pdfDoc.getPage(num);
-    const canvas = document.getElementById('pdfPreviewCanvas');
-    const bodyWidth = document.getElementById('pdfPreviewBody').clientWidth - 32;
+    const canvas = elements.canvas;
+    const bodyWidth = elements.body.clientWidth - 32;
     const baseViewport = page.getViewport({ scale: 1 });
     const scale = Math.min(2, Math.max(0.5, bodyWidth / baseViewport.width));
     const viewport = page.getViewport({ scale });
     canvas.width = viewport.width;
     canvas.height = viewport.height;
     await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-    document.getElementById('pdfPageIndicator').textContent = num + ' / ' + pdfDoc.numPages;
-    document.getElementById('pdfPrevBtn').disabled = num <= 1;
-    document.getElementById('pdfNextBtn').disabled = num >= pdfDoc.numPages;
+    elements.pageIndicator.textContent = num + ' / ' + pdfDoc.numPages;
+    elements.prevBtn.disabled = num <= 1;
+    elements.nextBtn.disabled = num >= pdfDoc.numPages;
   }
 
   window.pdfPreviewPage = function(delta){
@@ -6012,16 +6042,18 @@ function toggleDarkMode(){
   };
 
   window.closePdfPreview = function(){
-    document.getElementById('pdfPreviewOverlay').classList.remove('open');
+    if (!elements) return;
+    elements.overlay.classList.remove('open');
     document.body.style.overflow = '';
     pdfDoc = null;
   };
 
   document.addEventListener('keydown', (e) => {
-    if (!document.getElementById('pdfPreviewOverlay').classList.contains('open')) return;
+    if (!elements || !elements.overlay.classList.contains('open')) return;
     if (e.key === 'Escape') closePdfPreview();
     if (e.key === 'ArrowLeft') pdfPreviewPage(document.documentElement.dir === 'rtl' ? -1 : 1);
     if (e.key === 'ArrowRight') pdfPreviewPage(document.documentElement.dir === 'rtl' ? 1 : -1);
   });
 })();
 </script>
+
