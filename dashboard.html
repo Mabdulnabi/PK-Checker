@@ -21,12 +21,7 @@
 <script src="https://cdn.jsdelivr.net/npm/photoswipe@5/dist/umd/photoswipe-lightbox.umd.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/css/intlTelInput.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/js/intlTelInput.min.js"></script>
-<!-- legacy/build path (not /build/) is the correct one for a plain script
-     tag without a bundler — the non-legacy build assumes ESM/bundler consumption. -->
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/dropzone@5.9.3/dist/min/dropzone.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/dropzone@5.9.3/dist/min/dropzone.min.js"></script>
-<script>if(window.Dropzone) Dropzone.autoDiscover = false;</script>
 <link href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <style>
@@ -467,12 +462,12 @@
   .pg-nav-btn:disabled{opacity:.35;cursor:default;}
   .pg-nav-btn:not(:disabled):hover{border-color:var(--blue-deep);}
   .pg-pageinfo{font-size:12px;color:var(--muted);font-family:'Cairo',sans-serif;font-weight:700;min-width:76px;text-align:center;}
-  .orders-head{display:grid;grid-template-columns:24px 90px minmax(120px,1fr) 100px 140px 100px 70px 60px;gap:10px;padding:0 6px 12px;border-bottom:1px solid var(--paper-line);min-width:700px;}
+  .orders-head{display:grid;grid-template-columns:24px 150px minmax(120px,1fr) 100px 140px 100px 70px 60px;gap:10px;padding:0 6px 12px;border-bottom:1px solid var(--paper-line);min-width:760px;}
   .orders-head span{font-size:11px;color:var(--muted);font-weight:700;font-family:'Cairo',sans-serif;text-transform:uppercase;letter-spacing:.02em;}
   .orders-head span:nth-last-child(-n+3){text-align:center;}
   .orders-head span:nth-child(4){text-align:center;}
   .orders-head span:nth-child(5){text-align:center;}
-  .order-row{display:grid;grid-template-columns:24px 90px minmax(120px,1fr) 100px 140px 100px 70px 60px;gap:10px;align-items:center;padding:18px 6px;border-bottom:1px solid var(--paper-line);min-width:700px;}
+  .order-row{display:grid;grid-template-columns:24px 150px minmax(120px,1fr) 100px 140px 100px 70px 60px;gap:10px;align-items:center;padding:18px 6px;border-bottom:1px solid var(--paper-line);min-width:760px;}
   .order-row:last-child{border-bottom:none;}
   .order-row .stat-ic{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;background-color:transparent;}
   .order-row .stat-ic.done{background:var(--ok-wash);color:var(--ok);}
@@ -1291,7 +1286,7 @@
           <table class="data-tbl">
             <thead><tr>
               <th></th>
-              <th data-i18n="col_order_id">رقم الطلب</th>
+              <th data-i18n="col_order_id" style="min-width:150px;">رقم الطلب</th>
               <th data-i18n="col_file">اسم الملف</th>
               <th data-i18n="ph_col_credits">الكريديت</th>
               <th data-i18n="ph_col_bal_before">الرصيد قبل</th>
@@ -4314,45 +4309,22 @@ fileInput.addEventListener('change', (e) => {
   fileInput.value = ''; // allow re-selecting the same file later if removed
 });
 
-// Dropzone.js is scoped to ONLY the drag-and-drop detection layer here —
-// clickable is off (click-to-browse above is unchanged), thumbnails are
-// off (never needed for a single .docx), autoProcessQueue is off (we do
-// our own Supabase upload later, not Dropzone's). Keeping its role this
-// narrow avoids the extra overhead of a full Dropzone instance owning
-// click handling too.
-let uploadDropzone = null;
-if (window.Dropzone) {
-  uploadDropzone = new Dropzone(uploadzoneBox, {
-    url: '#',
-    autoProcessQueue: false,
-    uploadMultiple: false,
-    maxFiles: 1,
-    clickable: false,
-    createImageThumbnails: false,
-    previewsContainer: false,
-  });
-  uploadDropzone.on('addedfile', (file) => {
-    validateAndSetFile(file);
-    uploadDropzone.removeFile(file);
-  });
-  uploadDropzone.on('dragenter', () => uploadzoneBox.classList.add('dragover'));
-  uploadDropzone.on('dragleave', () => uploadzoneBox.classList.remove('dragover'));
-  uploadDropzone.on('drop', () => uploadzoneBox.classList.remove('dragover'));
-} else {
-  // Fallback if the CDN failed to load — original manual drag/drop listeners.
-  uploadzoneBox.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    uploadzoneBox.classList.add('dragover');
-  });
-  uploadzoneBox.addEventListener('dragleave', () => {
-    uploadzoneBox.classList.remove('dragover');
-  });
-  uploadzoneBox.addEventListener('drop', (e) => {
-    e.preventDefault();
-    uploadzoneBox.classList.remove('dragover');
-    if(e.dataTransfer.files && e.dataTransfer.files[0]) validateAndSetFile(e.dataTransfer.files[0]);
-  });
-}
+// Drag & drop support (the label already says "اسحبه هنا" / "drag it here").
+// (Reverted from a Dropzone.js integration — after two attempts it still
+// didn't work reliably, and this is too central a feature to keep
+// experimenting on. Plain, original, known-working code.)
+uploadzoneBox.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadzoneBox.classList.add('dragover');
+});
+uploadzoneBox.addEventListener('dragleave', () => {
+  uploadzoneBox.classList.remove('dragover');
+});
+uploadzoneBox.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadzoneBox.classList.remove('dragover');
+  if(e.dataTransfer.files && e.dataTransfer.files[0]) validateAndSetFile(e.dataTransfer.files[0]);
+});
 
 fileChipRemove.addEventListener('click', (e)=>{
   e.stopPropagation();
