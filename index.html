@@ -130,7 +130,7 @@
 
   .hamburger-btn{display:none;flex:none;align-items:center;justify-content:center;width:36px;height:36px;border-radius:9px;border:1.5px solid var(--paper-line);background:var(--paper);color:var(--navy);cursor:pointer;margin-inline-start:2px;}
   .hamburger-btn:hover{background:var(--paper-soft);}
-  .mobile-menu{display:none;flex-direction:column;background:var(--paper);border-top:1px solid var(--paper-line);box-shadow:0 12px 24px -8px rgba(27,37,86,.12);}
+  .mobile-menu{display:none;flex-direction:column;background:var(--paper);border-top:1px solid var(--paper-line);box-shadow:0 12px 24px -8px rgba(27,37,86,.12);padding-bottom:10px;overflow:visible;}
   .mobile-menu.open{display:flex;}
   .mobile-menu a{padding:14px 20px;font-size:14px;font-weight:700;color:var(--navy);border-bottom:1px solid var(--paper-line);}
   .mobile-menu a:hover{background:var(--paper-soft);}
@@ -432,9 +432,11 @@
     <a data-scroll="services" onclick="closeMobileMenu()" data-i18n="idx_nav_services">الخدمات المتاحة</a>
     <a data-scroll="how" onclick="closeMobileMenu()" data-i18n="idx_nav_how">إزاي بيشتغل</a>
     <a data-scroll="faq" onclick="closeMobileMenu()" data-i18n="idx_nav_faq">أسئلة شائعة</a>
-    <div class="mobile-menu-row" style="flex-wrap:wrap;">
+    <div class="mobile-menu-row" style="padding-bottom:6px;">
       <button class="btn btn-lang" id="langBtnMobile" onclick="toggleLang()" style="flex:none;">🇬🇧 EN</button>
-      <a class="btn btn-signin" href="auth.html" onclick="closeMobileMenu();openAuthModal('login');return false;" style="flex:1;justify-content:center;min-width:120px;" data-i18n="idx_signin_btn">تسجيل الدخول</a>
+      <a class="btn btn-signin" href="auth.html" onclick="closeMobileMenu();openAuthModal('login');return false;" style="flex:1;justify-content:center;" data-i18n="idx_signin_btn">تسجيل الدخول</a>
+    </div>
+    <div class="mobile-menu-row" style="padding-top:0;">
       <a class="btn btn-store" href="https://www.pro-keys.store/" target="_blank" rel="noopener" style="width:100%;justify-content:center;"><span data-i18n="idx_store_btn">متجر Pro Keys</span></a>
     </div>
   </div>
