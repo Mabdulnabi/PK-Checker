@@ -409,7 +409,7 @@
     <div class="header-actions">
       <button class="btn btn-lang" id="langBtn" onclick="toggleLang()">🇬🇧 EN</button>
       <a class="btn btn-store" href="https://www.pro-keys.store/" target="_blank" rel="noopener"><span class="full-label">🛍️</span> <span data-i18n="idx_store_btn">متجر Pro Keys</span></a>
-      <a class="btn btn-signin" href="auth.html" data-i18n="idx_signin_btn">تسجيل الدخول</a>
+      <a class="btn btn-signin" href="auth.html" onclick="openAuthModal('login');return false;" data-i18n="idx_signin_btn">تسجيل الدخول</a>
     </div>
   </div>
 </header>
@@ -421,7 +421,7 @@
       <h1><span class="grad-text" data-i18n="hero_title_1">تقارير الاقتباس و AI</span> <span data-i18n="hero_title_2">في دقائق</span></h1>
       <p class="sub" data-i18n="hero_sub">فحوصات آلية رسمية 100% عبر Turnitin Instructor API · بدون أي تدخل بشري · تقارير دقيقة ومفصلة</p>
       <div class="hero-cta-row" data-aos="fade-up" data-aos-delay="150">
-        <a class="btn btn-hero" href="auth.html"><span data-icon-key="hero_cta_icon"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></span> <span data-i18n="hero_cta">ابدأ فحص جديد الآن</span></a>
+        <a class="btn btn-hero" href="auth.html" onclick="openAuthModal('signup');return false;"><span data-icon-key="hero_cta_icon"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></span> <span data-i18n="hero_cta">ابدأ فحص جديد الآن</span></a>
         <a class="btn btn-hero-outline" id="watchDemoBtn" href="#how" data-i18n="hero_cta_secondary"><span data-icon-key="home_watch"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;"><circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z"/></svg></span> شاهد كيف يعمل</a>
       </div>
     </div>
@@ -524,7 +524,7 @@
   <div class="final-cta" data-aos="zoom-in">
     <h2 data-i18n="idx_final_title">جاهز تطمّن على بحثك؟</h2>
     <p data-i18n="idx_final_sub">سجّل دلوقتي وابدأ أول فحص في أقل من دقيقتين.</p>
-    <a class="btn btn-hero" href="auth.html" data-i18n="idx_final_cta">سجّل دخولك مجانًا</a>
+    <a class="btn btn-hero" href="auth.html" onclick="openAuthModal('signup');return false;" data-i18n="idx_final_cta">سجّل دخولك مجانًا</a>
   </div>
 </section>
 
@@ -701,7 +701,7 @@ document.querySelectorAll('[data-scroll]').forEach(el => {
 // Same override mechanism the customer dashboard uses: an element tagged
 // data-icon-key="X" gets swapped for the admin's uploaded image (or just
 // resized) if a matching override exists in ui_config.icons/icon_sizes.
-const ICON_SIZE_MAP = { logo_index:'46px', home_watch:'18px', hero_cta_icon:'18px', home_g1:'20px', home_g2:'20px', home_g3:'20px', home_g4:'20px', home_g5:'20px', home_g6:'20px', hero_visual:'260px',
+const ICON_SIZE_MAP = { logo_index:'46px', logo_auth:'38px', home_watch:'18px', hero_cta_icon:'18px', home_g1:'20px', home_g2:'20px', home_g3:'20px', home_g4:'20px', home_g5:'20px', home_g6:'20px', hero_visual:'260px',
   faq_icon_0:'14px', faq_icon_1:'14px', faq_icon_2:'14px', faq_icon_3:'14px', faq_icon_4:'14px',
   faq_icon_5:'14px', faq_icon_6:'14px', faq_icon_7:'14px', faq_icon_8:'14px', faq_icon_9:'14px' };
 function applyFavicon(){
@@ -1219,6 +1219,431 @@ supabaseClient
   }catch(e){
     window.ChatWidget_wa = true;
   }
+})();
+</script>
+
+<!-- ===== Auth Modal (login/signup over a blurred index.html) ===== -->
+<style>
+  #authModalOverlay{
+    position: fixed; inset: 0; z-index: 99999;
+    background: rgba(15,23,42,.45);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    display: none; align-items: center; justify-content: center;
+    padding: 15px; opacity: 0; transition: opacity .2s ease;
+  }
+  #authModalOverlay.open{ display: flex; }
+  #authModalOverlay.visible{ opacity: 1; }
+
+  #authModalCard{
+    width: 100%; max-width: 460px; max-height: min(640px, 92vh);
+    background: #fff; border-radius: 18px;
+    box-shadow: 0 25px 70px rgba(14,122,254,.35);
+    overflow: hidden; display: flex; flex-direction: column;
+    transform: translateY(14px) scale(.98); transition: transform .25s ease;
+  }
+  #authModalOverlay.visible #authModalCard{ transform: translateY(0) scale(1); }
+
+  .am-header{
+    flex-shrink: 0; padding: 16px 22px; display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(135deg, rgba(14,122,254,.08), rgba(0,186,247,.05));
+    border-bottom: 1px solid var(--paper-line);
+  }
+  .am-header img{ height: 38px; width: auto; display: block; }
+  .am-close{ border: none; background: var(--paper-soft); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 15px; color: var(--ink-soft); display: flex; align-items: center; justify-content: center; }
+  .am-close:hover{ background: var(--blue-wash); color: var(--blue-deep); }
+
+  .am-content{ padding: 22px 26px; overflow-y: auto; flex: 1; min-height: 0; }
+  .am-title{ text-align: center; margin-bottom: 16px; }
+  .am-title h2{ font-size: 20px; font-weight: 800; color: var(--navy); margin-bottom: 4px; }
+  .am-title p{ font-size: 12px; color: var(--muted); font-weight: 500; }
+
+  .am-tabs{ display: flex; border-bottom: 2px solid var(--paper-line); margin-bottom: 16px; }
+  .am-tab{ flex: 1; padding: 10px 6px; background: none; border: none; cursor: pointer; font-size: 12.5px; font-weight: 700; color: var(--muted); border-bottom: 2px solid transparent; font-family: 'Cairo',sans-serif; }
+  .am-tab.active{ color: var(--blue-deep); border-bottom-color: var(--blue-deep); }
+
+  .am-form{ display: none; }
+  .am-form.show{ display: block; }
+  .am-group{ margin-bottom: 11px; }
+  .am-group label{ display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 5px; }
+  .am-group input{ width: 100%; padding: 9px 12px; border: 1px solid var(--paper-line); border-radius: 8px; font-size: 14px; font-family: 'Cairo',sans-serif; box-sizing: border-box; }
+  .am-group input:focus{ outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(14,122,254,.1); }
+  .am-row{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .am-msg{ padding: 9px 11px; border-radius: 8px; margin-bottom: 11px; font-size: 12px; display: none; font-weight: 600; }
+  .am-msg.error{ background: var(--danger-wash); color: var(--danger); border-inline-start: 3px solid var(--danger); }
+  .am-msg.success{ background: var(--ok-wash); color: var(--ok); border-inline-start: 3px solid var(--ok); }
+  .am-msg.show{ display: block; }
+
+  .am-checkbox{ display: flex; align-items: center; gap: 8px; margin: 10px 0; }
+  .am-checkbox input{ width: 15px; height: 15px; }
+  .am-checkbox label{ margin: 0; font-size: 12px; color: var(--muted); cursor: pointer; }
+  .am-forgot{ text-align: end; margin-top: 5px; }
+  .am-forgot a{ font-size: 12px; color: var(--danger); font-weight: 700; cursor: pointer; }
+
+  .am-btn{ width: 100%; padding: 11px; border: none; border-radius: 9px; font-size: 13px; font-weight: 800; font-family: 'Cairo',sans-serif; cursor: pointer; background: linear-gradient(135deg, var(--blue), var(--blue-deep)); color: #fff; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .am-btn:hover{ box-shadow: 0 6px 16px rgba(14,122,254,.3); }
+  .am-btn:disabled{ opacity: .6; cursor: not-allowed; }
+
+  .am-divider{ display: flex; align-items: center; text-align: center; margin: 15px 0; font-size: 12px; color: #94A3B8; }
+  .am-divider::before, .am-divider::after{ content: ''; flex: 1; border-bottom: 1px solid var(--paper-line); }
+  .am-divider span{ padding: 0 10px; }
+
+  .am-btn-google{ width: 100%; padding: 9px; border: 1.5px solid var(--paper-line); border-radius: 9px; background: #fff; color: var(--navy); font-size: 13px; font-weight: 700; font-family: 'Cairo',sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 9px; }
+  .am-btn-google:hover{ background: var(--paper-soft); }
+  .am-btn-google svg{ width: 17px; height: 17px; flex-shrink: 0; }
+
+  .am-spinner{ width: 12px; height: 12px; border: 2px solid rgba(255,255,255,.35); border-top: 2px solid #fff; border-radius: 50%; animation: amSpin .6s linear infinite; }
+  @keyframes amSpin{ to{ transform: rotate(360deg); } }
+
+  .am-footer{ text-align: center; margin-top: 14px; font-size: 12px; color: var(--muted); font-weight: 500; }
+  .am-footer a{ color: var(--blue-deep); font-weight: 700; cursor: pointer; }
+
+  .am-pwrules{ list-style: none; padding: 0; margin: 0 0 12px; font-size: 11px; }
+  .am-pwrules li{ color: #94A3B8; margin-bottom: 4px; transition: color .2s; }
+
+  .am-forgot-icon{ width: 50px; height: 50px; margin: 0 auto 14px; background: var(--blue-wash); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .am-forgot-instructions{ text-align: center; font-size: 12.5px; color: var(--muted); margin-bottom: 18px; line-height: 1.6; }
+
+  @media(max-width:600px){
+    .am-row{ grid-template-columns: 1fr; }
+    .am-content{ padding: 18px; }
+  }
+</style>
+
+<div id="authModalOverlay" onclick="if(event.target===this) closeAuthModal();">
+  <div id="authModalCard">
+    <div class="am-header">
+      <img data-icon-key="logo_auth" alt="Pro Keys" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E">
+      <button class="am-close" onclick="closeAuthModal()" aria-label="close">✕</button>
+    </div>
+    <div class="am-content">
+      <div class="am-title">
+        <h2 id="amTitleText">دخول مستخدم</h2>
+        <p id="amSubtitleText">أدخل بيانات حسابك للمتابعة</p>
+      </div>
+
+      <div class="am-tabs" id="amTabs">
+        <button class="am-tab active" data-form="login" type="button" id="amTabLogin">دخول</button>
+        <button class="am-tab" data-form="signup" type="button" id="amTabSignup">إنشاء حساب</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div class="am-form show" id="amLogin">
+        <div class="am-msg error" id="amLoginError"></div>
+        <div class="am-msg success" id="amLoginSuccess"></div>
+        <div class="am-group">
+          <label id="amEmailLabel">البريد الإلكتروني</label>
+          <input type="email" id="amLoginEmail" placeholder="your@email.com">
+        </div>
+        <div class="am-group">
+          <label id="amPassLabel">كلمة المرور</label>
+          <input type="password" id="amLoginPass" placeholder="••••••••">
+          <div class="am-forgot"><a id="amForgotLink">هل نسيت كلمة المرور؟</a></div>
+        </div>
+        <button type="button" class="am-btn" id="amLoginBtn"><span id="amLoginBtnText">دخول</span></button>
+        <div class="am-divider"><span id="amDividerOr1">أو</span></div>
+        <button type="button" class="am-btn-google" id="amGoogleLoginBtn">
+          <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+          <span id="amGoogleLoginText">الدخول بحساب Google</span>
+        </button>
+        <div class="am-footer"><span id="amNoAccountText">ليس لديك حساب؟</span> <a id="amToSignupLink">إنشاء حساب جديد</a></div>
+      </div>
+
+      <!-- SIGNUP -->
+      <div class="am-form" id="amSignup">
+        <div class="am-msg error" id="amSignupError"></div>
+        <div class="am-msg success" id="amSignupSuccess"></div>
+        <div class="am-group">
+          <label id="amNameLabel">الاسم الكامل</label>
+          <input type="text" id="amSignupName" placeholder="محمد علي">
+        </div>
+        <div class="am-group">
+          <label id="amEmailLabel2">البريد الإلكتروني</label>
+          <input type="email" id="amSignupEmail" placeholder="your@email.com">
+        </div>
+        <div class="am-group">
+          <label id="amWhatsappLabel">رقم الواتساب</label>
+          <input type="text" id="amSignupWhatsapp" placeholder="+20 10 000 0000">
+        </div>
+        <div class="am-row">
+          <div class="am-group">
+            <label id="amPassLabel2">كلمة المرور</label>
+            <input type="password" id="amSignupPass" placeholder="••••••••" minlength="8">
+          </div>
+          <div class="am-group">
+            <label id="amConfirmLabel">تأكيد</label>
+            <input type="password" id="amSignupConfirm" placeholder="••••••••">
+          </div>
+        </div>
+        <ul class="am-pwrules" id="amPwRules">
+          <li id="amRuleLength">○ 8 أحرف على الأقل</li>
+          <li id="amRuleUpper">○ حرف كبير واحد على الأقل (A-Z)</li>
+          <li id="amRuleLower">○ حرف صغير واحد على الأقل (a-z)</li>
+          <li id="amRuleNumber">○ رقم واحد على الأقل (0-9)</li>
+          <li id="amRuleSpecial">○ رمز خاص واحد على الأقل (!@#$%^&*)</li>
+        </ul>
+        <div class="am-checkbox">
+          <input type="checkbox" id="amAgreeTerms">
+          <label for="amAgreeTerms" id="amAgreeLabel">أوافق على شروط الخدمة</label>
+        </div>
+        <button type="button" class="am-btn" id="amSignupBtn"><span id="amSignupBtnText">إنشاء حساب</span></button>
+        <div class="am-divider"><span id="amDividerOr2">أو</span></div>
+        <button type="button" class="am-btn-google" id="amGoogleSignupBtn">
+          <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+          <span id="amGoogleSignupText">التسجيل بحساب Google</span>
+        </button>
+        <div class="am-footer"><span id="amHaveAccountText">لديك حساب؟</span> <a id="amToLoginLink">تسجيل دخول</a></div>
+      </div>
+
+      <!-- FORGOT PASSWORD -->
+      <div class="am-form" id="amForgot">
+        <div class="am-forgot-icon">🔑</div>
+        <p class="am-forgot-instructions" id="amForgotInstructions">أدخل بريدك الإلكتروني وهنبعتلك لينك لإعادة تعيين كلمة المرور.</p>
+        <div class="am-msg error" id="amForgotError"></div>
+        <div class="am-msg success" id="amForgotSuccess"></div>
+        <div class="am-group">
+          <label id="amForgotEmailLabel">البريد الإلكتروني</label>
+          <input type="email" id="amForgotEmail" placeholder="your@email.com">
+        </div>
+        <button type="button" class="am-btn" id="amForgotSubmitBtn"><span id="amForgotSubmitText">إرسال الرابط</span></button>
+        <div class="am-footer"><a id="amBackToLoginLink">← رجوع لتسجيل الدخول</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  function byId(id){ return document.getElementById(id); }
+
+  const amText = {
+    ar: { login:'دخول', signup:'إنشاء حساب', loginTitle:'دخول مستخدم', loginSub:'أدخل بيانات حسابك للمتابعة',
+      signupTitle:'إنشاء حساب جديد', signupSub:'انضم لـ Pro Keys في أقل من دقيقة',
+      forgotTitle:'استعادة كلمة المرور', forgotSub:'هنبعتلك لينك على إيميلك',
+      fillAll:'من فضلك املأ كل الحقول', passwordWeak:'كلمة المرور لازم تحقق كل الشروط تحت',
+      mismatch:'كلمتا المرور غير متطابقتين', terms:'من فضلك وافق على شروط الخدمة',
+      redirecting:'جاري تحويلك...', created:'تم إنشاء الحساب بنجاح!',
+      confirmEmailSent:'تحقق من إيميلك عشان تفعّل حسابك.',
+      enterEmailFirst:'من فضلك أدخل بريدك الإلكتروني', sent:'اتبعت! تحقق من صندوق الوارد (وممكن يكون في Spam).',
+      googleError:'حدث خطأ أثناء الدخول بجوجل', googleRedirecting:'جاري التحويل...',
+      ruleLength:'8 أحرف على الأقل', ruleUpper:'حرف كبير واحد على الأقل (A-Z)', ruleLower:'حرف صغير واحد على الأقل (a-z)',
+      ruleNumber:'رقم واحد على الأقل (0-9)', ruleSpecial:'رمز خاص واحد على الأقل (!@#$%^&*)' },
+    en: { login:'Sign In', signup:'Sign Up', loginTitle:'Welcome back', loginSub:'Enter your details to continue',
+      signupTitle:'Create your account', signupSub:'Join Pro Keys in under a minute',
+      forgotTitle:'Reset your password', forgotSub:"We'll email you a reset link",
+      fillAll:'Please fill in all fields', passwordWeak:'Password must meet all the requirements below',
+      mismatch:'Passwords do not match', terms:'Please agree to the Terms of Service',
+      redirecting:'Redirecting...', created:'Account created successfully!',
+      confirmEmailSent:'Check your email to confirm your account.',
+      enterEmailFirst:'Please enter your email', sent:'Sent! Check your inbox (and Spam folder).',
+      googleError:'Something went wrong signing in with Google', googleRedirecting:'Redirecting...',
+      ruleLength:'At least 8 characters', ruleUpper:'At least one uppercase letter (A-Z)', ruleLower:'At least one lowercase letter (a-z)',
+      ruleNumber:'At least one number (0-9)', ruleSpecial:'At least one special character (!@#$%^&*)' },
+  };
+
+  function amLang(){ return (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'en' : 'ar'; }
+
+  function showMsg(id, msg){
+    const el = byId(id);
+    el.textContent = msg; el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 5000);
+  }
+  function showSuccessMsg(id, msg){
+    const el = byId(id);
+    el.textContent = msg; el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 4000);
+  }
+
+  function amSwitchToForm(formId){
+    const isTabForm = formId === 'login' || formId === 'signup';
+    document.querySelectorAll('.am-form').forEach(f => f.classList.remove('show'));
+    byId('am' + formId.charAt(0).toUpperCase() + formId.slice(1)).classList.add('show');
+    byId('amTabs').style.display = isTabForm ? 'flex' : 'none';
+    if (isTabForm) {
+      document.querySelectorAll('.am-tab').forEach(t => t.classList.toggle('active', t.dataset.form === formId));
+    }
+    const L = amText[amLang()];
+    if (formId === 'login') { byId('amTitleText').textContent = L.loginTitle; byId('amSubtitleText').textContent = L.loginSub; }
+    else if (formId === 'signup') { byId('amTitleText').textContent = L.signupTitle; byId('amSubtitleText').textContent = L.signupSub; }
+    else { byId('amTitleText').textContent = L.forgotTitle; byId('amSubtitleText').textContent = L.forgotSub; }
+    window.location.hash = formId === 'forgot' ? 'reset-password' : formId;
+  }
+
+  window.openAuthModal = function(formId){
+    formId = formId || 'login';
+    const overlay = byId('authModalOverlay');
+    overlay.classList.add('open');
+    // next frame, so the CSS transition actually plays instead of jumping straight to the open state
+    requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('visible')));
+    amSwitchToForm(formId);
+    document.body.style.overflow = 'hidden';
+  };
+  window.closeAuthModal = function(){
+    const overlay = byId('authModalOverlay');
+    overlay.classList.remove('visible');
+    document.body.style.overflow = '';
+    if (['login','signup','reset-password'].includes(window.location.hash.replace('#',''))) {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+    setTimeout(() => overlay.classList.remove('open'), 200);
+  };
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && byId('authModalOverlay').classList.contains('open')) closeAuthModal();
+  });
+
+  document.querySelectorAll('.am-tab').forEach(tab => {
+    tab.addEventListener('click', () => amSwitchToForm(tab.dataset.form));
+  });
+  byId('amToSignupLink').addEventListener('click', () => amSwitchToForm('signup'));
+  byId('amToLoginLink').addEventListener('click', () => amSwitchToForm('login'));
+  byId('amForgotLink').addEventListener('click', () => amSwitchToForm('forgot'));
+  byId('amBackToLoginLink').addEventListener('click', () => amSwitchToForm('login'));
+
+  // Open directly if the page was loaded with #login / #signup / #reset-password
+  // (e.g. a shared link, or the back button after closing the modal).
+  window.addEventListener('DOMContentLoaded', () => {
+    const h = window.location.hash.replace('#', '');
+    if (h === 'login' || h === 'signup') openAuthModal(h);
+    else if (h === 'reset-password') openAuthModal('forgot');
+  });
+  window.addEventListener('hashchange', () => {
+    const h = window.location.hash.replace('#', '');
+    const overlay = byId('authModalOverlay');
+    if (!h && overlay.classList.contains('open')) closeAuthModal();
+  });
+
+  // ===== LOGIN =====
+  byId('amLoginBtn').addEventListener('click', function(){
+    const btn = this;
+    const email = byId('amLoginEmail').value.trim();
+    const pass = byId('amLoginPass').value;
+    const L = amText[amLang()];
+    if (!email || !pass) { showMsg('amLoginError', L.fillAll); return; }
+
+    btn.disabled = true; btn.innerHTML = '<div class="am-spinner"></div>';
+
+    supabaseClient.auth.signInWithPassword({ email, password: pass }).then(res => {
+      if (res.error) throw new Error(res.error.message);
+      const user = res.data.user;
+      const meta = user.user_metadata || {};
+      // Defensive fallback upsert — the create_profile_trigger.sql DB trigger
+      // normally already creates this row the instant the user signs up.
+      return supabaseClient.from('users_profile').upsert({
+        user_id: user.id,
+        full_name: meta.full_name || (user.email ? user.email.split('@')[0] : 'User'),
+        email: user.email || null,
+        whatsapp: meta.whatsapp || null,
+        language: amLang(),
+      }, { onConflict: 'user_id', ignoreDuplicates: true }).then(() => {
+        showSuccessMsg('amLoginSuccess', L.redirecting);
+        localStorage.setItem('prokeys-user-id', user.id);
+        setTimeout(() => { window.location.href = 'dashboard.html'; }, 900);
+      });
+    }).catch(e => {
+      showMsg('amLoginError', e.message);
+      btn.disabled = false; btn.innerHTML = '<span>' + L.login + '</span>';
+    });
+  });
+
+  // ===== SIGNUP =====
+  const pwState = { length:false, upper:false, lower:false, number:false, special:false };
+  function evalPw(pwd){
+    pwState.length = pwd.length >= 8;
+    pwState.upper = /[A-Z]/.test(pwd);
+    pwState.lower = /[a-z]/.test(pwd);
+    pwState.number = /[0-9]/.test(pwd);
+    pwState.special = /[^A-Za-z0-9]/.test(pwd);
+  }
+  function isPwStrong(pwd){ evalPw(pwd); return pwState.length && pwState.upper && pwState.lower && pwState.number && pwState.special; }
+  function renderPwRules(){
+    const L = amText[amLang()];
+    const map = { amRuleLength:['length','ruleLength'], amRuleUpper:['upper','ruleUpper'], amRuleLower:['lower','ruleLower'], amRuleNumber:['number','ruleNumber'], amRuleSpecial:['special','ruleSpecial'] };
+    Object.keys(map).forEach(id => {
+      const [stateKey, textKey] = map[id];
+      const ok = pwState[stateKey];
+      byId(id).textContent = (ok ? '✓ ' : '○ ') + L[textKey];
+      byId(id).style.color = ok ? '#0E9F6E' : '#94A3B8';
+    });
+  }
+  byId('amSignupPass').addEventListener('input', function(){ evalPw(this.value); renderPwRules(); });
+
+  byId('amSignupBtn').addEventListener('click', function(){
+    const btn = this;
+    const name = byId('amSignupName').value.trim();
+    const email = byId('amSignupEmail').value.trim();
+    const whatsapp = byId('amSignupWhatsapp').value.trim();
+    const pass = byId('amSignupPass').value;
+    const conf = byId('amSignupConfirm').value;
+    const agree = byId('amAgreeTerms').checked;
+    const L = amText[amLang()];
+
+    if (!name || !email || !whatsapp || !pass || !conf) { showMsg('amSignupError', L.fillAll); return; }
+    if (!isPwStrong(pass)) { showMsg('amSignupError', L.passwordWeak); return; }
+    if (pass !== conf) { showMsg('amSignupError', L.mismatch); return; }
+    if (!agree) { showMsg('amSignupError', L.terms); return; }
+
+    btn.disabled = true; btn.innerHTML = '<div class="am-spinner"></div>';
+
+    supabaseClient.auth.signUp({
+      email, password: pass, options: { data: { full_name: name, whatsapp } },
+    }).then(res => {
+      if (res.error) throw new Error(res.error.message);
+      if (!res.data.session) return { needsEmailConfirmation: true };
+      return supabaseClient.from('users_profile').upsert({
+        user_id: res.data.user.id, full_name: name, whatsapp, email, language: amLang(),
+      }, { onConflict: 'user_id', ignoreDuplicates: true }).then(upsertRes => {
+        if (upsertRes.error) throw new Error(upsertRes.error.message);
+        return { needsEmailConfirmation: false };
+      });
+    }).then(result => {
+      showSuccessMsg('amSignupSuccess', result && result.needsEmailConfirmation ? L.confirmEmailSent : L.created);
+      setTimeout(() => {
+        amSwitchToForm('login');
+        btn.disabled = false; btn.innerHTML = '<span>' + L.signup + '</span>';
+      }, 2200);
+    }).catch(e => {
+      showMsg('amSignupError', e.message);
+      btn.disabled = false; btn.innerHTML = '<span>' + L.signup + '</span>';
+    });
+  });
+
+  // ===== FORGOT PASSWORD =====
+  byId('amForgotSubmitBtn').addEventListener('click', function(){
+    const btn = this;
+    const email = byId('amForgotEmail').value.trim();
+    const L = amText[amLang()];
+    if (!email) { showMsg('amForgotError', L.enterEmailFirst); return; }
+
+    btn.disabled = true; btn.innerHTML = '<div class="am-spinner"></div>';
+    supabaseClient.auth.resetPasswordForEmail(email).then(res => {
+      if (res.error) { showMsg('amForgotError', res.error.message); }
+      else {
+        const el = byId('amForgotSuccess');
+        el.textContent = L.sent; el.classList.add('show');
+      }
+      btn.disabled = false; btn.innerHTML = '<span id="amForgotSubmitText">' + (amLang()==='ar' ? 'إرسال الرابط' : 'Send link') + '</span>';
+    });
+  });
+
+  // ===== GOOGLE OAUTH =====
+  function signInWithGoogle(triggerBtn, errorBoxId){
+    const L = amText[amLang()];
+    if (triggerBtn) { triggerBtn.disabled = true; triggerBtn.querySelector('span').textContent = L.googleRedirecting; }
+    sessionStorage.setItem('prokeys-oauth-pending', String(Date.now()));
+    supabaseClient.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + '/dashboard.html' },
+    }).then(res => {
+      if (res.error) {
+        sessionStorage.removeItem('prokeys-oauth-pending');
+        showMsg(errorBoxId, res.error.message || L.googleError);
+        if (triggerBtn) { triggerBtn.disabled = false; triggerBtn.querySelector('span').textContent = triggerBtn.id === 'amGoogleLoginBtn' ? (amLang()==='ar'?'الدخول بحساب Google':'Sign in with Google') : (amLang()==='ar'?'التسجيل بحساب Google':'Sign up with Google'); }
+      }
+    });
+  }
+  byId('amGoogleLoginBtn').addEventListener('click', function(){ signInWithGoogle(this, 'amLoginError'); });
+  byId('amGoogleSignupBtn').addEventListener('click', function(){ signInWithGoogle(this, 'amSignupError'); });
 })();
 </script>
 
