@@ -1537,7 +1537,7 @@ supabaseClient
     // Hidden shortcut — no visible button anywhere, just for whoever
     // knows it. This is a convenience path, not a security boundary; real
     // protection is the admin login + is_admin() check on the other end.
-    if (e.ctrlKey && e.altKey && (e.key === 'a' || e.key === 'A')) {
+    if (e.altKey && e.shiftKey && (e.key === 'a' || e.key === 'A')) {
       window.location.href = 'auth.html#admin';
     }
   });
