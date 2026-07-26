@@ -21,6 +21,12 @@
 <script src="https://cdn.jsdelivr.net/npm/photoswipe@5/dist/umd/photoswipe-lightbox.umd.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/css/intlTelInput.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/js/intlTelInput.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/dropzone@5.9.3/dist/min/dropzone.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/dropzone@5.9.3/dist/min/dropzone.min.js"></script>
+<script>if(window.Dropzone) Dropzone.autoDiscover = false;</script>
+<link href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <style>
   :root{
     --navy:#1B2556;
@@ -278,6 +284,12 @@
   .uploadzone .uicon{width:46px;height:46px;border-radius:50%;background:var(--blue-wash);color:var(--blue-deep);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
   .uploadzone b{font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;display:block;margin-bottom:4px;color:var(--navy);}
   .uploadzone span{font-size:12.5px;color:var(--muted);}
+  /* Dropzone.js adds its own base styling via the .dropzone class it applies
+     to this same element — neutralize it so our existing look is untouched;
+     Dropzone here only drives the drag/drop + click interaction, not the visuals. */
+  .uploadzone.dropzone{min-height:0;}
+  .uploadzone.dropzone .dz-message{margin:0;}
+  .uploadzone.dz-drag-hover{border-color:var(--blue);background:var(--blue-wash);}
 
   #pushToastWrap{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:99999;display:flex;flex-direction:column;gap:8px;width:100%;max-width:380px;padding:0 14px;pointer-events:none;}
   .push-toast{pointer-events:auto;background:var(--paper);border:1px solid var(--paper-line);border-radius:14px;box-shadow:0 16px 40px -12px rgba(27,37,86,0.35);padding:12px 14px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;animation:pushToastIn .3s ease;}
@@ -473,7 +485,8 @@
   .order-row .stat-ic.no{background:var(--danger-wash);color:var(--danger);}
   .order-row .stat-ic svg{width:14px;height:14px;}
 
-  .oid-cell{font-family:'IBM Plex Mono',monospace;}
+  .oid-cell{font-family:'IBM Plex Mono',monospace;display:flex;align-items:center;flex-wrap:wrap;gap:6px;}
+  .oid-code-wrap{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;flex:none;}
   .copy-btn{cursor:pointer;opacity:.55;font-size:11px;transition:opacity .15s;}
   .copy-btn:hover{opacity:1;}
   .order-row-highlighted{background:var(--blue-wash);border-radius:10px;box-shadow:inset 3px 0 0 var(--blue);}
@@ -511,7 +524,7 @@
   html[dir="rtl"] .orders-head span:nth-child(5){    /* وقت الإرسال */
     text-align: center;
   }
-  html[dir="rtl"] .oid-cell{text-align:center;}
+  html[dir="rtl"] .oid-cell{justify-content:center;}
   html[dir="rtl"] .order-row > .ocell:not(.oid-cell):not(.ohandle-cell){text-align:center;}
   .dl-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--paper-line);background:var(--paper-soft);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-soft);}
   .dl-btn:hover{border-color:var(--blue);color:var(--blue-deep);}
@@ -555,15 +568,17 @@
   .pack-section-title{font-family:'Cairo',sans-serif;font-weight:800;font-size:24px;color:var(--blue-deep);margin:0 0 6px;}
   .pack-section-desc{font-size:13px;color:var(--muted);margin:0;}
   .pack-slider-wrap{position:relative;display:flex;align-items:center;gap:8px;}
-  .pack-slider{display:flex;gap:16px;overflow-x:auto;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;padding:6px 4px 14px;flex:1;scrollbar-width:none;}
-  html[dir="rtl"] .pack-slider{flex-direction:row-reverse;}
-  .pack-slider::-webkit-scrollbar{display:none;}
+  .pack-swiper{flex:1;min-width:0;padding:6px 4px 4px;overflow:hidden;}
+  .swiper-pagination{position:static;margin-top:4px;}
+  .swiper-pagination-bullet{background:var(--blue);opacity:.25;}
+  .swiper-pagination-bullet-active{opacity:1;}
   .slider-arrow{flex:none;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--paper-line);background:var(--paper);color:var(--navy);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;z-index:2;}
+  .slider-arrow.swiper-button-disabled{opacity:.35;cursor:not-allowed;}
   .slider-arrow:hover{border-color:var(--blue);color:var(--blue-deep);box-shadow:0 2px 8px rgba(14,122,254,0.15);}
   .slider-arrow svg{width:16px;height:16px;}
 
   /* Pricing pack card - matches reference design */
-  .pack-card{flex:none;width:220px;border:2px solid var(--paper-line);border-radius:16px;padding:22px 18px;text-align:center;background:var(--paper);position:relative;transition:all 0.25s;cursor:pointer;display:flex;flex-direction:column;}
+  .pack-card{width:100%;border:2px solid var(--paper-line);border-radius:16px;padding:22px 18px;text-align:center;background:var(--paper);position:relative;transition:all 0.25s;cursor:pointer;display:flex;flex-direction:column;}
   .pack-card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(27,37,86,0.08);}
   .pack-card .badge-best{position:absolute;top:-11px;right:14px;background:#FF8A00;color:var(--paper);font-size:9.5px;font-weight:700;padding:4px 11px;border-radius:20px;font-family:'Cairo',sans-serif;letter-spacing:.02em;white-space:nowrap;}
   .pack-card .badge-trial{position:absolute;top:-11px;right:14px;background:#FFE8C2;color:#A05A00;font-size:9.5px;font-weight:700;padding:4px 11px;border-radius:20px;font-family:'Cairo',sans-serif;}
@@ -837,7 +852,6 @@
     .credit-card-full .crow{gap:24px;flex-wrap:wrap;}
     .ref-box-full{padding:14px 16px;}
     .ref-box-full .ref-link{font-size:11px;padding:8px 12px;}
-    .pack-card{width:200px;}
   }
 
   /* Extra-narrow phones: let the topbar wrap onto two rows instead of crowding the logo */
@@ -1167,11 +1181,12 @@
           <button class="slider-arrow slider-arrow-prev" id="topupPrev" aria-label="prev">
             <svg class="ic" data-icon-key="wal_slider_prev" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
           </button>
-          <div class="pack-slider" id="topupSlider"></div>
+          <div class="swiper pack-swiper" id="topupSwiper"><div class="swiper-wrapper" id="topupSlider"></div></div>
           <button class="slider-arrow slider-arrow-next" id="topupNext" aria-label="next">
             <svg class="ic" data-icon-key="wal_slider_next" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
           </button>
         </div>
+        <div class="swiper-pagination" id="topupPagination"></div>
 
         <!-- Daily packs slider -->
         <div class="pack-section-head" style="margin-top:36px;">
@@ -1182,11 +1197,12 @@
           <button class="slider-arrow slider-arrow-prev" id="dailyPrev" aria-label="prev">
             <svg class="ic" data-icon-key="wal_slider_prev" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
           </button>
-          <div class="pack-slider" id="dailySlider"></div>
+          <div class="swiper pack-swiper" id="dailySwiper"><div class="swiper-wrapper" id="dailySlider"></div></div>
           <button class="slider-arrow slider-arrow-next" id="dailyNext" aria-label="next">
             <svg class="ic" data-icon-key="wal_slider_next" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
           </button>
         </div>
+        <div class="swiper-pagination" id="dailyPagination"></div>
       </div>
 
       <!-- Full-width payment section, shown only after pack selection -->
@@ -2150,17 +2166,33 @@ function togglePacksVisibility(){
   const opening = box.style.display === 'none';
   box.style.display = opening ? '' : 'none';
   btn.classList.toggle('open', opening);
-  if (opening) box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  if (opening) {
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    // Now that the section is actually visible, Swiper can measure real
+    // slide widths — initializing while display:none was giving it 0.
+    setTimeout(() => {
+      initPackSwiper('topup', 'topupSwiper', 'topupPrev', 'topupNext', 'topupPagination');
+      initPackSwiper('daily', 'dailySwiper', 'dailyPrev', 'dailyNext', 'dailyPagination');
+      packSwipers.topup?.update();
+      packSwipers.daily?.update();
+    }, 50);
+  }
 }
 
 function renderPacks(){
   const topupSlider = document.getElementById('topupSlider');
   const dailySlider = document.getElementById('dailySlider');
   if(topupSlider){
-    topupSlider.innerHTML = TOPUP_PACKS.map((p,i)=>buildPackCard(p,'topup',i)).join('');
+    topupSlider.innerHTML = TOPUP_PACKS.map((p,i)=>`<div class="swiper-slide">${buildPackCard(p,'topup',i)}</div>`).join('');
   }
   if(dailySlider){
-    dailySlider.innerHTML = DAILY_PACKS.map((p,i)=>buildPackCard(p,'daily',i)).join('');
+    dailySlider.innerHTML = DAILY_PACKS.map((p,i)=>`<div class="swiper-slide">${buildPackCard(p,'daily',i)}</div>`).join('');
+  }
+  // Re-rendered innerHTML means Swiper's internal slide references are
+  // stale — update() re-scans the DOM without losing the current position.
+  if (window.packSwipers) {
+    packSwipers.topup?.update();
+    packSwipers.daily?.update();
   }
 }
 
@@ -2179,18 +2211,32 @@ function selectPack(tab, id){
 }
 
 // Slider arrow navigation
-function setupSliderArrows(sliderId, prevId, nextId){
-  const slider = document.getElementById(sliderId);
-  const prev = document.getElementById(prevId);
-  const next = document.getElementById(nextId);
-  if(!slider || !prev || !next) return;
-  const scrollAmount = 240;
-  // CSS row-reverse on RTL means native scrollLeft direction matches visual arrow direction
-  prev.onclick = ()=> slider.scrollBy({left: -scrollAmount, behavior:'smooth'});
-  next.onclick = ()=> slider.scrollBy({left: scrollAmount, behavior:'smooth'});
+const packSwipers = { topup: null, daily: null };
+function initPackSwiper(key, containerId, prevId, nextId, paginationId){
+  if (!window.Swiper) return null;
+  const el = document.getElementById(containerId);
+  if (!el || el.dataset.swiperInit) return packSwipers[key];
+  el.dataset.swiperInit = '1';
+  packSwipers[key] = new Swiper('#' + containerId, {
+    slidesPerView: 1.3,
+    spaceBetween: 16,
+    watchOverflow: true,
+    navigation: { nextEl: '#' + nextId, prevEl: '#' + prevId },
+    pagination: { el: '#' + paginationId, clickable: true },
+    breakpoints: {
+      560: { slidesPerView: 2.2 },
+      860: { slidesPerView: 3.1 },
+    },
+  });
+  return packSwipers[key];
 }
-setupSliderArrows('topupSlider','topupPrev','topupNext');
-setupSliderArrows('dailySlider','dailyPrev','dailyNext');
+// Packs live inside #packsCollapsible, which starts hidden (display:none) —
+// Swiper measures slide widths at init time, so initializing while hidden
+// gives it a width of 0 and breaks the layout. Real init happens the first
+// time the section is actually opened (see togglePacksVisibility below);
+// this call is a no-op fallback for the rare case it's already visible.
+initPackSwiper('topup', 'topupSwiper', 'topupPrev', 'topupNext', 'topupPagination');
+initPackSwiper('daily', 'dailySwiper', 'dailyPrev', 'dailyNext', 'dailyPagination');
 
 document.addEventListener('click', e=>{
   const card = e.target.closest('#walletPayGrid .paycard');
@@ -3051,7 +3097,7 @@ function showNotificationToast(notif){
   el.addEventListener('click', () => {
     dismiss();
     if (notif.type === 'chat_message') { if (typeof toggleChat === 'function') toggleChat(); }
-    else if (notif.related_ticket_id) { goTab('support'); }
+    else if (notif.related_ticket_id) { goTab('support', false); }
   });
   wrap.appendChild(el);
   setTimeout(dismiss, 6000);
@@ -3128,9 +3174,9 @@ async function onNotificationClick(notifId){
   document.getElementById('notifPanel').style.display = 'none';
 
   if (n.type === 'ticket_submitted' || n.type === 'ticket_replied') {
-    goTab('support');
+    goTab('support', false);
   } else if (n.relatedOrderId) {
-    goTab('orders');
+    goTab('orders', false);
   }
 }
 
@@ -3198,7 +3244,7 @@ document.addEventListener('click', (e)=>{
 // Switches between the top-level sections (Home / New Check / Orders /
 // Wallet / Support). All data is already loaded up front by
 // loadDashboardData(), so this only needs to toggle visibility.
-function goTab(tab){
+function goTab(tab, persist = true){
   document.querySelectorAll('.navtab[data-tab]').forEach(el => {
     el.classList.toggle('on', el.dataset.tab === tab);
   });
@@ -3206,7 +3252,12 @@ function goTab(tab){
     el.style.display = (el.id === 'pane-' + tab) ? 'block' : 'none';
   });
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  localStorage.setItem('prokeys-active-tab', tab);
+  // Only remember tabs the user actively picked from the nav bar as their
+  // "preferred" tab for next time — a jump triggered by clicking a
+  // notification (e.g. a ticket reply) is a one-off destination, not a
+  // preference, and must not get stuck as the default landing tab for
+  // every future login just because they read one notification.
+  if (persist) localStorage.setItem('prokeys-active-tab', tab);
   if (tab === 'wallet') { loadPaymentHistory(); loadOrderTransactions(); }
 }
 document.querySelectorAll('.navtab[data-tab]').forEach(el => {
@@ -4258,28 +4309,57 @@ function validateAndSetFile(file){
   updatePrice();
 }
 
-// Click the dropzone -> open the real file picker
-uploadzoneBox.addEventListener('click', () => {
-  fileInput.click();
-});
-fileInput.addEventListener('change', (e) => {
-  if(e.target.files && e.target.files[0]) validateAndSetFile(e.target.files[0]);
-  fileInput.value = ''; // allow re-selecting the same file later if removed
-});
-
-// Drag & drop support (the label already says "اسحبه هنا" / "drag it here")
-uploadzoneBox.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  uploadzoneBox.classList.add('dragover');
-});
-uploadzoneBox.addEventListener('dragleave', () => {
-  uploadzoneBox.classList.remove('dragover');
-});
-uploadzoneBox.addEventListener('drop', (e) => {
-  e.preventDefault();
-  uploadzoneBox.classList.remove('dragover');
-  if(e.dataTransfer.files && e.dataTransfer.files[0]) validateAndSetFile(e.dataTransfer.files[0]);
-});
+// Dropzone.js owns the drag/drop + click-to-browse interaction layer only
+// (previewsContainer:false — our own #fileChip still renders the selected
+// file exactly as before). Actual validation, storage, and submission are
+// 100% unchanged: every file, from a click or a drop, still funnels through
+// the same validateAndSetFile() used before this integration.
+let uploadDropzone = null;
+if (window.Dropzone) {
+  uploadDropzone = new Dropzone(uploadzoneBox, {
+    url: '#', // unused — autoProcessQueue is off, we never let Dropzone actually upload anything itself
+    autoProcessQueue: false,
+    uploadMultiple: false,
+    maxFiles: 1,
+    // No acceptedFiles restriction here on purpose: validateAndSetFile()
+    // below is the single source of truth for file-type/size validation
+    // and its user-facing error message (checkType-dependent rules) — if
+    // Dropzone also filtered by type, a wrong file would be silently
+    // dropped with no visible error instead of our existing message.
+    previewsContainer: false,
+    clickable: true,
+    dictDefaultMessage: '',
+  });
+  uploadDropzone.on('addedfile', (file) => {
+    validateAndSetFile(file);
+    // Don't let Dropzone keep this in its own internal queue — currentFile
+    // is our single source of truth, and a lingering queue entry (with
+    // maxFiles:1) would silently block picking a replacement file later.
+    uploadDropzone.removeFile(file);
+  });
+  uploadDropzone.on('dragenter', () => uploadzoneBox.classList.add('dragover'));
+  uploadDropzone.on('dragleave', () => uploadzoneBox.classList.remove('dragover'));
+  uploadDropzone.on('drop', () => uploadzoneBox.classList.remove('dragover'));
+} else {
+  // Fallback if the CDN failed to load — same manual behavior as before.
+  uploadzoneBox.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', (e) => {
+    if(e.target.files && e.target.files[0]) validateAndSetFile(e.target.files[0]);
+    fileInput.value = '';
+  });
+  uploadzoneBox.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadzoneBox.classList.add('dragover');
+  });
+  uploadzoneBox.addEventListener('dragleave', () => {
+    uploadzoneBox.classList.remove('dragover');
+  });
+  uploadzoneBox.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadzoneBox.classList.remove('dragover');
+    if(e.dataTransfer.files && e.dataTransfer.files[0]) validateAndSetFile(e.dataTransfer.files[0]);
+  });
+}
 
 fileChipRemove.addEventListener('click', (e)=>{
   e.stopPropagation();
@@ -4953,14 +5033,14 @@ function buildOrderRow(o){
   const hasAi = o.checkType==='sim_ai';
 
   const simDl = (canDownload && o.reportUrl)
-    ? `<a class="dl-btn" href="${o.reportUrl}" target="_blank" rel="noopener" title="${t('similarity')}">${ICONS.download}</a>`
+    ? `<a class="dl-btn" href="${o.reportUrl}" target="_blank" rel="noopener" title="${t('similarity')}">${ICONS.download}</a><button type="button" class="dl-btn pdf-preview-btn" onclick="openPdfPreview('${o.reportUrl}')" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`
     : `<div class="dl-btn disabled" title="${t('similarity')}">${ICONS.download}</div>`;
 
   let aiDl;
   if (!hasAi) {
     aiDl = `<span style="color:var(--muted);font-size:11px;">—</span>`;
   } else if (canDownload && o.aiReportUrl) {
-    aiDl = `<a class="dl-btn" href="${o.aiReportUrl}" target="_blank" rel="noopener" title="${t('ai')}">${ICONS.download}</a>`;
+    aiDl = `<a class="dl-btn" href="${o.aiReportUrl}" target="_blank" rel="noopener" title="${t('ai')}">${ICONS.download}</a><button type="button" class="dl-btn pdf-preview-btn" onclick="openPdfPreview('${o.aiReportUrl}')" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`;
   } else {
     aiDl = `<div class="dl-btn disabled" title="${t('ai')}">${ICONS.download}</div>`;
   }
@@ -4982,7 +5062,7 @@ function buildOrderRow(o){
 
   return `<div class="order-row${isJustSubmitted ? ' order-row-highlighted' : ''}">
     <div class="stat-ic ${o.phase}">${statusIconFor(o.phase)}</div>
-    <div class="ocell oid-cell"><b class="mono">${o.displayId || o.id}</b> <span class="copy-btn" data-clipboard-text="${escapeHtml(o.displayId || o.id)}" title="${currentLang==='ar'?'نسخ':'Copy'}">📋</span>${newBadge}</div>
+    <div class="ocell oid-cell"><span class="oid-code-wrap"><b class="mono">${o.displayId || o.id}</b> <span class="copy-btn" data-clipboard-text="${escapeHtml(o.displayId || o.id)}" title="${currentLang==='ar'?'نسخ':'Copy'}">📋</span></span>${newBadge}</div>
     <div class="ofile">
       <div class="oname-row">
         ${ICONS.doc}
@@ -5527,6 +5607,120 @@ darkModeBtn.addEventListener('click', ()=>{
 
 // Apply saved dark mode preference on load
 updateDarkModeUI();
+</script>
+
+<!-- ===== PDF Preview Modal ===== -->
+<style>
+  #pdfPreviewOverlay{position:fixed;inset:0;z-index:99998;background:rgba(15,23,42,.6);display:none;align-items:center;justify-content:center;padding:16px;}
+  #pdfPreviewOverlay.open{display:flex;}
+  #pdfPreviewCard{width:100%;max-width:820px;height:min(88vh,900px);background:var(--paper);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 30px 70px rgba(0,0,0,.35);}
+  .pdf-preview-head{flex:none;display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--paper-line);}
+  .pdf-preview-head b{font-size:13.5px;color:var(--navy);}
+  .pdf-preview-nav{display:flex;align-items:center;gap:10px;}
+  .pdf-preview-nav button{border:1.5px solid var(--paper-line);background:var(--paper);border-radius:8px;width:30px;height:30px;cursor:pointer;color:var(--navy);font-size:14px;}
+  .pdf-preview-nav button:disabled{opacity:.35;cursor:not-allowed;}
+  .pdf-preview-nav span{font-size:12px;color:var(--muted);min-width:60px;text-align:center;}
+  .pdf-preview-close{border:none;background:var(--paper-soft);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;color:var(--ink-soft);}
+  .pdf-preview-body{flex:1;min-height:0;overflow:auto;display:flex;align-items:flex-start;justify-content:center;background:#525659;padding:16px;}
+  #pdfPreviewCanvas{max-width:100%;box-shadow:0 4px 18px rgba(0,0,0,.3);background:#fff;}
+  .pdf-preview-loading{color:#fff;font-size:13px;padding:40px;text-align:center;}
+  .pdf-preview-fallback{color:#fff;font-size:13px;padding:40px;text-align:center;}
+  .pdf-preview-fallback a{color:#8ec5ff;font-weight:700;}
+  .pdf-preview-body::-webkit-scrollbar{width:8px;}
+  .pdf-preview-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25);border-radius:4px;}
+</style>
+
+<div id="pdfPreviewOverlay" onclick="if(event.target===this) closePdfPreview();">
+  <div id="pdfPreviewCard">
+    <div class="pdf-preview-head">
+      <b id="pdfPreviewTitle">Report.pdf</b>
+      <div class="pdf-preview-nav">
+        <button type="button" onclick="pdfPreviewPage(-1)" id="pdfPrevBtn" aria-label="prev">‹</button>
+        <span id="pdfPageIndicator">1 / 1</span>
+        <button type="button" onclick="pdfPreviewPage(1)" id="pdfNextBtn" aria-label="next">›</button>
+      </div>
+      <button type="button" class="pdf-preview-close" onclick="closePdfPreview()" aria-label="close">✕</button>
+    </div>
+    <div class="pdf-preview-body" id="pdfPreviewBody">
+      <canvas id="pdfPreviewCanvas" style="display:none;"></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+  }
+  let pdfDoc = null, pdfPageNum = 1, pdfCurrentUrl = null;
+
+  window.openPdfPreview = async function(url){
+    if (!url) return;
+    pdfCurrentUrl = url;
+    const overlay = document.getElementById('pdfPreviewOverlay');
+    const body = document.getElementById('pdfPreviewBody');
+    const canvas = document.getElementById('pdfPreviewCanvas');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('pdfPreviewTitle').textContent = decodeURIComponent(url.split('/').pop().split('?')[0] || 'Report.pdf');
+    canvas.style.display = 'none';
+
+    if (!window.pdfjsLib) {
+      body.innerHTML = `<div class="pdf-preview-fallback">${(typeof currentLang!=='undefined'&&currentLang==='ar') ? 'تعذر تحميل عارض PDF.' : 'Could not load the PDF viewer.'} <a href="${url}" target="_blank" rel="noopener">${(typeof currentLang!=='undefined'&&currentLang==='ar')?'افتح الملف مباشرة':'Open the file directly'}</a></div>`;
+      return;
+    }
+    body.innerHTML = `<div class="pdf-preview-loading" id="pdfLoadingMsg">${(typeof currentLang!=='undefined'&&currentLang==='ar') ? 'جاري تحميل التقرير...' : 'Loading report...'}</div>`;
+    body.appendChild(canvas);
+
+    try {
+      pdfDoc = await pdfjsLib.getDocument(url).promise;
+      pdfPageNum = 1;
+      document.getElementById('pdfLoadingMsg')?.remove();
+      canvas.style.display = 'block';
+      await renderPdfPage(pdfPageNum);
+    } catch (err) {
+      console.error('PDF preview failed:', err);
+      body.innerHTML = `<div class="pdf-preview-fallback">${(typeof currentLang!=='undefined'&&currentLang==='ar') ? 'تعذرت معاينة الملف.' : 'Could not preview this file.'} <a href="${url}" target="_blank" rel="noopener">${(typeof currentLang!=='undefined'&&currentLang==='ar')?'افتح الملف مباشرة':'Open the file directly'}</a></div>`;
+    }
+  };
+
+  async function renderPdfPage(num){
+    if (!pdfDoc) return;
+    const page = await pdfDoc.getPage(num);
+    const canvas = document.getElementById('pdfPreviewCanvas');
+    const bodyWidth = document.getElementById('pdfPreviewBody').clientWidth - 32;
+    const baseViewport = page.getViewport({ scale: 1 });
+    const scale = Math.min(2, Math.max(0.5, bodyWidth / baseViewport.width));
+    const viewport = page.getViewport({ scale });
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+    document.getElementById('pdfPageIndicator').textContent = num + ' / ' + pdfDoc.numPages;
+    document.getElementById('pdfPrevBtn').disabled = num <= 1;
+    document.getElementById('pdfNextBtn').disabled = num >= pdfDoc.numPages;
+  }
+
+  window.pdfPreviewPage = function(delta){
+    if (!pdfDoc) return;
+    const next = pdfPageNum + delta;
+    if (next < 1 || next > pdfDoc.numPages) return;
+    pdfPageNum = next;
+    renderPdfPage(pdfPageNum);
+  };
+
+  window.closePdfPreview = function(){
+    document.getElementById('pdfPreviewOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+    pdfDoc = null;
+  };
+
+  document.addEventListener('keydown', (e) => {
+    if (!document.getElementById('pdfPreviewOverlay').classList.contains('open')) return;
+    if (e.key === 'Escape') closePdfPreview();
+    if (e.key === 'ArrowLeft') pdfPreviewPage(document.documentElement.dir === 'rtl' ? -1 : 1);
+    if (e.key === 'ArrowRight') pdfPreviewPage(document.documentElement.dir === 'rtl' ? 1 : -1);
+  });
+})();
 </script>
 
 </body>
