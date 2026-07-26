@@ -21,7 +21,9 @@
 <script src="https://cdn.jsdelivr.net/npm/photoswipe@5/dist/umd/photoswipe-lightbox.umd.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/css/intlTelInput.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/js/intlTelInput.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<!-- legacy/build path (not /build/) is the correct one for a plain script
+     tag without a bundler — the non-legacy build assumes ESM/bundler consumption. -->
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/dropzone@5.9.3/dist/min/dropzone.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/dropzone@5.9.3/dist/min/dropzone.min.js"></script>
 <script>if(window.Dropzone) Dropzone.autoDiscover = false;</script>
@@ -284,12 +286,6 @@
   .uploadzone .uicon{width:46px;height:46px;border-radius:50%;background:var(--blue-wash);color:var(--blue-deep);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
   .uploadzone b{font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;display:block;margin-bottom:4px;color:var(--navy);}
   .uploadzone span{font-size:12.5px;color:var(--muted);}
-  /* Dropzone.js adds its own base styling via the .dropzone class it applies
-     to this same element — neutralize it so our existing look is untouched;
-     Dropzone here only drives the drag/drop + click interaction, not the visuals. */
-  .uploadzone.dropzone{min-height:0;}
-  .uploadzone.dropzone .dz-message{margin:0;}
-  .uploadzone.dz-drag-hover{border-color:var(--blue);background:var(--blue-wash);}
 
   #pushToastWrap{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:99999;display:flex;flex-direction:column;gap:8px;width:100%;max-width:380px;padding:0 14px;pointer-events:none;}
   .push-toast{pointer-events:auto;background:var(--paper);border:1px solid var(--paper-line);border-radius:14px;box-shadow:0 16px 40px -12px rgba(27,37,86,0.35);padding:12px 14px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;animation:pushToastIn .3s ease;}
@@ -4309,44 +4305,41 @@ function validateAndSetFile(file){
   updatePrice();
 }
 
-// Dropzone.js owns the drag/drop + click-to-browse interaction layer only
-// (previewsContainer:false — our own #fileChip still renders the selected
-// file exactly as before). Actual validation, storage, and submission are
-// 100% unchanged: every file, from a click or a drop, still funnels through
-// the same validateAndSetFile() used before this integration.
+// Click the dropzone -> open the real file picker (unchanged, not handed to Dropzone)
+uploadzoneBox.addEventListener('click', () => {
+  fileInput.click();
+});
+fileInput.addEventListener('change', (e) => {
+  if(e.target.files && e.target.files[0]) validateAndSetFile(e.target.files[0]);
+  fileInput.value = ''; // allow re-selecting the same file later if removed
+});
+
+// Dropzone.js is scoped to ONLY the drag-and-drop detection layer here —
+// clickable is off (click-to-browse above is unchanged), thumbnails are
+// off (never needed for a single .docx), autoProcessQueue is off (we do
+// our own Supabase upload later, not Dropzone's). Keeping its role this
+// narrow avoids the extra overhead of a full Dropzone instance owning
+// click handling too.
 let uploadDropzone = null;
 if (window.Dropzone) {
   uploadDropzone = new Dropzone(uploadzoneBox, {
-    url: '#', // unused — autoProcessQueue is off, we never let Dropzone actually upload anything itself
+    url: '#',
     autoProcessQueue: false,
     uploadMultiple: false,
     maxFiles: 1,
-    // No acceptedFiles restriction here on purpose: validateAndSetFile()
-    // below is the single source of truth for file-type/size validation
-    // and its user-facing error message (checkType-dependent rules) — if
-    // Dropzone also filtered by type, a wrong file would be silently
-    // dropped with no visible error instead of our existing message.
+    clickable: false,
+    createImageThumbnails: false,
     previewsContainer: false,
-    clickable: true,
-    dictDefaultMessage: '',
   });
   uploadDropzone.on('addedfile', (file) => {
     validateAndSetFile(file);
-    // Don't let Dropzone keep this in its own internal queue — currentFile
-    // is our single source of truth, and a lingering queue entry (with
-    // maxFiles:1) would silently block picking a replacement file later.
     uploadDropzone.removeFile(file);
   });
   uploadDropzone.on('dragenter', () => uploadzoneBox.classList.add('dragover'));
   uploadDropzone.on('dragleave', () => uploadzoneBox.classList.remove('dragover'));
   uploadDropzone.on('drop', () => uploadzoneBox.classList.remove('dragover'));
 } else {
-  // Fallback if the CDN failed to load — same manual behavior as before.
-  uploadzoneBox.addEventListener('click', () => fileInput.click());
-  fileInput.addEventListener('change', (e) => {
-    if(e.target.files && e.target.files[0]) validateAndSetFile(e.target.files[0]);
-    fileInput.value = '';
-  });
+  // Fallback if the CDN failed to load — original manual drag/drop listeners.
   uploadzoneBox.addEventListener('dragover', (e) => {
     e.preventDefault();
     uploadzoneBox.classList.add('dragover');
@@ -5650,13 +5643,15 @@ updateDarkModeUI();
 <script>
 (function(){
   if (window.pdfjsLib) {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+    // Must match the /legacy/build/ path used for the main script above —
+    // this exact mismatch (main vs worker path/version) is the classic
+    // cause of PDF.js silently failing on every single file.
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.worker.min.js';
   }
-  let pdfDoc = null, pdfPageNum = 1, pdfCurrentUrl = null;
+  let pdfDoc = null, pdfPageNum = 1;
 
   window.openPdfPreview = async function(url){
     if (!url) return;
-    pdfCurrentUrl = url;
     const overlay = document.getElementById('pdfPreviewOverlay');
     const body = document.getElementById('pdfPreviewBody');
     const canvas = document.getElementById('pdfPreviewCanvas');
