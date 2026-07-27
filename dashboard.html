@@ -1306,44 +1306,53 @@
       <div class="sec-head"><h2 data-i18n="support_title">الدعم الفني</h2></div>
       <p style="color:var(--muted);font-size:12.5px;margin-top:-8px;margin-bottom:18px;" data-i18n="support_hint">افتح تذكرة وسيردّ عليك فريق الدعم في أقرب وقت</p>
 
-      <div class="panel-block">
-        <div class="panel-block-body">
-          <div class="sec-head" style="margin-top:0;margin-bottom:14px;"><h2 style="font-size:15px;" data-i18n="new_ticket_title">تذكرة جديدة</h2></div>
-          <div class="field-block">
-            <span class="glabel" data-i18n="support_name">الاسم</span>
-            <input id="supportName" class="ticket-input" placeholder="" readonly style="background:var(--paper-soft);color:var(--muted);">
-          </div>
-          <div class="field-block">
-            <span class="glabel" data-i18n="support_userid">رقم حسابك</span>
-            <input id="supportUserId" class="ticket-input mono" placeholder="PK001" readonly style="background:var(--paper-soft);color:var(--muted);">
-          </div>
-          <div class="field-block">
-            <span class="glabel" data-i18n="support_order">رقم الطلب (اختياري)</span>
-            <select id="supportOrderId" class="ticket-input mono"></select>
-          </div>
-          <div class="field-block">
-            <span class="glabel" data-i18n="support_category">نوع المشكلة</span>
-            <select id="supportCategory" class="ticket-input">
-              <option value="general" data-i18n="cat_general">💬 استفسار عام</option>
-              <option value="payment" data-i18n="cat_payment">💳 مشكلة دفع</option>
-              <option value="check" data-i18n="cat_check">📄 مشكلة فحص</option>
-            </select>
-          </div>
-          <div class="field-block">
-            <span class="glabel" data-i18n="support_message">تفصيل المشكلة</span>
-            <textarea id="supportMessage" class="ticket-input" rows="5" data-i18n-ph="support_message_ph" placeholder="اكتب مشكلتك بالتفصيل هنا..."></textarea>
-          </div>
-          <div class="field-block">
-            <span class="glabel" data-i18n="support_attach">إرفاق صورة أو ملف (اختياري)</span>
-            <div class="attach-row" id="ticketAttachRow">
-              <label class="attach-btn" for="ticketFileInput">
-                <svg class="ic" data-icon-key="sup_attach" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
-                <span data-i18n="support_attach_cta">اختر صورة أو ملف</span>
-              </label>
-              <input type="file" id="ticketFileInput" accept="image/*,.pdf,.doc,.docx" style="display:none;">
+      <!-- New-ticket form is hidden by default (it was always taking up a
+           lot of space above the ticket list, even for returning users who
+           just want to check their existing tickets) — revealed on demand. -->
+      <button type="button" class="btn-show-packs" id="showNewTicketBtn" onclick="toggleNewTicketForm()">
+        <span data-i18n="start_new_ticket">ابدأ تذكرة جديدة</span>
+        <svg class="ic packs-toggle-chevron" viewBox="0 0 24 24" style="width:14px;height:14px;"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div id="newTicketCollapsible" style="display:none;">
+        <div class="panel-block">
+          <div class="panel-block-body">
+            <div class="sec-head" style="margin-top:0;margin-bottom:14px;"><h2 style="font-size:15px;" data-i18n="new_ticket_title">تذكرة جديدة</h2></div>
+            <div class="field-block">
+              <span class="glabel" data-i18n="support_name">الاسم</span>
+              <input id="supportName" class="ticket-input" placeholder="" readonly style="background:var(--paper-soft);color:var(--muted);">
             </div>
+            <div class="field-block">
+              <span class="glabel" data-i18n="support_userid">رقم حسابك</span>
+              <input id="supportUserId" class="ticket-input mono" placeholder="PK001" readonly style="background:var(--paper-soft);color:var(--muted);">
+            </div>
+            <div class="field-block">
+              <span class="glabel" data-i18n="support_order">رقم الطلب (اختياري)</span>
+              <select id="supportOrderId" class="ticket-input mono"></select>
+            </div>
+            <div class="field-block">
+              <span class="glabel" data-i18n="support_category">نوع المشكلة</span>
+              <select id="supportCategory" class="ticket-input">
+                <option value="general" data-i18n="cat_general">💬 استفسار عام</option>
+                <option value="payment" data-i18n="cat_payment">💳 مشكلة دفع</option>
+                <option value="check" data-i18n="cat_check">📄 مشكلة فحص</option>
+              </select>
+            </div>
+            <div class="field-block">
+              <span class="glabel" data-i18n="support_message">تفصيل المشكلة</span>
+              <textarea id="supportMessage" class="ticket-input" rows="5" data-i18n-ph="support_message_ph" placeholder="اكتب مشكلتك بالتفصيل هنا..."></textarea>
+            </div>
+            <div class="field-block">
+              <span class="glabel" data-i18n="support_attach">إرفاق صورة أو ملف (اختياري)</span>
+              <div class="attach-row" id="ticketAttachRow">
+                <label class="attach-btn" for="ticketFileInput">
+                  <svg class="ic" data-icon-key="sup_attach" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                  <span data-i18n="support_attach_cta">اختر صورة أو ملف</span>
+                </label>
+                <input type="file" id="ticketFileInput" accept="image/*,.pdf,.doc,.docx" style="display:none;">
+              </div>
+            </div>
+            <button class="btn btn-gold" style="justify-content:center;" onclick="submitTicket()" data-i18n="support_submit">إرسال التذكرة</button>
           </div>
-          <button class="btn btn-gold" style="justify-content:center;" onclick="submitTicket()" data-i18n="support_submit">إرسال التذكرة</button>
         </div>
       </div>
 
@@ -1694,7 +1703,7 @@ const I18N = {
     support_attach:"إرفاق صورة أو ملف (اختياري)", support_attach_cta:"اختر صورة أو ملف",
     chat_attach_image:"إرسال صورة", chat_attach_file:"إرسال ملف",
     inbox_title:"تذاكري السابقة", inbox_empty:"لا توجد تذاكر سابقة",
-    new_ticket_title:"تذكرة جديدة",
+    new_ticket_title:"تذكرة جديدة", start_new_ticket:"ابدأ تذكرة جديدة",
     profile_phone_label:"رقم التليفون", profile_security_title:"أمان الحساب", profile_email_label:"الإيميل",
     profile_update_btn:"تحديث", profile_change_password_btn:"تغيير الباسورد", profile_new_password_ph:"الباسورد الجديد",
     profile_danger_title:"منطقة الخطر", profile_delete_account_btn:"حذف الحساب نهائيًا",
@@ -1801,7 +1810,7 @@ const I18N = {
     support_attach:"Attach an image or file (optional)", support_attach_cta:"Choose an image or file",
     chat_attach_image:"Send a photo", chat_attach_file:"Send a file",
     inbox_title:"My previous tickets", inbox_empty:"No previous tickets",
-    new_ticket_title:"New ticket",
+    new_ticket_title:"New ticket", start_new_ticket:"Start a new ticket",
     profile_phone_label:"Phone number", profile_security_title:"Account security", profile_email_label:"Email",
     profile_update_btn:"Update", profile_change_password_btn:"Change password", profile_new_password_ph:"New password",
     profile_danger_title:"Danger zone", profile_delete_account_btn:"Delete account permanently",
@@ -2148,6 +2157,16 @@ function buildPackCard(p, tab, index){
       <button class="pselect-btn" onclick='selectPack("${tab}","${p.id}")'>${t('choose')}</button>
     </div>
   `;
+}
+
+function toggleNewTicketForm(){
+  const box = document.getElementById('newTicketCollapsible');
+  const btn = document.getElementById('showNewTicketBtn');
+  if (!box || !btn) return;
+  const opening = box.style.display === 'none';
+  box.style.display = opening ? '' : 'none';
+  btn.classList.toggle('open', opening);
+  if (opening) box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function togglePacksVisibility(){
