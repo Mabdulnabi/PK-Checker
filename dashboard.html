@@ -505,7 +505,7 @@
   .dl-cell{display:flex;justify-content:center;}
   .star-rate{display:flex;gap:2px;cursor:default;direction:ltr;}
   .star-rate:not(.readonly){cursor:pointer;}
-  .rate-star{font-size:16px;color:var(--paper-line);transition:color .12s;}
+  .rate-star{font-size:16px;color:var(--paper-line);transition:color .12s;display:inline-flex;}
   .rate-star.filled,.rate-star.hover-fill{color:#F5A623;}
   .star-rate.readonly{cursor:help;}
   /* In Arabic, every column stays centered EXCEPT the file-name column
@@ -4174,6 +4174,8 @@ function applyLang(){
   applyCheckSettings();
   renderPaymentHistory();
   renderOrderTransactions();
+  if (typeof refreshRatingModalLang === 'function') refreshRatingModalLang();
+  if (typeof refreshPublicReviewCardLang === 'function') refreshPublicReviewCardLang();
 }
 document.getElementById('langSwitch').onclick = ()=>{
   currentLang = currentLang==='ar' ? 'en' : 'ar';
@@ -4983,16 +4985,18 @@ function fileExtensionLabel(filename){
   return filename.split('.').pop().toUpperCase();
 }
 
+const STAR_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:1em;height:1em;display:block;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
+
 function ratingCellHtml(o){
   if (o.rating) {
     const stars = [1,2,3,4,5].map(n =>
-      `<i class="rate-star ${n<=o.rating?'filled':''}">★</i>`
+      `<i class="rate-star ${n<=o.rating?'filled':''}">${STAR_SVG}</i>`
     ).join('');
     const tip = o.ratingComment ? escapeHtml(o.ratingComment) : (currentLang==='ar' ? 'بدون تعليق' : 'No comment');
     return `<div class="star-rate readonly" title="${tip}">${stars}</div>`;
   }
   const stars = [1,2,3,4,5].map(n =>
-    `<i class="rate-star" data-val="${n}">★</i>`
+    `<i class="rate-star" data-val="${n}">${STAR_SVG}</i>`
   ).join('');
   return `<div class="star-rate" data-order-id="${o.id}">${stars}</div>`;
 }
@@ -5738,6 +5742,7 @@ updateDarkModeUI();
   let currentOrderId = null;
   let currentStars = 0;
   const downloadedReports = {}; // { [orderId]: Set('sim'|'ai') }
+  const STAR_SVG_MODAL = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:1em;height:1em;display:block;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
 
   function isAr(){ return typeof currentLang !== 'undefined' && currentLang === 'ar'; }
   function promptedKey(orderId){ return 'prokeys-rating-prompted-' + orderId; }
@@ -5753,7 +5758,7 @@ updateDarkModeUI();
       #ratingModalCard h3{font-size:16px;color:var(--navy);margin:0 0 6px;}
       #ratingModalCard p{font-size:12.5px;color:var(--muted);margin:0 0 18px;}
       #ratingModalStars{display:flex;justify-content:center;gap:6px;direction:ltr;margin-bottom:16px;}
-      #ratingModalStars i{font-size:32px;color:var(--paper-line);cursor:pointer;transition:color .12s,transform .12s;}
+      #ratingModalStars i{font-size:32px;color:var(--paper-line);cursor:pointer;transition:color .12s,transform .12s;display:inline-flex;}
       #ratingModalStars i.filled,#ratingModalStars i.hover-fill{color:#F5A623;transform:scale(1.08);}
       #ratingModalComment{width:100%;box-sizing:border-box;border:1.5px solid var(--paper-line);border-radius:10px;padding:10px 12px;font-family:'Cairo',sans-serif;font-size:13px;resize:vertical;min-height:64px;margin-bottom:14px;}
       #ratingModalActions{display:flex;gap:8px;}
@@ -5771,7 +5776,7 @@ updateDarkModeUI();
         <h3 id="ratingModalTitle">قيّم عملية الفحص</h3>
         <p id="ratingModalSub">رأيك بيساعدنا نحسّن الخدمة</p>
         <div id="ratingModalStars">
-          <i data-val="1">★</i><i data-val="2">★</i><i data-val="3">★</i><i data-val="4">★</i><i data-val="5">★</i>
+          <i data-val="1">${STAR_SVG_MODAL}</i><i data-val="2">${STAR_SVG_MODAL}</i><i data-val="3">${STAR_SVG_MODAL}</i><i data-val="4">${STAR_SVG_MODAL}</i><i data-val="5">${STAR_SVG_MODAL}</i>
         </div>
         <textarea id="ratingModalComment" placeholder=""></textarea>
         <div id="ratingModalActions">
@@ -5814,6 +5819,15 @@ updateDarkModeUI();
       star.classList.toggle('hover-fill', Number(star.dataset.val) <= n);
     });
   }
+
+  window.refreshRatingModalLang = function(){
+    if (!elements || !elements.overlay.classList.contains('open')) return;
+    elements.comment.placeholder = isAr() ? 'اكتب تعليقك هنا (اختياري)...' : 'Write a comment (optional)...';
+    elements.title.textContent = isAr() ? 'قيّم عملية الفحص' : 'Rate your check';
+    elements.sub.textContent = isAr() ? 'رأيك بيساعدنا نحسّن الخدمة' : 'Your feedback helps us improve';
+    elements.skipBtn.textContent = isAr() ? 'تخطي' : 'Skip';
+    elements.submitBtn.textContent = isAr() ? 'إرسال' : 'Submit';
+  };
 
   window.openRatingModal = function(orderId, prefill){
     const el = ensureModal();
@@ -5929,6 +5943,7 @@ updateDarkModeUI();
 // always-present HTML (same reasoning as the PDF/rating modals above).
 (function(){
   const DISMISS_KEY = 'prokeys-public-review-dismissed';
+  const STAR_SVG_PRC = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:1em;height:1em;display:block;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
   let stars = 0;
 
   function isAr(){ return typeof currentLang !== 'undefined' && currentLang === 'ar'; }
@@ -5964,16 +5979,16 @@ updateDarkModeUI();
     const style = document.createElement('style');
     style.id = 'publicReviewStyle';
     style.textContent = `
-      #publicReviewCard{background:linear-gradient(135deg,#FFF6E5,#FFEFD1);border:1.5px solid #F0C265;border-radius:16px;padding:22px 24px;margin-bottom:22px;text-align:center;position:relative;}
-      #publicReviewCard .prc-close{position:absolute;top:12px;inset-inline-end:14px;border:none;background:none;cursor:pointer;font-size:16px;color:#9A7B2E;}
-      #publicReviewCard h3{font-size:16px;color:#7A5A0E;margin:0 0 6px;}
-      #publicReviewCard p{font-size:12.5px;color:#96792F;margin:0 0 16px;}
-      #prcStars{display:flex;justify-content:center;gap:8px;direction:ltr;margin-bottom:14px;}
-      #prcStars i{font-size:30px;color:#E9D6A8;cursor:pointer;transition:color .12s,transform .12s;}
+      #publicReviewCard{background:linear-gradient(135deg,#FFF6E5,#FFEFD1);border:1.5px solid #F0C265;border-radius:14px;padding:14px 20px;margin-bottom:18px;text-align:center;position:relative;}
+      #publicReviewCard .prc-close{position:absolute;top:8px;inset-inline-end:10px;border:none;background:none;cursor:pointer;font-size:14px;color:#9A7B2E;}
+      #publicReviewCard h3{font-size:14.5px;color:#7A5A0E;margin:0 0 4px;}
+      #publicReviewCard p{font-size:11.5px;color:#96792F;margin:0 0 10px;}
+      #prcStars{display:flex;justify-content:center;gap:6px;direction:ltr;margin-bottom:10px;}
+      #prcStars i{font-size:22px;color:#E9D6A8;cursor:pointer;transition:color .12s,transform .12s;display:inline-flex;}
       #prcStars i.filled,#prcStars i.hover-fill{color:#E8A020;transform:scale(1.08);}
-      #prcComment{width:100%;max-width:420px;box-sizing:border-box;border:1.5px solid #E9D6A8;border-radius:10px;padding:10px 12px;font-family:'Cairo',sans-serif;font-size:13px;resize:vertical;min-height:56px;margin-bottom:14px;background:#fff;}
+      #prcComment{width:100%;max-width:420px;box-sizing:border-box;border:1.5px solid #E9D6A8;border-radius:9px;padding:8px 10px;font-family:'Cairo',sans-serif;font-size:12.5px;resize:vertical;min-height:44px;margin-bottom:10px;background:#fff;}
       #prcActions{display:flex;gap:8px;justify-content:center;}
-      #prcActions button{padding:10px 22px;border-radius:9px;font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer;border:none;}
+      #prcActions button{padding:8px 18px;border-radius:9px;font-family:'Cairo',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;border:none;}
       #prcSkip{background:#fff;color:#96792F;border:1.5px solid #E9D6A8 !important;}
       #prcSubmit{background:#E8A020;color:#fff;}
       #prcSubmit:disabled{opacity:.5;cursor:not-allowed;}
@@ -5984,10 +5999,10 @@ updateDarkModeUI();
     card.id = 'publicReviewCard';
     card.innerHTML = `
       <button type="button" class="prc-close" id="prcCloseBtn" aria-label="close">✕</button>
-      <h3>${isAr() ? 'تحب تقييمك يظهر على صفحتنا الرئيسية؟ 🌟' : 'Want your review featured on our homepage? 🌟'}</h3>
-      <p>${isAr() ? 'شارك تجربتك مع Pro Keys — رأيك ممكن يساعد طلاب تانيين يثقوا في الخدمة' : 'Share your experience with Pro Keys — it could help other students trust the service'}</p>
+      <h3 id="prcTitle">${isAr() ? 'تحب تقييمك يظهر على صفحتنا الرئيسية؟ 🌟' : 'Want your review featured on our homepage? 🌟'}</h3>
+      <p id="prcSub">${isAr() ? 'شارك تجربتك مع Pro Keys — رأيك ممكن يساعد طلاب تانيين يثقوا في الخدمة' : 'Share your experience with Pro Keys — it could help other students trust the service'}</p>
       <div id="prcStars">
-        <i data-val="1">★</i><i data-val="2">★</i><i data-val="3">★</i><i data-val="4">★</i><i data-val="5">★</i>
+        <i data-val="1">${STAR_SVG_PRC}</i><i data-val="2">${STAR_SVG_PRC}</i><i data-val="3">${STAR_SVG_PRC}</i><i data-val="4">${STAR_SVG_PRC}</i><i data-val="5">${STAR_SVG_PRC}</i>
       </div>
       <textarea id="prcComment" placeholder="${isAr() ? 'اكتب تعليقك هنا (اختياري)...' : 'Write a comment (optional)...'}"></textarea>
       <div id="prcActions">
@@ -6017,6 +6032,21 @@ updateDarkModeUI();
     document.getElementById('prcSkip').addEventListener('click', dismissCard);
     document.getElementById('prcSubmit').addEventListener('click', submitReview);
   }
+
+  window.refreshPublicReviewCardLang = function(){
+    const card = document.getElementById('publicReviewCard');
+    if (!card) return;
+    const titleEl = card.querySelector('#prcTitle');
+    const subEl = card.querySelector('#prcSub');
+    const commentEl = card.querySelector('#prcComment');
+    const skipBtn = card.querySelector('#prcSkip');
+    const submitBtn = card.querySelector('#prcSubmit');
+    if (titleEl) titleEl.textContent = isAr() ? 'تحب تقييمك يظهر على صفحتنا الرئيسية؟ 🌟' : 'Want your review featured on our homepage? 🌟';
+    if (subEl) subEl.textContent = isAr() ? 'شارك تجربتك مع Pro Keys — رأيك ممكن يساعد طلاب تانيين يثقوا في الخدمة' : 'Share your experience with Pro Keys — it could help other students trust the service';
+    if (commentEl) commentEl.placeholder = isAr() ? 'اكتب تعليقك هنا (اختياري)...' : 'Write a comment (optional)...';
+    if (skipBtn) skipBtn.textContent = isAr() ? 'لأ، شكرًا' : 'No thanks';
+    if (submitBtn && !submitBtn.disabled) submitBtn.textContent = isAr() ? 'أرسل تقييمي' : 'Submit my review';
+  };
 
   function dismissCard(){
     localStorage.setItem(DISMISS_KEY, '1');
