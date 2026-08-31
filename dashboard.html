@@ -1457,6 +1457,11 @@
     </button>
   </div>
 </div>
+<!-- Universal image lightbox -->
+<div id="pkLightbox" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.88);backdrop-filter:blur(8px);align-items:center;justify-content:center;cursor:zoom-out;" onclick="closeLightbox()">
+  <button onclick="closeLightbox()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+  <img id="pkLightboxImg" src="" alt="" style="max-width:90vw;max-height:88vh;border-radius:12px;object-fit:contain;box-shadow:0 32px 64px rgba(0,0,0,.6);cursor:default;" onclick="event.stopPropagation()">
+</div>
 <!-- Chat toast notification -->
 <div class="chat-toast" id="chatToast" style="display:none;">
   <div id="chatToastAv" style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden;font-size:12px;font-weight:700;"></div>
@@ -2813,11 +2818,14 @@ function renderInbox(){
               const timeLabel = r.createdAt
                 ? new Date(r.createdAt).toLocaleString(currentLang==='ar'?'ar-EG':'en-GB',{hour:'2-digit',minute:'2-digit',month:'short',day:'numeric'})
                 : '';
+              const isTicketImg = r.attachmentUrl && /\.(jpe?g|png|gif|webp|svg)$/i.test(r.attachmentName||r.attachmentUrl);
               const attachHtml = r.attachmentUrl
-                ? `<a class="ir-attach-link" href="#" onclick="openTicketAttachment('${encodeURIComponent(r.attachmentUrl)}');return false;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;flex:none;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-                    ${escapeHtml(r.attachmentName || (currentLang==='ar'?'مرفق':'Attachment'))}
-                  </a>`
+                ? (isTicketImg
+                    ? `<div style="margin-top:6px;"><img src="${escapeHtml(r.attachmentUrl)}" alt="${escapeHtml(r.attachmentName||'')}" style="max-width:200px;max-height:160px;border-radius:10px;display:block;cursor:zoom-in;object-fit:cover;" onclick="openLightbox('${escapeHtml(r.attachmentUrl)}')"></div>`
+                    : `<a class="ir-attach-link" href="${escapeHtml(r.attachmentUrl)}" target="_blank" rel="noopener noreferrer">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;flex:none;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                        ${escapeHtml(r.attachmentName || (currentLang==='ar'?'مرفق':'Attachment'))}
+                      </a>`)
                 : '';
               return `<div class="ir-row ${isMine?'mine':''}">
                 <div class="ir-av">${avatarHtml}</div>
@@ -4069,6 +4077,8 @@ function toggleChat(){
     win.style.display = 'flex';
     markChatReadByUser();
     renderChat();
+    const body = document.getElementById('chatBody');
+    if(body) { body.scrollTop = body.scrollHeight; setTimeout(()=>{ body.scrollTop = body.scrollHeight; }, 80); }
   }
 }
 
@@ -4124,7 +4134,15 @@ function renderChat(){
     if (isDeleted) {
       bubbleInner = `<span class="chat-msg-deleted">🚫 ${currentLang==='ar'?'تم حذف الرسالة':'Message deleted'}</span>`;
     } else if (m.fileName) {
-      bubbleInner = `<div class="chat-msg-file" style="cursor:pointer;display:inline-flex;" onclick="openChatFile('${encodeURIComponent(m.fileUrl)}')"><svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg><span>${escapeHtml(m.fileName)}</span></div>${receipt}`;
+      const isChatImg = /\.(jpe?g|png|gif|webp|svg)$/i.test(m.fileName||'');
+      if(isChatImg){
+        const cachedUrl = chatSignedUrlCache[m.fileUrl];
+        bubbleInner = cachedUrl
+          ? `<img src="${escapeHtml(cachedUrl)}" alt="${escapeHtml(m.fileName)}" style="max-width:180px;max-height:180px;border-radius:10px;display:block;cursor:zoom-in;margin-bottom:2px;" onclick="openLightbox('${escapeHtml(cachedUrl)}')">${receipt}`
+          : `<img data-chat-path="${escapeHtml(m.fileUrl)}" alt="${escapeHtml(m.fileName)}" style="max-width:180px;max-height:180px;border-radius:10px;display:block;cursor:zoom-in;margin-bottom:2px;background:rgba(0,0,0,.1);min-width:80px;min-height:60px;">${receipt}`;
+      } else {
+        bubbleInner = `<div class="chat-msg-file" style="cursor:pointer;display:inline-flex;" onclick="openChatFile('${encodeURIComponent(m.fileUrl)}')"><svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg><span>${escapeHtml(m.fileName)}</span></div>${receipt}`;
+      }
     } else {
       bubbleInner = `${escapeHtml(m.text||'')}${m.editedAt?` <i style="font-size:9px;opacity:.6;">(${currentLang==='ar'?'معدّلة':'edited'})</i>`:''}${receipt}`;
     }
@@ -4162,16 +4180,51 @@ function renderChat(){
     </div>`;
 
   if (wasAtBottom) body.scrollTop = body.scrollHeight;
+  loadChatImageThumbnails();
+}
+
+/* ===== Universal Lightbox ===== */
+function openLightbox(url){
+  const lb = document.getElementById('pkLightbox');
+  const img = document.getElementById('pkLightboxImg');
+  if(!lb||!img) return;
+  img.src = url;
+  lb.style.display = 'flex';
+  document.addEventListener('keydown', _lbEsc);
+}
+function closeLightbox(){
+  const lb = document.getElementById('pkLightbox');
+  if(lb) lb.style.display = 'none';
+  document.getElementById('pkLightboxImg').src = '';
+  document.removeEventListener('keydown', _lbEsc);
+}
+function _lbEsc(e){ if(e.key==='Escape') closeLightbox(); }
+
+const chatSignedUrlCache = {};
+async function getChatSignedUrl(path){
+  if(chatSignedUrlCache[path]) return chatSignedUrlCache[path];
+  const { data, error } = await supabaseClient.storage.from('chat-attachments').createSignedUrl(path, 3600);
+  if(error||!data) return null;
+  chatSignedUrlCache[path] = data.signedUrl;
+  return data.signedUrl;
 }
 
 async function openChatFile(pathEncoded){
   const path = decodeURIComponent(pathEncoded);
-  try {
-    const { data, error } = await supabaseClient.storage.from('chat-attachments').createSignedUrl(path, 60);
-    if (error) throw error;
-    window.open(data.signedUrl, '_blank');
-  } catch (err) {
-    console.error('openChatFile failed:', err);
+  const url = await getChatSignedUrl(path);
+  if(!url) return;
+  const isImg = /\.(jpe?g|png|gif|webp|svg)$/i.test(path);
+  if(isImg) openLightbox(url);
+  else window.open(url, '_blank');
+}
+
+async function loadChatImageThumbnails(){
+  const imgs = document.querySelectorAll('#chatBody img[data-chat-path]');
+  for(const img of imgs){
+    const path = img.dataset.chatPath;
+    if(!path||img.src) continue;
+    const url = await getChatSignedUrl(path);
+    if(url){ img.src = url; img.onclick = ()=>openLightbox(url); }
   }
 }
 
