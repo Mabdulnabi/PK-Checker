@@ -230,11 +230,19 @@
   }
 
   .sidebar-logo{
-    padding:18px 16px 14px;
+    padding:12px 14px;
     border-bottom:1px solid rgba(255,255,255,0.50);
-    display:flex;align-items:center;
+    display:flex;align-items:center;justify-content:space-between;
+    /* Logo fills the full width area */
+    min-height:64px;
   }
   [data-theme="dark"] .sidebar-logo{border-bottom-color:rgba(255,255,255,0.07);}
+  .sidebar-logo img{
+    /* Let logo fill container width, accept any aspect ratio (including GIF) */
+    flex:1;min-width:0;height:auto;max-height:52px;
+    object-fit:contain;object-position:center;
+  }
+  .sidebar.collapsed .sidebar-logo{ justify-content:center;padding:12px 8px; }
 
   /* ── SIDEBAR NAV ── */
   .sidebar-nav{flex:1;padding:8px 8px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;position:relative;}
@@ -256,7 +264,7 @@
 
   /* ── Sidebar item ── */
   .sidebar-item{
-    display:flex;align-items:center;gap:14px;
+    display:flex;align-items:center;gap:16px;
     padding:12px 14px;border-radius:14px;
     font-family:'Cairo',sans-serif;font-weight:800;font-size:15px;
     color:var(--ink-soft);cursor:pointer;
@@ -317,35 +325,43 @@
 
   /* ── 4. Sidebar collapse ── */
   .sidebar{ transition:width 0.2s ease; overflow:hidden; }
-  .sidebar.collapsed{ width:66px; }
+  .sidebar.collapsed{ width:64px; }
   .sidebar.collapsed .sidebar-user-info,
   .sidebar.collapsed .sidebar-logo img{ display:none; }
   .sidebar.collapsed .sidebar-item > span{ display:none; }
-  .sidebar.collapsed .sidebar-item{ justify-content:center;padding:10px; }
+  .sidebar.collapsed .sidebar-item{
+    justify-content:center;padding:10px;
+    /* prevent horizontal scroll when collapsed */
+    width:100%;overflow:hidden;
+  }
   .sidebar.collapsed .sidebar-user-card{ justify-content:center;padding:10px; }
   .sidebar.collapsed .sidebar-user-card svg:last-child{ display:none; }
+  /* Prevent overflow-x scroll in collapsed sidebar */
+  .sidebar.collapsed .sidebar-nav{ overflow-x:hidden; }
+
+  /* Collapse button: small pill on the bottom edge of the sidebar */
   .sidebar-collapse-btn{
     display:flex;align-items:center;justify-content:center;
-    width:28px;height:28px;border-radius:50%;
-    background:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.70);
+    width:24px;height:24px;border-radius:50%;
+    background:rgba(255,255,255,0.72);border:1px solid rgba(255,255,255,0.80);
+    box-shadow:0 1px 6px rgba(0,0,0,0.10);
     cursor:pointer;color:var(--muted);
     transition:transform 0.2s ease, background 0.2s;
     flex:none;
   }
-  .sidebar-collapse-btn:hover{ background:rgba(255,255,255,0.85);color:var(--ink); }
-  /* RTL: chevron faces right by default; collapsed = face left (rotate 180) */
+  .sidebar-collapse-btn:hover{ background:#fff;color:var(--ink); }
+  /* RTL: chevron points right (towards content); LTR: points left */
   html[dir="rtl"] .sidebar-collapse-btn svg{ transform:scaleX(-1); }
   html[dir="rtl"] .sidebar.collapsed .sidebar-collapse-btn{ transform:rotate(180deg); }
   html[dir="ltr"] .sidebar.collapsed .sidebar-collapse-btn{ transform:rotate(180deg); }
   [data-theme="dark"] .sidebar-collapse-btn{
-    background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.10);
+    background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.15);
   }
+  /* Position at the very bottom of sidebar, centered */
   .sidebar-collapse-wrap{
-    padding:10px 14px 10px;
-    display:flex;align-items:center;justify-content:flex-start;
+    padding:6px 0 10px;
+    display:flex;align-items:center;justify-content:center;
   }
-  html[dir="rtl"] .sidebar-collapse-wrap{ justify-content:flex-end; }
-  .sidebar.collapsed .sidebar-collapse-wrap{ justify-content:center; }
 
   /* ── 3. Page content transition — AnimatePresence mode="wait" equivalent ── */
   /* duration:0.22s, ease:[0.25,0.46,0.45,0.94] (ease-out custom) */
@@ -430,26 +446,35 @@
   }
   .sup-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
   .sup-name{font-size:14px;font-weight:700;color:var(--navy);}
-  .sup-sub{font-size:11.5px;color:var(--muted);}
+  .sup-sub{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;}
   .sup-credits-row{
-    padding:12px 16px;
-    display:flex;align-items:center;gap:10px;
+    padding:10px 16px;
+    display:flex;align-items:center;gap:8px;
     border-bottom:1px solid rgba(255,255,255,0.40);
     background:rgba(14,122,254,0.04);
   }
   [data-theme="dark"] .sup-credits-row{border-bottom-color:rgba(255,255,255,0.07);background:rgba(14,122,254,0.06);}
-  .sup-credits-icon{color:var(--blue);display:flex;}
-  .sup-credits-val{font-size:15px;font-weight:800;color:var(--navy);}
-  .sup-credits-lbl{font-size:11px;color:var(--muted);}
-  .sup-toggles{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.40);}
+  .sup-credits-icon{color:var(--blue);display:flex;flex:none;}
+  .sup-credits-val{font-size:14px;font-weight:800;color:var(--navy);}
+  .sup-credits-lbl{font-size:10.5px;color:var(--muted);}
+  .sup-topup-btn{
+    margin-right:auto;margin-left:0;
+    padding:6px 14px;border-radius:8px;
+    background:var(--blue);color:#fff;border:none;
+    font-size:12px;font-weight:700;cursor:pointer;
+    font-family:'Cairo',sans-serif;white-space:nowrap;
+    flex:none;
+  }
+  html[dir="ltr"] .sup-topup-btn{margin-left:auto;margin-right:0;}
+  .sup-toggles{padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.40);}
   [data-theme="dark"] .sup-toggles{border-bottom-color:rgba(255,255,255,0.07);}
   .sup-toggle-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
   .sup-toggle-row:last-child{margin-bottom:0;}
   .sup-toggle-label{font-size:11.5px;color:var(--ink-soft);flex:1;}
   .sup-seg{display:flex;border-radius:8px;overflow:hidden;border:1px solid var(--paper-line);background:var(--paper-soft);}
-  .sup-seg button{padding:4px 10px;font-size:11px;font-weight:700;background:transparent;border:none;color:var(--muted);cursor:pointer;transition:all 0.18s;font-family:'Cairo',sans-serif;}
+  .sup-seg button{padding:5px 12px;font-size:11px;font-weight:700;background:transparent;border:none;color:var(--muted);cursor:pointer;transition:all 0.18s;font-family:'Cairo',sans-serif;}
   .sup-seg button.on{background:var(--blue);color:#fff;}
-  .sup-actions{padding:12px 16px 14px;display:flex;flex-direction:column;gap:8px;}
+  .sup-actions{padding:10px 16px 14px;display:flex;flex-direction:column;gap:8px;}
   .sup-btn{
     display:flex;align-items:center;justify-content:center;gap:8px;
     padding:10px 14px;border-radius:10px;
@@ -471,6 +496,10 @@
     .sidebar{display:none;}
     .main-wrap{width:100%;}
     .navtabs-wrap{display:block;}
+    /* Profile grid: single column on mobile */
+    #pane-my-profile > div[style*="grid"]{
+      grid-template-columns:1fr !important;
+    }
   }
 
   *{box-sizing:border-box;}
@@ -510,17 +539,24 @@
   .topbar{
     position:sticky;top:0;z-index:40;
     height:56px;display:flex;align-items:center;
-    background:rgba(245,248,252,0.88);
-    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-    border-bottom:1px solid rgba(255,255,255,0.70);
-    box-shadow:0 2px 16px rgba(0,0,0,0.05);
+    /* Match sidebar glass fill */
+    background:linear-gradient(to bottom, rgba(255,255,255,0.48) 0%, rgba(255,255,255,0.38) 100%);
+    backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
+    border-bottom:1px solid rgba(255,255,255,0.65);
+    box-shadow:0 4px 24px -4px rgba(0,0,0,0.06);
   }
   [data-theme="dark"] .topbar{
-    background:rgba(8,12,22,0.85);
+    background:linear-gradient(to bottom, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%);
     border-bottom-color:rgba(255,255,255,0.07);
-    box-shadow:0 2px 16px rgba(0,0,0,0.35);
+    box-shadow:0 4px 40px -4px rgba(0,0,0,0.45);
   }
-  .topbar-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;gap:14px;flex-wrap:wrap;}
+  .topbar-in{
+    width:100%;display:flex;align-items:center;
+    padding:0 18px;height:56px;
+    /* Icons pushed to far end based on direction */
+    justify-content:flex-end;
+  }
+  html[dir="rtl"] .topbar-in{ justify-content:flex-start; }
   .brand{display:flex;align-items:center;gap:10px;flex:none;}
   .brand img{width:auto;height:110px;}
   .topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
@@ -529,9 +565,10 @@
   .icon-btn-wrap{position:relative;}
 
   /* ===== NOTIFICATIONS DROPDOWN ===== */
-  .notif-panel{position:absolute;top:calc(100% + 10px);left:0;width:320px;max-width:88vw;background:rgba(255,255,255,0.60);backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);border:1px solid rgba(255,255,255,0.70);border-radius:14px;box-shadow:0 20px 48px rgba(0,0,0,0.12);z-index:60;overflow:hidden;}
-  [data-theme="dark"] .notif-panel{background:rgba(12,17,28,0.56);border-color:rgba(255,255,255,0.09);box-shadow:0 20px 60px rgba(0,0,0,0.6);}
+  .notif-panel{position:absolute;top:calc(100% + 10px);left:0;width:320px;max-width:88vw;background:rgba(255,255,255,0.88);backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);border:1px solid rgba(255,255,255,0.80);border-radius:14px;box-shadow:0 20px 48px rgba(0,0,0,0.14);z-index:60;overflow:hidden;}
+  [data-theme="dark"] .notif-panel{background:rgba(12,17,28,0.88);border-color:rgba(255,255,255,0.10);box-shadow:0 20px 60px rgba(0,0,0,0.65);}
   html[dir="ltr"] .notif-panel{left:auto;right:0;}
+  html[dir="rtl"] .notif-panel{left:auto;right:0;}
   .notif-panel-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--paper-line);}
   .notif-panel-head b{font-family:'Cairo',sans-serif;font-size:13.5px;color:var(--navy);}
   .notif-panel-head span{font-size:11.5px;color:var(--blue-deep);font-weight:700;cursor:pointer;}
@@ -1289,12 +1326,8 @@
 
   <!-- ===== SIDEBAR ===== -->
   <aside class="sidebar" id="appSidebar">
-    <div class="sidebar-logo" style="display:flex;align-items:center;justify-content:space-between;">
-      <img data-icon-key="logo_dashboard" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E" alt="Pro Keys" style="height:36px;max-width:100%;object-fit:contain;">
-      <div class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="طي القائمة">
-        <!-- ph-caret-left (LTR collapse = point left; RTL = point right) — JS rotates 180 when collapsed -->
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="16" height="16"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></svg>
-      </div>
+    <div class="sidebar-logo">
+      <img data-icon-key="logo_dashboard" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E" alt="Pro Keys" style="max-height:52px;width:100%;object-fit:contain;object-position:center;">
     </div>
     <nav class="sidebar-nav" id="sidebarNav">
       <!-- Animated pill (framer-motion layoutId="nav-pill" equivalent) -->
@@ -1345,6 +1378,12 @@
       </div>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="14" height="14" style="flex:none;color:var(--muted);"><path d="M208,160H48l80-80Z" opacity="0.2"/><path d="M213.66,154.34l-80-80a8,8,0,0,0-11.32,0l-80,80A8,8,0,0,0,48,168H208a8,8,0,0,0,5.66-13.66ZM67.31,152,128,91.31,188.69,152Z"/></svg>
     </div>
+    <!-- Collapse button — bottom center of sidebar -->
+    <div class="sidebar-collapse-wrap">
+      <div class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="طي القائمة">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="14" height="14"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></svg>
+      </div>
+    </div>
   </aside>
   <!-- Sidebar user popup (built here, positioned by JS) -->
   <div class="sidebar-user-popup" id="sidebarUserPopup">
@@ -1357,12 +1396,12 @@
       </div>
     </div>
     <div class="sup-credits-row">
-      <div class="sup-credits-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="20" height="20"><path d="M240,132c0,19.88-35.82,36-80,36-19.6,0-37.56-3.17-51.47-8.44h0C146.76,156.85,176,142,176,124V96.72h0C212.52,100.06,240,114.58,240,132ZM176,84c0-19.88-35.82-36-80-36S16,64.12,16,84s35.82,36,80,36S176,103.88,176,84Z" opacity="0.2"/><path d="M184,89.57V84c0-25.08-37.83-44-88-44S8,58.92,8,84v40c0,20.89,26.25,37.49,64,42.46V172c0,25.08,37.83,44,88,44s88-18.92,88-44V132C248,111.3,222.58,94.68,184,89.57ZM232,132c0,13.22-30.79,28-72,28-3.73,0-7.43-.13-11.08-.37C170.49,151.77,184,139,184,124V105.74C213.87,110.19,232,122.27,232,132ZM72,150.25V126.46A183.74,183.74,0,0,0,96,128a183.74,183.74,0,0,0,24-1.54v23.79A163,163,0,0,1,96,152,163,163,0,0,1,72,150.25Zm96-40.32V124c0,8.39-12.41,17.4-32,22.87V123.5C148.91,120.37,159.84,115.71,168,109.93ZM96,56c41.21,0,72,14.78,72,28s-30.79,28-72,28S24,97.22,24,84,54.79,56,96,56ZM24,124V109.93c8.16,5.78,19.09,10.44,32,13.57v23.37C36.41,141.4,24,132.39,24,124Zm64,48v-4.17c2.63.1,5.29.17,8,.17,3.88,0,7.67-.13,11.39-.35A121.92,121.92,0,0,0,120,171.41v23.46C100.41,189.4,88,180.39,88,172Zm48,26.25V174.4a179.48,179.48,0,0,0,24,1.6,183.74,183.74,0,0,0,24-1.54v23.79a165.45,165.45,0,0,1-48,0Zm64-3.38V171.5c12.91-3.13,23.84-7.79,32-13.57V172C232,180.39,219.59,189.4,200,194.87Z"/></svg></div>
-      <div>
-        <div class="sup-credits-val"><span id="supBalanceNum">0</span> <small data-i18n="kpi_credits_unit" style="font-size:11px;font-weight:600;">كريديت</small></div>
+      <div class="sup-credits-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="18" height="18"><path d="M240,132c0,19.88-35.82,36-80,36-19.6,0-37.56-3.17-51.47-8.44h0C146.76,156.85,176,142,176,124V96.72h0C212.52,100.06,240,114.58,240,132ZM176,84c0-19.88-35.82-36-80-36S16,64.12,16,84s35.82,36,80,36S176,103.88,176,84Z" opacity="0.2"/><path d="M184,89.57V84c0-25.08-37.83-44-88-44S8,58.92,8,84v40c0,20.89,26.25,37.49,64,42.46V172c0,25.08,37.83,44,88,44s88-18.92,88-44V132C248,111.3,222.58,94.68,184,89.57ZM232,132c0,13.22-30.79,28-72,28-3.73,0-7.43-.13-11.08-.37C170.49,151.77,184,139,184,124V105.74C213.87,110.19,232,122.27,232,132ZM72,150.25V126.46A183.74,183.74,0,0,0,96,128a183.74,183.74,0,0,0,24-1.54v23.79A163,163,0,0,1,96,152,163,163,0,0,1,72,150.25Zm96-40.32V124c0,8.39-12.41,17.4-32,22.87V123.5C148.91,120.37,159.84,115.71,168,109.93ZM96,56c41.21,0,72,14.78,72,28s-30.79,28-72,28S24,97.22,24,84,54.79,56,96,56ZM24,124V109.93c8.16,5.78,19.09,10.44,32,13.57v23.37C36.41,141.4,24,132.39,24,124Zm64,48v-4.17c2.63.1,5.29.17,8,.17,3.88,0,7.67-.13,11.39-.35A121.92,121.92,0,0,0,120,171.41v23.46C100.41,189.4,88,180.39,88,172Zm48,26.25V174.4a179.48,179.48,0,0,0,24,1.6,183.74,183.74,0,0,0,24-1.54v23.79a165.45,165.45,0,0,1-48,0Zm64-3.38V171.5c12.91-3.13,23.84-7.79,32-13.57V172C232,180.39,219.59,189.4,200,194.87Z"/></svg></div>
+      <div style="flex:1;min-width:0;">
+        <div class="sup-credits-val"><span id="supBalanceNum">0</span> <small data-i18n="kpi_credits_unit" style="font-size:10px;font-weight:600;">كريديت</small></div>
         <div class="sup-credits-lbl" data-i18n="kpi_balance">رصيدك الحالي</div>
       </div>
-      <button onclick="closeSidebarUserPopup();goTab('wallet');" style="margin-right:auto;padding:4px 10px;border-radius:7px;background:var(--blue);color:#fff;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;" data-i18n="kpi_topup">شحن +</button>
+      <button class="sup-topup-btn" onclick="closeSidebarUserPopup();goTab('wallet');" data-i18n="kpi_topup">شحن +</button>
     </div>
     <div class="sup-toggles">
       <div class="sup-toggle-row">
@@ -1882,96 +1921,107 @@
     <div class="tabpane" id="pane-my-profile" style="display:none;">
       <div class="sec-head"><h2 data-i18n="profile_modal_title">الملف الشخصي</h2></div>
 
-      <div class="panel-block">
-        <!-- Avatar + name header -->
-        <div style="background:linear-gradient(135deg,var(--navy),#243873);padding:28px 24px;display:flex;align-items:center;gap:18px;border-radius:var(--radius) var(--radius) 0 0;">
-          <div style="position:relative;">
-            <img id="profileAvatarPreview2" src="" style="width:72px;height:72px;border-radius:50%;object-fit:cover;display:none;border:3px solid rgba(255,255,255,0.40);">
-            <div id="profileAvatarFallback2" style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,0.15);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;border:3px solid rgba(255,255,255,0.25);">؟</div>
-            <label for="profileAvatarInput2" style="position:absolute;bottom:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid #fff;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            </label>
-            <input type="file" id="profileAvatarInput2" accept="image/*" style="display:none;" onchange="handleAvatarUploadFromTab(this)">
-          </div>
-          <div>
-            <div style="font-size:17px;font-weight:800;color:#fff;" id="profileHeaderName2">—</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.70);margin-top:3px;" id="profileHeaderEmail2">—</div>
-            <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
-              <span class="mono" style="font-size:11px;font-weight:700;background:rgba(255,255,255,0.15);color:#fff;padding:3px 9px;border-radius:6px;" id="profileHeaderPk2">PK000</span>
-            </div>
-          </div>
-        </div>
-        <div class="panel-block-body" style="padding:22px 22px;">
-          <!-- Full name -->
-          <div class="field-block" style="margin-bottom:16px;">
-            <span class="glabel" data-i18n="profile_name">الاسم الكامل</span>
-            <input id="profileNameInput2" class="ticket-input" placeholder="" style="margin-top:5px;">
-          </div>
-          <!-- Email (read-only) -->
-          <div class="field-block" style="margin-bottom:16px;">
-            <span class="glabel" data-i18n="profile_email">البريد الإلكتروني</span>
-            <input id="profileEmailInput2" class="ticket-input" readonly style="margin-top:5px;background:var(--paper-soft);color:var(--muted);">
-          </div>
-          <!-- Phone -->
-          <div class="field-block" style="margin-bottom:16px;">
-            <span class="glabel" data-i18n="profile_phone">رقم الهاتف</span>
-            <div style="display:flex;gap:8px;margin-top:5px;">
-              <select id="profilePhoneCountry2" class="ticket-input" style="width:110px;flex:none;"></select>
-              <input id="profilePhoneInput2" class="ticket-input" placeholder="1012345678" style="flex:1;">
-            </div>
-          </div>
-          <!-- WhatsApp -->
-          <div class="field-block" style="margin-bottom:20px;">
-            <span class="glabel" data-i18n="profile_whatsapp">واتساب</span>
-            <div style="display:flex;gap:8px;margin-top:5px;">
-              <select id="profileWhatsappCountry2" class="ticket-input" style="width:110px;flex:none;"></select>
-              <input id="profileWhatsappInput2" class="ticket-input" placeholder="1012345678" style="flex:1;">
-            </div>
-          </div>
-          <!-- Save -->
-          <button class="btn btn-gold" style="width:100%;justify-content:center;" onclick="saveProfileFromTab()">
-            <span data-i18n="profile_save">حفظ التغييرات</span>
-          </button>
-          <div id="profileTabStatus" style="text-align:center;font-size:12.5px;margin-top:10px;color:var(--ok);min-height:18px;"></div>
+      <!-- Two-column grid on desktop so everything fits without scroll -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">
 
-          <!-- Password change -->
-          <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--paper-line);">
-            <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;" data-i18n="change_password">تغيير كلمة المرور</div>
+        <!-- LEFT COLUMN: Avatar + Personal info -->
+        <div class="panel-block">
+          <!-- Avatar header -->
+          <div style="background:linear-gradient(135deg,var(--navy),#243873);padding:20px 20px;display:flex;align-items:center;gap:14px;border-radius:var(--radius) var(--radius) 0 0;">
+            <div style="position:relative;flex:none;">
+              <img id="profileAvatarPreview2" src="" style="width:60px;height:60px;border-radius:50%;object-fit:cover;display:none;border:3px solid rgba(255,255,255,0.40);">
+              <div id="profileAvatarFallback2" style="width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,0.15);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;border:3px solid rgba(255,255,255,0.25);">؟</div>
+              <label for="profileAvatarInput2" style="position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid #fff;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              </label>
+              <input type="file" id="profileAvatarInput2" accept="image/*" style="display:none;" onchange="handleAvatarUploadFromTab(this)">
+            </div>
+            <div style="min-width:0;">
+              <div style="font-size:15px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="profileHeaderName2">—</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="profileHeaderEmail2">—</div>
+              <span class="mono" style="display:inline-block;margin-top:5px;font-size:10px;font-weight:700;background:rgba(255,255,255,0.15);color:#fff;padding:2px 8px;border-radius:5px;" id="profileHeaderPk2">PK000</span>
+            </div>
+          </div>
+          <div class="panel-block-body" style="padding:18px 18px;">
+            <!-- Full name -->
             <div class="field-block" style="margin-bottom:12px;">
-              <span class="glabel" data-i18n="profile_new_pass">كلمة المرور الجديدة</span>
-              <div style="position:relative;margin-top:5px;">
-                <input id="profilePassword2" type="password" class="ticket-input" placeholder="•••••••" style="padding-left:38px;">
-                <button type="button" onclick="togglePassVis('profilePassword2',this)" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:0;display:flex;">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                </button>
+              <span class="glabel" data-i18n="profile_name">الاسم الكامل</span>
+              <input id="profileNameInput2" class="ticket-input" placeholder="" style="margin-top:4px;">
+            </div>
+            <!-- Email (read-only) -->
+            <div class="field-block" style="margin-bottom:12px;">
+              <span class="glabel" data-i18n="profile_email">البريد الإلكتروني</span>
+              <input id="profileEmailInput2" class="ticket-input" readonly style="margin-top:4px;background:var(--paper-soft);color:var(--muted);">
+            </div>
+            <!-- Phone -->
+            <div class="field-block" style="margin-bottom:12px;">
+              <span class="glabel" data-i18n="profile_phone">رقم الهاتف</span>
+              <div style="display:flex;gap:6px;margin-top:4px;">
+                <select id="profilePhoneCountry2" class="ticket-input" style="width:100px;flex:none;"></select>
+                <input id="profilePhoneInput2" class="ticket-input" placeholder="1012345678" style="flex:1;">
               </div>
             </div>
-            <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="changePasswordFromTab()">
-              <span data-i18n="profile_change_pass">تغيير الباسورد</span>
+            <!-- WhatsApp -->
+            <div class="field-block" style="margin-bottom:14px;">
+              <span class="glabel" data-i18n="profile_whatsapp">واتساب</span>
+              <div style="display:flex;gap:6px;margin-top:4px;">
+                <select id="profileWhatsappCountry2" class="ticket-input" style="width:100px;flex:none;"></select>
+                <input id="profileWhatsappInput2" class="ticket-input" placeholder="1012345678" style="flex:1;">
+              </div>
+            </div>
+            <button class="btn btn-gold" style="width:100%;justify-content:center;" onclick="saveProfileFromTab()">
+              <span data-i18n="profile_save">حفظ التغييرات</span>
             </button>
-            <div id="profileTabPassStatus" style="text-align:center;font-size:12.5px;margin-top:10px;color:var(--ok);min-height:18px;"></div>
-          </div>
-
-          <!-- Language & Currency -->
-          <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--paper-line);">
-            <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:14px;" data-i18n="sup_settings">الإعدادات</div>
-            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
-              <span style="font-size:12.5px;color:var(--ink-soft);flex:1;" data-i18n="sup_lang">اللغة</span>
-              <div class="seg" style="flex:none;">
-                <button class="on" onclick="setLangFromPopup('ar')" id="tabLangAr">عربي</button>
-                <button onclick="setLangFromPopup('en')" id="tabLangEn">EN</button>
-              </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-              <span style="font-size:12.5px;color:var(--ink-soft);flex:1;" data-i18n="sup_currency">العملة</span>
-              <div class="seg" style="flex:none;">
-                <button class="on" onclick="setCurrencyFromPopup('EGP')" id="tabCurrEgp">EGP</button>
-                <button onclick="setCurrencyFromPopup('USD')" id="tabCurrUsd">USD</button>
-              </div>
-            </div>
+            <div id="profileTabStatus" style="text-align:center;font-size:12px;margin-top:8px;color:var(--ok);min-height:16px;"></div>
           </div>
         </div>
-      </div>
+
+        <!-- RIGHT COLUMN: Password + Settings -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+
+          <!-- Password card -->
+          <div class="panel-block">
+            <div class="panel-block-body" style="padding:18px 18px;">
+              <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;" data-i18n="change_password">تغيير كلمة المرور</div>
+              <div class="field-block" style="margin-bottom:12px;">
+                <span class="glabel" data-i18n="profile_new_pass">كلمة المرور الجديدة</span>
+                <div style="position:relative;margin-top:4px;">
+                  <input id="profilePassword2" type="password" class="ticket-input" placeholder="•••••••" style="padding-left:38px;">
+                  <button type="button" onclick="togglePassVis('profilePassword2',this)" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:0;display:flex;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
+              </div>
+              <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="changePasswordFromTab()">
+                <span data-i18n="profile_change_pass">تغيير كلمة المرور</span>
+              </button>
+              <div id="profileTabPassStatus" style="text-align:center;font-size:12px;margin-top:8px;color:var(--ok);min-height:16px;"></div>
+            </div>
+          </div>
+
+          <!-- Language & Currency card -->
+          <div class="panel-block">
+            <div class="panel-block-body" style="padding:18px 18px;">
+              <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:14px;" data-i18n="sup_settings">الإعدادات</div>
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+                <span style="font-size:12.5px;color:var(--ink-soft);flex:1;" data-i18n="sup_lang">اللغة</span>
+                <div class="seg" style="flex:none;">
+                  <button class="on" onclick="setLangFromPopup('ar')" id="tabLangAr">عربي</button>
+                  <button onclick="setLangFromPopup('en')" id="tabLangEn">EN</button>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <span style="font-size:12.5px;color:var(--ink-soft);flex:1;" data-i18n="sup_currency">العملة</span>
+                <div class="seg" style="flex:none;">
+                  <button class="on" onclick="setCurrencyFromPopup('EGP')" id="tabCurrEgp">EGP</button>
+                  <button onclick="setCurrencyFromPopup('USD')" id="tabCurrUsd">USD</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /right col -->
+      </div><!-- /grid -->
     </div>
 
   </div>
@@ -2232,7 +2282,7 @@ const ICONS = {
 // (.user-dropdown-item svg{width:16px}) rather than inline style — none of
 // which apply to a plain <img>, so the uploaded image needs an explicit size.
 const ICON_SIZE_MAP = {
-  logo_dashboard:'56px',
+  logo_dashboard:'52px',
   header_notif:'18px', header_lightmode:'18px', header_darkmode:'18px', header_profile:'16px', header_signout:'16px',
   tab_home:'18px', tab_new_check:'18px', tab_orders:'18px', tab_wallet:'18px', tab_support:'18px',
   home_watch:'15px', home_g1:'20px', home_g2:'20px', home_g3:'20px',

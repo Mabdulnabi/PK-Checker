@@ -37,14 +37,19 @@ PK.applyIcons = function (getOverrides, sizeMap, extraLogoKeys) {
     if (url) {
       if (el.tagName === 'IMG') {
         el.src = url;
-        if (isLogo) { el.style.height = size; el.style.width = 'auto'; }
-        else { el.style.width = size; el.style.height = size; }
+        if (isLogo) {
+          /* Logo fills its container width, height auto-scales (supports GIF) */
+          el.style.width = '100%';
+          el.style.maxHeight = size;
+          el.style.height = 'auto';
+          el.style.objectFit = 'contain';
+        } else { el.style.width = size; el.style.height = size; }
       } else {
         const img = document.createElement('img');
         img.src = url;
         img.alt = key;
         img.style.cssText = isLogo
-          ? `height:${size};width:auto;object-fit:contain;flex:none;display:inline-block;vertical-align:middle;border-radius:6px;`
+          ? `width:100%;max-height:${size};height:auto;object-fit:contain;display:block;`
           : `width:${size};height:${size};object-fit:contain;flex:none;display:inline-block;vertical-align:middle;border-radius:6px;`;
         // If the uploaded file is broken or loads empty, keep the original
         // fallback content instead of showing a blank icon.
