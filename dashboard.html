@@ -258,7 +258,7 @@
   .sidebar-item{
     display:flex;align-items:center;gap:14px;
     padding:12px 14px;border-radius:14px;
-    font-family:'Cairo',sans-serif;font-weight:600;font-size:15px;
+    font-family:'Cairo',sans-serif;font-weight:800;font-size:15px;
     color:var(--ink-soft);cursor:pointer;
     border:none;background:transparent;width:100%;
     text-align:right;position:relative;z-index:1;
@@ -274,23 +274,30 @@
   .sidebar-item[data-tab="wallet"]    { --tab-color:#059669; }
   .sidebar-item[data-tab="support"]   { --tab-color:#ea580c; }
   .sidebar-item[data-tab="my-profile"]{ --tab-color:#475569; }
-  /* Active label: tab color. Inactive + hover: keep same weight/size, only color shifts */
-  .sidebar-item > span{ font-weight:600;font-size:15px;transition:color 0.18s; }
+  /* Weight/size fixed — only color changes, never shifts layout */
+  .sidebar-item > span{ font-family:'Cairo',sans-serif;font-weight:800;font-size:15px;transition:color 0.18s; }
   .sidebar-item.on > span{ color:var(--tab-color); }
   .sidebar-item:not(.on) > span{ color:var(--ink-soft); }
   .sidebar-item:not(.on):hover > span{ color:var(--ink); }
 
-  /* ── 2. Icon chip — bounce on hover
-     spring: stiffness 400, damping 15 → cubic-bezier(0.175,0.885,0.32,1.275) ── */
+  /* ── 2. Icon chip — bounce on hover ── */
   .sid-chip{
-    width:42px;height:42px;border-radius:12px;
+    width:36px;height:36px;border-radius:10px;
     display:flex;align-items:center;justify-content:center;flex:none;
     transition:
       transform    0.28s cubic-bezier(0.175,0.885,0.32,1.275),
       background   0.18s ease;
+    /* Chip never changes color — override any inherited color filter */
+    color:inherit;
   }
   .sid-chip svg{ display:block;flex:none; }
-  /* RTL: rotate −8°; LTR: rotate +8° — chip keeps its color, no white flash */
+  /* Icon keeps its chip color at ALL times — active and hover */
+  .sid-indigo,.sidebar-item.on .sid-indigo,.sidebar-item:hover .sid-indigo{ color:#6366f1; }
+  .sid-blue,  .sidebar-item.on .sid-blue,  .sidebar-item:hover .sid-blue  { color:#2563eb; }
+  .sid-green, .sidebar-item.on .sid-green, .sidebar-item:hover .sid-green { color:#059669; }
+  .sid-orange,.sidebar-item.on .sid-orange,.sidebar-item:hover .sid-orange{ color:#ea580c; }
+  .sid-slate, .sidebar-item.on .sid-slate, .sidebar-item:hover .sid-slate { color:#475569; }
+  /* RTL: rotate −8°; LTR: rotate +8° */
   html[dir="rtl"] .sidebar-item:not(.on):hover .sid-chip{ transform:scale(1.18) rotate(-8deg); }
   html[dir="ltr"] .sidebar-item:not(.on):hover .sid-chip{ transform:scale(1.18) rotate(8deg); }
   .sidebar-item.on .sid-chip{ transform:scale(1.06); }
@@ -502,6 +509,7 @@
   /* ===== TOPBAR ===== */
   .topbar{
     position:sticky;top:0;z-index:40;
+    height:56px;display:flex;align-items:center;
     background:rgba(245,248,252,0.88);
     backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
     border-bottom:1px solid rgba(255,255,255,0.70);
@@ -512,7 +520,7 @@
     border-bottom-color:rgba(255,255,255,0.07);
     box-shadow:0 2px 16px rgba(0,0,0,0.35);
   }
-  .topbar-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:18px 24px 0;gap:14px;flex-wrap:wrap;}
+  .topbar-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;gap:14px;flex-wrap:wrap;}
   .brand{display:flex;align-items:center;gap:10px;flex:none;}
   .brand img{width:auto;height:110px;}
   .topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
