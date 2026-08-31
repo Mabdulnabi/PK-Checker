@@ -473,7 +473,7 @@ body {
     }).catch(function(err) { console.warn('applyBrandOverrides failed (non-fatal):', err); });
   })();
 
-  var lang = localStorage.getItem('prokeys_lang') || 'ar';
+  var lang = localStorage.getItem('prokeys-lang') || 'ar';
 
   var text = {
     ar: {
@@ -640,7 +640,7 @@ body {
   // Language toggle
   byId('langBtn').addEventListener('click', function() {
     lang = (lang === 'ar') ? 'en' : 'ar';
-    localStorage.setItem('prokeys_lang', lang);
+    localStorage.setItem('prokeys-lang', lang);
     updateText();
   });
 

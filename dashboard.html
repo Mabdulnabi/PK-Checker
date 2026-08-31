@@ -2637,7 +2637,7 @@ function renderTicketAttachChip(){
   if(ticketAttachedFile){
     const chip = document.createElement('span');
     chip.className = 'attach-chip';
-    chip.innerHTML = `<span>${ticketAttachedFile.name}</span><span class="ac-remove" id="ticketAttachRemove">×</span>`;
+    chip.innerHTML = `<span>${escapeHtml(ticketAttachedFile.name)}</span><span class="ac-remove" id="ticketAttachRemove">×</span>`;
     ticketAttachRow.appendChild(chip);
     document.getElementById('ticketAttachRemove').addEventListener('click', ()=>{
       ticketAttachedFile = null;
@@ -3124,8 +3124,8 @@ function renderNotifications(){
       <div class="notif-item ${n.unread?'unread':''}" data-notif-id="${n.id}">
         <div class="notif-ic">${NOTIF_ICONS[n.icon] || NOTIF_ICONS.order_processing}</div>
         <div class="notif-text">
-          <b>${n.title}</b>
-          <span>${n.body || ''}</span>
+          <b>${escapeHtml(n.title)}</b>
+          <span>${escapeHtml(n.body || '')}</span>
           <span class="notif-time">${n.time}</span>
         </div>
       </div>
@@ -3174,7 +3174,7 @@ function renderBroadcastBanners(){
   wrap.innerHTML = `
     <div class="broadcast-banner" data-notif-id="${n.id}">
       <div class="bc-ic">📢</div>
-      <div class="bc-text"><b>${n.title || ''}</b><span>${n.body || ''}</span></div>
+      <div class="bc-text"><b>${escapeHtml(n.title || '')}</b><span>${escapeHtml(n.body || '')}</span></div>
       <button class="bc-close" onclick="dismissBroadcastBanner(${n.id})" aria-label="close">✕</button>
     </div>`;
 }
@@ -5041,7 +5041,7 @@ function buildOrderRow(o){
       <div class="oname-row">
         ${ICONS.doc}
         <div class="ofile-text">
-          <b class="ofile-name">${o.file}</b>
+          <b class="ofile-name">${escapeHtml(o.file)}</b>
           <div class="ofile-meta">${fileMetaLine}</div>
         </div>
       </div>

@@ -4325,7 +4325,12 @@ async function loadCreditsTab(){
     .order('created_at', { ascending: false })
     .limit(500);
 
-  if (error) { console.error('loadCreditsTab:', error); return; }
+  if (error) {
+    console.error('loadCreditsTab:', error);
+    document.getElementById('creditsBody').innerHTML =
+      `<tr><td colspan="10" style="text-align:center;color:var(--danger);padding:20px;">❌ فشل تحميل البيانات: ${escapeHtml(error.message)}</td></tr>`;
+    return;
+  }
   allTxRows = (txs || []).map(tx => {
     const pay = tx.payments || {};
     const p   = profilesByUserId[tx.user_id] || {};
@@ -4473,6 +4478,7 @@ async function adminAdjustCredit(action){
   }
 
   // Clear form
+  const adjustedUserName = crUserFound?.full_name || 'المستخدم';
   document.getElementById('crPkInput').value = '';
   document.getElementById('crAmountInput').value = '';
   document.getElementById('crNoteInput').value = '';
@@ -4480,7 +4486,7 @@ async function adminAdjustCredit(action){
   crUserFound = null;
 
   banner.className = 'cr-save-banner ok';
-  banner.textContent = `✅ تم ${action==='add'?'إضافة':'خصم'} ${amount} كريديت ${action==='add'?'لـ':'من'} ${crUserFound?.full_name||'المستخدم'} بنجاح.`;
+  banner.textContent = `✅ تم ${action==='add'?'إضافة':'خصم'} ${amount} كريديت ${action==='add'?'لـ':'من'} ${adjustedUserName} بنجاح.`;
   banner.style.display = 'block';
   toast(`تم ${action==='add'?'إضافة':'خصم'} ${amount} كريديت بنجاح`, 'success');
   setTimeout(()=>{ banner.style.display='none'; }, 5000);
@@ -5310,28 +5316,48 @@ async function sendComposedMessage(){
    FEATURE 3: PENDING PAYMENTS — already in Credits tab table
    (adds approve/reject buttons for payments with status=pending)
    ================================================================ */
-async function approvePendingPayment(paymentId, userId, credits){
-  const { data: bal } = await supabaseClient
-    .from('wallet_transactions').select('balance_after')
-    .eq('user_id',userId).order('created_at',{ascending:false}).limit(1);
-  const balBefore = Number(bal?.[0]?.balance_after ?? 0);
-  const balAfter  = balBefore + credits;
-  const [,] = await Promise.all([
-    supabaseClient.from('payments').update({status:'completed'}).eq('id',paymentId),
-    supabaseClient.from('wallet_transactions').insert({
-      user_id:userId, type:'credit', amount:credits,
-      balance_before:balBefore, balance_after:balAfter,
-      payment_id:paymentId, description:'موافقة يدوية من الأدمن'
-    })
-  ]);
-  await logAdminActivity('manual_approve',userId,'','الموافقة على دفعة معلقة: '+paymentId);
-  loadCreditsTab();
+async function approvePendingPayment(paymentId, userId, credits, triggerBtn){
+  if (triggerBtn) { triggerBtn.disabled = true; triggerBtn.textContent = '...'; }
+  try {
+    const { data: bal } = await supabaseClient
+      .from('wallet_transactions').select('balance_after')
+      .eq('user_id',userId).order('created_at',{ascending:false}).limit(1);
+    const balBefore = Number(bal?.[0]?.balance_after ?? 0);
+    const balAfter  = balBefore + credits;
+
+    const { error: payErr } = await supabaseClient
+      .from('payments').update({status:'completed'}).eq('id',paymentId);
+    if (payErr) throw payErr;
+
+    const { error: txErr } = await supabaseClient
+      .from('wallet_transactions').insert({
+        user_id:userId, type:'credit', amount:credits,
+        balance_before:balBefore, balance_after:balAfter,
+        payment_id:paymentId, description:'موافقة يدوية من الأدمن'
+      });
+    if (txErr) throw txErr;
+
+    await logAdminActivity('manual_approve',userId,'','الموافقة على دفعة معلقة: '+paymentId);
+    loadCreditsTab();
+  } catch(err) {
+    console.error('approvePendingPayment failed:', err);
+    await adminAlert('فشلت الموافقة: ' + (err.message || 'خطأ غير معروف'), {icon:'❌', danger:true});
+    if (triggerBtn) { triggerBtn.disabled = false; triggerBtn.textContent = '✅ موافقة'; }
+  }
 }
 
-async function rejectPendingPayment(paymentId){
-  await supabaseClient.from('payments').update({status:'rejected'}).eq('id',paymentId);
-  await logAdminActivity('payment_reject',null,'','رفض دفعة: '+paymentId);
-  loadCreditsTab();
+async function rejectPendingPayment(paymentId, triggerBtn){
+  if (triggerBtn) { triggerBtn.disabled = true; triggerBtn.textContent = '...'; }
+  try {
+    const { error } = await supabaseClient.from('payments').update({status:'rejected'}).eq('id',paymentId);
+    if (error) throw error;
+    await logAdminActivity('payment_reject',null,'','رفض دفعة: '+paymentId);
+    loadCreditsTab();
+  } catch(err) {
+    console.error('rejectPendingPayment failed:', err);
+    await adminAlert('فشل الرفض: ' + (err.message || 'خطأ غير معروف'), {icon:'❌', danger:true});
+    if (triggerBtn) { triggerBtn.disabled = false; triggerBtn.textContent = '❌ رفض'; }
+  }
 }
 
 /* ================================================================
