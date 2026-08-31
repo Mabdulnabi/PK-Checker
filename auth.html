@@ -501,7 +501,11 @@ body {
       googleLoginText: 'الدخول بحساب Google', googleSignupText: 'التسجيل بحساب Google',
       googleRedirecting: 'جاري التحويل إلى Google...',
       googleError: 'حدث خطأ أثناء تسجيل الدخول بحساب Google. حاول مرة أخرى.',
-      confirmEmailSent: 'تم إنشاء الحساب! يرجى تأكيد بريدك الإلكتروني من الرسالة المرسلة، ثم سجّل الدخول.'
+      confirmEmailSent: 'تم إنشاء الحساب! يرجى تأكيد بريدك الإلكتروني من الرسالة المرسلة، ثم سجّل الدخول.',
+      setNewPassTitle: 'تعيين كلمة مرور جديدة', setNewPassSubtitle: 'أدخل كلمة مرور قوية لحسابك',
+      newPassword: 'كلمة المرور الجديدة', confirmNewPassword: 'تأكيد كلمة المرور الجديدة',
+      setNewPassBtn: 'حفظ كلمة المرور الجديدة', setNewPassSuccess: 'تم تغيير كلمة المرور بنجاح! جاري تحويلك...',
+      setNewPassError: 'حدث خطأ، حاول مرة أخرى.'
     },
     en: {
       title: 'User Login', subtitle: 'Enter your credentials to continue',
@@ -529,7 +533,11 @@ body {
       googleLoginText: 'Sign in with Google', googleSignupText: 'Sign up with Google',
       googleRedirecting: 'Redirecting to Google...',
       googleError: 'Something went wrong signing in with Google. Please try again.',
-      confirmEmailSent: 'Account created! Please confirm your email from the message we sent you, then sign in.'
+      confirmEmailSent: 'Account created! Please confirm your email from the message we sent you, then sign in.',
+      setNewPassTitle: 'Set New Password', setNewPassSubtitle: 'Enter a strong password for your account',
+      newPassword: 'New Password', confirmNewPassword: 'Confirm New Password',
+      setNewPassBtn: 'Save New Password', setNewPassSuccess: 'Password changed successfully! Redirecting...',
+      setNewPassError: 'Something went wrong, please try again.'
     }
   };
 
@@ -876,7 +884,9 @@ body {
     btn.disabled = true;
     btn.innerHTML = '<div class="spinner"></div>';
 
-    supabaseClient.auth.resetPasswordForEmail(email).then(function(res) {
+    supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + window.location.pathname
+    }).then(function(res) {
       if (res.error) {
         showError('forgotError', res.error.message);
       } else {
@@ -946,7 +956,149 @@ body {
   // on that here if WE set the "pending" flag above — this is what stops a
   // plain email/password sign-in (which also fires 'SIGNED_IN' internally)
   // from racing with this Google-specific profile-creation/redirect logic.
+  // ===== SET NEW PASSWORD SCREEN (PASSWORD RECOVERY) =====
+  var setNewPassElements = null;
+
+  function buildSetNewPassScreen() {
+    if (setNewPassElements) return setNewPassElements;
+
+    var style = document.createElement('style');
+    style.textContent = [
+      '.set-new-pass-screen { display:none; flex-direction:column; gap:16px; padding:8px 0; }',
+      '.set-new-pass-screen.show { display:flex; }',
+      '.set-new-pass-screen .field { display:flex; flex-direction:column; gap:6px; }',
+      '.set-new-pass-screen label { font-size:13px; font-weight:600; color:#334155; }',
+      '.set-new-pass-screen input { padding:12px 14px; border:1.5px solid #E2E8F0; border-radius:10px; font-size:14px; font-family:inherit; outline:none; transition:border-color .2s; }',
+      '.set-new-pass-screen input:focus { border-color:#0E7AFE; }',
+      '.set-new-pass-screen .btn { width:100%; padding:14px; background:linear-gradient(135deg,#0E7AFE,#0B5FC9); color:#fff; border:none; border-radius:10px; font-size:15px; font-weight:700; font-family:inherit; cursor:pointer; }',
+      '.set-new-pass-screen .btn:disabled { opacity:.6; cursor:not-allowed; }',
+      '.set-new-pass-screen .msg { font-size:13px; padding:10px 14px; border-radius:8px; display:none; }',
+      '.set-new-pass-screen .msg.show { display:block; }',
+      '.set-new-pass-screen .msg.error { background:#FEF2F2; color:#DC2626; border:1px solid #FECACA; }',
+      '.set-new-pass-screen .msg.success { background:#F0FDF4; color:#16A34A; border:1px solid #BBF7D0; }'
+    ].join('\n');
+    document.head.appendChild(style);
+
+    var wrap = document.createElement('div');
+    wrap.className = 'set-new-pass-screen';
+    wrap.innerHTML = [
+      '<div class="field"><label id="snpPassLabel"></label>',
+      '<input type="password" id="snpNewPass" autocomplete="new-password"></div>',
+      '<div class="field"><label id="snpConfirmLabel"></label>',
+      '<input type="password" id="snpConfirmPass" autocomplete="new-password"></div>',
+      '<div id="snpPasswordRules" style="margin-top:-4px"></div>',
+      '<div id="snpError" class="msg error"></div>',
+      '<div id="snpSuccess" class="msg success"></div>',
+      '<button type="button" class="btn" id="snpSubmitBtn"><span id="snpSubmitBtnText"></span></button>'
+    ].join('');
+
+    // Insert inside .content alongside the other .form divs
+    var formArea = document.querySelector('.content') || document.querySelector('.container');
+    formArea.appendChild(wrap);
+
+    setNewPassElements = { wrap: wrap };
+    return setNewPassElements;
+  }
+
+  function showSetNewPassScreen() {
+    var t = text[lang];
+    buildSetNewPassScreen();
+
+    // hide everything else
+    var allForms = document.querySelectorAll('.form');
+    for (var k = 0; k < allForms.length; k++) allForms[k].classList.remove('show');
+    document.querySelector('.tabs').style.display = 'none';
+    byId('titleText').textContent = t.setNewPassTitle;
+    byId('subtitleText').textContent = t.setNewPassSubtitle;
+
+    // populate labels
+    byId('snpPassLabel').textContent = t.newPassword;
+    byId('snpConfirmLabel').textContent = t.confirmNewPassword;
+    byId('snpSubmitBtnText').textContent = t.setNewPassBtn;
+    byId('snpError').classList.remove('show');
+    byId('snpSuccess').classList.remove('show');
+    byId('snpNewPass').value = '';
+    byId('snpConfirmPass').value = '';
+
+    // reuse same password rules UI
+    var rulesHtml = [
+      '<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:4px">',
+      '<span id="snpRuleLength" style="font-size:12px;color:#94a3b8">⬤ ' + t.ruleLength + '</span>',
+      '<span id="snpRuleUpper"  style="font-size:12px;color:#94a3b8">⬤ ' + t.ruleUpper + '</span>',
+      '<span id="snpRuleLower"  style="font-size:12px;color:#94a3b8">⬤ ' + t.ruleLower + '</span>',
+      '<span id="snpRuleNumber" style="font-size:12px;color:#94a3b8">⬤ ' + t.ruleNumber + '</span>',
+      '<span id="snpRuleSpecial" style="font-size:12px;color:#94a3b8">⬤ ' + t.ruleSpecial + '</span>',
+      '</div>'
+    ].join('');
+    byId('snpPasswordRules').innerHTML = rulesHtml;
+
+    byId('snpNewPass').addEventListener('input', function() {
+      var v = this.value;
+      function mark(id, ok) {
+        var el = byId(id);
+        if (!el) return;
+        el.style.color = ok ? '#16A34A' : '#94a3b8';
+      }
+      mark('snpRuleLength',  v.length >= 8);
+      mark('snpRuleUpper',   /[A-Z]/.test(v));
+      mark('snpRuleLower',   /[a-z]/.test(v));
+      mark('snpRuleNumber',  /[0-9]/.test(v));
+      mark('snpRuleSpecial', /[!@#$%^&*]/.test(v));
+    });
+
+    setNewPassElements.wrap.classList.add('show');
+
+    byId('snpSubmitBtn').onclick = function() {
+      var t2 = text[lang];
+      var newPass = byId('snpNewPass').value;
+      var confirmPass = byId('snpConfirmPass').value;
+
+      byId('snpError').classList.remove('show');
+      byId('snpSuccess').classList.remove('show');
+
+      if (!newPass || !confirmPass) {
+        byId('snpError').textContent = t2.fillAll;
+        byId('snpError').classList.add('show');
+        return;
+      }
+      if (newPass !== confirmPass) {
+        byId('snpError').textContent = t2.mismatch;
+        byId('snpError').classList.add('show');
+        return;
+      }
+      var passOk = newPass.length >= 8 && /[A-Z]/.test(newPass) && /[a-z]/.test(newPass) && /[0-9]/.test(newPass) && /[!@#$%^&*]/.test(newPass);
+      if (!passOk) {
+        byId('snpError').textContent = t2.passwordWeak;
+        byId('snpError').classList.add('show');
+        return;
+      }
+
+      var btn = byId('snpSubmitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner"></div>';
+
+      supabaseClient.auth.updateUser({ password: newPass }).then(function(res) {
+        if (res.error) {
+          byId('snpError').textContent = res.error.message || t2.setNewPassError;
+          byId('snpError').classList.add('show');
+          btn.disabled = false;
+          btn.innerHTML = '<span id="snpSubmitBtnText">' + t2.setNewPassBtn + '</span>';
+        } else {
+          byId('snpSuccess').textContent = t2.setNewPassSuccess;
+          byId('snpSuccess').classList.add('show');
+          btn.disabled = true;
+          setTimeout(function() { window.location.href = 'dashboard.html'; }, 2000);
+        }
+      });
+    };
+  }
+
   supabaseClient.auth.onAuthStateChange(function(event, session) {
+    if (event === 'PASSWORD_RECOVERY') {
+      showSetNewPassScreen();
+      return;
+    }
+
     var oauthPending = !!parseInt(sessionStorage.getItem('prokeys-oauth-pending') || '0', 10);
     if (event === 'SIGNED_IN' && session && session.user && oauthPending) {
       sessionStorage.removeItem('prokeys-oauth-pending'); // only ever handle this once
