@@ -22,6 +22,7 @@
 <link href="https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/css/intlTelInput.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23/build/js/intlTelInput.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <style>
   :root{
     --navy:#1B2556;
@@ -206,56 +207,156 @@
   [data-theme="dark"] .faq-q .qicon,
   [data-theme="dark"] .loi-icon.run,
   [data-theme="dark"] .file-chip .fchip-ic{color:var(--blue);}
-  /* ===== SIDEBAR LAYOUT ===== */
-  .app-layout{display:flex;min-height:100vh;max-width:1280px;margin:0 auto;position:relative;}
-  .main-wrap{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;}
+  /* ===== SIDEBAR LAYOUT — FULL SCREEN ===== */
+  .app-layout{display:flex;width:100%;min-height:100vh;position:relative;}
+  .main-wrap{flex:1;min-width:0;display:flex;flex-direction:column;}
 
   /* Sidebar */
   .sidebar{
-    width:220px;flex:none;
+    width:232px;flex:none;
     display:flex;flex-direction:column;
-    background:rgba(255,255,255,0.65);
-    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-    border-left:1px solid rgba(255,255,255,0.70);
+    background:linear-gradient(to bottom, rgba(255,255,255,0.48) 0%, rgba(255,255,255,0.32) 100%);
+    backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
+    border-left:1px solid rgba(255,255,255,0.65);
+    box-shadow:4px 0 32px -4px rgba(0,0,0,0.07);
     position:sticky;top:0;height:100vh;
     z-index:30;overflow:hidden;
   }
-  html[dir="ltr"] .sidebar{border-left:none;border-right:1px solid rgba(255,255,255,0.70);}
-  [data-theme="dark"] .sidebar{background:rgba(8,12,22,0.80);border-color:rgba(255,255,255,0.08);}
+  html[dir="ltr"] .sidebar{border-left:none;border-right:1px solid rgba(255,255,255,0.65);}
+  [data-theme="dark"] .sidebar{
+    background:linear-gradient(to bottom, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+    border-color:rgba(255,255,255,0.07);
+    box-shadow:4px 0 40px -4px rgba(0,0,0,0.55);
+  }
 
   .sidebar-logo{
-    padding:18px 16px 16px;
+    padding:18px 16px 14px;
     border-bottom:1px solid rgba(255,255,255,0.50);
     display:flex;align-items:center;
   }
-  [data-theme="dark"] .sidebar-logo{border-bottom-color:rgba(255,255,255,0.08);}
+  [data-theme="dark"] .sidebar-logo{border-bottom-color:rgba(255,255,255,0.07);}
 
-  .sidebar-nav{flex:1;padding:12px 10px;display:flex;flex-direction:column;gap:3px;overflow-y:auto;}
+  .sidebar-nav{flex:1;padding:10px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;}
 
   .sidebar-item{
     display:flex;align-items:center;gap:10px;
-    padding:11px 14px;border-radius:10px;
+    padding:10px 14px;border-radius:10px;
     font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;
     color:var(--ink-soft);cursor:pointer;
     border:none;background:transparent;width:100%;
-    text-align:right;transition:all 0.18s;
+    text-align:right;
+    transition:background 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
   }
   html[dir="ltr"] .sidebar-item{text-align:left;}
-  .sidebar-item:hover{background:rgba(14,122,254,0.08);color:var(--blue);}
-  .sidebar-item.on{background:var(--blue);color:#fff;}
+  .sidebar-item:hover{
+    background:rgba(14,122,254,0.09);
+    color:var(--blue);
+    transform:translateX(-2px);
+  }
+  html[dir="ltr"] .sidebar-item:hover{transform:translateX(2px);}
+  .sidebar-item.on{
+    background:var(--blue);color:#fff;
+    box-shadow:0 4px 14px rgba(14,122,254,0.35);
+  }
   .sidebar-item.on svg{color:#fff;}
-  .sidebar-item svg{width:16px;height:16px;flex:none;transition:color 0.18s;}
-  /* Override generic .navtab styles when inside sidebar */
+  .sidebar-item svg{width:16px;height:16px;flex:none;transition:color 0.2s;}
   .sidebar-item{border-bottom:none !important;}
 
-  .sidebar-footer{
-    padding:14px 14px;
-    border-top:1px solid rgba(255,255,255,0.50);
+  /* Sidebar user card (bottom) */
+  .sidebar-user-card{
+    margin:10px;border-radius:12px;
+    background:rgba(255,255,255,0.50);
+    border:1px solid rgba(255,255,255,0.65);
+    box-shadow:0 2px 12px rgba(0,0,0,0.06);
+    padding:12px 12px;
     display:flex;align-items:center;gap:10px;
-    cursor:pointer;transition:background 0.18s;
+    cursor:pointer;
+    transition:background 0.2s, box-shadow 0.2s;
   }
-  .sidebar-footer:hover{background:rgba(14,122,254,0.06);}
-  [data-theme="dark"] .sidebar-footer{border-top-color:rgba(255,255,255,0.08);}
+  .sidebar-user-card:hover{background:rgba(255,255,255,0.72);box-shadow:0 4px 18px rgba(0,0,0,0.10);}
+  [data-theme="dark"] .sidebar-user-card{
+    background:rgba(255,255,255,0.05);
+    border-color:rgba(255,255,255,0.08);
+  }
+  [data-theme="dark"] .sidebar-user-card:hover{background:rgba(255,255,255,0.09);}
+  .sidebar-user-av{
+    width:38px;height:38px;border-radius:50%;
+    background:var(--navy);color:var(--cyan);
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:700;font-family:'Space Grotesk',sans-serif;
+    flex:none;overflow:hidden;border:2px solid rgba(255,255,255,0.50);
+  }
+  .sidebar-user-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+  .sidebar-user-info{flex:1;min-width:0;}
+  .sidebar-user-name{
+    font-size:12px;font-weight:700;color:var(--navy);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .sidebar-user-pk{font-size:10.5px;color:var(--muted);font-family:'Space Grotesk',sans-serif;}
+
+  /* Sidebar user popup */
+  .sidebar-user-popup{
+    position:fixed;z-index:9999;
+    width:270px;
+    background:rgba(255,255,255,0.82);
+    backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);
+    border:1px solid rgba(255,255,255,0.70);
+    border-radius:16px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.18);
+    overflow:hidden;
+    display:none;
+    flex-direction:column;
+  }
+  [data-theme="dark"] .sidebar-user-popup{
+    background:rgba(12,17,28,0.88);
+    border-color:rgba(255,255,255,0.09);
+    box-shadow:0 20px 60px rgba(0,0,0,0.60);
+  }
+  .sup-header{
+    padding:18px 16px 14px;
+    display:flex;align-items:center;gap:12px;
+    border-bottom:1px solid rgba(255,255,255,0.50);
+  }
+  [data-theme="dark"] .sup-header{border-bottom-color:rgba(255,255,255,0.08);}
+  .sup-av{
+    width:52px;height:52px;border-radius:50%;
+    background:var(--navy);color:var(--cyan);
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;font-weight:700;flex:none;overflow:hidden;
+    border:2.5px solid rgba(255,255,255,0.60);
+  }
+  .sup-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+  .sup-name{font-size:14px;font-weight:700;color:var(--navy);}
+  .sup-sub{font-size:11.5px;color:var(--muted);}
+  .sup-credits-row{
+    padding:12px 16px;
+    display:flex;align-items:center;gap:10px;
+    border-bottom:1px solid rgba(255,255,255,0.40);
+    background:rgba(14,122,254,0.04);
+  }
+  [data-theme="dark"] .sup-credits-row{border-bottom-color:rgba(255,255,255,0.07);background:rgba(14,122,254,0.06);}
+  .sup-credits-icon{color:var(--blue);display:flex;}
+  .sup-credits-val{font-size:15px;font-weight:800;color:var(--navy);}
+  .sup-credits-lbl{font-size:11px;color:var(--muted);}
+  .sup-toggles{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.40);}
+  [data-theme="dark"] .sup-toggles{border-bottom-color:rgba(255,255,255,0.07);}
+  .sup-toggle-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .sup-toggle-row:last-child{margin-bottom:0;}
+  .sup-toggle-label{font-size:11.5px;color:var(--ink-soft);flex:1;}
+  .sup-seg{display:flex;border-radius:8px;overflow:hidden;border:1px solid var(--paper-line);background:var(--paper-soft);}
+  .sup-seg button{padding:4px 10px;font-size:11px;font-weight:700;background:transparent;border:none;color:var(--muted);cursor:pointer;transition:all 0.18s;font-family:'Cairo',sans-serif;}
+  .sup-seg button.on{background:var(--blue);color:#fff;}
+  .sup-actions{padding:12px 16px 14px;display:flex;flex-direction:column;gap:8px;}
+  .sup-btn{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    padding:10px 14px;border-radius:10px;
+    font-size:13px;font-weight:700;cursor:pointer;
+    font-family:'Cairo',sans-serif;border:none;transition:all 0.18s;
+  }
+  .sup-btn-primary{background:var(--gold,#c89400);color:#fff;}
+  .sup-btn-primary:hover{filter:brightness(1.08);}
+  .sup-btn-ghost{background:transparent;color:var(--ink-soft);border:1px solid var(--paper-line);}
+  .sup-btn-ghost:hover{background:rgba(220,40,40,0.08);color:#dc2626;border-color:rgba(220,40,40,0.25);}
 
   /* Hide original navtabs-wrap on desktop (sidebar replaces it) */
   @media (min-width:769px){
@@ -282,7 +383,7 @@
     font-family:'Cairo','Manrope',sans-serif;
     font-weight:500;
     -webkit-font-smoothing:antialiased;
-    padding:18px 0 40px;
+    padding:0;
   }
   [data-theme="dark"] body{
     background-color:#080c16;
@@ -294,18 +395,7 @@
   html[dir="ltr"] body{font-family:'Manrope','Cairo',sans-serif;}
   .latin{font-family:'Space Grotesk','Manrope',sans-serif;}
   .mono{font-family:'IBM Plex Mono',monospace;}
-  .app{
-    max-width:1180px;margin:0 auto;overflow:hidden;
-    background:rgba(240,244,250,0.72);
-    border-radius:18px;
-    border:1px solid rgba(255,255,255,0.70);
-    box-shadow:0 8px 40px rgba(0,0,0,0.08);
-  }
-  [data-theme="dark"] .app{
-    background:rgba(10,14,26,0.78);
-    border-color:rgba(255,255,255,0.07);
-    box-shadow:0 8px 40px rgba(0,0,0,0.50);
-  }
+  /* .app removed — replaced by .app-layout full-screen */
   svg.ic{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block;flex:none;}
 
   /* ===== SPARK (signature element, drawn from the logo's sparkle motif) ===== */
@@ -1100,41 +1190,96 @@
     </div>
     <nav class="sidebar-nav">
       <div class="navtab sidebar-item on" data-tab="new-check">
-        <svg class="ic" data-icon-key="tab_new_check" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        <i data-lucide="plus-circle" style="width:16px;height:16px;flex:none;"></i>
         <span data-i18n="nav_new_check">فحص جديد</span>
       </div>
       <div class="navtab sidebar-item" data-tab="orders">
-        <svg class="ic" data-icon-key="tab_orders" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+        <i data-lucide="folder-open" style="width:16px;height:16px;flex:none;"></i>
         <span data-i18n="nav_orders">ملفاتي</span>
       </div>
       <div class="navtab sidebar-item" data-tab="wallet">
-        <svg class="ic" data-icon-key="tab_wallet" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="16" cy="14.5" r="1.4"/></svg>
+        <i data-lucide="wallet" style="width:16px;height:16px;flex:none;"></i>
         <span data-i18n="nav_wallet">المحفظة</span>
       </div>
       <div class="navtab sidebar-item" data-tab="support">
-        <svg class="ic" data-icon-key="tab_support" viewBox="0 0 24 24"><path d="M12 18v3M9 21h6"/><rect x="4" y="3" width="16" height="13" rx="2"/><path d="M9 9h.01M12 9h.01M15 9h.01"/></svg>
+        <i data-lucide="message-circle" style="width:16px;height:16px;flex:none;"></i>
         <span data-i18n="nav_support">الدعم</span>
       </div>
-    </nav>
-    <div class="sidebar-footer" id="sidebarFooter" onclick="document.getElementById('userChipBtn')?.click()">
-      <div class="av" id="sidebarAv" style="width:36px;height:36px;font-size:13px;flex:none;">مح</div>
-      <div style="flex:1;min-width:0;overflow:hidden;">
-        <div id="sidebarName" style="font-size:12.5px;font-weight:700;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div>
-        <div id="sidebarUid" class="mono" style="font-size:10.5px;color:var(--muted);">PK000</div>
+      <div class="navtab sidebar-item" data-tab="my-profile">
+        <i data-lucide="user-circle" style="width:16px;height:16px;flex:none;"></i>
+        <span data-i18n="nav_my_profile">حسابي</span>
       </div>
+    </nav>
+    <!-- Sidebar user card -->
+    <div class="sidebar-user-card" id="sidebarUserCard" onclick="toggleSidebarUserPopup()">
+      <div class="sidebar-user-av" id="sidebarAv">مح</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="sidebarName">—</div>
+        <div class="sidebar-user-pk mono" id="sidebarUid">PK000</div>
+      </div>
+      <i data-lucide="chevron-up" style="width:14px;height:14px;flex:none;color:var(--muted);"></i>
     </div>
   </aside>
+  <!-- Sidebar user popup (built here, positioned by JS) -->
+  <div class="sidebar-user-popup" id="sidebarUserPopup">
+    <div class="sup-header">
+      <div class="sup-av" id="supAv">مح</div>
+      <div>
+        <div class="sup-name" id="supName">—</div>
+        <div class="sup-sub mono" id="supPk">PK000</div>
+        <div class="sup-sub" id="supEmail" style="margin-top:2px;">—</div>
+      </div>
+    </div>
+    <div class="sup-credits-row">
+      <div class="sup-credits-icon"><i data-lucide="coins" style="width:16px;height:16px;"></i></div>
+      <div>
+        <div class="sup-credits-val"><span id="supBalanceNum">0</span> <small data-i18n="kpi_credits_unit" style="font-size:11px;font-weight:600;">كريديت</small></div>
+        <div class="sup-credits-lbl" data-i18n="kpi_balance">رصيدك الحالي</div>
+      </div>
+      <button onclick="closeSidebarUserPopup();goTab('wallet');" style="margin-right:auto;padding:4px 10px;border-radius:7px;background:var(--blue);color:#fff;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;" data-i18n="kpi_topup">شحن +</button>
+    </div>
+    <div class="sup-toggles">
+      <div class="sup-toggle-row">
+        <span class="sup-toggle-label" data-i18n="sup_lang">اللغة</span>
+        <div class="sup-seg" id="supLangSeg">
+          <button onclick="setLangFromPopup('ar')" class="on">عربي</button>
+          <button onclick="setLangFromPopup('en')">EN</button>
+        </div>
+      </div>
+      <div class="sup-toggle-row">
+        <span class="sup-toggle-label" data-i18n="sup_currency">العملة</span>
+        <div class="sup-seg" id="supCurrencySeg">
+          <button onclick="setCurrencyFromPopup('EGP')" class="on">EGP</button>
+          <button onclick="setCurrencyFromPopup('USD')">USD</button>
+        </div>
+      </div>
+    </div>
+    <div class="sup-actions">
+      <button class="sup-btn sup-btn-primary" onclick="closeSidebarUserPopup();goTab('my-profile');">
+        <i data-lucide="user" style="width:14px;height:14px;"></i>
+        <span data-i18n="user_profile">الملف الشخصي</span>
+      </button>
+      <button class="sup-btn sup-btn-ghost" onclick="signOut()">
+        <i data-lucide="log-out" style="width:14px;height:14px;"></i>
+        <span data-i18n="user_signout">تسجيل الخروج</span>
+      </button>
+    </div>
+  </div>
 
   <!-- ===== MAIN CONTENT ===== -->
   <div class="main-wrap">
   <div class="topbar">
     <div class="topbar-in">
-      <div class="brand">
-        <img data-icon-key="logo_dashboard" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E" alt="Pro Keys Turnitin" style="width:auto;height:38px;">
+      <!-- Hidden elements kept for JS compatibility (lang/currency/user dropdown still used by JS) -->
+      <span id="langSwitch" style="display:none;">EN</span>
+      <span id="currencySwitch" style="display:none;">USD</span>
+      <div style="display:none;" id="userChipBtn"><div class="av" id="userAvatar">مح</div><span class="user-chip-id mono" id="userIdTag">PK000</span></div>
+      <div style="display:none;" id="userDropdown">
+        <div class="av-lg" id="userAvatarLg">مح</div>
+        <b id="userNameDropdown">محمد</b>
+        <span id="userEmailDropdown">—</span>
       </div>
-      <div class="topbar-right">
-        <div class="lang-switch" id="langSwitch">EN / AR</div>
-        <div class="currency-switch" id="currencySwitch">USD</div>
+      <div class="topbar-right" style="width:100%;justify-content:flex-end;">
         <div class="icon-btn-wrap">
           <div class="icon-btn" id="notifBtn"><span class="dot" id="notifDot"></span>
             <svg class="ic" data-icon-key="header_notif" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -1148,27 +1293,6 @@
           </div>
         </div>
         <button id="darkModeBtn" style="width:36px;height:36px;border-radius:50%;background:var(--paper-soft);border:1.5px solid var(--paper-line);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-soft);font-size:18px;padding:0;transition:all 0.3s;"><span class="lightmode-icon-wrap" style="display:inline-flex;align-items:center;justify-content:center;"><span data-icon-key="header_lightmode" style="width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;line-height:1;">☀️</span></span><span class="darkmode-icon-wrap" style="display:none;align-items:center;justify-content:center;"><span data-icon-key="header_darkmode" style="width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;line-height:1;">🌙</span></span></button>
-        <div class="icon-btn-wrap" style="position:relative;">
-          <div class="user-chip" id="userChipBtn"><div class="av" id="userAvatar">مح</div><span class="user-chip-id mono" id="userIdTag">PK000</span></div>
-          <div class="user-dropdown" id="userDropdown">
-            <div class="user-dropdown-header">
-              <div class="av-lg" id="userAvatarLg">مح</div>
-              <div class="user-dropdown-header-text">
-                <b id="userNameDropdown">محمد</b>
-                <span id="userEmailDropdown">prokeys@turnitin.blog</span>
-              </div>
-            </div>
-            <div class="user-dropdown-divider"></div>
-            <div class="user-dropdown-item" onclick="openProfilePopup()">
-              <svg data-icon-key="header_profile" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v2"/></svg>
-              <span data-i18n="user_profile">الملف الشخصي</span>
-            </div>
-            <div class="user-dropdown-item" onclick="signOut()">
-              <svg data-icon-key="header_signout" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-              <span data-i18n="user_signout">تسجيل الخروج</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -1628,6 +1752,102 @@
       </div>
     </div>
 
+    <!-- ============ MY PROFILE ============ -->
+    <div class="tabpane" id="pane-my-profile" style="display:none;">
+      <div class="sec-head"><h2 data-i18n="profile_modal_title">الملف الشخصي</h2></div>
+
+      <div class="panel-block">
+        <!-- Avatar + name header -->
+        <div style="background:linear-gradient(135deg,var(--navy),#243873);padding:28px 24px;display:flex;align-items:center;gap:18px;border-radius:var(--radius) var(--radius) 0 0;">
+          <div style="position:relative;">
+            <img id="profileAvatarPreview2" src="" style="width:72px;height:72px;border-radius:50%;object-fit:cover;display:none;border:3px solid rgba(255,255,255,0.40);">
+            <div id="profileAvatarFallback2" style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,0.15);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;border:3px solid rgba(255,255,255,0.25);">؟</div>
+            <label for="profileAvatarInput2" style="position:absolute;bottom:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid #fff;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </label>
+            <input type="file" id="profileAvatarInput2" accept="image/*" style="display:none;" onchange="handleAvatarUploadFromTab(this)">
+          </div>
+          <div>
+            <div style="font-size:17px;font-weight:800;color:#fff;" id="profileHeaderName2">—</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.70);margin-top:3px;" id="profileHeaderEmail2">—</div>
+            <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
+              <span class="mono" style="font-size:11px;font-weight:700;background:rgba(255,255,255,0.15);color:#fff;padding:3px 9px;border-radius:6px;" id="profileHeaderPk2">PK000</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-block-body" style="padding:22px 22px;">
+          <!-- Full name -->
+          <div class="field-block" style="margin-bottom:16px;">
+            <span class="glabel" data-i18n="profile_name">الاسم الكامل</span>
+            <input id="profileNameInput2" class="ticket-input" placeholder="" style="margin-top:5px;">
+          </div>
+          <!-- Email (read-only) -->
+          <div class="field-block" style="margin-bottom:16px;">
+            <span class="glabel" data-i18n="profile_email">البريد الإلكتروني</span>
+            <input id="profileEmailInput2" class="ticket-input" readonly style="margin-top:5px;background:var(--paper-soft);color:var(--muted);">
+          </div>
+          <!-- Phone -->
+          <div class="field-block" style="margin-bottom:16px;">
+            <span class="glabel" data-i18n="profile_phone">رقم الهاتف</span>
+            <div style="display:flex;gap:8px;margin-top:5px;">
+              <select id="profilePhoneCountry2" class="ticket-input" style="width:110px;flex:none;"></select>
+              <input id="profilePhoneInput2" class="ticket-input" placeholder="1012345678" style="flex:1;">
+            </div>
+          </div>
+          <!-- WhatsApp -->
+          <div class="field-block" style="margin-bottom:20px;">
+            <span class="glabel" data-i18n="profile_whatsapp">واتساب</span>
+            <div style="display:flex;gap:8px;margin-top:5px;">
+              <select id="profileWhatsappCountry2" class="ticket-input" style="width:110px;flex:none;"></select>
+              <input id="profileWhatsappInput2" class="ticket-input" placeholder="1012345678" style="flex:1;">
+            </div>
+          </div>
+          <!-- Save -->
+          <button class="btn btn-gold" style="width:100%;justify-content:center;" onclick="saveProfileFromTab()">
+            <span data-i18n="profile_save">حفظ التغييرات</span>
+          </button>
+          <div id="profileTabStatus" style="text-align:center;font-size:12.5px;margin-top:10px;color:var(--ok);min-height:18px;"></div>
+
+          <!-- Password change -->
+          <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--paper-line);">
+            <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;" data-i18n="change_password">تغيير كلمة المرور</div>
+            <div class="field-block" style="margin-bottom:12px;">
+              <span class="glabel" data-i18n="profile_new_pass">كلمة المرور الجديدة</span>
+              <div style="position:relative;margin-top:5px;">
+                <input id="profilePassword2" type="password" class="ticket-input" placeholder="•••••••" style="padding-left:38px;">
+                <button type="button" onclick="togglePassVis('profilePassword2',this)" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:0;display:flex;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="changePasswordFromTab()">
+              <span data-i18n="profile_change_pass">تغيير الباسورد</span>
+            </button>
+            <div id="profileTabPassStatus" style="text-align:center;font-size:12.5px;margin-top:10px;color:var(--ok);min-height:18px;"></div>
+          </div>
+
+          <!-- Language & Currency -->
+          <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--paper-line);">
+            <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:14px;" data-i18n="sup_settings">الإعدادات</div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
+              <span style="font-size:12.5px;color:var(--ink-soft);flex:1;" data-i18n="sup_lang">اللغة</span>
+              <div class="seg" style="flex:none;">
+                <button class="on" onclick="setLangFromPopup('ar')" id="tabLangAr">عربي</button>
+                <button onclick="setLangFromPopup('en')" id="tabLangEn">EN</button>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+              <span style="font-size:12.5px;color:var(--ink-soft);flex:1;" data-i18n="sup_currency">العملة</span>
+              <div class="seg" style="flex:none;">
+                <button class="on" onclick="setCurrencyFromPopup('EGP')" id="tabCurrEgp">EGP</button>
+                <button onclick="setCurrencyFromPopup('USD')" id="tabCurrUsd">USD</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1914,7 +2134,8 @@ function applyCustomIcons(){
 
 const I18N = {
   ar: {
-    nav_home:"الرئيسية", nav_new_check:"فحص جديد", nav_orders:"ملفاتي", nav_wallet:"المحفظة", nav_support:"الدعم",
+    nav_home:"الرئيسية", nav_new_check:"فحص جديد", nav_orders:"ملفاتي", nav_wallet:"المحفظة", nav_support:"الدعم", nav_my_profile:"حسابي",
+    sup_lang:"اللغة", sup_currency:"العملة", sup_settings:"الإعدادات",
     profile_modal_title:"الملف الشخصي", profile_save_btn:"حفظ", profile_cancel_btn:"إلغاء",
     profile_save_success:"تم حفظ بياناتك بنجاح", profile_save_error:"تعذر حفظ البيانات",
     signout_confirm:"هل تريد تسجيل الخروج؟",
@@ -2021,7 +2242,8 @@ const I18N = {
     faq_title:"الأسئلة الشائعة",
   },
   en: {
-    nav_home:"Home", nav_new_check:"New Check", nav_orders:"My orders", nav_wallet:"Wallet", nav_support:"Support",
+    nav_home:"Home", nav_new_check:"New Check", nav_orders:"My orders", nav_wallet:"Wallet", nav_support:"Support", nav_my_profile:"My Account",
+    sup_lang:"Language", sup_currency:"Currency", sup_settings:"Settings",
     profile_modal_title:"Profile", profile_save_btn:"Save", profile_cancel_btn:"Cancel",
     profile_save_success:"Your details were saved successfully", profile_save_error:"Couldn't save your details",
     signout_confirm:"Sign out of your account?",
@@ -3568,6 +3790,7 @@ function goTab(tab, persist = true){
   // every future login just because they read one notification.
   if (persist) localStorage.setItem('prokeys-active-tab', tab);
   if (tab === 'wallet') { loadPaymentHistory(); loadOrderTransactions(); }
+  if (tab === 'my-profile') { openMyProfileTab(); }
 }
 document.querySelectorAll('.navtab[data-tab]').forEach(el => {
   el.addEventListener('click', () => goTab(el.dataset.tab));
@@ -3785,6 +4008,222 @@ async function signOut(){
   window.location.href = 'index.html';
 }
 
+/* ===================== SIDEBAR USER POPUP ===================== */
+function updateSidebarUserPopup(){
+  const name = currentUser.name || '—';
+  const uid = currentUser.id || 'PK000';
+  const email = currentUser.email || '—';
+  // Card
+  const sbName = document.getElementById('sidebarName');
+  const sbUid = document.getElementById('sidebarUid');
+  const sbAv = document.getElementById('sidebarAv');
+  if(sbName) sbName.textContent = name;
+  if(sbUid) sbUid.textContent = uid;
+  if(sbAv) renderUserAvatar(sbAv);
+  // Popup header
+  const supName = document.getElementById('supName');
+  const supPk = document.getElementById('supPk');
+  const supEmail = document.getElementById('supEmail');
+  const supAv = document.getElementById('supAv');
+  const supBal = document.getElementById('supBalanceNum');
+  if(supName) supName.textContent = name;
+  if(supPk) supPk.textContent = uid;
+  if(supEmail) supEmail.textContent = email;
+  if(supAv) renderUserAvatar(supAv);
+  if(supBal) supBal.textContent = Math.round(userBalance || 0);
+  // Lang/currency segment sync
+  syncSupSegments();
+  // My-profile tab header
+  const ph2Name = document.getElementById('profileHeaderName2');
+  const ph2Email = document.getElementById('profileHeaderEmail2');
+  const ph2Pk = document.getElementById('profileHeaderPk2');
+  if(ph2Name) ph2Name.textContent = name;
+  if(ph2Email) ph2Email.textContent = email;
+  if(ph2Pk) ph2Pk.textContent = uid;
+}
+function syncSupSegments(){
+  document.querySelectorAll('#supLangSeg button').forEach(b => {
+    b.classList.toggle('on', (b.textContent.trim() === 'عربي' && currentLang === 'ar') || (b.textContent.trim() === 'EN' && currentLang === 'en'));
+  });
+  document.querySelectorAll('#supCurrencySeg button').forEach(b => {
+    b.classList.toggle('on', b.textContent.trim() === currentCurrency);
+  });
+  // Also sync profile tab segs
+  const tabLangAr = document.getElementById('tabLangAr');
+  const tabLangEn = document.getElementById('tabLangEn');
+  const tabCurrEgp = document.getElementById('tabCurrEgp');
+  const tabCurrUsd = document.getElementById('tabCurrUsd');
+  if(tabLangAr) tabLangAr.classList.toggle('on', currentLang === 'ar');
+  if(tabLangEn) tabLangEn.classList.toggle('on', currentLang === 'en');
+  if(tabCurrEgp) tabCurrEgp.classList.toggle('on', currentCurrency === 'EGP');
+  if(tabCurrUsd) tabCurrUsd.classList.toggle('on', currentCurrency === 'USD');
+}
+function setLangFromPopup(lang){
+  currentLang = lang;
+  localStorage.setItem('prokeys-lang', lang);
+  if(PROKEYS_USER_ID){
+    supabaseClient.from('users_profile').update({language:lang}).eq('user_id',PROKEYS_USER_ID)
+      .then(({error})=>{ if(error) console.error('lang save:',error); });
+  }
+  applyLang();
+  syncSupSegments();
+  const activeCard = document.querySelector('#walletPayGrid .paycard.on');
+  if(activeCard) renderPaymentDetails(activeCard.dataset.pay);
+}
+function setCurrencyFromPopup(cur){
+  currentCurrency = cur;
+  localStorage.setItem('prokeys-currency', cur);
+  if(PROKEYS_USER_ID){
+    supabaseClient.from('users_profile').update({currency:cur}).eq('user_id',PROKEYS_USER_ID)
+      .then(({error})=>{ if(error) console.error('currency save:',error); });
+  }
+  const csEl = document.getElementById('currencySwitch');
+  if(csEl) csEl.textContent = cur;
+  updateAllPrices();
+  renderPaymentHistory();
+  syncSupSegments();
+}
+let _supPopupOpen = false;
+function toggleSidebarUserPopup(){
+  if(_supPopupOpen){ closeSidebarUserPopup(); return; }
+  openSidebarUserPopup();
+}
+function openSidebarUserPopup(){
+  updateSidebarUserPopup();
+  const popup = document.getElementById('sidebarUserPopup');
+  const card = document.getElementById('sidebarUserCard');
+  if(!popup || !card) return;
+  const rect = card.getBoundingClientRect();
+  popup.style.display = 'flex';
+  // Position above the card
+  const popupH = popup.offsetHeight || 340;
+  let top = rect.top - popupH - 8;
+  if(top < 8) top = rect.bottom + 8;
+  const isRtl = document.documentElement.dir === 'rtl';
+  if(isRtl){
+    popup.style.right = (window.innerWidth - rect.right) + 'px';
+    popup.style.left = 'auto';
+  } else {
+    popup.style.left = rect.left + 'px';
+    popup.style.right = 'auto';
+  }
+  popup.style.top = top + 'px';
+  _supPopupOpen = true;
+  // Re-init lucide icons inside popup
+  if(window.lucide) lucide.createIcons({el: popup});
+  setTimeout(()=> document.addEventListener('click', _supPopupOutside, {once:true}), 10);
+}
+function closeSidebarUserPopup(){
+  const popup = document.getElementById('sidebarUserPopup');
+  if(popup) popup.style.display = 'none';
+  _supPopupOpen = false;
+  document.removeEventListener('click', _supPopupOutside);
+}
+function _supPopupOutside(e){
+  const popup = document.getElementById('sidebarUserPopup');
+  const card = document.getElementById('sidebarUserCard');
+  if(popup && !popup.contains(e.target) && card && !card.contains(e.target)){
+    closeSidebarUserPopup();
+  }
+}
+
+/* ===================== MY-PROFILE TAB FUNCTIONS ===================== */
+function openMyProfileTab(){
+  updateSidebarUserPopup();
+  populateCountrySelects();
+  const nameEl = document.getElementById('profileNameInput2');
+  const emailEl = document.getElementById('profileEmailInput2');
+  if(nameEl) nameEl.value = currentUser.name || '';
+  if(emailEl) emailEl.value = currentUser.email || '';
+  const phone = splitPhoneValue(currentUser.phone);
+  const pc2 = document.getElementById('profilePhoneCountry2');
+  const pi2 = document.getElementById('profilePhoneInput2');
+  if(pc2) pc2.value = phone.code;
+  if(pi2) pi2.value = phone.number;
+  const wa = splitPhoneValue(currentUser.whatsapp);
+  const wc2 = document.getElementById('profileWhatsappCountry2');
+  const wi2 = document.getElementById('profileWhatsappInput2');
+  if(wc2) wc2.value = wa.code;
+  if(wi2) wi2.value = wa.number;
+  // Sync avatar
+  const prev2 = document.getElementById('profileAvatarPreview2');
+  const fall2 = document.getElementById('profileAvatarFallback2');
+  if(currentUser.avatarUrl && prev2 && fall2){
+    prev2.src = currentUser.avatarUrl;
+    prev2.style.display = 'block';
+    fall2.style.display = 'none';
+  } else if(prev2 && fall2){
+    prev2.style.display = 'none';
+    fall2.style.display = 'flex';
+    fall2.textContent = getInitials(currentUser.name) || '؟';
+  }
+}
+async function saveProfileFromTab(){
+  if(!PROKEYS_USER_ID){ window.location.href='index.html'; return; }
+  const name = (document.getElementById('profileNameInput2')?.value || '').trim();
+  if(!name){ await appAlert(t('profile_save_error'),{icon:'error'}); return; }
+  const phoneCode = document.getElementById('profilePhoneCountry2')?.value || '+20';
+  const phoneNum = (document.getElementById('profilePhoneInput2')?.value || '').trim();
+  const waCode = document.getElementById('profileWhatsappCountry2')?.value || '+20';
+  const waNum = (document.getElementById('profileWhatsappInput2')?.value || '').trim();
+  const phone = phoneNum ? `${phoneCode} ${phoneNum}` : '';
+  const whatsapp = waNum ? `${waCode} ${waNum}` : '';
+  const {error} = await supabaseClient.from('users_profile').update({full_name:name,whatsapp,phone}).eq('user_id',PROKEYS_USER_ID);
+  const statusEl = document.getElementById('profileTabStatus');
+  if(error){
+    if(statusEl) statusEl.style.color='var(--danger)';
+    if(statusEl) statusEl.textContent = t('profile_save_error');
+  } else {
+    currentUser.name = name;
+    currentUser.whatsapp = whatsapp;
+    currentUser.phone = phone;
+    applyLang();
+    updateSidebarUserPopup();
+    if(statusEl){ statusEl.style.color='var(--ok)'; statusEl.textContent = t('profile_save_ok'); }
+    setTimeout(()=>{ if(statusEl) statusEl.textContent=''; }, 3000);
+  }
+}
+async function changePasswordFromTab(){
+  const pw = document.getElementById('profilePassword2')?.value || '';
+  if(pw.length < 6){ await appAlert(t('profile_pass_short'),{icon:'warning'}); return; }
+  const {error} = await supabaseClient.auth.updateUser({password: pw});
+  const statusEl = document.getElementById('profileTabPassStatus');
+  if(error){
+    if(statusEl){ statusEl.style.color='var(--danger)'; statusEl.textContent = t('profile_pass_error'); }
+  } else {
+    if(document.getElementById('profilePassword2')) document.getElementById('profilePassword2').value='';
+    if(statusEl){ statusEl.style.color='var(--ok)'; statusEl.textContent = currentLang==='ar'?'✅ اتغيّر الباسورد بنجاح':'✅ Password changed successfully'; }
+    setTimeout(()=>{ if(statusEl) statusEl.textContent=''; }, 3000);
+  }
+}
+async function handleAvatarUploadFromTab(input){
+  if(!input.files[0]) return;
+  const file = input.files[0];
+  if(file.size > 3*1024*1024){ await appAlert(currentLang==='ar'?'الصورة أكبر من 3MB':'Image exceeds 3MB',{icon:'warning'}); return; }
+  const ext = file.name.split('.').pop();
+  const path = `avatars/${PROKEYS_USER_ID}.${ext}`;
+  const {error:upErr} = await supabaseClient.storage.from('user-avatars').upload(path, file, {upsert:true});
+  if(upErr){ console.error('avatar upload:', upErr); return; }
+  const {data:{publicUrl}} = supabaseClient.storage.from('user-avatars').getPublicUrl(path);
+  currentUser.avatarUrl = publicUrl + '?t=' + Date.now();
+  await supabaseClient.from('users_profile').update({avatar_url:currentUser.avatarUrl}).eq('user_id',PROKEYS_USER_ID);
+  renderUserAvatar(document.getElementById('userAvatar'));
+  renderUserAvatar(document.getElementById('userAvatarLg'));
+  renderUserAvatar(document.getElementById('sidebarAv'));
+  renderUserAvatar(document.getElementById('supAv'));
+  renderAvatarPreview(currentUser.avatarUrl);
+  openMyProfileTab();
+  if(typeof renderInbox==='function') renderInbox();
+}
+function togglePassVis(inputId, btn){
+  const inp = document.getElementById(inputId);
+  if(!inp) return;
+  inp.type = inp.type==='password' ? 'text' : 'password';
+}
+
+/* ===================== LUCIDE ICONS INIT ===================== */
+if(window.lucide) lucide.createIcons();
+
 /* ===================== PROFILE POPUP ===================== */
 const COUNTRY_CODES = [
   {code:'+20', flag:'🇪🇬', name_ar:'مصر', name_en:'Egypt'},
@@ -3825,7 +4264,7 @@ const COUNTRY_CODES = [
 ];
 function populateCountrySelects(){
   const opts = COUNTRY_CODES.map(c => `<option value="${c.code}">${c.flag} ${c.code}</option>`).join('');
-  ['profilePhoneCountry','profileWhatsappCountry'].forEach(id => {
+  ['profilePhoneCountry','profileWhatsappCountry','profilePhoneCountry2','profileWhatsappCountry2'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.innerHTML = opts;
   });
@@ -4700,13 +5139,8 @@ function applyLang(){
   document.getElementById('userEmailDropdown').textContent = currentUser.email || '—';
   renderUserAvatar(document.getElementById('userAvatar'));
   renderUserAvatar(document.getElementById('userAvatarLg'));
-  // Sidebar user info
-  const sbName = document.getElementById('sidebarName');
-  const sbUid = document.getElementById('sidebarUid');
-  const sbAv = document.getElementById('sidebarAv');
-  if (sbName) sbName.textContent = currentUser.name || '—';
-  if (sbUid) sbUid.textContent = currentUser.id || 'PK000';
-  if (sbAv) renderUserAvatar(sbAv);
+  // Sidebar user info sync
+  if (typeof updateSidebarUserPopup === 'function') updateSidebarUserPopup();
   renderOrders();
   updatePrice();
   renderFaq();
