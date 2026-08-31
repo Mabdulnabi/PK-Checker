@@ -711,25 +711,37 @@
   .inbox-item.expanded{background:var(--paper-soft);}
   .inbox-expand-cta{font-size:11px;color:var(--muted);cursor:pointer;flex:none;font-weight:700;}
   
-  /* Expanded ticket details and reply thread */
-  .inbox-details{margin-top:14px;padding-top:14px;border-top:1px solid var(--paper-line);display:flex;flex-direction:column;gap:10px;}
-  .inbox-reply{background:var(--paper);border:1px solid var(--paper-line);border-radius:9px;padding:12px 14px;display:flex;gap:10px;}
-  .inbox-reply.from-admin{background:linear-gradient(90deg, rgba(14,122,254,0.04) 0%, transparent 100%);border-color:rgba(14,122,254,0.2);}
-  .inbox-reply.from-user{background:var(--blue-wash);border-color:rgba(14,122,254,0.3);}
-  .inbox-reply .ir-av{width:26px;height:26px;border-radius:50%;background:var(--navy);color:var(--cyan);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;font-family:'Space Grotesk',sans-serif;}
-  .inbox-reply.from-user .ir-av{background:var(--blue);color:#fff;}
-  .inbox-reply .ir-text{font-size:12px;color:var(--navy);line-height:1.5;flex:1;white-space:pre-wrap;}
-  .inbox-reply .ir-text b{display:block;font-weight:700;margin-bottom:5px;color:var(--muted);font-size:11px;}
-  .inbox-reply{margin-top:0;}
-  .inbox-reply-form{display:flex;gap:8px;margin-top:2px;}
-  .ir-attach-btn{display:flex;align-items:center;justify-content:center;flex:none;width:36px;height:36px;border-radius:9px;background:var(--paper-soft);border:1.5px solid var(--paper-line);color:var(--ink-soft);cursor:pointer;}
+  /* Expanded ticket details — chat-bubble thread */
+  .inbox-details{margin-top:0;border-top:1px solid var(--paper-line);}
+  .inbox-thread{padding:14px 14px 10px;display:flex;flex-direction:column;gap:10px;background:var(--paper-soft);max-height:340px;overflow-y:auto;}
+  .inbox-thread::-webkit-scrollbar{width:4px;}
+  .inbox-thread::-webkit-scrollbar-thumb{background:var(--paper-line);border-radius:4px;}
+  /* bubble row */
+  .ir-row{display:flex;align-items:flex-end;gap:7px;}
+  .ir-row.mine{flex-direction:row-reverse;}
+  html[dir="rtl"] .ir-row.mine{flex-direction:row;}
+  .ir-av{width:26px;height:26px;border-radius:50%;background:var(--blue-wash);color:var(--blue-deep);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden;}
+  .ir-bubble-wrap{display:flex;flex-direction:column;gap:3px;max-width:78%;}
+  .ir-row.mine .ir-bubble-wrap{align-items:flex-end;}
+  html[dir="rtl"] .ir-row.mine .ir-bubble-wrap{align-items:flex-start;}
+  .ir-name{font-size:10px;color:var(--muted);font-weight:600;padding:0 4px;}
+  .ir-bubble{padding:9px 13px;border-radius:14px;font-size:12.5px;line-height:1.55;white-space:pre-wrap;word-break:break-word;}
+  .ir-bubble.from-admin{background:var(--paper);border:1px solid var(--paper-line);border-bottom-left-radius:3px;color:var(--ink);}
+  .ir-bubble.from-user{background:var(--blue);color:#fff;border-bottom-right-radius:3px;}
+  html[dir="rtl"] .ir-bubble.from-user{border-bottom-right-radius:14px;border-bottom-left-radius:3px;}
+  .ir-time{font-size:9.5px;color:var(--muted);opacity:.7;padding:0 4px;}
+  .ir-attach-link{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;margin-top:4px;background:rgba(0,0,0,.06);padding:4px 8px;border-radius:8px;text-decoration:none;color:inherit;}
+  .from-user .ir-attach-link{background:rgba(255,255,255,.2);color:#fff;}
+  /* reply form */
+  .inbox-reply-form{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--paper-line);background:var(--paper);}
+  .ir-attach-btn{display:flex;align-items:center;justify-content:center;flex:none;width:34px;height:34px;border-radius:9px;background:var(--paper-soft);border:1.5px solid var(--paper-line);color:var(--ink-soft);cursor:pointer;}
   .ir-attach-btn:hover{background:var(--blue-wash);color:var(--blue-deep);}
-  .ir-attach-chip-row{margin-top:6px;}
-  .inbox-reply-form input{flex:1;background:var(--paper);border:1.5px solid var(--paper-line);border-radius:20px;padding:9px 14px;font-size:12px;font-family:'Cairo','Manrope',sans-serif;}
-  .inbox-reply-form input:focus{outline:none;border-color:var(--blue);}
-  .inbox-reply-form button{width:34px;height:34px;border-radius:50%;background:var(--blue);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;color:#fff;}
+  .ir-attach-chip-row{padding:0 14px 8px;background:var(--paper);}
+  .inbox-reply-form textarea{flex:1;background:var(--paper-soft);border:1.5px solid var(--paper-line);border-radius:12px;padding:8px 13px;font-size:12.5px;font-family:'Cairo','Manrope',sans-serif;resize:none;min-height:36px;max-height:90px;line-height:1.4;}
+  .inbox-reply-form textarea:focus{outline:none;border-color:var(--blue);}
+  .inbox-reply-form button{width:34px;height:34px;border-radius:50%;background:var(--blue);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;color:#fff;align-self:flex-end;}
   .inbox-reply-form button:disabled{opacity:0.5;cursor:default;}
-  .inbox-closed-note{font-size:11px;color:var(--muted);text-align:center;padding:4px 0;}
+  .inbox-closed-note{font-size:11px;color:var(--muted);text-align:center;padding:10px;background:var(--paper);border-top:1px solid var(--paper-line);}
 
   /* ===== LIVE CHAT (floating bubble + window) ===== */
   .chat-bubble{position:fixed;bottom:22px;left:22px;width:54px;height:54px;border-radius:50%;background:linear-gradient(150deg, var(--navy), var(--blue-deep));display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 10px 24px -8px rgba(27,37,86,0.45);z-index:50;}
@@ -2733,6 +2745,16 @@ async function uploadReplyAttachment(ticketDbId, file){
   }
 }
 
+async function openTicketAttachment(pathEncoded){
+  const path = decodeURIComponent(pathEncoded);
+  try {
+    const { data, error } = await supabaseClient.storage.from('ticket-attachments').createSignedUrl(path, 60);
+    if (error) throw error;
+    window.open(data.signedUrl, '_blank');
+  } catch(err) {
+    console.error('openTicketAttachment failed:', err);
+  }
+}
 function renderTicketAttachment(url, name){
   if (!url) return '';
   const isImage = /\.(jpe?g|png|gif|webp)$/i.test(name || url);
@@ -2774,34 +2796,55 @@ function renderInbox(){
       </div>
       ${tk.expanded ? `
         <div class="inbox-details">
-          ${tk.replies ? tk.replies.map(r => {
-            const adminProfile = r.from === 'admin' ? (adminProfilesById[r.adminId] || {}) : null;
-            const avatarUrl = r.from === 'admin' ? adminProfile.avatar_url : currentUser.avatarUrl;
-            const initial = r.from === 'admin' ? (adminProfile.display_title || adminProfile.name || 'S').charAt(0) : (currentUser.name || '?').charAt(0);
-            const avatarHtml = avatarUrl
-              ? `<img src="${escapeHtml(avatarUrl)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
-              : escapeHtml(initial);
-            const titleLabel = r.from === 'admin' ? (adminProfile.display_title || (currentLang==='ar'?'فريق الدعم':'Support Team')) : currentUser.name;
-            return `
-            <div class="inbox-reply ${r.from==='admin'?'from-admin':'from-user'}">
-              <div class="ir-av">${avatarHtml}</div>
-              <div class="ir-text"><b style="font-size:11px;margin-bottom:6px;display:block;">${escapeHtml(titleLabel)}</b>${escapeHtml(r.text)}${r.editedAt ? ` <i style="font-size:9px;opacity:.6;">(${currentLang==='ar'?'معدّلة':'edited'})</i>` : ''}${renderTicketAttachment(r.attachmentUrl, r.attachmentName)}</div>
-            </div>
-          `;}).join('') : ''}
+          <div class="inbox-thread" id="inboxThread-${i}">
+            ${tk.replies ? tk.replies.map(r => {
+              const isMine = r.from === 'user';
+              const adminProfile = !isMine ? (adminProfilesById[r.adminId] || getDefaultAdminProfile() || {}) : null;
+              const avatarUrl = isMine ? currentUser.avatarUrl : (adminProfile && adminProfile.avatar_url);
+              const initial = isMine
+                ? (currentUser.name || '?').charAt(0).toUpperCase()
+                : ((adminProfile && (adminProfile.display_title || adminProfile.name)) || 'S').charAt(0).toUpperCase();
+              const avatarHtml = avatarUrl
+                ? `<img src="${escapeHtml(avatarUrl)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                : `<span>${escapeHtml(initial)}</span>`;
+              const nameLabel = isMine
+                ? (currentUser.name || (currentLang==='ar'?'أنت':'You'))
+                : (adminProfile && (adminProfile.display_title || adminProfile.name)) || (currentLang==='ar'?'فريق الدعم':'Support Team');
+              const timeLabel = r.createdAt
+                ? new Date(r.createdAt).toLocaleString(currentLang==='ar'?'ar-EG':'en-GB',{hour:'2-digit',minute:'2-digit',month:'short',day:'numeric'})
+                : '';
+              const attachHtml = r.attachmentUrl
+                ? `<a class="ir-attach-link" href="#" onclick="openTicketAttachment('${encodeURIComponent(r.attachmentUrl)}');return false;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;flex:none;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                    ${escapeHtml(r.attachmentName || (currentLang==='ar'?'مرفق':'Attachment'))}
+                  </a>`
+                : '';
+              return `<div class="ir-row ${isMine?'mine':''}">
+                <div class="ir-av">${avatarHtml}</div>
+                <div class="ir-bubble-wrap">
+                  <div class="ir-name">${escapeHtml(nameLabel)}</div>
+                  <div class="ir-bubble ${isMine?'from-user':'from-admin'}">${escapeHtml(r.text||'')}${r.editedAt?` <i style="font-size:9px;opacity:.6;">(${currentLang==='ar'?'معدّلة':'edited'})</i>`:''}${attachHtml}</div>
+                  <div class="ir-time">${timeLabel}</div>
+                </div>
+              </div>`;
+            }).join('') : ''}
+          </div>
           ${tk.status === 'closed' ? `
             <div class="inbox-closed-note" data-i18n="inbox_closed_note">${t('inbox_closed_note')}</div>
           ` : `
+            <div class="ir-attach-chip-row" id="replyAttachRow-${i}"></div>
             <div class="inbox-reply-form">
               <label class="ir-attach-btn" for="ticketReplyFile-${i}" aria-label="${t('support_attach_cta')}">
                 <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3.5 3.5 0 0 1 4.95 4.95l-9.2 9.19a1.5 1.5 0 0 1-2.12-2.12l8.49-8.48"/></svg>
               </label>
               <input type="file" id="ticketReplyFile-${i}" data-reply-idx="${i}" accept="image/*,.pdf,.doc,.docx" style="display:none;">
-              <input type="text" id="ticketReplyInput-${i}" data-i18n-ph="inbox_reply_ph" placeholder="${t('inbox_reply_ph')}" onkeydown="if(event.key==='Enter') sendTicketReply(${i})">
+              <textarea id="ticketReplyInput-${i}" data-i18n-ph="inbox_reply_ph" placeholder="${t('inbox_reply_ph')}" rows="1"
+                oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,90)+'px'"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendTicketReply(${i})}"></textarea>
               <button type="button" onclick="sendTicketReply(${i})" aria-label="${t('inbox_reply_send')}">
                 <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor;"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
               </button>
             </div>
-            <div class="ir-attach-chip-row" id="replyAttachRow-${i}"></div>
           `}
         </div>
       ` : ''}
@@ -2836,7 +2879,7 @@ async function sendTicketReply(idx){
 
     if (error) throw error;
 
-    tk.replies.push({ from: 'user', text: msg || (currentLang==='ar' ? '📎 مرفق' : '📎 Attachment'), attachmentUrl, attachmentName });
+    tk.replies.push({ from: 'user', text: msg || (currentLang==='ar' ? '📎 مرفق' : '📎 Attachment'), attachmentUrl, attachmentName, createdAt: new Date().toISOString() });
     if (tk.status === 'open') {
       // keep as-is; status flips to "answered" once an admin responds
     }
@@ -2855,6 +2898,12 @@ function toggleTicket(idx){
   if(idx >= 0 && idx < tickets.length){
     tickets[idx].expanded = !tickets[idx].expanded;
     renderInbox();
+    if(tickets[idx].expanded){
+      setTimeout(()=>{
+        const thread = document.getElementById('inboxThread-'+idx);
+        if(thread) thread.scrollTop = thread.scrollHeight;
+      }, 50);
+    }
   }
 }
 renderInbox();
@@ -3036,7 +3085,7 @@ async function loadTickets(){
       attachmentUrl: row.attachment_url,
       replies: [
         { from: 'user', text: row.description, attachmentUrl: row.attachment_url, attachmentName: row.attachment_name },
-        ...replies.map(r => ({ id: r.id, from: r.sender, text: r.message, attachmentUrl: r.attachment_url, attachmentName: r.attachment_name, adminId: r.admin_id, editedAt: r.edited_at })),
+        ...replies.map(r => ({ id: r.id, from: r.sender, text: r.message, attachmentUrl: r.attachment_url, attachmentName: r.attachment_name, adminId: r.admin_id, editedAt: r.edited_at, createdAt: r.created_at })),
       ],
     };
   });
