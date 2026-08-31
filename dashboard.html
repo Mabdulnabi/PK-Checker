@@ -1931,6 +1931,13 @@ async function loadAdminProfiles(){
   if (error) { console.warn('loadAdminProfiles failed (non-fatal):', error); return; }
   adminProfilesById = {};
   (data || []).forEach(a => { adminProfilesById[a.id] = a; });
+  // Re-apply admin avatar in chat header now that profiles are loaded
+  if (chatPresenceChannel) {
+    updateAdminOnlineUI(chatPresenceChannel.presenceState());
+  } else {
+    // No one online yet — still update header with default profile photo
+    updateAdminOnlineUI({});
+  }
   // This fetch runs in parallel with the first ticket/chat render — if it
   // resolves AFTER that first render, the admin's display title/photo
   // would otherwise stay stuck on the generic fallback until something
@@ -3841,28 +3848,43 @@ function initChatPresence(){
     .subscribe();
 }
 
+function getAdminAvatarHtml(avatarUrl, label, size){
+  const s = size || '100%';
+  return avatarUrl
+    ? `<img src="${escapeHtml(avatarUrl)}" alt="" style="width:${s};height:${s};object-fit:cover;border-radius:50%;">`
+    : `<span style="font-size:13px;font-weight:800;color:#fff;">${escapeHtml((label||'S').charAt(0).toUpperCase())}</span>`;
+}
+
+function getDefaultAdminProfile(){
+  // prefer any admin that has an avatar, fallback to first admin
+  const all = Object.values(adminProfilesById);
+  return all.find(a => a.avatar_url) || all[0] || null;
+}
+
 function updateAdminOnlineUI(state){
   const onlineAdmins = Object.values(state).flat();
   const dot = document.getElementById('chatStatusDot');
   const text = document.getElementById('chatStatusText');
   const nameEl = document.getElementById('chatAdminName');
   const avEl = document.getElementById('chatAdminAv');
+
   if (onlineAdmins.length > 0) {
     dot.style.display = 'inline-block';
     text.textContent = t('chat_online');
     const a = onlineAdmins[0];
+    // prefer avatar from adminProfilesById (has the full signed URL) over presence payload
+    const profileMatch = adminProfilesById[a.id] || {};
+    const avatarUrl = profileMatch.avatar_url || a.avatar_url || null;
     const label = a.display_title || a.name || 'Pro Keys Support';
     nameEl.textContent = label;
-    if (avEl) {
-      avEl.innerHTML = a.avatar_url
-        ? `<img src="${escapeHtml(a.avatar_url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
-        : escapeHtml(label.charAt(0));
-    }
+    if (avEl) avEl.innerHTML = getAdminAvatarHtml(avatarUrl, label);
   } else {
     dot.style.display = 'none';
     text.textContent = t('chat_offline');
-    nameEl.textContent = 'Pro Keys Support';
-    if (avEl) avEl.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:#fff;"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>`;
+    const def = getDefaultAdminProfile();
+    const label = (def && (def.display_title || def.name)) || 'Pro Keys Support';
+    nameEl.textContent = label;
+    if (avEl) avEl.innerHTML = getAdminAvatarHtml(def && def.avatar_url, label);
   }
 }
 
@@ -4016,12 +4038,13 @@ function renderChat(){
   const wasAtBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 60;
 
   // Always show welcome seed at top
+  const _def = getDefaultAdminProfile() || {};
+  const _defAv = getAdminAvatarHtml(_def.avatar_url, _def.display_title || _def.name || 'S');
+  const _defName = _def.display_title || _def.name || 'Pro Keys Support';
   const seedHtml = `<div class="chat-msg-admin-row" style="display:flex;direction:ltr;align-items:flex-start;gap:8px;max-width:85%;margin-bottom:4px;">
-    <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--blue-wash);color:var(--blue-deep);font-size:11px;font-weight:800;overflow:hidden;margin-top:2px;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-    </span>
+    <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--blue-wash);color:var(--blue-deep);font-size:11px;font-weight:800;overflow:hidden;margin-top:2px;">${_defAv}</span>
     <div style="min-width:0;">
-      <b style="display:block;font-size:10.5px;color:var(--muted);margin-bottom:3px;font-family:'Cairo',sans-serif;">Pro Keys Support</b>
+      <b style="display:block;font-size:10.5px;color:var(--muted);margin-bottom:3px;font-family:'Cairo',sans-serif;">${escapeHtml(_defName)}</b>
       <div class="chat-msg from-admin" style="margin:0;max-width:100%;">${escapeHtml(CHAT_SEED[currentLang][0].text)}</div>
     </div>
   </div>`;
@@ -4069,10 +4092,8 @@ function renderChat(){
         <div class="chat-msg from-user">${bubbleInner}</div>
       </div>`;
     } else {
-      const p = adminProfilesById[m.senderId] || {};
-      const avatarInner = p.avatar_url
-        ? `<img src="${escapeHtml(p.avatar_url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
-        : escapeHtml((p.display_title || p.name || 'S').charAt(0));
+      const p = adminProfilesById[m.senderId] || getDefaultAdminProfile() || {};
+      const avatarInner = getAdminAvatarHtml(p.avatar_url, p.display_title || p.name || 'S');
       const nameLabel = p.display_title || p.name || (currentLang==='ar'?'فريق الدعم':'Support Team');
       html += `<div class="chat-msg-admin-row" style="display:flex;direction:ltr;align-items:flex-start;gap:8px;max-width:85%;">
         <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--blue-wash);color:var(--blue-deep);font-size:11px;font-weight:800;overflow:hidden;margin-top:2px;">${avatarInner}</span>
@@ -4087,9 +4108,7 @@ function renderChat(){
 
   body.innerHTML = seedHtml + msgsHtml +
     `<div id="chatTypingIndicator" style="display:none;direction:ltr;align-items:flex-start;gap:8px;">
-      <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--blue-wash);color:var(--blue-deep);font-size:11px;font-weight:800;overflow:hidden;margin-top:2px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-      </span>
+      <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--blue-wash);color:var(--blue-deep);font-size:11px;font-weight:800;overflow:hidden;margin-top:2px;">${getAdminAvatarHtml((_def||{}).avatar_url, (_def&&(_def.display_title||_def.name))||'S')}</span>
       <div class="chat-msg from-admin" style="margin:0;padding:8px 12px;"><div class="chat-typing-dots"><span></span><span></span><span></span></div></div>
     </div>`;
 
