@@ -4062,7 +4062,7 @@ function renderChat(){
     const msgDate = m.createdAt ? new Date(m.createdAt).toDateString() : null;
     if (msgDate && msgDate !== lastDate) {
       lastDate = msgDate;
-      const label = m.createdAt ? new Date(m.createdAt).toLocaleDateString(currentLang==='ar'?'ar-EG':'en-US', {month:'short',day:'numeric'}) : '';
+      const label = m.createdAt ? new Date(m.createdAt).toLocaleDateString(currentLang==='ar'?'ar-EG':'en-GB', {month:'short',day:'numeric'}) : '';
       html += `<div class="chat-date-sep"><span>${label}</span></div>`;
     }
 
@@ -4084,7 +4084,7 @@ function renderChat(){
       // User message with hover edit/delete actions
       const actions = !isDeleted && !m.fileName ? `
         <div class="chat-msg-actions" style="display:none;flex-direction:column;gap:3px;">
-          <button class="chat-msg-action-btn" onclick="startChatEdit('${m.id}')" title="${currentLang==='ar'?'تعديل':'Edit'}">✏️</button>
+          <button class="chat-msg-action-btn" onclick="startChatEdit('${m.id}')" title="${currentLang==='ar'?'تعديل':'Edit'}">${currentLang==='ar'?'✏️':'✏️'}</button>
           <button class="chat-msg-action-btn del" onclick="deleteChatMsg('${m.id}')" title="${currentLang==='ar'?'حذف':'Delete'}">🗑</button>
         </div>` : '';
       html += `<div class="chat-msg-row mine" onmouseenter="this.querySelector('.chat-msg-actions')&&(this.querySelector('.chat-msg-actions').style.display='flex')" onmouseleave="this.querySelector('.chat-msg-actions')&&(this.querySelector('.chat-msg-actions').style.display='none')">
@@ -4390,6 +4390,9 @@ function applyLang(){
   renderOrderTransactions();
   if (typeof refreshRatingModalLang === 'function') refreshRatingModalLang();
   if (typeof refreshPublicReviewCardLang === 'function') refreshPublicReviewCardLang();
+  renderChat();
+  const editLabel = document.getElementById('chatEditLabel');
+  if (editLabel) editLabel.textContent = currentLang==='ar' ? 'تعديل الرسالة' : 'Editing message';
 }
 document.getElementById('langSwitch').onclick = ()=>{
   currentLang = currentLang==='ar' ? 'en' : 'ar';
