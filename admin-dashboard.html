@@ -2833,7 +2833,10 @@ function renderOrdersTable(){
       <td>${linkCell(o.id, 'report_url', o.report_url)}</td>
       <td>${linkCell(o.id, 'ai_report_url', o.ai_report_url)}</td>
       <td>${o.user_id ? `<button class="msg-btn" onclick="composeMessage('${o.user_id}','${escapeHtml(o.display_id || o.id.slice(0,8))}')" title="${t('send_msg')}">✉</button>` : ''}</td>
-      <td>${(['error','failed_invalid'].includes(o.status) && o.source_file_path) ? `<button class="msg-btn" onclick="resendOrderToApi('${o.id}')" title="إعادة إرسال نفس الملف للفحص">🔁 إعادة إرسال</button>` : ''}</td>
+      <td style="white-space:nowrap;">
+        ${(['error','failed_invalid'].includes(o.status) && o.source_file_path) ? `<button class="msg-btn" onclick="resendOrderToApi('${o.id}')" title="إعادة إرسال نفس الملف للفحص">🔁 إعادة إرسال</button>` : ''}
+        ${(['error','failed_invalid'].includes(o.status) && o.processing_mode === 'api') ? `<button class="msg-btn" style="color:var(--blue-deep);border-color:var(--blue-light);" onclick="adoptOrderManually('${o.id}')" title="تولى الطلب يدوياً ورفع التقارير بنفسك">🖐 يدوي</button>` : ''}
+      </td>
       <td><button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);" onclick="deleteOrder('${o.id}')" title="حذف الأوردر">🗑</button></td>
     </tr>`;
 
@@ -2932,6 +2935,41 @@ async function manualReject(orderId){
   if (o) { o.status = 'rejected'; o.error_reason = reason; }
   renderOrdersTable();
   renderProblemOrdersList();
+}
+
+// Converts a failed API order to manual mode so the admin can upload the
+// reports directly. The order's processing_mode becomes 'manual' and status
+// becomes 'processing', which makes it appear in renderManualQueue() with
+// the Similarity / AI upload slots — exactly as if it had been a manual order
+// from the start. Credits are NOT re-deducted automatically (they were
+// already refunded when the order failed); the admin can use the credit
+// adjustment tool if they want to charge the customer again.
+async function adoptOrderManually(orderId){
+  const o = allOrders.find(x => x.id === orderId);
+  if (!o) return;
+
+  const confirmed = await adminConfirm(
+    `تحويل الطلب ${escapeHtml(o.display_id || orderId.slice(0,8))} للمعالجة اليدوية؟\n\nسيظهر في قائمة المعالجة اليدوية ويمكنك رفع التقريرين (اقتباس${o.check_type === 'sim_ai' || o.check_type === 'both' ? ' + AI' : ''}) مباشرة.\n\nملاحظة: الكريديت اللي اترد للعميل عند فشل الـ API — تقدر تعيد خصمه يدوياً من تاب المدفوعات لو حبيت.`,
+    { icon: '🖐', confirmLabel: 'تولى يدوياً' }
+  );
+  if (!confirmed) return;
+
+  const { error } = await supabaseClient.from('orders').update({
+    processing_mode: 'manual',
+    status: 'processing',
+    error_reason: null,
+    updated_at: new Date().toISOString()
+  }).eq('id', orderId);
+
+  if (error) { await adminAlert('تعذر التحويل: ' + error.message, {icon:'❌', danger:true}); return; }
+
+  const p = o ? profilesByUserId[o.user_id] : null;
+  await logAdminActivity('order_accept', o?.user_id || null, p ? `PK${formatPkNumber(p.pk_number)}` : '', `تحويل طلب API فاشل للمعالجة اليدوية: ${o?.display_id || orderId.slice(0,8)}`);
+
+  o.processing_mode = 'manual';
+  o.status = 'processing';
+  o.error_reason = null;
+  renderOrdersTable();
 }
 
 // Uploads a manually-produced report file (Similarity or AI) to the public
