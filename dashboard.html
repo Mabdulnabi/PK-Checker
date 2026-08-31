@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <!-- Stamp direction immediately from localStorage to prevent RTL flash on EN users -->
-<script>(function(){var l=localStorage.getItem('prokeys-lang');if(l==='en'){var h=document.documentElement;h.setAttribute('dir','ltr');h.setAttribute('lang','en');}})();</script>
+<script>(function(){function _setDir(){var l=localStorage.getItem('prokeys-lang');var h=document.documentElement;if(l==='en'){h.setAttribute('dir','ltr');h.setAttribute('lang','en');}else{h.setAttribute('dir','rtl');h.setAttribute('lang','ar');}}_setDir();window.addEventListener('pageshow',_setDir);})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>PK Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -210,8 +210,8 @@
   [data-theme="dark"] .loi-icon.run,
   [data-theme="dark"] .file-chip .fchip-ic{color:var(--blue);}
   /* ===== SIDEBAR LAYOUT — FULL SCREEN ===== */
-  .app-layout{display:flex;width:100%;min-height:100vh;position:relative;}
-  .main-wrap{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .app-layout{display:flex;width:100%;height:100vh;overflow:hidden;position:relative;}
+  .main-wrap{flex:1;min-width:0;display:flex;flex-direction:column;overflow-y:auto;}
 
   /* Sidebar */
   .sidebar{
@@ -221,7 +221,7 @@
     backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
     border-left:1px solid rgba(255,255,255,0.65);
     box-shadow:4px 0 32px -4px rgba(0,0,0,0.07);
-    position:sticky;top:0;height:100vh;
+    height:100vh;flex-shrink:0;
     z-index:30;overflow:hidden;
   }
   html[dir="ltr"] .sidebar{border-left:none;border-right:1px solid rgba(255,255,255,0.65);}
@@ -264,7 +264,7 @@
 
   /* ── Sidebar item ── */
   .sidebar-item{
-    display:flex;align-items:center;gap:18px;
+    display:flex;align-items:center;gap:26px;
     padding:11px 14px;border-radius:14px;
     font-family:'Cairo',sans-serif;font-weight:800;font-size:15px;
     color:var(--ink-soft);cursor:pointer;
@@ -300,11 +300,18 @@
   }
   .sid-chip svg{ display:block;flex:none; }
   /* Icon keeps its chip color at ALL times — active, hover, default */
-  .sid-chip.sid-indigo{ color:#6366f1 !important; }
-  .sid-chip.sid-blue  { color:#2563eb !important; }
-  .sid-chip.sid-green { color:#059669 !important; }
-  .sid-chip.sid-orange{ color:#ea580c !important; }
-  .sid-chip.sid-slate { color:#475569 !important; }
+  .sid-chip.sid-indigo,
+  .sidebar-item.on .sid-chip.sid-indigo{ color:#6366f1 !important; }
+  .sid-chip.sid-blue,
+  .sidebar-item.on .sid-chip.sid-blue  { color:#2563eb !important; }
+  .sid-chip.sid-green,
+  .sidebar-item.on .sid-chip.sid-green { color:#059669 !important; }
+  .sid-chip.sid-orange,
+  .sidebar-item.on .sid-chip.sid-orange{ color:#ea580c !important; }
+  .sid-chip.sid-slate,
+  .sidebar-item.on .sid-chip.sid-slate { color:#475569 !important; }
+  /* SVG fill also locked */
+  .sid-chip svg{ fill:currentColor; }
   /* RTL: rotate −8°; LTR: rotate +8° */
   html[dir="rtl"] .sidebar-item:not(.on):hover .sid-chip{ transform:scale(1.18) rotate(-8deg); }
   html[dir="ltr"] .sidebar-item:not(.on):hover .sid-chip{ transform:scale(1.18) rotate(8deg); }
@@ -1954,7 +1961,7 @@
     <div class="tabpane" id="pane-my-profile" style="display:none;">
 
       <!-- Single merged card -->
-      <div class="panel-block" style="max-width:640px;margin:0 auto;">
+      <div class="panel-block">
 
         <!-- Avatar header -->
         <div style="background:linear-gradient(135deg,var(--navy),#243873);padding:22px 24px;display:flex;align-items:center;gap:16px;border-radius:var(--radius) var(--radius) 0 0;">
@@ -1974,7 +1981,7 @@
         </div>
 
         <!-- Form body -->
-        <div class="panel-block-body" style="padding:22px 24px;display:flex;flex-direction:column;gap:16px;">
+        <div class="panel-block-body" style="padding:28px 32px;display:flex;flex-direction:column;gap:20px;">
 
           <!-- Row 1: Full Name + Email -->
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
@@ -1988,28 +1995,28 @@
             </div>
           </div>
 
-          <!-- Row 2: WhatsApp (full width) -->
-          <div class="field-block">
-            <span class="glabel">واتساب</span>
-            <div style="display:flex;gap:6px;margin-top:4px;">
-              <select id="profileWhatsappCountry2" class="ticket-input" style="width:110px;flex:none;"></select>
-              <input id="profileWhatsappInput2" class="ticket-input" placeholder="1012345678" style="flex:1;">
+          <!-- Row 2: WhatsApp + New Password (2-col) -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div class="field-block">
+              <span class="glabel">واتساب</span>
+              <div style="display:flex;gap:6px;margin-top:4px;">
+                <select id="profileWhatsappCountry2" class="ticket-input" style="width:110px;flex:none;"></select>
+                <input id="profileWhatsappInput2" class="ticket-input" placeholder="1012345678" style="flex:1;">
+              </div>
             </div>
-          </div>
-
-          <!-- Row 3: New Password (full width) -->
-          <div class="field-block">
-            <span class="glabel">كلمة المرور الجديدة</span>
-            <div style="position:relative;margin-top:4px;">
-              <input id="profilePassword2" type="password" class="ticket-input" placeholder="•••••••" style="padding-left:38px;">
-              <button type="button" onclick="togglePassVis('profilePassword2',this)" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:0;display:flex;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              </button>
+            <div class="field-block">
+              <span class="glabel">كلمة المرور الجديدة</span>
+              <div style="position:relative;margin-top:4px;">
+                <input id="profilePassword2" type="password" class="ticket-input" placeholder="•••••••" style="padding-left:38px;">
+                <button type="button" onclick="togglePassVis('profilePassword2',this)" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:0;display:flex;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
             </div>
           </div>
 
           <!-- Divider -->
-          <div style="border-top:1px solid var(--border);margin:0 -24px;padding:0 24px;"></div>
+          <div style="border-top:1px solid var(--border);margin:0 -32px;padding:0 32px;"></div>
 
           <!-- Row 4: Language toggle -->
           <div style="display:flex;align-items:center;gap:12px;">
@@ -2030,7 +2037,7 @@
           </div>
 
           <!-- Divider -->
-          <div style="border-top:1px solid var(--border);margin:0 -24px;padding:0 24px;"></div>
+          <div style="border-top:1px solid var(--border);margin:0 -32px;padding:0 32px;"></div>
 
           <!-- Save row -->
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
@@ -4000,7 +4007,7 @@ function goTab(tab, persist = true){
     nextPane.classList.remove('pane-exiting');
     nextPane.classList.add('pane-entering');
     nextPane.addEventListener('animationend', () => nextPane.classList.remove('pane-entering'), {once:true});
-    window.scrollTo({top:0,behavior:'smooth'});
+    (document.querySelector('.main-wrap')||window).scrollTo({top:0,behavior:'smooth'});
     if(tab === 'wallet'){ loadPaymentHistory(); loadOrderTransactions(); }
     if(tab === 'my-profile'){ openMyProfileTab(); }
     return;
@@ -4022,7 +4029,7 @@ function goTab(tab, persist = true){
       _goTabLock = false;
     }, {once:true});
 
-    window.scrollTo({top:0,behavior:'smooth'});
+    (document.querySelector('.main-wrap')||window).scrollTo({top:0,behavior:'smooth'});
     if(tab === 'wallet'){ loadPaymentHistory(); loadOrderTransactions(); }
     if(tab === 'my-profile'){ openMyProfileTab(); }
   }, {once:true});
@@ -4302,6 +4309,7 @@ function setLangFromPopup(lang){
   }
   applyLang();
   syncSupSegments();
+  if(_supPopupOpen) openSidebarUserPopup();
   const activeCard = document.querySelector('#walletPayGrid .paycard.on');
   if(activeCard) renderPaymentDetails(activeCard.dataset.pay);
 }
@@ -4356,7 +4364,7 @@ function openSidebarUserPopup(){
   popup.style.top = top + 'px';
   _supPopupOpen = true;
   if(window.lucide) lucide.createIcons({el: popup});
-  setTimeout(()=> document.addEventListener('click', _supPopupOutside, {once:true}), 10);
+  setTimeout(()=> document.addEventListener('click', _supPopupOutside), 10);
 }
 function closeSidebarUserPopup(){
   const popup = document.getElementById('sidebarUserPopup');
@@ -4533,6 +4541,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if(btn) btn.addEventListener('click', toggleSidebar);
   updateCollapseBtn();
   window.addEventListener('resize', updateCollapseBtn);
+  const sidebar = document.getElementById('appSidebar');
+  if(sidebar) sidebar.addEventListener('transitionend', updateCollapseBtn);
 });
 
 /* ===================== PROFILE POPUP ===================== */
