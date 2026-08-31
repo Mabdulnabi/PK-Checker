@@ -230,22 +230,20 @@
   }
 
   .sidebar-logo{
-    padding:12px 14px;
-    border-bottom:1px solid rgba(255,255,255,0.50);
-    display:flex;align-items:center;justify-content:space-between;
-    /* Logo fills the full width area */
-    min-height:64px;
+    padding:10px 14px;
+    /* No border — remove separator between logo and nav */
+    border-bottom:none;
+    display:flex;align-items:center;justify-content:center;
+    min-height:70px;
   }
-  [data-theme="dark"] .sidebar-logo{border-bottom-color:rgba(255,255,255,0.07);}
   .sidebar-logo img{
-    /* Let logo fill container width, accept any aspect ratio (including GIF) */
-    flex:1;min-width:0;height:auto;max-height:52px;
-    object-fit:contain;object-position:center;
+    width:100%;height:auto;max-height:58px;
+    object-fit:contain;object-position:center;display:block;
   }
-  .sidebar.collapsed .sidebar-logo{ justify-content:center;padding:12px 8px; }
+  .sidebar.collapsed .sidebar-logo{ padding:10px 8px; }
 
   /* ── SIDEBAR NAV ── */
-  .sidebar-nav{flex:1;padding:8px 8px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;position:relative;}
+  .sidebar-nav{flex:1;padding:8px 8px;display:flex;flex-direction:column;gap:6px;overflow-y:auto;position:relative;}
 
   /* ── 1. Active Pill — framer-motion layoutId="nav-pill" equivalent
      background = item.color + '15' (hex alpha ≈ 8%) set by JS per tab
@@ -264,8 +262,8 @@
 
   /* ── Sidebar item ── */
   .sidebar-item{
-    display:flex;align-items:center;gap:16px;
-    padding:12px 14px;border-radius:14px;
+    display:flex;align-items:center;gap:18px;
+    padding:11px 14px;border-radius:14px;
     font-family:'Cairo',sans-serif;font-weight:800;font-size:15px;
     color:var(--ink-soft);cursor:pointer;
     border:none;background:transparent;width:100%;
@@ -324,44 +322,69 @@
   .sidebar-item.on .sid-slate { background:#47556925; }
 
   /* ── 4. Sidebar collapse ── */
-  .sidebar{ transition:width 0.2s ease; overflow:hidden; }
+  .sidebar{ transition:width 0.2s ease; overflow:visible; position:sticky; }
+  .sidebar-inner{ overflow:hidden;width:100%;height:100%;display:flex;flex-direction:column; }
   .sidebar.collapsed{ width:64px; }
+  .sidebar-inner{
+    flex:1;display:flex;flex-direction:column;
+    overflow:hidden;min-height:0;width:100%;
+  }
+  .sidebar.collapsed .sidebar-inner{ overflow:hidden; }
   .sidebar.collapsed .sidebar-user-info,
   .sidebar.collapsed .sidebar-logo img{ display:none; }
   .sidebar.collapsed .sidebar-item > span{ display:none; }
   .sidebar.collapsed .sidebar-item{
-    justify-content:center;padding:10px;
-    /* prevent horizontal scroll when collapsed */
-    width:100%;overflow:hidden;
+    justify-content:center;padding:10px 0;
+    width:100%;overflow:hidden;gap:0;
   }
-  .sidebar.collapsed .sidebar-user-card{ justify-content:center;padding:10px; }
+  /* Collapsed hover: bounced chip only, no pill row highlight */
+  .sidebar.collapsed .sidebar-item:not(.on):hover{
+    background:transparent !important;
+  }
+  .sidebar.collapsed .nav-pill{ display:none; }
+  .sidebar.collapsed .sidebar-item:not(.on):hover .sid-chip{ transform:scale(1.18); }
+  /* Collapsed user card: avatar only, no card box */
+  .sidebar.collapsed .sidebar-user-card{
+    justify-content:center;padding:6px 0;margin:6px 0;
+    background:transparent !important;border-color:transparent !important;box-shadow:none !important;
+  }
   .sidebar.collapsed .sidebar-user-card svg:last-child{ display:none; }
+  .sidebar.collapsed .sidebar-user-av{ border:none; }
   /* Prevent overflow-x scroll in collapsed sidebar */
   .sidebar.collapsed .sidebar-nav{ overflow-x:hidden; }
 
-  /* Collapse button: small pill on the bottom edge of the sidebar */
+  /* Collapse button: floating on the edge of the sidebar */
   .sidebar-collapse-btn{
     display:flex;align-items:center;justify-content:center;
-    width:24px;height:24px;border-radius:50%;
-    background:rgba(255,255,255,0.72);border:1px solid rgba(255,255,255,0.80);
-    box-shadow:0 1px 6px rgba(0,0,0,0.10);
+    width:20px;height:20px;border-radius:50%;
+    background:#fff;border:1px solid rgba(0,0,0,0.10);
+    box-shadow:0 1px 6px rgba(0,0,0,0.14);
     cursor:pointer;color:var(--muted);
-    transition:transform 0.2s ease, background 0.2s;
+    transition:background 0.2s, color 0.2s;
     flex:none;
   }
-  .sidebar-collapse-btn:hover{ background:#fff;color:var(--ink); }
-  /* RTL: chevron points right (towards content); LTR: points left */
-  html[dir="rtl"] .sidebar-collapse-btn svg{ transform:scaleX(-1); }
-  html[dir="rtl"] .sidebar.collapsed .sidebar-collapse-btn{ transform:rotate(180deg); }
-  html[dir="ltr"] .sidebar.collapsed .sidebar-collapse-btn{ transform:rotate(180deg); }
+  .sidebar-collapse-btn:hover{ background:var(--blue);color:#fff;border-color:var(--blue); }
   [data-theme="dark"] .sidebar-collapse-btn{
-    background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.15);
+    background:rgba(30,40,60,0.95);border-color:rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);
   }
-  /* Position at the very bottom of sidebar, centered */
+  /* Collapse wrap: absolutely positioned on the outer edge of the sidebar, vertically centered */
   .sidebar-collapse-wrap{
-    padding:6px 0 10px;
-    display:flex;align-items:center;justify-content:center;
+    position:absolute;
+    /* RTL: sidebar is on the right side of the screen → button on left edge */
+    left:-10px;
+    top:50%;transform:translateY(-50%);
+    z-index:100;
   }
+  html[dir="ltr"] .sidebar-collapse-wrap{
+    left:auto;right:-10px;
+  }
+  /* Chevron direction */
+  /* RTL default: sidebar on right, collapse = point right (towards content on left) */
+  html[dir="rtl"] .sidebar-collapse-btn svg{ transform:scaleX(1); }
+  html[dir="rtl"] .sidebar.collapsed .sidebar-collapse-btn svg{ transform:scaleX(-1); }
+  /* LTR default: sidebar on left, collapse = point left (towards content on right) */
+  html[dir="ltr"] .sidebar-collapse-btn svg{ transform:scaleX(-1); }
+  html[dir="ltr"] .sidebar.collapsed .sidebar-collapse-btn svg{ transform:scaleX(1); }
 
   /* ── 3. Page content transition — AnimatePresence mode="wait" equivalent ── */
   /* duration:0.22s, ease:[0.25,0.46,0.45,0.94] (ease-out custom) */
@@ -413,18 +436,19 @@
   }
   .sidebar-user-pk{font-size:10.5px;color:var(--muted);font-family:'Space Grotesk',sans-serif;}
 
-  /* Sidebar user popup */
+  /* Sidebar user popup — direction set by JS on open to match current lang */
   .sidebar-user-popup{
     position:fixed;z-index:9999;
     width:270px;
-    background:rgba(255,255,255,0.82);
+    background:rgba(255,255,255,0.94);
     backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);
-    border:1px solid rgba(255,255,255,0.70);
+    border:1px solid rgba(255,255,255,0.80);
     border-radius:16px;
     box-shadow:0 20px 60px rgba(0,0,0,0.18);
     overflow:hidden;
     display:none;
     flex-direction:column;
+    /* direction will be stamped inline by openSidebarUserPopup() */
   }
   [data-theme="dark"] .sidebar-user-popup{
     background:rgba(12,17,28,0.88);
@@ -459,7 +483,10 @@
   .sup-credits-lbl{font-size:10.5px;color:var(--muted);}
   .sup-topup-btn{
     margin-right:auto;margin-left:0;
-    padding:6px 14px;border-radius:8px;
+    /* Height matches .sup-seg which is ~30px */
+    padding:0 16px;height:30px;
+    display:inline-flex;align-items:center;
+    border-radius:8px;
     background:var(--blue);color:#fff;border:none;
     font-size:12px;font-weight:700;cursor:pointer;
     font-family:'Cairo',sans-serif;white-space:nowrap;
@@ -565,8 +592,8 @@
   .icon-btn-wrap{position:relative;}
 
   /* ===== NOTIFICATIONS DROPDOWN ===== */
-  .notif-panel{position:absolute;top:calc(100% + 10px);left:0;width:320px;max-width:88vw;background:rgba(255,255,255,0.88);backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);border:1px solid rgba(255,255,255,0.80);border-radius:14px;box-shadow:0 20px 48px rgba(0,0,0,0.14);z-index:60;overflow:hidden;}
-  [data-theme="dark"] .notif-panel{background:rgba(12,17,28,0.88);border-color:rgba(255,255,255,0.10);box-shadow:0 20px 60px rgba(0,0,0,0.65);}
+  .notif-panel{position:absolute;top:calc(100% + 10px);left:0;width:320px;max-width:88vw;background:rgba(255,255,255,0.96);backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);border:1px solid rgba(255,255,255,0.85);border-radius:14px;box-shadow:0 20px 48px rgba(0,0,0,0.16);z-index:60;overflow:hidden;}
+  [data-theme="dark"] .notif-panel{background:rgba(12,17,28,0.96);border-color:rgba(255,255,255,0.10);box-shadow:0 20px 60px rgba(0,0,0,0.70);}
   html[dir="ltr"] .notif-panel{left:auto;right:0;}
   html[dir="rtl"] .notif-panel{left:auto;right:0;}
   .notif-panel-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--paper-line);}
@@ -1325,9 +1352,10 @@
 <div class="app-layout">
 
   <!-- ===== SIDEBAR ===== -->
-  <aside class="sidebar" id="appSidebar">
+  <aside class="sidebar" id="appSidebar" style="position:relative;">
+    <div class="sidebar-inner">
     <div class="sidebar-logo">
-      <img data-icon-key="logo_dashboard" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E" alt="Pro Keys" style="max-height:52px;width:100%;object-fit:contain;object-position:center;">
+      <img data-icon-key="logo_dashboard" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E" alt="Pro Keys" style="max-height:58px;width:100%;object-fit:contain;object-position:center;display:block;">
     </div>
     <nav class="sidebar-nav" id="sidebarNav">
       <!-- Animated pill (framer-motion layoutId="nav-pill" equivalent) -->
@@ -1378,10 +1406,11 @@
       </div>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="14" height="14" style="flex:none;color:var(--muted);"><path d="M208,160H48l80-80Z" opacity="0.2"/><path d="M213.66,154.34l-80-80a8,8,0,0,0-11.32,0l-80,80A8,8,0,0,0,48,168H208a8,8,0,0,0,5.66-13.66ZM67.31,152,128,91.31,188.69,152Z"/></svg>
     </div>
-    <!-- Collapse button — bottom center of sidebar -->
+    </div><!-- /sidebar-inner -->
+    <!-- Collapse button — floating on the outer edge of the sidebar, vertically centered -->
     <div class="sidebar-collapse-wrap">
       <div class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="طي القائمة">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="14" height="14"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="12" height="12"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></svg>
       </div>
     </div>
   </aside>
@@ -2391,7 +2420,7 @@ const I18N = {
     chat_title:"الدعم المباشر", chat_placeholder:"اكتب رسالتك...", chat_online:"متصل الآن",
     chat_offline:"سنرد عليك في أقرب وقت", chat_upload_error:"تعذر رفع الملف، حاول مرة أخرى", chat_send_error:"تعذر إرسال الرسالة، حاول مرة أخرى",
     notif_title:"الإشعارات", notif_mark_all:"تحديد الكل كمقروء", notif_empty:"لا توجد إشعارات حالياً",
-    user_profile:"الملف الشخصي", user_signout:"تسجيل الخروج",
+    user_profile:"حسابي", user_signout:"تسجيل الخروج",
     phase_floating:"جاهز للإرسال", phase_uploading:"جاري الرفع", phase_pending:"في انتظار المعالجة", phase_processing:"قيد الفحص", phase_completed:"مكتمل", phase_error:"خطأ في الفحص", phase_failed_invalid:"ملف غير صالح", phase_rejected:"مرفوض",
     similarity:"اقتباس", ai:"AI", sim_only:"اقتباس فقط", sim_ai:"اقتباس + AI",
     col_order_id:"رقم الطلب", col_file:"اسم الملف", col_submitted:"وقت الإرسال", col_completed:"اكتمل", col_handle:"وقت المعالجة",
@@ -2499,7 +2528,7 @@ const I18N = {
     chat_title:"Live support", chat_placeholder:"Type your message...", chat_online:"Online now",
     chat_offline:"We'll reply as soon as we can", chat_upload_error:"Couldn't upload the file, please try again", chat_send_error:"Couldn't send the message, please try again",
     notif_title:"Notifications", notif_mark_all:"Mark all as read", notif_empty:"No notifications yet",
-    user_profile:"Profile", user_signout:"Sign out",
+    user_profile:"My Account", user_signout:"Sign out",
     phase_floating:"Ready to send", phase_uploading:"Uploading", phase_pending:"Awaiting processing", phase_processing:"Processing", phase_completed:"Completed", phase_error:"Check error", phase_failed_invalid:"Invalid file", phase_rejected:"Rejected",
     similarity:"Similarity", ai:"AI", sim_only:"Similarity only", sim_ai:"Similarity + AI",
     col_order_id:"Order ID", col_file:"File", col_submitted:"Submitted", col_completed:"Completed", col_handle:"Handle time",
@@ -4307,13 +4336,17 @@ function openSidebarUserPopup(){
   const popup = document.getElementById('sidebarUserPopup');
   const card = document.getElementById('sidebarUserCard');
   if(!popup || !card) return;
-  const rect = card.getBoundingClientRect();
+  const isRtl = document.documentElement.dir === 'rtl';
+  /* Stamp direction on popup so internal layout matches current language */
+  popup.dir = isRtl ? 'rtl' : 'ltr';
+  popup.style.direction = isRtl ? 'rtl' : 'ltr';
+  popup.style.textAlign = isRtl ? 'right' : 'left';
   popup.style.display = 'flex';
+  const rect = card.getBoundingClientRect();
   // Position above the card
-  const popupH = popup.offsetHeight || 340;
+  const popupH = popup.offsetHeight || 360;
   let top = rect.top - popupH - 8;
   if(top < 8) top = rect.bottom + 8;
-  const isRtl = document.documentElement.dir === 'rtl';
   if(isRtl){
     popup.style.right = (window.innerWidth - rect.right) + 'px';
     popup.style.left = 'auto';
@@ -4323,7 +4356,6 @@ function openSidebarUserPopup(){
   }
   popup.style.top = top + 'px';
   _supPopupOpen = true;
-  // Re-init lucide icons inside popup
   if(window.lucide) lucide.createIcons({el: popup});
   setTimeout(()=> document.addEventListener('click', _supPopupOutside, {once:true}), 10);
 }
