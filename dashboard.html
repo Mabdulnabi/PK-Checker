@@ -135,29 +135,64 @@
   [data-theme="dark"] .orders-head {
     border-color: var(--paper-line);
   }
-  /* Dark mode: check-type seg buttons */
+  /* ===== DARK MODE COMPREHENSIVE FIXES ===== */
+
+  /* Upgrade --muted from mid-grey to a brighter readable grey-blue */
+  [data-theme="dark"]{--muted:#C8D3E3;}
+
+  /* --- Buttons & chips that flip white in dark mode --- */
+  [data-theme="dark"] .btn-primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+  [data-theme="dark"] .chip.on{background:var(--blue);color:#fff;border-color:var(--blue);}
   [data-theme="dark"] .seg button.on{background:var(--blue);color:#fff;}
-  /* Dark mode: active req-tab */
   [data-theme="dark"] .req-tab.on{color:#fff;}
-  /* Dark mode: slider arrows inside pack-card (--navy reset to #1B2556) */
+  [data-theme="dark"] .btn-show-packs,[data-theme="dark"] .btn-show-packs:hover{background:var(--navy-soft) !important;color:#fff !important;}
+
+  /* --- Avatar & step circles (navy → white in dark) --- */
+  [data-theme="dark"] .user-chip .av,[data-theme="dark"] .av-lg{background:var(--navy-soft);}
+  [data-theme="dark"] .step-item .snum{background:var(--navy-soft);}
+  [data-theme="dark"] .user-chip-id{color:#fff;}
+
+  /* --- User ID display code chip --- */
+  [data-theme="dark"] .user-id-display code{background:rgba(255,255,255,0.1);color:#fff;}
+
+  /* --- Slider arrows (inside pack-card where --navy resets to dark) --- */
   [data-theme="dark"] .slider-arrow{color:#fff;}
-  /* Dark mode: pack-card text (--navy reset to #1B2556 inside pack-card) */
+
+  /* --- Pack cards (--navy reset to #1B2556 inside .pack-card) --- */
   [data-theme="dark"] .pack-card .pname,[data-theme="dark"] .pack-card .pcredits{color:#fff;}
   [data-theme="dark"] .pack-card .pselect-btn{background:var(--blue-deep);color:#fff;}
-  /* Dark mode: tone-black pack-card visibility */
   [data-theme="dark"] .pack-card.tone-black{border-color:var(--paper-line);}
   [data-theme="dark"] .pack-card.tone-black .pname{color:#fff;}
-  [data-theme="dark"] .pack-card.tone-black .pselect-btn{background:var(--blue-deep);color:#fff;}
-  /* Dark mode: panel-block navy-colored text elements */
+  [data-theme="dark"] .pack-card.tone-black .pselect-btn,[data-theme="dark"] .pack-card.tone-navy .pselect-btn{background:var(--blue-deep);color:#fff;}
+
+  /* --- KPI gold card (--navy resets → large credit number invisible) --- */
+  [data-theme="dark"] .kpi.gold .num{color:#fff;}
+
+  /* --- Panel-block text (--navy resets to #1B2556 inside .panel-block) --- */
   [data-theme="dark"] .panel-block .balance-row,[data-theme="dark"] .panel-block .total-due-flat{color:#fff;}
   [data-theme="dark"] #walletPackSummary{color:#fff;}
-  /* Dark mode: pay-confirm input text and uid value */
+  [data-theme="dark"] .ticket-input{color:#fff;}
+  [data-theme="dark"] .date-range-picker input{color:#fff;}
+
+  /* --- Payment section --- */
   [data-theme="dark"] .pay-confirm input{color:#fff;}
   [data-theme="dark"] #walletUidValue{color:#fff !important;}
-  /* Dark mode: total-due (white text on dark gradient) */
   [data-theme="dark"] .total-due{color:#fff;}
-  /* Dark mode: btn-show-packs always dark with white text */
-  [data-theme="dark"] .btn-show-packs,[data-theme="dark"] .btn-show-packs:hover{background:var(--navy-soft) !important;color:#fff !important;}
+
+  /* --- Chat toast (navy→white in dark = white bg + white text) --- */
+  [data-theme="dark"] .chat-toast{background:var(--navy-soft);}
+
+  /* --- Icon contrast: upgrade blue-deep (#0B5FC9) → blue (#0E7AFE) on dark bgs --- */
+  [data-theme="dark"] .kpi .icon,
+  [data-theme="dark"] .panel-block-head .phicon,
+  [data-theme="dark"] .ofile .ficon,
+  [data-theme="dark"] .uploadzone .uicon,
+  [data-theme="dark"] .push-toast-icon,
+  [data-theme="dark"] .app-modal-icon.info,
+  [data-theme="dark"] .guarantee-card .gicon,
+  [data-theme="dark"] .faq-q .qicon,
+  [data-theme="dark"] .loi-icon.run,
+  [data-theme="dark"] .file-chip .fchip-ic{color:var(--blue);}
   *{box-sizing:border-box;}
   html,body{margin:0;}
   body{
