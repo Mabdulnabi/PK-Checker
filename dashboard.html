@@ -135,6 +135,29 @@
   [data-theme="dark"] .orders-head {
     border-color: var(--paper-line);
   }
+  /* Dark mode: check-type seg buttons */
+  [data-theme="dark"] .seg button.on{background:var(--blue);color:#fff;}
+  /* Dark mode: active req-tab */
+  [data-theme="dark"] .req-tab.on{color:#fff;}
+  /* Dark mode: slider arrows inside pack-card (--navy reset to #1B2556) */
+  [data-theme="dark"] .slider-arrow{color:#fff;}
+  /* Dark mode: pack-card text (--navy reset to #1B2556 inside pack-card) */
+  [data-theme="dark"] .pack-card .pname,[data-theme="dark"] .pack-card .pcredits{color:#fff;}
+  [data-theme="dark"] .pack-card .pselect-btn{background:var(--blue-deep);color:#fff;}
+  /* Dark mode: tone-black pack-card visibility */
+  [data-theme="dark"] .pack-card.tone-black{border-color:var(--paper-line);}
+  [data-theme="dark"] .pack-card.tone-black .pname{color:#fff;}
+  [data-theme="dark"] .pack-card.tone-black .pselect-btn{background:var(--blue-deep);color:#fff;}
+  /* Dark mode: panel-block navy-colored text elements */
+  [data-theme="dark"] .panel-block .balance-row,[data-theme="dark"] .panel-block .total-due-flat{color:#fff;}
+  [data-theme="dark"] #walletPackSummary{color:#fff;}
+  /* Dark mode: pay-confirm input text and uid value */
+  [data-theme="dark"] .pay-confirm input{color:#fff;}
+  [data-theme="dark"] #walletUidValue{color:#fff !important;}
+  /* Dark mode: total-due (white text on dark gradient) */
+  [data-theme="dark"] .total-due{color:#fff;}
+  /* Dark mode: btn-show-packs always dark with white text */
+  [data-theme="dark"] .btn-show-packs,[data-theme="dark"] .btn-show-packs:hover{background:var(--navy-soft) !important;color:#fff !important;}
   *{box-sizing:border-box;}
   html,body{margin:0;}
   body{
@@ -719,7 +742,7 @@
   /* bubble row */
   .ir-row{display:flex;align-items:flex-end;gap:7px;}
   .ir-row.mine{flex-direction:row-reverse;}
-  html[dir="rtl"] .ir-row.mine{flex-direction:row;}
+  html[dir="rtl"] .ir-row.mine{flex-direction:row-reverse;}
   .ir-av{width:26px;height:26px;border-radius:50%;background:var(--blue-wash);color:var(--blue-deep);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden;}
   .ir-bubble-wrap{display:flex;flex-direction:column;gap:3px;max-width:78%;}
   .ir-row.mine .ir-bubble-wrap{align-items:flex-end;}
