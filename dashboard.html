@@ -236,75 +236,125 @@
   }
   [data-theme="dark"] .sidebar-logo{border-bottom-color:rgba(255,255,255,0.07);}
 
+  /* ── SIDEBAR NAV ── */
   .sidebar-nav{flex:1;padding:8px 8px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;position:relative;}
 
-  /* ── Animated pill (framer-motion layoutId="nav-pill" equivalent)
-     spring stiffness:350, damping:30 → cubic-bezier(0.34,1.56,0.64,1) ── */
+  /* ── 1. Active Pill — framer-motion layoutId="nav-pill" equivalent
+     background = item.color + '15' (hex alpha ≈ 8%) set by JS per tab
+     spring: stiffness 350, damping 30 → cubic-bezier(0.34,1.56,0.64,1) ── */
   .nav-pill{
-    position:absolute;
-    border-radius:12px;
-    background:rgba(255,255,255,0.85);
-    border:1px solid rgba(255,255,255,0.90);
-    box-shadow:0 2px 14px rgba(0,0,0,0.09);
+    position:absolute;border-radius:12px;
+    background:transparent; /* JS sets per-tab color */
     z-index:0;pointer-events:none;
     transition:
-      top    0.38s cubic-bezier(0.34,1.56,0.64,1),
-      left   0.38s cubic-bezier(0.34,1.56,0.64,1),
-      width  0.38s cubic-bezier(0.34,1.56,0.64,1),
-      height 0.38s cubic-bezier(0.34,1.56,0.64,1);
-  }
-  [data-theme="dark"] .nav-pill{
-    background:rgba(255,255,255,0.09);
-    border-color:rgba(255,255,255,0.12);
-    box-shadow:0 2px 14px rgba(0,0,0,0.35);
+      top        0.38s cubic-bezier(0.34,1.56,0.64,1),
+      left       0.38s cubic-bezier(0.34,1.56,0.64,1),
+      width      0.38s cubic-bezier(0.34,1.56,0.64,1),
+      height     0.38s cubic-bezier(0.34,1.56,0.64,1),
+      background 0.22s ease;
   }
 
   /* ── Sidebar item ── */
   .sidebar-item{
     display:flex;align-items:center;gap:12px;
     padding:10px 12px;border-radius:12px;
-    font-family:'Cairo',sans-serif;font-weight:700;font-size:14px;
+    font-family:'Cairo',sans-serif;font-weight:500;font-size:14px;
     color:var(--ink-soft);cursor:pointer;
     border:none;background:transparent;width:100%;
-    text-align:right;
-    position:relative;z-index:1;
-    transition:color 0.2s;
+    text-align:right;position:relative;z-index:1;
+    transition:color 0.18s;
   }
   html[dir="ltr"] .sidebar-item{text-align:left;}
-  .sidebar-item.on{background:transparent !important;color:var(--ink);}
-  .sidebar-item:not(.on):hover{color:var(--ink);}
+  .sidebar-item.on{background:transparent !important;}
   .sidebar-item{border-bottom:none !important;}
 
-  /* ── Colored icon chip (each tab has its own color) ── */
+  /* ── 6. Label color + weight — item.color on active, instant change ── */
+  /* --tab-color defined per [data-tab], applied when .on */
+  .sidebar-item[data-tab="new-check"] { --tab-color:#6366f1; }
+  .sidebar-item[data-tab="orders"]    { --tab-color:#2563eb; }
+  .sidebar-item[data-tab="wallet"]    { --tab-color:#059669; }
+  .sidebar-item[data-tab="support"]   { --tab-color:#ea580c; }
+  .sidebar-item[data-tab="my-profile"]{ --tab-color:#475569; }
+  .sidebar-item.on > span{ color:var(--tab-color);font-weight:600; }
+  .sidebar-item:not(.on) > span{ color:var(--ink-soft); }
+
+  /* ── 2. Icon chip — bounce on hover
+     spring: stiffness 400, damping 15 → cubic-bezier(0.175,0.885,0.32,1.275) ── */
   .sid-chip{
     width:36px;height:36px;border-radius:10px;
-    display:flex;align-items:center;justify-content:center;
-    flex:none;
-    /* spring stiffness:400, damping:15 → cubic-bezier(0.175,0.885,0.32,1.275) */
-    transition:transform 0.28s cubic-bezier(0.175,0.885,0.32,1.275);
+    display:flex;align-items:center;justify-content:center;flex:none;
+    transition:
+      transform    0.28s cubic-bezier(0.175,0.885,0.32,1.275),
+      background   0.18s ease;
   }
-  /* Phosphor inline SVGs — no font/RTL issues */
   .sid-chip svg{ display:block;flex:none; }
-  /* RTL: rotate left (−8°); LTR: rotate right (+8°) — icon bounce on hover */
-  html[dir="rtl"] .sidebar-item:not(.on):hover .sid-chip{
-    transform:scale(1.18) rotate(-8deg);
-  }
-  html[dir="ltr"] .sidebar-item:not(.on):hover .sid-chip{
-    transform:scale(1.18) rotate(8deg);
-  }
+  /* RTL: rotate −8°; LTR: rotate +8° */
+  html[dir="rtl"] .sidebar-item:not(.on):hover .sid-chip{ transform:scale(1.18) rotate(-8deg); }
+  html[dir="ltr"] .sidebar-item:not(.on):hover .sid-chip{ transform:scale(1.18) rotate(8deg); }
   .sidebar-item.on .sid-chip{ transform:scale(1.06); }
 
-  /* Color variants */
-  .sid-indigo{ background:rgba(99,102,241,0.13); color:#6366f1; }
-  .sid-blue  { background:rgba(59,130,246,0.13);  color:#2563eb; }
-  .sid-green { background:rgba(16,185,129,0.13);  color:#059669; }
-  .sid-orange{ background:rgba(249,115,22,0.13);  color:#ea580c; }
-  .sid-slate { background:rgba(100,116,139,0.13); color:#475569; }
-  [data-theme="dark"] .sid-indigo{ background:rgba(99,102,241,0.20); }
-  [data-theme="dark"] .sid-blue  { background:rgba(59,130,246,0.20); }
-  [data-theme="dark"] .sid-green { background:rgba(16,185,129,0.20); }
-  [data-theme="dark"] .sid-orange{ background:rgba(249,115,22,0.20); }
-  [data-theme="dark"] .sid-slate { background:rgba(100,116,139,0.20); }
+  /* ── 5. Icon bg opacity: inactive color+'18' (~9.4%), active color+'25' (~14.5%) ── */
+  /* hex: 0x18/255≈9.4%  0x25/255≈14.5% */
+  .sid-indigo{ background:#6366f118; color:#6366f1; }
+  .sid-blue  { background:#2563eb18; color:#2563eb; }
+  .sid-green { background:#05966918; color:#059669; }
+  .sid-orange{ background:#ea580c18; color:#ea580c; }
+  .sid-slate { background:#47556918; color:#475569; }
+  .sidebar-item.on .sid-indigo{ background:#6366f125; }
+  .sidebar-item.on .sid-blue  { background:#2563eb25; }
+  .sidebar-item.on .sid-green { background:#05966925; }
+  .sidebar-item.on .sid-orange{ background:#ea580c25; }
+  .sidebar-item.on .sid-slate { background:#47556925; }
+
+  /* ── 4. Sidebar collapse ── */
+  .sidebar{ transition:width 0.2s ease; overflow:hidden; }
+  .sidebar.collapsed{ width:66px; }
+  .sidebar.collapsed .sidebar-user-info,
+  .sidebar.collapsed .sidebar-logo img{ display:none; }
+  .sidebar.collapsed .sidebar-item > span{ display:none; }
+  .sidebar.collapsed .sidebar-item{ justify-content:center;padding:10px; }
+  .sidebar.collapsed .sidebar-user-card{ justify-content:center;padding:10px; }
+  .sidebar.collapsed .sidebar-user-card svg:last-child{ display:none; }
+  .sidebar-collapse-btn{
+    display:flex;align-items:center;justify-content:center;
+    width:28px;height:28px;border-radius:50%;
+    background:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.70);
+    cursor:pointer;color:var(--muted);
+    transition:transform 0.2s ease, background 0.2s;
+    flex:none;
+  }
+  .sidebar-collapse-btn:hover{ background:rgba(255,255,255,0.85);color:var(--ink); }
+  /* RTL: chevron faces right by default; collapsed = face left (rotate 180) */
+  html[dir="rtl"] .sidebar-collapse-btn svg{ transform:scaleX(-1); }
+  html[dir="rtl"] .sidebar.collapsed .sidebar-collapse-btn{ transform:rotate(180deg); }
+  html[dir="ltr"] .sidebar.collapsed .sidebar-collapse-btn{ transform:rotate(180deg); }
+  [data-theme="dark"] .sidebar-collapse-btn{
+    background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.10);
+  }
+  .sidebar-collapse-wrap{
+    padding:10px 14px 10px;
+    display:flex;align-items:center;justify-content:flex-start;
+  }
+  html[dir="rtl"] .sidebar-collapse-wrap{ justify-content:flex-end; }
+  .sidebar.collapsed .sidebar-collapse-wrap{ justify-content:center; }
+
+  /* ── 3. Page content transition — AnimatePresence mode="wait" equivalent ── */
+  /* duration:0.22s, ease:[0.25,0.46,0.45,0.94] (ease-out custom) */
+  .tabpane{
+    animation-duration:0.22s;
+    animation-timing-function:cubic-bezier(0.25,0.46,0.45,0.94);
+    animation-fill-mode:both;
+  }
+  @keyframes pane-enter{
+    from{ opacity:0; transform:translateY(16px); }
+    to  { opacity:1; transform:translateY(0); }
+  }
+  @keyframes pane-exit{
+    from{ opacity:1; transform:translateY(0); }
+    to  { opacity:0; transform:translateY(-10px); }
+  }
+  .pane-entering{ animation-name:pane-enter; }
+  .pane-exiting { animation-name:pane-exit;pointer-events:none; }
 
   /* Sidebar user card (bottom) */
   .sidebar-user-card{
@@ -1229,8 +1279,12 @@
 
   <!-- ===== SIDEBAR ===== -->
   <aside class="sidebar" id="appSidebar">
-    <div class="sidebar-logo">
+    <div class="sidebar-logo" style="display:flex;align-items:center;justify-content:space-between;">
       <img data-icon-key="logo_dashboard" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E" alt="Pro Keys" style="height:36px;max-width:100%;object-fit:contain;">
+      <div class="sidebar-collapse-btn" id="sidebarCollapseBtn" title="طي القائمة">
+        <!-- ph-caret-left (LTR collapse = point left; RTL = point right) — JS rotates 180 when collapsed -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="16" height="16"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"/></svg>
+      </div>
     </div>
     <nav class="sidebar-nav" id="sidebarNav">
       <!-- Animated pill (framer-motion layoutId="nav-pill" equivalent) -->
@@ -3832,27 +3886,60 @@ document.addEventListener('click', (e)=>{
 // Switches between the top-level sections (Home / New Check / Orders /
 // Wallet / Support). All data is already loaded up front by
 // loadDashboardData(), so this only needs to toggle visibility.
+/* Page transition: AnimatePresence mode="wait" equivalent.
+   Old pane exits (pane-exiting, 0.22s), then new pane enters (pane-entering, 0.22s). */
+let _goTabLock = false;
 function goTab(tab, persist = true){
+  if(_goTabLock) return;
+  const currentPane = document.querySelector('.tabpane[style*="block"]') ||
+                      document.querySelector('.tabpane.pane-entering') ||
+                      [...document.querySelectorAll('.tabpane')].find(e => e.style.display === 'block');
+  const nextPane    = document.getElementById('pane-' + tab);
+  if(!nextPane) return;
+
+  /* Update nav immediately (pill + labels) */
   let activeNavEl = null;
   document.querySelectorAll('.navtab[data-tab]').forEach(el => {
     const isOn = el.dataset.tab === tab;
     el.classList.toggle('on', isOn);
     if(isOn && el.closest('#sidebarNav')) activeNavEl = el;
   });
-  // Animate pill to active sidebar item
   if(activeNavEl && typeof movePill === 'function') movePill(activeNavEl);
-  document.querySelectorAll('.tabpane').forEach(el => {
-    el.style.display = (el.id === 'pane-' + tab) ? 'block' : 'none';
-  });
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  // Only remember tabs the user actively picked from the nav bar as their
-  // "preferred" tab for next time — a jump triggered by clicking a
-  // notification (e.g. a ticket reply) is a one-off destination, not a
-  // preference, and must not get stuck as the default landing tab for
-  // every future login just because they read one notification.
-  if (persist) localStorage.setItem('prokeys-active-tab', tab);
-  if (tab === 'wallet') { loadPaymentHistory(); loadOrderTransactions(); }
-  if (tab === 'my-profile') { openMyProfileTab(); }
+
+  if(persist) localStorage.setItem('prokeys-active-tab', tab);
+
+  /* If same pane or no current pane — just show */
+  if(!currentPane || currentPane === nextPane){
+    nextPane.style.display = 'block';
+    nextPane.classList.remove('pane-exiting');
+    nextPane.classList.add('pane-entering');
+    nextPane.addEventListener('animationend', () => nextPane.classList.remove('pane-entering'), {once:true});
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(tab === 'wallet'){ loadPaymentHistory(); loadOrderTransactions(); }
+    if(tab === 'my-profile'){ openMyProfileTab(); }
+    return;
+  }
+
+  /* Exit current, then enter next */
+  _goTabLock = true;
+  currentPane.classList.remove('pane-entering');
+  currentPane.classList.add('pane-exiting');
+  currentPane.addEventListener('animationend', () => {
+    currentPane.classList.remove('pane-exiting');
+    currentPane.style.display = 'none';
+
+    nextPane.style.display = 'block';
+    nextPane.classList.remove('pane-exiting');
+    nextPane.classList.add('pane-entering');
+    nextPane.addEventListener('animationend', () => {
+      nextPane.classList.remove('pane-entering');
+      _goTabLock = false;
+    }, {once:true});
+
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(tab === 'wallet'){ loadPaymentHistory(); loadOrderTransactions(); }
+    if(tab === 'my-profile'){ openMyProfileTab(); }
+  }, {once:true});
 }
 document.querySelectorAll('.navtab[data-tab]').forEach(el => {
   el.addEventListener('click', () => goTab(el.dataset.tab));
@@ -4285,6 +4372,15 @@ function togglePassVis(inputId, btn){
 
 /* ===================== NAV PILL (framer-motion layoutId equivalent) ===================== */
 /* spring stiffness:350 damping:30 → cubic-bezier(0.34,1.56,0.64,1) handled in CSS */
+/* Tab hex colors matching --tab-color CSS vars */
+const TAB_COLORS = {
+  'new-check' : '#6366f1',
+  'orders'    : '#2563eb',
+  'wallet'    : '#059669',
+  'support'   : '#ea580c',
+  'my-profile': '#475569',
+};
+
 function movePill(activeEl){
   const pill = document.getElementById('navPill');
   const nav  = document.getElementById('sidebarNav');
@@ -4296,20 +4392,33 @@ function movePill(activeEl){
   pill.style.left   = (itemRect.left - navRect.left) + 'px';
   pill.style.width  = itemRect.width  + 'px';
   pill.style.height = itemRect.height + 'px';
+  /* Set pill color = tab color + '15' hex alpha (~8%) */
+  const tab   = activeEl.dataset.tab;
+  const color = TAB_COLORS[tab] || '#6366f1';
+  pill.style.background = color + '15';
 }
-/* Call once on load — pill starts with no transition so it snaps to position */
+
+/* Snap pill on load — no transition on first paint */
 (function initPill(){
   const pill = document.getElementById('navPill');
   if(pill){ pill.style.transition = 'none'; }
   const active = document.querySelector('.sidebar-item.on');
   if(active){
     movePill(active);
-    // Re-enable spring transition after the initial snap
     requestAnimationFrame(()=> requestAnimationFrame(()=>{
       if(pill) pill.style.transition = '';
     }));
   }
 })();
+
+/* Sidebar collapse toggle */
+function toggleSidebar(){
+  document.getElementById('appSidebar').classList.toggle('collapsed');
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('sidebarCollapseBtn');
+  if(btn) btn.addEventListener('click', toggleSidebar);
+});
 
 /* ===================== PROFILE POPUP ===================== */
 const COUNTRY_CODES = [
