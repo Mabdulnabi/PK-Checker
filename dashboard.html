@@ -1398,14 +1398,18 @@
   }
 
   /* ===== MOBILE FLOATING NAV BAR ===== */
+  /* Nav bar: fixed height so we can compute offsets precisely */
+  :root{ --mob-nav-h: 68px; --mob-nav-bottom: 10px; }
+
   #mobileFloatingNav{
     display:none;
     position:fixed;
-    bottom:10px;
+    bottom:var(--mob-nav-bottom);
     left:10px;
     right:10px;
+    height:var(--mob-nav-h);
     z-index:9500;
-    background:rgba(255,255,255,0.88);
+    background:rgba(255,255,255,0.90);
     backdrop-filter:blur(22px) saturate(180%);
     -webkit-backdrop-filter:blur(22px) saturate(180%);
     border:1px solid rgba(255,255,255,0.65);
@@ -1413,13 +1417,13 @@
     box-shadow:0 8px 32px -6px rgba(27,37,86,0.22),0 2px 8px rgba(27,37,86,0.07);
     flex-direction:row;
     align-items:stretch;
-    padding:6px 4px;
+    padding:5px 4px;
     gap:2px;
   }
   [data-theme="dark"] #mobileFloatingNav{
-    background:rgba(22,33,61,0.84);
+    background:rgba(22,33,61,0.86);
     border-color:rgba(255,255,255,0.09);
-    box-shadow:0 8px 32px -6px rgba(0,0,0,0.45);
+    box-shadow:0 8px 32px -6px rgba(0,0,0,0.5);
   }
   .mob-nav-item{
     flex:1;
@@ -1427,13 +1431,15 @@
     flex-direction:column;
     align-items:center;
     justify-content:center;
-    gap:3px;
-    padding:8px 2px;
+    gap:4px;
+    padding:6px 4px;
     border-radius:16px;
     cursor:pointer;
     transition:background 0.18s, color 0.18s;
     color:var(--muted);
     -webkit-tap-highlight-color:transparent;
+    user-select:none;
+    min-width:0;
   }
   .mob-nav-item.on{
     color:var(--blue-deep);
@@ -1444,16 +1450,18 @@
     color:#60a5fa;
   }
   .mob-nav-item .mob-icon{
-    width:26px;height:26px;
-    display:flex;align-items:center;justify-content:center;
+    width:24px; height:24px;
+    display:flex; align-items:center; justify-content:center;
     flex:none;
   }
-  .mob-nav-item .mob-icon svg,.mob-nav-item .mob-icon img{
-    width:22px;height:22px;object-fit:contain;
+  .mob-nav-item .mob-icon svg,
+  .mob-nav-item .mob-icon img{
+    width:22px; height:22px; object-fit:contain; display:block; flex:none;
   }
   .mob-nav-item .mob-label{
-    font-size:10px;font-weight:700;
-    white-space:nowrap;font-family:'Cairo',sans-serif;
+    font-size:10px; font-weight:700; line-height:1;
+    white-space:nowrap; font-family:'Cairo',sans-serif;
+    overflow:hidden; text-overflow:ellipsis; max-width:100%;
   }
 
   /* Mobile topbar logo (hidden on desktop) */
@@ -1469,13 +1477,13 @@
     #topbarMobileLogo{display:flex;align-items:center;flex:none;margin-inline-end:auto;}
     #topbarGreeting{display:none !important;}
 
-    /* Add bottom padding so content doesn't hide behind nav bar */
-    .page{padding-bottom:100px !important;}
+    /* Add bottom padding = nav height + bottom gap + extra clearance */
+    .page{padding-bottom:calc(var(--mob-nav-h) + var(--mob-nav-bottom) + 20px) !important;}
 
-    /* Lift chat bubble above floating nav */
-    .chat-bubble{bottom:90px !important;}
-    /* Lift back-to-top above chat bubble */
-    #pkTopBtn{bottom:154px !important;}
+    /* Lift chat bubble: nav_bottom(10) + nav_h(68) + gap(14) = 92px */
+    .chat-bubble{bottom:92px !important;}
+    /* Lift back-to-top above chat bubble: 92 + chat_h(54) + gap(14) = 160px */
+    #pkTopBtn{bottom:160px !important;}
   }
 </style>
 </head>
@@ -1746,11 +1754,11 @@
           </div>
           <div class="field-block">
             <span class="glabel" data-i18n="filters_label">فلاتر الاقتباس (اختياري)</span>
-            <div class="chk-row"><input type="checkbox" id="exBib"><label for="exBib" data-i18n="exclude_bib">استبعاد المراجع</label></div>
-            <div class="chk-row"><input type="checkbox" id="exQuo"><label for="exQuo" data-i18n="exclude_quotes">استبعاد الاقتباسات المنصوصة</label></div>
-            <div class="chk-row"><input type="checkbox" id="exAbstract"><label for="exAbstract" data-i18n="exclude_abstract">استبعاد الملخص</label></div>
+            <div class="chk-row"><input type="checkbox" id="exBib" autocomplete="off"><label for="exBib" data-i18n="exclude_bib">استبعاد المراجع</label></div>
+            <div class="chk-row"><input type="checkbox" id="exQuo" autocomplete="off"><label for="exQuo" data-i18n="exclude_quotes">استبعاد الاقتباسات المنصوصة</label></div>
+            <div class="chk-row"><input type="checkbox" id="exAbstract" autocomplete="off"><label for="exAbstract" data-i18n="exclude_abstract">استبعاد الملخص</label></div>
             <div class="chk-row" style="align-items:center;gap:8px;">
-              <input type="checkbox" id="exSmall">
+              <input type="checkbox" id="exSmall" autocomplete="off">
               <label for="exSmall" data-i18n="exclude_small_matches">استبعاد التطابقات الصغيرة</label>
               <span style="display:inline-flex;align-items:center;gap:4px;margin-right:6px;">
                 <input type="number" id="exSmallWords" min="1" max="40" value="8" style="width:52px;padding:2px 6px;border:1px solid var(--paper-line);border-radius:6px;font-size:12px;background:var(--paper);color:var(--ink);text-align:center;" oninput="document.getElementById('exSmall').checked=true">
@@ -4703,6 +4711,12 @@ function toggleSidebar(){
   document.getElementById('appSidebar').classList.toggle('collapsed');
 }
 document.addEventListener('DOMContentLoaded', () => {
+  /* Reset check-option checkboxes — browser form-restore can wrongly pre-check them */
+  ['exBib','exQuo','exAbstract','exSmall'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.checked = false;
+  });
+
   const btn = document.getElementById('sidebarCollapseBtn');
   if(btn) btn.addEventListener('click', toggleSidebar);
   const sidebar = document.getElementById('appSidebar');
@@ -7828,37 +7842,57 @@ function maybeShowOnboarding(profileData){
 
 <!-- ===== MOBILE FLOATING BOTTOM NAV ===== -->
 <nav id="mobileFloatingNav" aria-label="bottom navigation">
-  <div class="mob-nav-item navtab on" data-tab="new-check">
+  <div class="mob-nav-item on" data-tab="new-check" onclick="goTab('new-check')">
     <div class="mob-icon" data-icon-key="tab_new_check">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><circle cx="112" cy="112" r="72" opacity="0.2"/><path d="M229.66,218.34l-50.07-50.07a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.31ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="22" height="22"><circle cx="112" cy="112" r="72" opacity="0.2"/><path d="M229.66,218.34l-50.07-50.07a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.31ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></svg>
     </div>
     <span class="mob-label" data-i18n="nav_new_check">فحص جديد</span>
   </div>
-  <div class="mob-nav-item navtab" data-tab="orders">
+  <div class="mob-nav-item" data-tab="orders" onclick="goTab('orders')">
     <div class="mob-icon" data-icon-key="tab_orders">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M208,88v24H69.77a8,8,0,0,0-7.59,5.47L32,208V64a8,8,0,0,1,8-8H93.33a8,8,0,0,1,4.8,1.6L128,80h72A8,8,0,0,1,208,88Z" opacity="0.2"/><path d="M245,110.64A16,16,0,0,0,232,104H216V88a16,16,0,0,0-16-16H130.67L102.94,51.2a16.14,16.14,0,0,0-9.6-3.2H40A16,16,0,0,0,24,64V208a8,8,0,0,0,8,8H211.1a8,8,0,0,0,7.59-5.47l28.49-85.47A16.05,16.05,0,0,0,245,110.64ZM93.34,64,123.2,86.4A8,8,0,0,0,128,88h72v16H69.77a16,16,0,0,0-15.18,10.94L40,158.7V64Zm112,136H43.1l26.67-80H232Z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="22" height="22"><path d="M208,88v24H69.77a8,8,0,0,0-7.59,5.47L32,208V64a8,8,0,0,1,8-8H93.33a8,8,0,0,1,4.8,1.6L128,80h72A8,8,0,0,1,208,88Z" opacity="0.2"/><path d="M245,110.64A16,16,0,0,0,232,104H216V88a16,16,0,0,0-16-16H130.67L102.94,51.2a16.14,16.14,0,0,0-9.6-3.2H40A16,16,0,0,0,24,64V208a8,8,0,0,0,8,8H211.1a8,8,0,0,0,7.59-5.47l28.49-85.47A16.05,16.05,0,0,0,245,110.64ZM93.34,64,123.2,86.4A8,8,0,0,0,128,88h72v16H69.77a16,16,0,0,0-15.18,10.94L40,158.7V64Zm112,136H43.1l26.67-80H232Z"/></svg>
     </div>
     <span class="mob-label" data-i18n="nav_orders">ملفاتي</span>
   </div>
-  <div class="mob-nav-item navtab" data-tab="wallet">
+  <div class="mob-nav-item" data-tab="wallet" onclick="goTab('wallet')">
     <div class="mob-icon" data-icon-key="tab_wallet">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M224,80V192a8,8,0,0,1-8,8H56a16,16,0,0,1-16-16V56A16,16,0,0,0,56,72H216A8,8,0,0,1,224,80Z" opacity="0.2"/><path d="M216,64H56a8,8,0,0,1,0-16H192a8,8,0,0,0,0-16H56A24,24,0,0,0,32,56V184a24,24,0,0,0,24,24H216a16,16,0,0,0,16-16V80A16,16,0,0,0,216,64Zm0,128H56a8,8,0,0,1-8-8V78.63A23.84,23.84,0,0,0,56,80H216Zm-48-60a12,12,0,1,1,12,12A12,12,0,0,1,168,132Z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="22" height="22"><path d="M224,80V192a8,8,0,0,1-8,8H56a16,16,0,0,1-16-16V56A16,16,0,0,0,56,72H216A8,8,0,0,1,224,80Z" opacity="0.2"/><path d="M216,64H56a8,8,0,0,1,0-16H192a8,8,0,0,0,0-16H56A24,24,0,0,0,32,56V184a24,24,0,0,0,24,24H216a16,16,0,0,0,16-16V80A16,16,0,0,0,216,64Zm0,128H56a8,8,0,0,1-8-8V78.63A23.84,23.84,0,0,0,56,80H216Zm-48-60a12,12,0,1,1,12,12A12,12,0,0,1,168,132Z"/></svg>
     </div>
     <span class="mob-label" data-i18n="nav_wallet">المحفظة</span>
   </div>
-  <div class="mob-nav-item navtab" data-tab="support">
+  <div class="mob-nav-item" data-tab="support" onclick="goTab('support')">
     <div class="mob-icon" data-icon-key="tab_support">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M80,144v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V128H64A16,16,0,0,1,80,144Zm112-16a16,16,0,0,0-16,16v40a16,16,0,0,0,16,16h32V128Z" opacity="0.2"/><path d="M201.89,54.66A104.08,104.08,0,0,0,24,128v56a24,24,0,0,0,24,24H64a24,24,0,0,0,24-24V144a24,24,0,0,0-24-24H40.36A88.12,88.12,0,0,1,190.54,65.93,87.39,87.39,0,0,1,215.65,120H192a24,24,0,0,0-24,24v40a24,24,0,0,0,24,24h24a24,24,0,0,1-24,24H136a8,8,0,0,0,0,16h56a40,40,0,0,0,40-40V128A103.41,103.41,0,0,0,201.89,54.66Z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="22" height="22"><path d="M80,144v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V128H64A16,16,0,0,1,80,144Zm112-16a16,16,0,0,0-16,16v40a16,16,0,0,0,16,16h32V128Z" opacity="0.2"/><path d="M201.89,54.66A104.08,104.08,0,0,0,24,128v56a24,24,0,0,0,24,24H64a24,24,0,0,0,24-24V144a24,24,0,0,0-24-24H40.36A88.12,88.12,0,0,1,190.54,65.93,87.39,87.39,0,0,1,215.65,120H192a24,24,0,0,0-24,24v40a24,24,0,0,0,24,24h24a24,24,0,0,1-24,24H136a8,8,0,0,0,0,16h56a40,40,0,0,0,40-40V128A103.41,103.41,0,0,0,201.89,54.66Z"/></svg>
     </div>
     <span class="mob-label" data-i18n="nav_support">الدعم</span>
   </div>
-  <div class="mob-nav-item navtab" data-tab="my-profile">
+  <div class="mob-nav-item" data-tab="my-profile" onclick="goTab('my-profile')">
     <div class="mob-icon" data-icon-key="tab_my_profile">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M168,100a60,60,0,1,1-60-60A60,60,0,0,1,168,100Z" opacity="0.2"/><path d="M144,157.68a68,68,0,1,0-71.9,0c-20.65,6.76-39.23,19.39-54.17,37.17a8,8,0,1,0,12.24,10.3C50.25,181.19,77.91,168,108,168s57.75,13.19,77.87,37.15a8,8,0,0,0,12.26-10.3C183.18,177.07,164.6,164.44,144,157.68ZM56,100a52,52,0,1,1,52,52A52.06,52.06,0,0,1,56,100Z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="22" height="22"><path d="M168,100a60,60,0,1,1-60-60A60,60,0,0,1,168,100Z" opacity="0.2"/><path d="M144,157.68a68,68,0,1,0-71.9,0c-20.65,6.76-39.23,19.39-54.17,37.17a8,8,0,1,0,12.24,10.3C50.25,181.19,77.91,168,108,168s57.75,13.19,77.87,37.15a8,8,0,0,0,12.26-10.3C183.18,177.07,164.6,164.44,144,157.68ZM56,100a52,52,0,1,1,52,52A52.06,52.06,0,0,1,56,100Z"/></svg>
     </div>
     <span class="mob-label" data-i18n="nav_my_profile">حسابي</span>
   </div>
 </nav>
+<script>
+/* Sync floating nav active state when goTab is called */
+(function(){
+  const orig = window.goTab;
+  if(typeof orig !== 'function') return;
+  window.goTab = function(tab, persist){
+    orig(tab, persist);
+    document.querySelectorAll('#mobileFloatingNav .mob-nav-item').forEach(el => {
+      el.classList.toggle('on', el.dataset.tab === tab);
+    });
+  };
+})();
+/* Set initial active state from localStorage */
+(function(){
+  const saved = localStorage.getItem('prokeys-active-tab') || 'new-check';
+  document.querySelectorAll('#mobileFloatingNav .mob-nav-item').forEach(el => {
+    el.classList.toggle('on', el.dataset.tab === saved);
+  });
+})();
+</script>
 
 </body>
 </html>
