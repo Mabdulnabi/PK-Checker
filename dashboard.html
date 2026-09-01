@@ -6848,7 +6848,9 @@ async function loadUIConfig(){
         if (!url && !sizeOverride) return;
         const s = (sizeOverride ? sizeOverride + 'px' : null) || SIZE_MAP[key] || '16px';
         if (url) {
-          ICONS[key] = `<img src="${url}" class="ic" alt="${key}" style="width:${s};height:${s};object-fit:contain;flex:none;">`;
+          // data-icon-key MUST stay on the img so applyDarkPackIcons can find and
+          // swap it to the dark variant on every subsequent renderPacks() call.
+          ICONS[key] = `<img src="${url}" class="ic" data-icon-key="${key}" alt="${key}" style="width:${s};height:${s};object-fit:contain;flex:none;">`;
         } else {
           // No custom image, just a size change — keep the original vector icon, just bigger/smaller.
           ICONS[key] = resizeSvgString(ICONS[key], s);

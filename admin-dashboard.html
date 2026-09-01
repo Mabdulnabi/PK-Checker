@@ -5549,17 +5549,30 @@ async function sendBroadcast(){
 }
 
 let allBroadcastRows = [];
+async function hideBroadcast(id){
+  const row = (allBroadcastRows || []).find(r => r.id === id);
+  if(!row) return;
+  if(row.is_hidden){
+    toast('الرسالة دي مخفية بالفعل', 'info'); return;
+  }
+  const { error } = await supabaseClient.from('broadcast_messages').update({ is_hidden: true }).eq('id', id);
+  if(error){ toast('فشل الإخفاء: ' + error.message, 'error'); return; }
+  // Delete notifications for all users so the message disappears realtime
+  await supabaseClient.from('notifications').delete().eq('type','broadcast').eq('title_ar', row.title_ar || '');
+  await loadBroadcastHistory();
+  toast('تم إخفاء الرسالة — اختفت من dashboard العملاء', 'success');
+}
+
 async function deleteBroadcast(id){
-  if(!confirm('حذف هذه الرسالة الجماعية؟\nسيتم حذفها من سجل الرسائل وإزالتها من dashboard العملاء.')) return;
+  if(!confirm('حذف نهائي؟ ستُحذف من سجل الرسائل تماماً.')) return;
   const row = (allBroadcastRows || []).find(r => r.id === id);
   const { error } = await supabaseClient.from('broadcast_messages').delete().eq('id', id);
   if(error){ toast('فشل الحذف: ' + error.message, 'error'); return; }
-  // Remove matching notifications from all users (best-effort — may silently fail due to RLS)
   if(row && row.title_ar){
     await supabaseClient.from('notifications').delete().eq('type','broadcast').eq('title_ar', row.title_ar);
   }
   await loadBroadcastHistory();
-  toast('تم الحذف — الرسالة لن تظهر للعملاء', 'success');
+  toast('تم الحذف النهائي', 'success');
 }
 
 async function loadBroadcastHistory(){
@@ -5580,13 +5593,16 @@ function renderBroadcastHistory(rows){
     return;
   }
   const pageRows = paginateList('broadcast', rows, () => renderBroadcastHistory(rows));
-  body.innerHTML = pageRows.map(b=>`<tr>
-    <td><b>${escapeHtml(b.title_ar||'')}</b></td>
+  body.innerHTML = pageRows.map(b=>`<tr style="${b.is_hidden?'opacity:0.55;':''}">
+    <td><b>${escapeHtml(b.title_ar||'')}</b>${b.is_hidden?` <span style="font-size:10px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:4px;padding:1px 5px;color:#64748b;margin-right:4px;">مخفي</span>`:''}</td>
     <td><span class="broadcast-badge">${escapeHtml(b.target_filter?.type||'all')}</span></td>
     <td style="text-align:center;font-weight:700;">${b.recipient_count||0}</td>
     <td style="font-size:11px;">${formatDate(b.sent_at||b.created_at)}</td>
     <td style="font-size:11px;">${escapeHtml(b.admin_name||'أدمن')}</td>
-    <td><button onclick="deleteBroadcast('${b.id}')" style="background:none;border:1px solid var(--danger-wash);color:var(--danger);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;" title="حذف من dashboard العملاء">🗑</button></td>
+    <td style="display:flex;gap:5px;align-items:center;">
+      ${!b.is_hidden?`<button onclick="hideBroadcast('${b.id}')" style="background:none;border:1px solid #e2e8f0;color:#64748b;border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;" title="إخفاء من العملاء (يبقى في السجل)">🙈 إخفاء</button>`:`<span style="font-size:10px;color:#94a3b8;">مخفي</span>`}
+      <button onclick="deleteBroadcast('${b.id}')" style="background:none;border:1px solid var(--danger-wash);color:var(--danger);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;" title="حذف نهائي من السجل">🗑</button>
+    </td>
   </tr>`).join('');
 
   renderPaginationBar('broadcast', 'bcHistoryPagination', rows.length);
