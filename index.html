@@ -62,9 +62,37 @@
   .hero h1{font-size:38px;font-weight:800;line-height:1.32;color:var(--navy);margin-bottom:20px;}
   .hero p.sub{font-size:16px;color:var(--muted);max-width:520px;margin-bottom:32px;}
   .hero-cta-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:28px;}
-  .hero-visual{width:100%;min-height:280px;border-radius:20px;background:var(--paper);border:1.5px dashed var(--paper-line);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:20px;transition:all .25s;}
-  .hero-visual:hover{transform:translateY(-4px);box-shadow:0 20px 40px -16px rgba(27,37,86,.2);border-color:var(--blue);}
+  .hero-visual{width:100%;min-height:320px;display:flex;align-items:center;justify-content:center;}
   .hero-visual-img{max-width:100%;height:auto;display:block;}
+  /* Stacked report cards */
+  .hero-cards-stack{position:relative;width:100%;height:320px;}
+  .hero-report-card{position:absolute;width:72%;background:#fff;border-radius:10px;border:1px solid #E5E9F2;box-shadow:0 8px 32px -8px rgba(27,37,86,.18);padding:0;overflow:hidden;cursor:pointer;transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .35s,z-index 0s .18s;}
+  .hero-report-card .hrc-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid #E5E9F2;font-size:9.5px;color:#666;font-family:'Manrope',sans-serif;}
+  .hero-report-card .hrc-turnitin{font-weight:800;font-size:11px;color:#E74C3C;letter-spacing:.02em;}
+  .hero-report-card .hrc-sep{flex:1;}
+  .hero-report-card .hrc-sid{font-size:8px;color:#aaa;}
+  .hero-report-card .hrc-body{padding:14px 16px;}
+  .hero-report-card .hrc-pct{font-size:38px;font-weight:800;line-height:1;margin-bottom:4px;font-family:'Space Grotesk','Manrope',sans-serif;}
+  .hero-report-card .hrc-pct.blue{color:#1A3F8B;}
+  .hero-report-card .hrc-pct.red{color:#C0392B;}
+  .hero-report-card .hrc-label{font-size:11.5px;font-weight:700;color:#444;margin-bottom:12px;font-family:'Manrope',sans-serif;}
+  .hero-report-card .hrc-bar{height:5px;border-radius:3px;margin-bottom:10px;}
+  .hero-report-card .hrc-bar.sim{background:linear-gradient(to right,#3498DB 5%,#E8EEF8 5%);}
+  .hero-report-card .hrc-bar.ai{background:linear-gradient(to right,#C0392B 100%,#E8EEF8 0%);}
+  .hero-report-card .hrc-row{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
+  .hero-report-card .hrc-dot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .hero-report-card .hrc-row-lbl{font-size:9px;color:#555;font-family:'Manrope',sans-serif;}
+  .hero-report-card .hrc-row-val{font-size:9px;font-weight:700;color:#222;margin-right:auto;margin-left:auto;}
+  .hrc-back{bottom:0;left:50%;transform:translateX(-62%) rotate(-5deg) translateY(24px);z-index:1;}
+  .hrc-front{top:0;left:50%;transform:translateX(-38%) rotate(3deg);z-index:2;}
+  html[dir="ltr"] .hrc-back{left:auto;right:50%;transform:translateX(62%) rotate(5deg) translateY(24px);}
+  html[dir="ltr"] .hrc-front{left:auto;right:50%;transform:translateX(38%) rotate(-3deg);}
+  .hero-cards-stack:hover .hrc-back{transform:translateX(-62%) rotate(-2deg) translateY(8px) scale(1.02);z-index:3;box-shadow:0 16px 48px -8px rgba(27,37,86,.26);}
+  .hero-cards-stack:hover .hrc-front{transform:translateX(-38%) rotate(1deg) scale(1.01);}
+  html[dir="ltr"] .hero-cards-stack:hover .hrc-back{transform:translateX(62%) rotate(2deg) translateY(8px) scale(1.02);}
+  html[dir="ltr"] .hero-cards-stack:hover .hrc-front{transform:translateX(38%) rotate(-1deg) scale(1.01);}
+  .hrc-front:hover{z-index:4!important;transform:translateX(-38%) rotate(0deg) scale(1.04)!important;box-shadow:0 20px 56px -8px rgba(27,37,86,.3)!important;}
+  html[dir="ltr"] .hrc-front:hover{transform:translateX(38%) rotate(0deg) scale(1.04)!important;}
 
   /* ===== SECTION SHARED ===== */
   section{padding:80px 0;}
@@ -458,7 +486,41 @@
       </div>
     </div>
     <div class="hero-visual" data-aos="zoom-in" data-aos-delay="200">
-      <img class="hero-visual-img" data-icon-key="hero_visual" alt="Pro Keys" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E">
+      <div class="hero-cards-stack">
+        <!-- Back card: Similarity report -->
+        <div class="hero-report-card hrc-back">
+          <div class="hrc-head">
+            <span class="hrc-turnitin">turnitin</span>
+            <span>Page 1 of 6 · Similarity Overview</span>
+            <span class="hrc-sep"></span>
+            <span class="hrc-sid">Submission ID: invalid-0390</span>
+          </div>
+          <div class="hrc-body">
+            <div class="hrc-pct blue">5%</div>
+            <div class="hrc-label">Overall Similarity</div>
+            <div class="hrc-bar sim"></div>
+            <div class="hrc-row"><span class="hrc-dot" style="background:#3498DB;"></span><span class="hrc-row-lbl">Internet Sources</span><span class="hrc-row-val">3%</span></div>
+            <div class="hrc-row"><span class="hrc-dot" style="background:#E67E22;"></span><span class="hrc-row-lbl">Publications</span><span class="hrc-row-val">1%</span></div>
+            <div class="hrc-row"><span class="hrc-dot" style="background:#27AE60;"></span><span class="hrc-row-lbl">Student Papers</span><span class="hrc-row-val">1%</span></div>
+          </div>
+        </div>
+        <!-- Front card: AI detection report -->
+        <div class="hero-report-card hrc-front">
+          <div class="hrc-head">
+            <span class="hrc-turnitin">turnitin</span>
+            <span>Page 2 of 7 · AI Writing Overview</span>
+            <span class="hrc-sep"></span>
+            <span class="hrc-sid">Submission ID: invalid-0390</span>
+          </div>
+          <div class="hrc-body">
+            <div class="hrc-pct red">100%</div>
+            <div class="hrc-label">detected as AI</div>
+            <div class="hrc-bar ai"></div>
+            <div class="hrc-row"><span class="hrc-dot" style="background:#C0392B;"></span><span class="hrc-row-lbl">AI-generated only</span><span class="hrc-row-val">100%</span></div>
+            <div class="hrc-row"><span class="hrc-dot" style="background:#E8D5B7;"></span><span class="hrc-row-lbl">AI paraphrased</span><span class="hrc-row-val">0%</span></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1698,6 +1760,34 @@ supabaseClient
   }
   byId('amGoogleLoginBtn').addEventListener('click', function(){ signInWithGoogle(this, 'amLoginError'); });
   byId('amGoogleSignupBtn').addEventListener('click', function(){ signInWithGoogle(this, 'amSignupError'); });
+})();
+</script>
+
+<!-- Back to Top + Scroll Progress -->
+<style>
+  #scrollProgress{position:fixed;top:0;left:0;width:0%;height:3px;background:var(--blue);z-index:9999;transition:width .1s linear;pointer-events:none;}
+  #backToTop{position:fixed;bottom:22px;right:20px;width:38px;height:38px;border-radius:50%;background:var(--navy);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(27,37,86,0.3);opacity:0;transform:translateY(12px);transition:opacity .25s,transform .25s;z-index:9998;pointer-events:none;}
+  html[dir="rtl"] #backToTop{right:auto;left:20px;}
+  #backToTop.visible{opacity:1;transform:translateY(0);pointer-events:auto;}
+  #backToTop:hover{background:var(--blue);transform:translateY(-2px);}
+  #backToTop svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;}
+</style>
+<div id="scrollProgress"></div>
+<button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+<script>
+(function(){
+  const bar = document.getElementById('scrollProgress');
+  const btn = document.getElementById('backToTop');
+  if(!bar || !btn) return;
+  window.addEventListener('scroll', function(){
+    const scrolled = window.scrollY || document.documentElement.scrollTop;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = total > 0 ? (scrolled / total) * 100 : 0;
+    bar.style.width = pct + '%';
+    btn.classList.toggle('visible', scrolled > 300);
+  }, {passive:true});
 })();
 </script>
 

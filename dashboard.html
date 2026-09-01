@@ -1211,6 +1211,7 @@
   .chat-msg{max-width:80%;padding:9px 12px;border-radius:12px;font-size:12.5px;line-height:1.5;white-space:pre-wrap;}
   .chat-msg.from-admin{background:var(--paper);border:1px solid var(--paper-line);border-bottom-left-radius:3px;color:var(--ink);}
   .chat-msg.from-user{background:var(--blue);color:#fff;align-self:flex-end;border-bottom-right-radius:3px;}
+  .chat-msg.img-msg{padding:3px;background:transparent;border:none;line-height:0;}
   .chat-msg-admin-row{align-self:flex-start;}
   html[dir="rtl"] .chat-msg.from-user{align-self:flex-start;border-bottom-right-radius:12px;border-bottom-left-radius:3px;}
   html[dir="rtl"] .chat-msg-admin-row{align-self:flex-end;}
@@ -1240,6 +1241,14 @@
   .chat-msg-action-btn{width:22px;height:22px;border-radius:6px;background:var(--paper);border:1px solid var(--paper-line);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:11px;}
   .chat-msg-action-btn:hover{border-color:var(--blue);color:var(--blue-deep);}
   .chat-msg-action-btn.del:hover{border-color:var(--danger);color:var(--danger);}
+  /* ===== Back to Top ===== */
+  #scrollProgress{position:fixed;top:0;left:0;width:0%;height:3px;background:var(--blue);z-index:9999;transition:width .1s linear;pointer-events:none;}
+  #backToTop{position:fixed;bottom:22px;right:20px;width:38px;height:38px;border-radius:50%;background:var(--blue);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(37,99,235,0.35);opacity:0;transform:translateY(12px);transition:opacity .25s,transform .25s;z-index:9998;pointer-events:none;}
+  html[dir="rtl"] #backToTop{right:auto;left:20px;}
+  #backToTop.visible{opacity:1;transform:translateY(0);pointer-events:auto;}
+  #backToTop:hover{background:var(--blue-deep);transform:translateY(-2px);}
+  #backToTop svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;}
+  /* ======================== */
   .chat-edit-banner{display:none;align-items:center;gap:8px;padding:6px 12px;border-top:1px solid var(--paper-line);font-size:11.5px;color:var(--blue-deep);background:var(--blue-wash);flex:none;}
   .chat-edit-banner.show{display:flex;}
   .chat-edit-banner button{margin-right:auto;background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;line-height:1;}
@@ -1468,7 +1477,7 @@
   </div>
 
   <!-- ===== MAIN CONTENT ===== -->
-  <div class="main-wrap">
+  <div class="main-wrap" id="mainWrap">
   <div class="topbar">
     <div class="topbar-in">
       <!-- Hidden elements kept for JS compatibility (lang/currency/user dropdown still used by JS) -->
@@ -2307,10 +2316,10 @@ const ICONS = {
   faq_icon_7: '<span class="ic" style="font-family:\'Space Grotesk\',sans-serif;font-weight:700;">؟</span>',
   faq_icon_8: '<span class="ic" style="font-family:\'Space Grotesk\',sans-serif;font-weight:700;">؟</span>',
   faq_icon_9: '<span class="ic" style="font-family:\'Space Grotesk\',sans-serif;font-weight:700;">؟</span>',
-  pack_highlight: '<svg class="ic" viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>',
-  pack_check: '<svg class="ic" viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M5 13l4 4L19 7"/></svg>',
-  pack_validity: '<svg class="ic" viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>',
-  wal_copy: '<span class="ic" style="font-size:10px;opacity:.6;">⎘</span>',
+  pack_highlight: '<svg class="ic" data-icon-key="pack_highlight" viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>',
+  pack_check: '<svg class="ic" data-icon-key="pack_check" viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M5 13l4 4L19 7"/></svg>',
+  pack_validity: '<svg class="ic" data-icon-key="pack_validity" viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>',
+  wal_copy: '<svg class="ic" data-icon-key="pack_copy" viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
 };
 
 // Generic swap-in for any icon NOT covered by the ICONS object above (header,
@@ -2331,7 +2340,9 @@ const ICON_SIZE_MAP = {
   nc_balance:'18px', nc_floating:'18px', nc_processing:'18px', nc_completed:'18px',
   nc_upload:'20px', nc_options:'16px', nc_payment:'16px',
   ord_completed:'18px', ord_pending:'18px', ord_rejected:'18px',
-  wal_referral:'14px', wal_slider_prev:'18px', wal_slider_next:'18px', wal_pay_head:'16px',
+  wal_referral:'14px', wal_slider_prev:'18px', wal_slider_next:'18px', wal_slider_prev_dark:'18px', wal_slider_next_dark:'18px', wal_pay_head:'16px',
+  pack_highlight:'14px', pack_check:'14px', pack_validity:'14px', pack_copy:'14px',
+  pack_highlight_dark:'14px', pack_check_dark:'14px', pack_validity_dark:'14px', pack_copy_dark:'14px',
   wal_pay_binance:'18px', wal_pay_bybit:'18px', wal_pay_bep20:'18px',
   wal_pay_easykash:'18px', wal_pay_instapay:'18px', wal_pay_vodafone:'18px',
   sup_inbox:'17px', sup_attach:'18px', sup_chat_bubble:'24px', sup_chat_close:'16px',
@@ -2919,6 +2930,8 @@ function renderPacks(){
   if(dailySlider){
     dailySlider.innerHTML = DAILY_PACKS.map((p,i)=>buildPackCard(p,'daily',i)).join('');
   }
+  if(typeof applyCustomIcons === 'function') applyCustomIcons();
+  applyDarkPackIcons();
 }
 
 function selectPack(tab, id){
@@ -5131,15 +5144,15 @@ function renderChat(){
       : '';
 
     let bubbleInner;
+    const isChatImg = !!(m.fileName && /\.(jpe?g|png|gif|webp|svg)$/i.test(m.fileName));
     if (isDeleted) {
       bubbleInner = `<span class="chat-msg-deleted">🚫 ${currentLang==='ar'?'تم حذف الرسالة':'Message deleted'}</span>`;
     } else if (m.fileName) {
-      const isChatImg = /\.(jpe?g|png|gif|webp|svg)$/i.test(m.fileName||'');
       if(isChatImg){
         const cachedUrl = chatSignedUrlCache[m.fileUrl];
         bubbleInner = cachedUrl
-          ? `<img src="${escapeHtml(cachedUrl)}" alt="${escapeHtml(m.fileName)}" style="max-width:180px;max-height:180px;border-radius:10px;display:block;cursor:zoom-in;margin-bottom:2px;" onclick="openLightbox('${escapeHtml(cachedUrl)}')">${receipt}`
-          : `<img data-chat-path="${escapeHtml(m.fileUrl)}" alt="${escapeHtml(m.fileName)}" style="max-width:180px;max-height:180px;border-radius:10px;display:block;cursor:zoom-in;margin-bottom:2px;background:rgba(0,0,0,.1);min-width:80px;min-height:60px;">${receipt}`;
+          ? `<img src="${escapeHtml(cachedUrl)}" alt="${escapeHtml(m.fileName)}" style="max-width:220px;max-height:220px;border-radius:10px;display:block;cursor:zoom-in;" onclick="openLightbox('${escapeHtml(cachedUrl)}')">${receipt}`
+          : `<img data-chat-path="${escapeHtml(m.fileUrl)}" alt="${escapeHtml(m.fileName)}" style="max-width:220px;max-height:220px;border-radius:10px;display:block;cursor:zoom-in;background:rgba(0,0,0,.1);min-width:80px;min-height:60px;">${receipt}`;
       } else {
         bubbleInner = `<div class="chat-msg-file" style="cursor:pointer;display:inline-flex;" onclick="openChatFile('${encodeURIComponent(m.fileUrl)}')"><svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg><span>${escapeHtml(m.fileName)}</span></div>${receipt}`;
       }
@@ -5147,7 +5160,7 @@ function renderChat(){
       bubbleInner = `${escapeHtml(m.text||'')}${m.editedAt?` <i style="font-size:9px;opacity:.6;">(${currentLang==='ar'?'معدّلة':'edited'})</i>`:''}${receipt}`;
     }
 
-    const msgTimeStr = m.createdAt ? new Date(m.createdAt).toLocaleTimeString(currentLang==='ar'?'ar-EG':'en-GB',{hour:'2-digit',minute:'2-digit'}) : '';
+    const msgTimeStr = m.createdAt ? new Date(m.createdAt).toLocaleTimeString(currentLang==='ar'?'ar-EG':'en-US',{hour:'numeric',minute:'2-digit',hour12:true}) : '';
     const timeSpan = msgTimeStr ? `<span style="display:block;font-size:9.5px;color:var(--muted);opacity:.75;margin-top:3px;font-family:'Cairo',sans-serif;">${msgTimeStr}</span>` : '';
 
     if (m.from === 'user') {
@@ -5157,19 +5170,21 @@ function renderChat(){
           <button class="chat-msg-action-btn" onclick="startChatEdit('${m.id}')" title="${currentLang==='ar'?'تعديل':'Edit'}">${currentLang==='ar'?'✏️':'✏️'}</button>
           <button class="chat-msg-action-btn del" onclick="deleteChatMsg('${m.id}')" title="${currentLang==='ar'?'حذف':'Delete'}">🗑</button>
         </div>` : '';
+      const imgCls = isChatImg ? ' img-msg' : '';
       html += `<div class="chat-msg-row mine" onmouseenter="this.querySelector('.chat-msg-actions')&&(this.querySelector('.chat-msg-actions').style.display='flex')" onmouseleave="this.querySelector('.chat-msg-actions')&&(this.querySelector('.chat-msg-actions').style.display='none')">
         ${actions}
-        <div><div class="chat-msg from-user">${bubbleInner}</div>${timeSpan}</div>
+        <div><div class="chat-msg from-user${imgCls}">${bubbleInner}</div>${timeSpan}</div>
       </div>`;
     } else {
       const p = adminProfilesById[m.senderId] || getDefaultAdminProfile() || {};
       const avatarInner = getAdminAvatarHtml(p.avatar_url, p.display_title || p.name || 'S');
       const nameLabel = p.display_title || p.name || (currentLang==='ar'?'فريق الدعم':'Support Team');
+      const imgCls = isChatImg ? ' img-msg' : '';
       html += `<div class="chat-msg-admin-row" style="display:flex;direction:ltr;align-items:flex-start;gap:8px;max-width:85%;">
         <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--blue-wash);color:var(--blue-deep);font-size:11px;font-weight:800;overflow:hidden;margin-top:2px;">${avatarInner}</span>
         <div style="min-width:0;">
           <b style="display:block;font-size:10.5px;color:var(--muted);margin-bottom:3px;font-family:'Cairo',sans-serif;">${escapeHtml(nameLabel)}</b>
-          <div class="chat-msg from-admin" style="margin:0;max-width:100%;">${bubbleInner}</div>
+          <div class="chat-msg from-admin${imgCls}" style="margin:0;max-width:100%;">${bubbleInner}</div>
           ${timeSpan}
         </div>
       </div>`;
@@ -6920,6 +6935,29 @@ async function refreshCheckSettings(){
 const darkModeBtn = document.getElementById('darkModeBtn');
 let isDarkMode = localStorage.getItem('prokeys-dark-mode') === 'true';
 
+/* Swap any icon that has a _dark variant when dark mode is active */
+const DARK_ICON_PAIRS = [
+  ['wal_slider_prev','wal_slider_prev_dark'],
+  ['wal_slider_next','wal_slider_next_dark'],
+  ['pack_highlight','pack_highlight_dark'],
+  ['pack_check','pack_check_dark'],
+  ['pack_validity','pack_validity_dark'],
+  ['pack_copy','pack_copy_dark'],
+];
+function applyDarkPackIcons(){
+  const icons = (uiConfigOverrides && uiConfigOverrides.icons) || {};
+  DARK_ICON_PAIRS.forEach(([light, dark]) => {
+    const darkUrl  = icons[dark];
+    const lightUrl = icons[light];
+    document.querySelectorAll(`[data-icon-key="${light}"]`).forEach(el => {
+      const target = (isDarkMode && darkUrl) ? darkUrl : (lightUrl || null);
+      if (!target) return;
+      if (el.tagName === 'IMG') { el.src = target; }
+      else if (el.src !== undefined) { el.src = target; }
+    });
+  });
+}
+
 function updateDarkModeUI(){
   const lightWrap = darkModeBtn.querySelector('.lightmode-icon-wrap');
   const darkWrap  = darkModeBtn.querySelector('.darkmode-icon-wrap');
@@ -6933,6 +6971,7 @@ function updateDarkModeUI(){
     if (darkWrap)  darkWrap.style.display  = 'none';
   }
   applyColorOverrides();
+  applyDarkPackIcons();
   // Swap notification bell icon for dark mode override if uploaded
   const notifIconEl = document.querySelector('[data-icon-key="header_notif"]');
   if (notifIconEl) {
@@ -7450,6 +7489,28 @@ updateDarkModeUI();
       btn.textContent = isAr() ? 'أرسل تقييمي' : 'Submit my review';
     }
   }
+})();
+</script>
+
+<!-- Back to Top + Scroll Progress -->
+<div id="scrollProgress"></div>
+<button id="backToTop" onclick="document.getElementById('mainWrap').scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+<script>
+(function(){
+  const wrap = document.getElementById('mainWrap');
+  const bar  = document.getElementById('scrollProgress');
+  const btn  = document.getElementById('backToTop');
+  if(!wrap || !bar || !btn) return;
+  wrap.addEventListener('scroll', function(){
+    const scrolled = wrap.scrollTop;
+    const total = wrap.scrollHeight - wrap.clientHeight;
+    const pct = total > 0 ? (scrolled / total) * 100 : 0;
+    bar.style.width = pct + '%';
+    if(scrolled > 300){ btn.classList.add('visible'); }
+    else { btn.classList.remove('visible'); }
+  }, {passive:true});
 })();
 </script>
 
