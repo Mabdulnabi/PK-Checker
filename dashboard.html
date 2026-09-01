@@ -213,7 +213,7 @@
   [data-theme="dark"] .file-chip .fchip-ic{color:var(--blue);}
   /* ===== SIDEBAR LAYOUT — FULL SCREEN ===== */
   .app-layout{display:flex;width:100%;height:100vh;overflow:hidden;position:relative;}
-  .main-wrap{flex:1;min-width:0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:clip;overscroll-behavior:contain;}
+  .main-wrap{flex:1;min-width:0;display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior-y:contain;}
 
   /* Sidebar */
   .sidebar{
@@ -585,7 +585,7 @@
 
   /* ===== TOPBAR ===== */
   .topbar{
-    position:sticky;top:0;z-index:40;will-change:transform;
+    position:sticky;top:0;z-index:40;
     height:56px;display:flex;align-items:center;
     /* Match sidebar glass fill */
     background:linear-gradient(to bottom, rgba(255,255,255,0.48) 0%, rgba(255,255,255,0.38) 100%);
@@ -6542,6 +6542,11 @@ function applyAuthProfileFields(authUser, profileData){
   // Google sends this under "avatar_url" in most setups, but some OAuth
   // configurations expose it as "picture" instead — check both.
   currentUser.avatarUrl = meta.avatar_url || meta.picture || '';
+  // Pre-fill name from Google metadata — applyProfileRowFields will override
+  // with the stored users_profile value once it loads (custom name wins).
+  if (!currentUser.name || currentUser.name === '...') {
+    currentUser.name = meta.full_name || meta.name || currentUser.name;
+  }
   renderUserAvatar(document.getElementById('userAvatar'));
   renderUserAvatar(document.getElementById('userAvatarLg'));
   document.getElementById('userEmailDropdown').textContent = currentUser.email || '—';
@@ -6625,14 +6630,44 @@ async function loadUserProfile(){
     supabaseClient.auth.getSession(),
   ]);
 
-  applyAuthProfileFields(sessionData?.session?.user, data);
+  const authUser = sessionData?.session?.user;
+  applyAuthProfileFields(authUser, data);
 
   if (error) {
+    // PGRST116 = no rows — new user with no profile yet (e.g. first Google OAuth login)
+    if (error.code === 'PGRST116') {
+      const meta = authUser?.user_metadata || {};
+      const googleName = meta.full_name || meta.name || '';
+      // Create the profile row so the numbered view assigns a PK code
+      const { error: insertErr } = await supabaseClient.from('users_profile').insert({
+        user_id: PROKEYS_USER_ID,
+        full_name: googleName,
+        email: authUser?.email || '',
+        avatar_url: meta.avatar_url || meta.picture || '',
+      });
+      if (insertErr) { console.error('profile create failed:', insertErr); return; }
+      // Re-read from the numbered view to get pk_number
+      const { data: newData } = await supabaseClient
+        .from('users_profile_numbered').select('*').eq('user_id', PROKEYS_USER_ID).single();
+      if (newData) applyProfileRowFields(newData);
+      return;
+    }
     console.error('loadUserProfile failed:', error);
     return;
   }
   if (data) {
     applyProfileRowFields(data);
+    // Backfill name from Google metadata if the profile was created without a name
+    if (!data.full_name && authUser) {
+      const meta = authUser.user_metadata || {};
+      const googleName = meta.full_name || meta.name || '';
+      if (googleName) {
+        supabaseClient.from('users_profile').update({ full_name: googleName }).eq('user_id', PROKEYS_USER_ID)
+          .then(({ error: e }) => { if (e) console.error('name backfill failed:', e); });
+        currentUser.name = googleName;
+        if (typeof updateTopbarGreeting === 'function') updateTopbarGreeting();
+      }
+    }
   }
 }
 
@@ -7491,7 +7526,7 @@ updateDarkModeUI();
 </script>
 
 <div id="pkScrollBar"></div>
-<button id="pkTopBtn" aria-label="Back to top" style="position:relative;">
+<button id="pkTopBtn" aria-label="Back to top">
   <svg viewBox="0 0 46 46" width="46" height="46" style="position:absolute;top:0;left:0;pointer-events:none;">
     <circle cx="23" cy="23" r="18" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="3"/>
     <circle id="pkRingProg" cx="23" cy="23" r="18" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="3" stroke-linecap="round" transform="rotate(-90 23 23)"/>

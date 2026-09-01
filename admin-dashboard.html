@@ -5549,12 +5549,15 @@ async function sendBroadcast(){
 }
 
 let allBroadcastRows = [];
-async function deleteBroadcast(id, titleAr, bodyAr){
+async function deleteBroadcast(id){
   if(!confirm('حذف هذه الرسالة الجماعية؟\nسيتم حذفها من سجل الرسائل وإزالتها من dashboard العملاء.')) return;
+  const row = (allBroadcastRows || []).find(r => r.id === id);
   const { error } = await supabaseClient.from('broadcast_messages').delete().eq('id', id);
   if(error){ toast('فشل الحذف: ' + error.message, 'error'); return; }
-  // Remove matching notifications from all users
-  await supabaseClient.from('notifications').delete().eq('type','broadcast').eq('title_ar', titleAr);
+  // Remove matching notifications from all users (best-effort — may silently fail due to RLS)
+  if(row && row.title_ar){
+    await supabaseClient.from('notifications').delete().eq('type','broadcast').eq('title_ar', row.title_ar);
+  }
   await loadBroadcastHistory();
   toast('تم الحذف — الرسالة لن تظهر للعملاء', 'success');
 }
@@ -5583,7 +5586,7 @@ function renderBroadcastHistory(rows){
     <td style="text-align:center;font-weight:700;">${b.recipient_count||0}</td>
     <td style="font-size:11px;">${formatDate(b.sent_at||b.created_at)}</td>
     <td style="font-size:11px;">${escapeHtml(b.admin_name||'أدمن')}</td>
-    <td><button onclick="deleteBroadcast('${b.id}',${JSON.stringify(b.title_ar||'')},${JSON.stringify(b.body_ar||'')})" style="background:none;border:1px solid var(--danger-wash);color:var(--danger);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;" title="حذف من dashboard العملاء">🗑</button></td>
+    <td><button onclick="deleteBroadcast('${b.id}')" style="background:none;border:1px solid var(--danger-wash);color:var(--danger);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;" title="حذف من dashboard العملاء">🗑</button></td>
   </tr>`).join('');
 
   renderPaginationBar('broadcast', 'bcHistoryPagination', rows.length);
