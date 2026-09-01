@@ -180,6 +180,11 @@
   [data-theme="dark"] .pack-card.tone-black{border-color:var(--paper-line);}
   [data-theme="dark"] .pack-card.tone-black .pname{color:#fff;}
   [data-theme="dark"] .pack-card.tone-black .pselect-btn,[data-theme="dark"] .pack-card.tone-navy .pselect-btn{background:var(--blue-deep);color:#fff;}
+  /* Force SVG icon strokes visible in dark mode regardless of inherited color */
+  [data-theme="dark"] .pack-card .pfeature{color:#E8EFF5;}
+  [data-theme="dark"] .pack-card .pfeature svg{stroke:#E8EFF5 !important;}
+  [data-theme="dark"] .pack-card .pfeature.highlight{color:#93C5FD;}
+  [data-theme="dark"] .pack-card .pfeature.highlight svg{stroke:#93C5FD !important;}
 
   /* --- KPI gold card (--navy resets → large credit number invisible) --- */
   [data-theme="dark"] .kpi.gold .num{color:#fff;}
@@ -193,6 +198,7 @@
   /* --- Payment section --- */
   [data-theme="dark"] .pay-confirm input{color:#fff;}
   [data-theme="dark"] #walletUidValue{color:#fff !important;}
+  [data-theme="dark"] #walletUidValue svg{stroke:#fff !important;}
   [data-theme="dark"] .total-due{color:#fff;}
 
   /* --- Chat toast (navy→white in dark = white bg + white text) --- */
@@ -1215,7 +1221,7 @@
   .chat-badge{position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:10.5px;font-weight:700;min-width:19px;height:19px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid var(--paper);}
   html[dir="ltr"] .chat-badge{right:auto;left:-4px;}
 
-  .chat-window{position:fixed;bottom:142px;left:22px;width:320px;max-width:88vw;height:420px;background:rgba(255,255,255,0.72);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:16px;box-shadow:0 24px 48px rgba(0,0,0,0.14);z-index:1000000;display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,0.70);}
+  .chat-window{position:fixed;bottom:84px;left:22px;width:320px;max-width:88vw;height:420px;background:rgba(255,255,255,0.72);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:16px;box-shadow:0 24px 48px rgba(0,0,0,0.14);z-index:1000000;display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,0.70);}
   [data-theme="dark"] .chat-window{background:rgba(12,17,28,0.82);border-color:rgba(255,255,255,0.09);box-shadow:0 24px 60px rgba(0,0,0,0.6);}
   html[dir="ltr"] .chat-window{left:auto;right:22px;}
   .chat-window-head{display:flex;align-items:center;gap:10px;padding:14px 16px;background:linear-gradient(150deg, var(--navy) 0%, #5C3317 100%);flex:none;}
@@ -6898,7 +6904,13 @@ async function refreshCheckSettings(){
   });
   // Periodic refresh — picks up status changes made by admins/Turnitin processing
   setInterval(loadDashboardData, 30000);
+  setInterval(loadNotifications, 60000); // catch broadcast deletes if realtime misses them
   setInterval(refreshCheckSettings, 15000);
+  // Re-fetch notifications when user returns to the tab (catches deletions that
+  // happened while the tab was in the background and realtime was suspended)
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && typeof loadNotifications === 'function') loadNotifications();
+  });
   // Instant refresh the moment an admin toggles service on/off, sim-only
   // visibility, or the offline message — no reload needed on the customer's side.
   supabaseClient
@@ -6918,8 +6930,11 @@ async function refreshCheckSettings(){
         showNotificationToast(payload.new);
         if (typeof loadNotifications === 'function') loadNotifications();
       })
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'notifications', filter: `user_id=eq.${PROKEYS_USER_ID}` }, () => {
-        // Admin deleted a broadcast → remove it from the user's panel immediately
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'notifications' }, () => {
+        // Admin deleted a broadcast → remove it from the user's panel immediately.
+        // No user_id filter here: DELETE events need REPLICA IDENTITY FULL to
+        // carry the old row's columns, which is not guaranteed. Any deletion
+        // triggers a re-fetch and loadNotifications only returns this user's rows.
         if (typeof loadNotifications === 'function') loadNotifications();
       })
       .subscribe();
