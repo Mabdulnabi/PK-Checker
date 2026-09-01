@@ -4388,6 +4388,7 @@ function restoreTabAndScroll(){
       el.style.display = (el.id === 'pane-' + savedTab) ? 'block' : 'none';
     });
     if (savedTab === 'wallet') { loadPaymentHistory(); loadOrderTransactions(); }
+    if (savedTab === 'my-profile') { openMyProfileTab(); }
   }
   const y = _tabScrollPositions[savedTab || 'new-check'] || 0;
   // Content may still be loading/rendering async — try shortly after too.
