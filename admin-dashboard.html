@@ -983,7 +983,7 @@
           <div style="overflow-x:auto;margin-top:14px;">
             <table class="data-tbl" id="bcHistoryTbl">
               <thead><tr>
-                <th data-i18n="bc_col_title">العنوان</th><th data-i18n="bc_col_target">الفئة المستهدفة</th><th data-i18n="bc_col_recipients">عدد المستلمين</th><th data-i18n="bc_col_sent_at">وقت الإرسال</th><th data-i18n="bc_col_admin">الإدمن</th><th></th>
+                <th data-i18n="bc_col_title">العنوان</th><th data-i18n="bc_col_target">الفئة المستهدفة</th><th data-i18n="bc_col_recipients">عدد المستلمين</th><th data-i18n="bc_col_sent_at">وقت الإرسال</th><th data-i18n="bc_col_admin">الإدمن</th><th style="min-width:110px;">Actions</th>
               </tr></thead>
               <tbody id="bcHistoryBody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px;" data-i18n="loading_ellipsis">جاري التحميل...</td></tr></tbody>
             </table>
@@ -5552,15 +5552,12 @@ let allBroadcastRows = [];
 async function hideBroadcast(id){
   const row = (allBroadcastRows || []).find(r => r.id === id);
   if(!row) return;
-  if(row.is_hidden){
-    toast('الرسالة دي مخفية بالفعل', 'info'); return;
-  }
-  const { error } = await supabaseClient.from('broadcast_messages').update({ is_hidden: true }).eq('id', id);
+  if(row.is_hidden){ toast('الرسالة دي مخفية بالفعل', 'info'); return; }
+  // SECURITY DEFINER function bypasses RLS: updates is_hidden + deletes user notifications
+  const { error } = await supabaseClient.rpc('admin_hide_broadcast', { p_broadcast_id: id });
   if(error){ toast('فشل الإخفاء: ' + error.message, 'error'); return; }
-  // Delete notifications for all users so the message disappears realtime
-  await supabaseClient.from('notifications').delete().eq('type','broadcast').eq('title_ar', row.title_ar || '');
   await loadBroadcastHistory();
-  toast('تم إخفاء الرسالة — اختفت من dashboard العملاء', 'success');
+  toast('تم الإخفاء — اختفت من dashboard العملاء فوراً', 'success');
 }
 
 async function deleteBroadcast(id){
@@ -5592,16 +5589,23 @@ function renderBroadcastHistory(rows){
     document.getElementById('bcHistoryPagination').innerHTML = '';
     return;
   }
+  const hideIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+  const delIcon  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex:none;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
   const pageRows = paginateList('broadcast', rows, () => renderBroadcastHistory(rows));
-  body.innerHTML = pageRows.map(b=>`<tr style="${b.is_hidden?'opacity:0.55;':''}">
-    <td><b>${escapeHtml(b.title_ar||'')}</b>${b.is_hidden?` <span style="font-size:10px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:4px;padding:1px 5px;color:#64748b;margin-right:4px;">مخفي</span>`:''}</td>
+  body.innerHTML = pageRows.map(b=>`<tr style="${b.is_hidden?'opacity:0.5;':''}" data-bc-id="${b.id}">
+    <td><b>${escapeHtml(b.title_ar||'')}</b>${b.is_hidden?` <span style="display:inline-block;font-size:10px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:4px;padding:1px 5px;color:#64748b;margin-right:4px;">مخفي</span>`:''}</td>
     <td><span class="broadcast-badge">${escapeHtml(b.target_filter?.type||'all')}</span></td>
     <td style="text-align:center;font-weight:700;">${b.recipient_count||0}</td>
     <td style="font-size:11px;">${formatDate(b.sent_at||b.created_at)}</td>
     <td style="font-size:11px;">${escapeHtml(b.admin_name||'أدمن')}</td>
-    <td style="display:flex;gap:5px;align-items:center;">
-      ${!b.is_hidden?`<button onclick="hideBroadcast('${b.id}')" style="background:none;border:1px solid #e2e8f0;color:#64748b;border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;" title="إخفاء من العملاء (يبقى في السجل)">🙈 إخفاء</button>`:`<span style="font-size:10px;color:#94a3b8;">مخفي</span>`}
-      <button onclick="deleteBroadcast('${b.id}')" style="background:none;border:1px solid var(--danger-wash);color:var(--danger);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;" title="حذف نهائي من السجل">🗑</button>
+    <td>
+      <div style="display:flex;gap:6px;align-items:center;">
+        ${!b.is_hidden
+          ? `<button onclick="hideBroadcast('${b.id}')" style="display:inline-flex;align-items:center;gap:4px;background:none;border:1px solid #cbd5e1;color:#475569;border-radius:7px;padding:4px 9px;font-size:11px;font-family:'Cairo',sans-serif;cursor:pointer;" title="إخفاء من العملاء — يبقى في السجل">${hideIcon} إخفاء</button>`
+          : `<span style="font-size:10px;color:#94a3b8;padding:4px 6px;">مخفي</span>`
+        }
+        <button onclick="deleteBroadcast('${b.id}')" style="display:inline-flex;align-items:center;gap:4px;background:none;border:1px solid var(--danger-wash);color:var(--danger);border-radius:7px;padding:4px 9px;font-size:11px;font-family:'Cairo',sans-serif;cursor:pointer;" title="حذف نهائي">${delIcon} حذف</button>
+      </div>
     </td>
   </tr>`).join('');
 
