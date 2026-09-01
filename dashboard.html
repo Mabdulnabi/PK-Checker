@@ -7163,6 +7163,27 @@ async function refreshCheckSettings(){
       if (status === 'SUBSCRIBED') await sitePresenceChannel.track({ online_at: new Date().toISOString() });
     });
     window.addEventListener('beforeunload', () => supabaseClient.removeChannel(sitePresenceChannel));
+
+    // Admin online-users panel — join shared presence channel with profile data.
+    // We defer slightly so currentUser is populated by loadUserProfile().
+    setTimeout(() => {
+      const pkNum = currentUser && currentUser.id
+        ? parseInt(currentUser.id.replace('PK',''), 10)
+        : 0;
+      const onlineCh = supabaseClient.channel('prokeys-online');
+      onlineCh.subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await onlineCh.track({
+            user_id: PROKEYS_USER_ID,
+            name: currentUser.name || '',
+            pk: pkNum || 0,
+            email: currentUser.email || '',
+            joined_at: new Date().toISOString(),
+          });
+        }
+      });
+      window.addEventListener('beforeunload', () => supabaseClient.removeChannel(onlineCh));
+    }, 1500);
   }
 })();
 

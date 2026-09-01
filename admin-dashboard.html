@@ -212,6 +212,13 @@
   .pg-pageinfo{font-size:11.5px;color:var(--muted);font-family:'Cairo',sans-serif;font-weight:700;min-width:70px;text-align:center;}
   .filter-badge{display:inline-flex;align-items:center;gap:6px;background:var(--blue-wash);color:var(--blue-deep);font-size:11.5px;font-weight:700;padding:5px 12px;border-radius:20px;}
 
+  /* ===== ONLINE USERS ===== */
+  .online-count-badge{display:inline-flex;align-items:center;gap:5px;background:var(--ok-wash);color:var(--ok);font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:20px;margin-inline-start:8px;vertical-align:middle;}
+  .online-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:online-pulse 1.8s ease-in-out infinite;}
+  @keyframes online-pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.55;transform:scale(.75);}}
+  .icon-btn{border:none;background:none;cursor:pointer;color:var(--blue);padding:4px;border-radius:6px;display:inline-flex;align-items:center;transition:background .15s;}
+  .icon-btn:hover{background:var(--blue-wash);}
+
   /* ===== UI DESIGN TAB ===== */
   .uid-section{background:var(--paper);border:1px solid var(--paper-line);border-radius:12px;margin-bottom:14px;overflow:hidden;}
   .uid-section-head{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;cursor:pointer;user-select:none;}
@@ -735,6 +742,29 @@
             <h3 data-i18n="rev_pack_chart">أكثر الباقات مبيعاً</h3>
             <div class="chart-canvas-wrap"><canvas id="packSalesChart"></canvas></div>
           </div>
+        </div>
+
+        <!-- Online Users realtime panel -->
+        <div class="section-title">
+          <span data-i18n="sec_online_users">المستخدمون الأونلاين</span>
+          <span class="online-count-badge" id="onlineCountBadge"><span class="online-dot"></span><span id="onlineCountNum">0</span></span>
+        </div>
+        <div class="panel">
+          <div style="overflow-x:auto;">
+            <table class="tbl" id="onlineUsersTbl">
+              <thead><tr>
+                <th data-i18n="col_pk">الكود</th>
+                <th data-i18n="col_name">الاسم</th>
+                <th data-i18n="col_email">الإيميل</th>
+                <th data-i18n="th_sent">منذ</th>
+                <th></th>
+              </tr></thead>
+              <tbody id="onlineUsersBody">
+                <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;" data-i18n="online_empty">لا يوجد مستخدمون أونلاين حالياً</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="onlineUsersPagination"></div>
         </div>
 
         <div class="panel">
@@ -1867,6 +1897,7 @@ function subscribeRealtime(){
   subscribeOrdersChannel();
   subscribeActivityChannel();
   subscribeUsersChannel();
+  initOnlinePresence();
 }
 
 function upsertLocalConversation(row, eventType){
@@ -2871,6 +2902,66 @@ I18N.en.priority_urgent='🔴 Urgent'; I18N.en.priority_high='🟠 High'; I18N.e
 I18N.en.backup_auto='🕐 Auto'; I18N.en.backup_manual='✋ Manual'; I18N.en.backup_none='No backups yet';
 I18N.en.backup_download='Download'; I18N.en.backup_restore='Restore'; I18N.en.backup_creating='Creating backup...'; I18N.en.backup_created='✅ Backup created successfully';
 I18N.en.manual_queue_title='🖐 Manual Review'; I18N.en.manual_queue_action='Action';
+I18N.ar.sec_online_users='🟢 المستخدمون الأونلاين'; I18N.ar.online_empty='لا يوجد مستخدمون أونلاين حالياً'; I18N.ar.btn_send_msg='إرسال رسالة';
+I18N.en.sec_online_users='🟢 Online Users'; I18N.en.online_empty='No users currently online'; I18N.en.btn_send_msg='Send message';
+
+// ── Online Users Presence ────────────────────────────────────────────────────
+let _onlinePresenceMap = {}; // presence_ref → payload
+
+function initOnlinePresence(){
+  const ch = supabaseClient.channel('prokeys-online', { config: { presence: { key: 'admin' } } });
+  ch.on('presence', { event: 'sync' }, () => {
+    const state = ch.presenceState();
+    _onlinePresenceMap = {};
+    Object.entries(state).forEach(([, presences]) => {
+      presences.forEach(p => { if (p.user_id) _onlinePresenceMap[p.presence_ref || p.user_id] = p; });
+    });
+    _renderOnlineUsers();
+  })
+  .on('presence', { event: 'join' }, ({ newPresences }) => {
+    newPresences.forEach(p => { if (p.user_id) _onlinePresenceMap[p.presence_ref || p.user_id] = p; });
+    _renderOnlineUsers();
+  })
+  .on('presence', { event: 'leave' }, ({ leftPresences }) => {
+    leftPresences.forEach(p => { delete _onlinePresenceMap[p.presence_ref || p.user_id]; });
+    _renderOnlineUsers();
+  })
+  .subscribe();
+}
+
+function _renderOnlineUsers(){
+  const users = Object.values(_onlinePresenceMap);
+  const countEl = document.getElementById('onlineCountNum');
+  if (countEl) countEl.textContent = users.length;
+
+  const page = paginateList('onlineUsers', users, _renderOnlineUsers);
+  const tbody = document.getElementById('onlineUsersBody');
+  if (!tbody) return;
+
+  if (!users.length) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;">${t('online_empty')}</td></tr>`;
+    document.getElementById('onlineUsersPagination').innerHTML = '';
+    return;
+  }
+
+  tbody.innerHTML = page.map(u => {
+    const pk = u.pk >= 1 ? 'PK' + String(u.pk).padStart(3, '0') : '—';
+    const name = escapeHtml(u.name || '—');
+    const email = escapeHtml(u.email || '—');
+    const since = timeAgo(u.joined_at);
+    const sendBtn = `<button class="icon-btn" title="${t('btn_send_msg')}" onclick="_openChatForOnlineUser('${escapeHtml(u.user_id)}')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>`;
+    return `<tr><td><b>${pk}</b></td><td>${name}</td><td style="direction:ltr;text-align:start;">${email}</td><td>${since}</td><td>${sendBtn}</td></tr>`;
+  }).join('');
+
+  renderPaginationBar('onlineUsers', 'onlineUsersPagination', users.length);
+}
+
+function _openChatForOnlineUser(userId){
+  switchTab('chat');
+  // Find an existing conversation with this user and open it
+  const convo = (conversations || []).find(c => c.user_id === userId);
+  if (convo) setTimeout(() => openConversation(convo.id), 150);
+}
 
 function renderOrdersTable(){
   const search = (document.getElementById('orderSearch').value || '').trim().toLowerCase();
