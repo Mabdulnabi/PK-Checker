@@ -1176,6 +1176,16 @@
             </label>
           </div>
           <div id="creditBackupStatus" style="font-size:12px;margin-bottom:12px;"></div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+            <span style="font-size:12px;color:var(--muted);">عرض</span>
+            <select id="cbPageSize" onchange="cbSetPageSize(this.value)" style="padding:4px 8px;border:1px solid var(--paper-line);border-radius:7px;font-size:12px;background:var(--paper);color:var(--ink);cursor:pointer;">
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="20">20</option>
+            </select>
+            <span style="font-size:12px;color:var(--muted);">صف في الصفحة</span>
+            <span id="cbPagesInfo" style="font-size:12px;color:var(--muted);margin-right:auto;"></span>
+          </div>
           <div style="overflow-x:auto;">
             <table class="data-tbl">
               <thead><tr>
@@ -1187,6 +1197,7 @@
               <tbody id="creditBackupsList"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px;" data-i18n="loading_ellipsis">جاري التحميل...</td></tr></tbody>
             </table>
           </div>
+          <div id="cbPagination" style="display:flex;gap:6px;justify-content:center;margin-top:12px;flex-wrap:wrap;"></div>
         </div>
 
       </div>
@@ -4259,15 +4270,35 @@ const GATEWAY_LABELS = {
 };
 
 /* ---------------- CREDIT BACKUPS ---------------- */
-async function loadCreditBackupsList(){
-  const { data, error } = await supabaseClient.from('credit_backups').select('id,backup_type,row_count,created_at,created_by').order('created_at', { ascending: false }).limit(30);
+let _cbAllRows = [];
+let _cbPage = 1;
+let _cbPageSize = 10;
+
+function cbSetPageSize(val){
+  _cbPageSize = Number(val);
+  _cbPage = 1;
+  cbRenderPage();
+}
+
+function cbRenderPage(){
   const list = document.getElementById('creditBackupsList');
+  const pagination = document.getElementById('cbPagination');
+  const info = document.getElementById('cbPagesInfo');
   if (!list) return;
-  if (error || !data || !data.length) {
+  const total = _cbAllRows.length;
+  const totalPages = Math.max(1, Math.ceil(total / _cbPageSize));
+  if (_cbPage > totalPages) _cbPage = totalPages;
+  const start = (_cbPage - 1) * _cbPageSize;
+  const pageRows = _cbAllRows.slice(start, start + _cbPageSize);
+
+  if (!total) {
     list.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px;">${t('backup_none')}</td></tr>`;
+    if (pagination) pagination.innerHTML = '';
+    if (info) info.textContent = '';
     return;
   }
-  list.innerHTML = data.map(b => `
+
+  list.innerHTML = pageRows.map(b => `
     <tr>
       <td>${b.backup_type === 'auto' ? t('backup_auto') : t('backup_manual')}</td>
       <td>${b.row_count}</td>
@@ -4277,6 +4308,33 @@ async function loadCreditBackupsList(){
         <button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);" onclick="restoreCreditBackupById('${b.id}')" title="${t('backup_restore')}">↩</button>
       </td>
     </tr>`).join('');
+
+  if (info) info.textContent = `${start+1}–${Math.min(start+_cbPageSize, total)} من ${total}`;
+
+  if (pagination) {
+    const btnStyle = (active) => `padding:4px 10px;border-radius:7px;border:1px solid var(--paper-line);background:${active?'var(--blue)':'var(--paper)'};color:${active?'#fff':'var(--ink)'};font-size:12px;cursor:pointer;`;
+    let html = `<button style="${btnStyle(false)}" onclick="_cbPage=Math.max(1,_cbPage-1);cbRenderPage()" ${_cbPage===1?'disabled':''}>&#8249;</button>`;
+    for (let p = 1; p <= totalPages; p++) {
+      html += `<button style="${btnStyle(p===_cbPage)}" onclick="_cbPage=${p};cbRenderPage()">${p}</button>`;
+    }
+    html += `<button style="${btnStyle(false)}" onclick="_cbPage=Math.min(${totalPages},_cbPage+1);cbRenderPage()" ${_cbPage===totalPages?'disabled':''}>&#8250;</button>`;
+    pagination.innerHTML = html;
+  }
+}
+
+async function loadCreditBackupsList(){
+  // حذف النسخ الأقدم من 14 يوم تلقائياً
+  await supabaseClient.rpc('cleanup_old_credit_backups');
+
+  const { data, error } = await supabaseClient.from('credit_backups').select('id,backup_type,row_count,created_at,created_by').order('created_at', { ascending: false });
+  const list = document.getElementById('creditBackupsList');
+  if (!list) return;
+  if (error) { list.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--danger);padding:16px;">${error.message}</td></tr>`; return; }
+  _cbAllRows = data || [];
+  _cbPage = 1;
+  const sel = document.getElementById('cbPageSize');
+  if (sel) _cbPageSize = Number(sel.value) || 10;
+  cbRenderPage();
 }
 async function createManualCreditBackup(){
   const statusEl = document.getElementById('creditBackupStatus');
