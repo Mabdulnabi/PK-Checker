@@ -5550,12 +5550,15 @@ async function sendBroadcast(){
 
 let allBroadcastRows = [];
 async function hideBroadcast(id){
-  const row = (allBroadcastRows || []).find(r => r.id === id);
-  if(!row) return;
-  if(row.is_hidden){ toast('الرسالة دي مخفية بالفعل', 'info'); return; }
-  // SECURITY DEFINER function bypasses RLS: updates is_hidden + deletes user notifications
+  if(!id){ toast('معرّف الرسالة مفقود', 'error'); return; }
+  const btn = document.querySelector(`tr[data-bc-id="${id}"] button[data-action="hide"]`);
+  if(btn){ btn.disabled = true; btn.style.opacity = '0.5'; }
   const { error } = await supabaseClient.rpc('admin_hide_broadcast', { p_broadcast_id: id });
-  if(error){ toast('فشل الإخفاء: ' + error.message, 'error'); return; }
+  if(error){
+    toast('فشل الإخفاء: ' + error.message, 'error');
+    if(btn){ btn.disabled = false; btn.style.opacity = '1'; }
+    return;
+  }
   await loadBroadcastHistory();
   toast('تم الإخفاء — اختفت من dashboard العملاء فوراً', 'success');
 }
@@ -5601,7 +5604,7 @@ function renderBroadcastHistory(rows){
     <td>
       <div style="display:flex;gap:6px;align-items:center;">
         ${!b.is_hidden
-          ? `<button onclick="hideBroadcast('${b.id}')" style="display:inline-flex;align-items:center;gap:4px;background:none;border:1px solid #cbd5e1;color:#475569;border-radius:7px;padding:4px 9px;font-size:11px;font-family:'Cairo',sans-serif;cursor:pointer;" title="إخفاء من العملاء — يبقى في السجل">${hideIcon} إخفاء</button>`
+          ? `<button data-action="hide" data-id="${b.id}" style="display:inline-flex;align-items:center;gap:4px;background:none;border:1px solid #cbd5e1;color:#475569;border-radius:7px;padding:4px 9px;font-size:11px;font-family:'Cairo',sans-serif;cursor:pointer;" title="إخفاء من العملاء — يبقى في السجل">${hideIcon} إخفاء</button>`
           : `<span style="font-size:10px;color:#94a3b8;padding:4px 6px;">مخفي</span>`
         }
         <button onclick="deleteBroadcast('${b.id}')" style="display:inline-flex;align-items:center;gap:4px;background:none;border:1px solid var(--danger-wash);color:var(--danger);border-radius:7px;padding:4px 9px;font-size:11px;font-family:'Cairo',sans-serif;cursor:pointer;" title="حذف نهائي">${delIcon} حذف</button>
@@ -5610,6 +5613,12 @@ function renderBroadcastHistory(rows){
   </tr>`).join('');
 
   renderPaginationBar('broadcast', 'bcHistoryPagination', rows.length);
+
+  // Event delegation — safer than inline onclick for dynamic rows
+  body.onclick = (e) => {
+    const hideBtn = e.target.closest('[data-action="hide"]');
+    if(hideBtn){ hideBroadcast(hideBtn.dataset.id); return; }
+  };
 }
 
 /* ================================================================
