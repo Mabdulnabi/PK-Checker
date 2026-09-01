@@ -2936,10 +2936,24 @@ function initOnlinePresence(){
   .subscribe();
 }
 
+async function _fetchMissingOnlineProfiles(){
+  const missing = Object.values(_onlinePresenceMap)
+    .filter(u => u.user_id && !profilesByUserId[u.user_id])
+    .map(u => u.user_id);
+  if (!missing.length) return;
+  const { data } = await supabaseClient
+    .from('users_profile_numbered')
+    .select('user_id,credits,full_name,pk_number,email,whatsapp,avatar_url')
+    .in('user_id', missing);
+  if (data) data.forEach(p => { profilesByUserId[p.user_id] = p; });
+  _renderOnlineUsers();
+}
+
 function _renderOnlineUsers(){
   const users = Object.values(_onlinePresenceMap);
   const countEl = document.getElementById('onlineCountNum');
   if (countEl) countEl.textContent = users.length;
+  _fetchMissingOnlineProfiles(); // async, re-renders once profiles land
 
   const page = paginateList('onlineUsers', users, _renderOnlineUsers);
   const tbody = document.getElementById('onlineUsersBody');
@@ -2961,7 +2975,7 @@ function _renderOnlineUsers(){
       ? `<span style="font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--ok);">${credits}</span>`
       : '—';
     const sendBtn = `<button class="icon-btn" title="${t('btn_send_msg')}" onclick="_openChatForOnlineUser('${escapeHtml(u.user_id)}')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>`;
-    return `<tr><td><b>${pk}</b></td><td>${name}</td><td style="direction:ltr;text-align:start;">${email}</td><td>${creditsHtml}</td><td>${since}</td><td>${sendBtn}</td></tr>`;
+    return `<tr><td><b>${pk}</b></td><td>${name}</td><td style="direction:ltr;">${email}</td><td>${creditsHtml}</td><td>${since}</td><td>${sendBtn}</td></tr>`;
   }).join('');
 
   renderPaginationBar('onlineUsers', 'onlineUsersPagination', users.length);
