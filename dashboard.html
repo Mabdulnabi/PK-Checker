@@ -1399,7 +1399,7 @@
 
   /* ===== MOBILE FLOATING NAV BAR ===== */
   /* Nav bar: fixed height so we can compute offsets precisely */
-  :root{ --mob-nav-h: 68px; --mob-nav-bottom: 10px; }
+  :root{ --mob-nav-h: 74px; --mob-nav-bottom: 10px; }
 
   #mobileFloatingNav{
     display:none;
@@ -1459,9 +1459,10 @@
     width:22px; height:22px; object-fit:contain; display:block; flex:none;
   }
   .mob-nav-item .mob-label{
-    font-size:10px; font-weight:700; line-height:1;
+    font-size:9.5px; font-weight:700; line-height:1.2;
     white-space:nowrap; font-family:'Cairo',sans-serif;
-    overflow:hidden; text-overflow:ellipsis; max-width:100%;
+    overflow:visible; max-width:100%; text-align:center;
+    display:block;
   }
 
   /* Mobile topbar logo (hidden on desktop) */
@@ -1479,6 +1480,9 @@
 
     /* Add bottom padding = nav height + bottom gap + extra clearance */
     .page{padding-bottom:calc(var(--mob-nav-h) + var(--mob-nav-bottom) + 20px) !important;}
+    .tabpane{padding-bottom:calc(var(--mob-nav-h) + var(--mob-nav-bottom) + 20px) !important;}
+    /* my-profile popup scrollable area */
+    #profilePopupInner{padding-bottom:calc(var(--mob-nav-h) + var(--mob-nav-bottom) + 20px) !important;}
 
     /* Lift chat bubble: nav_bottom(10) + nav_h(68) + gap(14) = 92px */
     .chat-bubble{bottom:92px !important;}
@@ -2154,13 +2158,13 @@
               <span class="glabel" data-i18n="profile_whatsapp">واتساب</span>
               <div style="display:flex;gap:6px;margin-top:4px;">
                 <select id="profileWhatsappCountry2" class="ticket-input" style="width:110px;flex:none;"></select>
-                <input id="profileWhatsappInput2" class="ticket-input" placeholder="1012345678" style="flex:1;">
+                <input id="profileWhatsappInput2" class="ticket-input" placeholder="1012345678" autocomplete="off" style="flex:1;">
               </div>
             </div>
             <div class="field-block">
               <span class="glabel" data-i18n="profile_new_pass">كلمة المرور الجديدة</span>
               <div style="position:relative;margin-top:4px;">
-                <input id="profilePassword2" type="password" class="ticket-input" placeholder="•••••••" style="padding-left:38px;">
+                <input id="profilePassword2" type="password" class="ticket-input" placeholder="•••••••" autocomplete="new-password" style="padding-left:38px;">
                 <button type="button" onclick="togglePassVis('profilePassword2',this)" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:0;display:flex;">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 </button>
@@ -2347,14 +2351,14 @@
         <label style="font-size:11.5px;color:var(--muted);font-weight:700;display:block;margin-bottom:5px;" data-i18n="profile_phone_label">رقم التليفون</label>
         <div style="display:flex;gap:6px;direction:ltr;">
           <select id="profilePhoneCountry" class="cc-select" style="width:92px;padding:10px 4px;border:1.5px solid var(--paper-line);border-radius:9px;font-family:'Space Grotesk',sans-serif;font-size:12px;background:var(--paper);flex:none;"></select>
-          <input type="tel" id="profilePhoneInput" dir="ltr" placeholder="1XX XXX XXXX" style="flex:1;min-width:0;padding:10px 12px;border:1.5px solid var(--paper-line);border-radius:9px;font-family:'Space Grotesk',sans-serif;font-size:13px;text-align:left;background:var(--paper);box-sizing:border-box;">
+          <input type="tel" id="profilePhoneInput" dir="ltr" placeholder="1XX XXX XXXX" autocomplete="off" style="flex:1;min-width:0;padding:10px 12px;border:1.5px solid var(--paper-line);border-radius:9px;font-family:'Space Grotesk',sans-serif;font-size:13px;text-align:left;background:var(--paper);box-sizing:border-box;">
         </div>
       </div>
       <div>
         <label style="font-size:11.5px;color:var(--muted);font-weight:700;display:block;margin-bottom:5px;">WhatsApp</label>
         <div style="display:flex;gap:6px;direction:ltr;">
           <select id="profileWhatsappCountry" class="cc-select" style="width:92px;padding:10px 4px;border:1.5px solid var(--paper-line);border-radius:9px;font-family:'Space Grotesk',sans-serif;font-size:12px;background:var(--paper);flex:none;"></select>
-          <input type="tel" id="profileWhatsappInput" dir="ltr" placeholder="1XX XXX XXXX" style="flex:1;min-width:0;padding:10px 12px;border:1.5px solid var(--paper-line);border-radius:9px;font-family:'Space Grotesk',sans-serif;font-size:13px;text-align:left;background:var(--paper);box-sizing:border-box;">
+          <input type="tel" id="profileWhatsappInput" dir="ltr" placeholder="1XX XXX XXXX" autocomplete="off" style="flex:1;min-width:0;padding:10px 12px;border:1.5px solid var(--paper-line);border-radius:9px;font-family:'Space Grotesk',sans-serif;font-size:13px;text-align:left;background:var(--paper);box-sizing:border-box;">
         </div>
       </div>
       <div>
@@ -2375,7 +2379,7 @@
       <div>
         <label style="font-size:11.5px;color:var(--muted);font-weight:700;display:block;margin-bottom:5px;" data-i18n="profile_email_label">الإيميل</label>
         <div style="display:flex;gap:6px;">
-          <input type="email" id="profileEmailInput" dir="ltr" style="flex:1;min-width:0;padding:10px 12px;border:1.5px solid var(--paper-line);border-radius:9px;font-family:'Space Grotesk',sans-serif;font-size:13px;text-align:left;background:var(--paper);box-sizing:border-box;">
+          <input type="email" id="profileEmailInput" dir="ltr" autocomplete="off" style="flex:1;min-width:0;padding:10px 12px;border:1.5px solid var(--paper-line);border-radius:9px;font-family:'Space Grotesk',sans-serif;font-size:13px;text-align:left;background:var(--paper);box-sizing:border-box;">
           <button class="app-modal-btn-update" style="white-space:nowrap;padding:0 16px;border-radius:9px;font-family:'Cairo',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;flex:none;" onclick="updateAccountEmail()" data-i18n="profile_update_btn">تحديث</button>
         </div>
         <span id="profileEmailStatus" style="font-size:10.5px;color:var(--muted);display:block;margin-top:5px;min-height:13px;"></span>
@@ -2384,13 +2388,19 @@
       <div>
         <button class="app-modal-btn-update" style="width:100%;padding:11px 14px;border-radius:9px;font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer;" onclick="togglePasswordSection()" data-i18n="profile_change_password_btn">تغيير الباسورد</button>
         <div id="profilePasswordSection" style="display:none;margin-top:10px;">
-          <input type="password" id="profileNewPassword" dir="ltr" data-i18n-ph="profile_new_password_ph" placeholder="الباسورد الجديد" style="width:100%;padding:10px 12px;border:1.5px solid var(--paper-line);border-radius:9px;font-family:'Space Grotesk',sans-serif;font-size:13px;text-align:left;margin-bottom:8px;background:var(--paper);box-sizing:border-box;">
+          <input type="password" id="profileNewPassword" dir="ltr" data-i18n-ph="profile_new_password_ph" placeholder="الباسورد الجديد" autocomplete="new-password" style="width:100%;padding:10px 12px;border:1.5px solid var(--paper-line);border-radius:9px;font-family:'Space Grotesk',sans-serif;font-size:13px;text-align:left;margin-bottom:8px;background:var(--paper);box-sizing:border-box;">
           <ul id="profilePasswordRules" style="font-size:10.5px;color:var(--muted);list-style:none;padding:0;margin:0 0 10px;display:grid;grid-template-columns:1fr 1fr;gap:4px;"></ul>
           <button class="app-modal-btn-save" style="width:100%;padding:11px 14px;border-radius:9px;font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer;" onclick="updateAccountPassword()" data-i18n="profile_update_btn">تحديث</button>
           <span id="profilePasswordStatus" style="font-size:10.5px;color:var(--muted);display:block;margin-top:6px;min-height:13px;"></span>
         </div>
       </div>
     </div>
+
+    <!-- Sign Out -->
+    <button onclick="signOut()" style="width:100%;padding:11px 14px;border-radius:9px;font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer;background:var(--paper-soft);border:1.5px solid var(--paper-line);color:var(--ink-soft);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:20px;margin-bottom:6px;" data-i18n="user_signout">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="16" height="16"><path d="M224,56V200a16,16,0,0,1-16,16H48V40H208A16,16,0,0,1,224,56Z" opacity="0.2"/><path d="M120,216a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V40a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H56V208h56A8,8,0,0,1,120,216Zm109.66-93.66-40-40a8,8,0,0,0-11.32,11.32L204.69,120H112a8,8,0,0,0,0,16h92.69l-26.35,26.34a8,8,0,0,0,11.32,11.32l40-40A8,8,0,0,0,229.66,122.34Z"/></svg>
+      تسجيل الخروج
+    </button>
 
     <div style="font-size:12.5px;font-weight:800;color:var(--danger);margin:20px 0 10px;display:flex;align-items:center;gap:6px;">
       <span>⚠️</span><span data-i18n="profile_danger_title">منطقة الخطر</span>
