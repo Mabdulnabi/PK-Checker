@@ -944,6 +944,10 @@
         </div>
         <div class="broadcast-form">
           <h3 data-i18n="bc_create_title">✍️ إنشاء رسالة جماعية</h3>
+          <div class="bc-field">
+            <label>موضوع الرسالة <span style="font-size:10px;color:var(--muted);font-weight:400;">(للأدمن فقط — لا يظهر للعملاء)</span></label>
+            <input type="text" id="bcSubject" placeholder="مثال: إشعار صيانة / عرض خاص / تحديث سياسة...">
+          </div>
           <div class="cr-form-row" style="grid-template-columns:1fr 1fr;">
             <div class="bc-field">
               <label data-i18n="bc_title_ar_lbl">العنوان (عربي)</label>
@@ -983,9 +987,9 @@
           <div style="overflow-x:auto;margin-top:14px;">
             <table class="data-tbl" id="bcHistoryTbl">
               <thead><tr>
-                <th data-i18n="bc_col_title">العنوان</th><th data-i18n="bc_col_target">الفئة المستهدفة</th><th data-i18n="bc_col_recipients">عدد المستلمين</th><th data-i18n="bc_col_sent_at">وقت الإرسال</th><th data-i18n="bc_col_admin">الإدمن</th><th style="min-width:110px;">Actions</th>
+                <th data-i18n="bc_col_title">العنوان</th><th>الموضوع</th><th data-i18n="bc_col_target">الفئة المستهدفة</th><th data-i18n="bc_col_recipients">عدد المستلمين</th><th data-i18n="bc_col_sent_at">وقت الإرسال</th><th data-i18n="bc_col_admin">الإدمن</th><th style="min-width:110px;">Actions</th>
               </tr></thead>
-              <tbody id="bcHistoryBody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px;" data-i18n="loading_ellipsis">جاري التحميل...</td></tr></tbody>
+              <tbody id="bcHistoryBody"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px;" data-i18n="loading_ellipsis">جاري التحميل...</td></tr></tbody>
             </table>
             <div id="bcHistoryPagination"></div>
           </div>
@@ -5506,10 +5510,11 @@ async function sendBroadcastNotifications(targetIds, titleAr, titleEn, bodyAr, b
   return cnt;
 }
 
-async function logBroadcast(titleAr, titleEn, bodyAr, bodyEn, filter, cnt){
+async function logBroadcast(titleAr, titleEn, bodyAr, bodyEn, subject, filter, cnt){
   await supabaseClient.from('broadcast_messages').insert({
     title_ar: titleAr, title_en: titleEn || titleAr,
     body_ar: bodyAr, body_en: bodyEn,
+    subject: subject || null,
     target_filter: { type: filter },
     recipient_count: cnt,
     admin_id: currentAdmin?.id || null,
@@ -5519,6 +5524,7 @@ async function logBroadcast(titleAr, titleEn, bodyAr, bodyEn, filter, cnt){
 }
 
 function resetBroadcastForm(){
+  document.getElementById('bcSubject').value = '';
   document.getElementById('bcTitleAr').value = '';
   document.getElementById('bcTitleEn').value = '';
   document.getElementById('bcBodyAr').value = '';
@@ -5526,6 +5532,7 @@ function resetBroadcastForm(){
 }
 
 async function sendBroadcast(){
+  const subject = document.getElementById('bcSubject').value.trim();
   const titleAr = document.getElementById('bcTitleAr').value.trim();
   const titleEn = document.getElementById('bcTitleEn').value.trim();
   const bodyAr  = document.getElementById('bcBodyAr').value.trim();
@@ -5538,7 +5545,7 @@ async function sendBroadcast(){
 
   const targetIds = await resolveBroadcastTargets(filter);
   const cnt = await sendBroadcastNotifications(targetIds, titleAr, titleEn, bodyAr, bodyEn);
-  await logBroadcast(titleAr, titleEn, bodyAr, bodyEn, filter, cnt);
+  await logBroadcast(titleAr, titleEn, bodyAr, bodyEn, subject, filter, cnt);
 
   btn.disabled=false;
   st.textContent=`✅ تم الإرسال لـ ${cnt} عميل`;
@@ -5595,6 +5602,7 @@ function renderBroadcastHistory(rows){
   const pageRows = paginateList('broadcast', rows, () => renderBroadcastHistory(rows));
   body.innerHTML = pageRows.map(b=>`<tr style="${b.is_hidden?'opacity:0.5;':''}" data-bc-id="${b.id}">
     <td><b>${escapeHtml(b.title_ar||'')}</b>${b.is_hidden?` <span style="display:inline-block;font-size:10px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:4px;padding:1px 5px;color:#64748b;margin-right:4px;">مخفي</span>`:''}</td>
+    <td style="font-size:12px;color:var(--muted);">${escapeHtml(b.subject||'—')}</td>
     <td><span class="broadcast-badge">${escapeHtml(b.target_filter?.type||'all')}</span></td>
     <td style="text-align:center;font-weight:700;">${b.recipient_count||0}</td>
     <td style="font-size:11px;">${formatDate(b.sent_at||b.created_at)}</td>
