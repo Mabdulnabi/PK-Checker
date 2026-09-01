@@ -213,7 +213,7 @@
   [data-theme="dark"] .file-chip .fchip-ic{color:var(--blue);}
   /* ===== SIDEBAR LAYOUT — FULL SCREEN ===== */
   .app-layout{display:flex;width:100%;height:100vh;overflow:hidden;position:relative;}
-  .main-wrap{flex:1;min-width:0;display:flex;flex-direction:column;overflow-y:auto;}
+  .main-wrap{flex:1;min-width:0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:clip;}
 
   /* Sidebar */
   .sidebar{
@@ -378,12 +378,13 @@
   [data-theme="dark"] .sidebar-collapse-btn{
     background:rgba(30,40,60,0.95);border-color:rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);
   }
-  /* Collapse wrap: fixed so it stays visible while page scrolls */
+  /* Collapse wrap: flex sibling so it moves naturally with the sidebar during transition */
   .sidebar-collapse-wrap{
-    position:fixed;
+    position:relative;
     z-index:200;
-    /* Positioned by JS updateCollapseBtn() */
-    top:50vh;
+    align-self:center;
+    flex:none;
+    margin-inline-start:-10px;
   }
   /* Chevron direction */
   /* RTL default: sidebar on right, collapse = point right (towards content on left) */
@@ -572,7 +573,7 @@
 
   /* ===== TOPBAR ===== */
   .topbar{
-    position:sticky;top:0;z-index:40;
+    position:sticky;top:0;z-index:40;will-change:transform;
     height:56px;display:flex;align-items:center;
     /* Match sidebar glass fill */
     background:linear-gradient(to bottom, rgba(255,255,255,0.48) 0%, rgba(255,255,255,0.38) 100%);
@@ -1245,9 +1246,9 @@
   .chat-msg-action-btn.del:hover{border-color:var(--danger);color:var(--danger);}
   /* ===== Back to Top ===== */
   #pkScrollBar{position:fixed;top:0;left:0;height:3px;width:0;background:#d99401;z-index:999999;opacity:.9;pointer-events:none;}
-  #pkTopBtn{position:fixed;right:18px;bottom:90px;z-index:999999;width:46px;height:46px;border:0!important;border-radius:999px!important;background:#d99401!important;cursor:pointer;display:inline-flex!important;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(0,0,0,.25);transition:transform .25s ease,filter .25s ease,opacity .25s ease;opacity:0;pointer-events:none;transform:translateY(10px);}
+  #pkTopBtn{position:fixed;left:22px;bottom:90px;z-index:999999;width:46px;height:46px;border:0!important;border-radius:999px!important;background:var(--blue)!important;cursor:pointer;display:inline-flex!important;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(37,99,235,.35);transition:transform .25s ease,filter .25s ease,opacity .25s ease;opacity:0;pointer-events:none;transform:translateY(10px);}
   #pkTopBtn.pkShow{opacity:1;pointer-events:auto;transform:translateY(0);}
-  html[dir="rtl"] #pkTopBtn{right:auto;left:18px;}
+  html[dir="ltr"] #pkTopBtn{left:auto;right:22px;}
   /* ======================== */
   .chat-edit-banner{display:none;align-items:center;gap:8px;padding:6px 12px;border-top:1px solid var(--paper-line);font-size:11.5px;color:var(--blue-deep);background:var(--blue-wash);flex:none;}
   .chat-edit-banner.show{display:flex;}
@@ -4545,34 +4546,14 @@ function movePill(activeEl){
 })();
 
 /* Sidebar collapse toggle */
-function updateCollapseBtn(){
-  const sidebar = document.getElementById('appSidebar');
-  const wrap = document.getElementById('sidebarCollapseWrap');
-  if(!sidebar || !wrap) return;
-  const rect = sidebar.getBoundingClientRect();
-  const isRtl = document.documentElement.dir === 'rtl';
-  wrap.style.top = (rect.top + rect.height / 2) + 'px';
-  wrap.style.transform = 'translateY(-50%)';
-  if(isRtl){
-    wrap.style.right = 'auto';
-    wrap.style.left = (rect.left - 10) + 'px';
-  } else {
-    wrap.style.left = 'auto';
-    wrap.style.right = (window.innerWidth - rect.right - 10) + 'px';
-  }
-}
 function toggleSidebar(){
   document.getElementById('appSidebar').classList.toggle('collapsed');
-  updateCollapseBtn();
 }
 document.addEventListener('DOMContentLoaded', () => {
   const btn = document.getElementById('sidebarCollapseBtn');
   if(btn) btn.addEventListener('click', toggleSidebar);
-  updateCollapseBtn();
-  window.addEventListener('resize', updateCollapseBtn);
   const sidebar = document.getElementById('appSidebar');
   if(sidebar) sidebar.addEventListener('transitionend', () => {
-    updateCollapseBtn();
     const activeItem = document.querySelector('.sidebar-item.on');
     if(activeItem) movePill(activeItem);
   });
@@ -5503,7 +5484,6 @@ function updateTopbarGreeting(){
 function applyLang(){
   PK.translateDom(currentLang, t);
   updateTopbarGreeting();
-  updateCollapseBtn();
   document.getElementById('langSwitch').textContent = currentLang==='ar' ? 'EN' : 'AR';
   document.getElementById('userIdTag').textContent = currentUser.id;
   document.getElementById('userNameDropdown').textContent = currentUser.name;
@@ -6952,16 +6932,17 @@ function applyDarkPackIcons(){
     const darkUrl  = icons[dark];
     const lightUrl = icons[light];
     if (!darkUrl && !lightUrl) return;
-    const targetUrl = (isDarkMode && darkUrl) ? darkUrl : (lightUrl || null);
-    if (!targetUrl) return;
+    const url = (isDarkMode && darkUrl) ? darkUrl : (lightUrl || null);
+    if (!url) return;
     document.querySelectorAll(`[data-icon-key="${light}"]`).forEach(el => {
       if (el.tagName === 'IMG') {
-        el.src = targetUrl;
-      } else if (isDarkMode && darkUrl && !lightUrl) {
-        // dark icon uploaded but no light — replace SVG with img for dark mode
+        el.src = url;
+      } else {
+        // SVG or other — replace directly with img (handles the case where
+        // PK.applyIcons skipped it because no light URL was uploaded)
         const size = el.style.width || '14px';
         const img = document.createElement('img');
-        img.src = darkUrl;
+        img.src = url;
         img.alt = light;
         img.dataset.iconKey = light;
         img.style.cssText = `width:${size};height:${size};object-fit:contain;flex:none;display:inline-block;vertical-align:middle;`;

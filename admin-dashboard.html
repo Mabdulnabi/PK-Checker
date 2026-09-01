@@ -983,9 +983,9 @@
           <div style="overflow-x:auto;margin-top:14px;">
             <table class="data-tbl" id="bcHistoryTbl">
               <thead><tr>
-                <th data-i18n="bc_col_title">العنوان</th><th data-i18n="bc_col_target">الفئة المستهدفة</th><th data-i18n="bc_col_recipients">عدد المستلمين</th><th data-i18n="bc_col_sent_at">وقت الإرسال</th><th data-i18n="bc_col_admin">الإدمن</th>
+                <th data-i18n="bc_col_title">العنوان</th><th data-i18n="bc_col_target">الفئة المستهدفة</th><th data-i18n="bc_col_recipients">عدد المستلمين</th><th data-i18n="bc_col_sent_at">وقت الإرسال</th><th data-i18n="bc_col_admin">الإدمن</th><th></th>
               </tr></thead>
-              <tbody id="bcHistoryBody"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;" data-i18n="loading_ellipsis">جاري التحميل...</td></tr></tbody>
+              <tbody id="bcHistoryBody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px;" data-i18n="loading_ellipsis">جاري التحميل...</td></tr></tbody>
             </table>
             <div id="bcHistoryPagination"></div>
           </div>
@@ -5549,6 +5549,16 @@ async function sendBroadcast(){
 }
 
 let allBroadcastRows = [];
+async function deleteBroadcast(id, titleAr, bodyAr){
+  if(!confirm('حذف هذه الرسالة الجماعية؟\nسيتم حذفها من سجل الرسائل وإزالتها من dashboard العملاء.')) return;
+  const { error } = await supabaseClient.from('broadcast_messages').delete().eq('id', id);
+  if(error){ toast('فشل الحذف: ' + error.message, 'error'); return; }
+  // Remove matching notifications from all users
+  await supabaseClient.from('notifications').delete().eq('type','broadcast').eq('title_ar', titleAr);
+  await loadBroadcastHistory();
+  toast('تم الحذف — الرسالة لن تظهر للعملاء', 'success');
+}
+
 async function loadBroadcastHistory(){
   const { data, error } = await supabaseClient
     .from('broadcast_messages')
@@ -5573,6 +5583,7 @@ function renderBroadcastHistory(rows){
     <td style="text-align:center;font-weight:700;">${b.recipient_count||0}</td>
     <td style="font-size:11px;">${formatDate(b.sent_at||b.created_at)}</td>
     <td style="font-size:11px;">${escapeHtml(b.admin_name||'أدمن')}</td>
+    <td><button onclick="deleteBroadcast('${b.id}',${JSON.stringify(b.title_ar||'')},${JSON.stringify(b.body_ar||'')})" style="background:none;border:1px solid var(--danger-wash);color:var(--danger);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;" title="حذف من dashboard العملاء">🗑</button></td>
   </tr>`).join('');
 
   renderPaginationBar('broadcast', 'bcHistoryPagination', rows.length);
