@@ -6932,6 +6932,9 @@ async function refreshCheckSettings(){
         showNotificationToast(payload.new);
         if (typeof loadNotifications === 'function') loadNotifications();
       })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${PROKEYS_USER_ID}` }, () => {
+        if (typeof loadNotifications === 'function') loadNotifications();
+      })
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'notifications' }, () => {
         // Admin deleted a broadcast → remove it from the user's panel immediately.
         // No user_id filter here: DELETE events need REPLICA IDENTITY FULL to

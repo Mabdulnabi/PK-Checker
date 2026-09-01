@@ -3331,6 +3331,25 @@ function formatDate(dateStr){
   </div>
   <div id="profilePopupOverlay" onclick="closeProfilePopup()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:499;"></div>
 
+  <!-- EDIT BROADCAST MODAL -->
+  <div id="editBroadcastModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:var(--paper);border-radius:16px;padding:26px 24px;max-width:520px;width:100%;box-shadow:0 24px 60px -12px rgba(27,37,86,.35);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+        <b style="font-family:'Cairo',sans-serif;font-size:15px;color:var(--navy);">✏️ تعديل الرسالة الجماعية</b>
+        <button onclick="closeEditBroadcastModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);">×</button>
+      </div>
+      <input type="hidden" id="ebId">
+      <div class="bc-field"><label>العنوان (عربي)</label><input type="text" id="ebTitleAr" placeholder="عنوان الإشعار بالعربي"></div>
+      <div class="bc-field"><label>العنوان (إنجليزي)</label><input type="text" id="ebTitleEn" placeholder="Notification title in English"></div>
+      <div class="bc-field"><label>نص الرسالة (عربي)</label><textarea id="ebBodyAr" placeholder="نص الإشعار بالعربي..."></textarea></div>
+      <div class="bc-field"><label>نص الرسالة (إنجليزي)</label><textarea id="ebBodyEn" placeholder="Notification body in English..."></textarea></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px;">
+        <button onclick="closeEditBroadcastModal()" style="padding:9px 18px;border-radius:9px;border:1px solid var(--paper-line);background:var(--paper-soft);color:var(--ink);font-family:'Cairo',sans-serif;cursor:pointer;">إلغاء</button>
+        <button id="ebSaveBtn" onclick="saveEditBroadcast()" style="padding:9px 18px;border-radius:9px;border:none;background:var(--blue);color:#fff;font-family:'Cairo',sans-serif;cursor:pointer;font-weight:700;">💾 حفظ وتحديث للعملاء</button>
+      </div>
+    </div>
+  </div>
+
   <!-- DIRECT MESSAGE TO CUSTOMER POPUP (sent via Live Chat) -->
   <div class="adm-modal-overlay" id="msgOverlay">
     <div class="adm-modal-box" style="max-width:400px;">
@@ -5613,6 +5632,39 @@ async function sendBroadcast(){
   await loadBroadcastHistory();
 }
 
+function openEditBroadcastModal(dataset){
+  const modal = document.getElementById('editBroadcastModal');
+  document.getElementById('ebId').value      = dataset.id;
+  document.getElementById('ebTitleAr').value = dataset.titleAr || '';
+  document.getElementById('ebTitleEn').value = dataset.titleEn || '';
+  document.getElementById('ebBodyAr').value  = dataset.bodyAr  || '';
+  document.getElementById('ebBodyEn').value  = dataset.bodyEn  || '';
+  modal.style.display = 'flex';
+}
+function closeEditBroadcastModal(){
+  document.getElementById('editBroadcastModal').style.display = 'none';
+}
+async function saveEditBroadcast(){
+  const id      = document.getElementById('ebId').value;
+  const titleAr = document.getElementById('ebTitleAr').value.trim();
+  const titleEn = document.getElementById('ebTitleEn').value.trim();
+  const bodyAr  = document.getElementById('ebBodyAr').value.trim();
+  const bodyEn  = document.getElementById('ebBodyEn').value.trim();
+  if(!titleAr){ toast('العنوان العربي مطلوب', 'error'); return; }
+  const saveBtn = document.getElementById('ebSaveBtn');
+  saveBtn.disabled = true;
+  const { error } = await supabaseClient.rpc('admin_update_broadcast', {
+    p_broadcast_id: Number(id),
+    p_title_ar: titleAr, p_title_en: titleEn || titleAr,
+    p_body_ar: bodyAr, p_body_en: bodyEn || bodyAr
+  });
+  saveBtn.disabled = false;
+  if(error){ toast('فشل التحديث: ' + error.message, 'error'); return; }
+  closeEditBroadcastModal();
+  await loadBroadcastHistory();
+  toast('تم تحديث الرسالة — تحدّثت عند العملاء فوراً', 'success');
+}
+
 let allBroadcastRows = [];
 async function toggleBroadcastVisibility(id){
   if(!id){ toast('معرّف الرسالة مفقود', 'error'); return; }
@@ -5671,6 +5723,7 @@ function renderBroadcastHistory(rows){
           ? `<button data-action="toggle-visibility" data-id="${b.id}" style="display:inline-flex;align-items:center;gap:4px;background:none;border:1px solid #cbd5e1;color:#475569;border-radius:7px;padding:4px 9px;font-size:11px;font-family:'Cairo',sans-serif;cursor:pointer;" title="إخفاء من العملاء">${hideIcon} إخفاء</button>`
           : `<button data-action="toggle-visibility" data-id="${b.id}" style="display:inline-flex;align-items:center;gap:4px;background:none;border:1px solid #0E9F6E;color:#0E9F6E;border-radius:7px;padding:4px 9px;font-size:11px;font-family:'Cairo',sans-serif;cursor:pointer;" title="إظهار للعملاء مجدداً">${showIcon} إظهار</button>`
         }
+        <button data-action="edit-broadcast" data-id="${b.id}" data-title-ar="${escapeHtml(b.title_ar||'')}" data-title-en="${escapeHtml(b.title_en||'')}" data-body-ar="${escapeHtml(b.body_ar||'')}" data-body-en="${escapeHtml(b.body_en||'')}" style="display:inline-flex;align-items:center;gap:4px;background:none;border:1px solid #3b82f6;color:#3b82f6;border-radius:7px;padding:4px 9px;font-size:11px;font-family:'Cairo',sans-serif;cursor:pointer;" title="تعديل الرسالة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex:none;pointer-events:none;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> تعديل</button>
         <button onclick="deleteBroadcast('${b.id}')" style="display:inline-flex;align-items:center;gap:4px;background:none;border:1px solid var(--danger-wash);color:var(--danger);border-radius:7px;padding:4px 9px;font-size:11px;font-family:'Cairo',sans-serif;cursor:pointer;" title="حذف نهائي">${delIcon} حذف</button>
       </div>
     </td>
@@ -5682,6 +5735,8 @@ function renderBroadcastHistory(rows){
   body.onclick = (e) => {
     const visBtn = e.target.closest('[data-action="toggle-visibility"]');
     if(visBtn){ toggleBroadcastVisibility(visBtn.dataset.id); return; }
+    const editBtn = e.target.closest('[data-action="edit-broadcast"]');
+    if(editBtn){ openEditBroadcastModal(editBtn.dataset); return; }
   };
 }
 
