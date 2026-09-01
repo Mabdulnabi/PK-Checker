@@ -756,6 +756,7 @@
                 <th data-i18n="online_col_pk">كود العميل</th>
                 <th data-i18n="online_col_name">الاسم</th>
                 <th data-i18n="online_col_email">الإيميل</th>
+                <th data-i18n="online_col_credits">الكريديت</th>
                 <th data-i18n="online_col_since">دخل منذ</th>
                 <th></th>
               </tr></thead>
@@ -1883,8 +1884,12 @@ function subscribeActivityChannel(){
 // tab's user list current.
 function subscribeUsersChannel(){
   supabaseClient.channel('admin-users-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'users_profile' }, () => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'users_profile' }, async () => {
       if (document.getElementById('tab-accounts')?.classList.contains('on')) loadUsersTab();
+      // Refresh profilesByUserId so online users table shows updated credits
+      const { data } = await supabaseClient.from('users_profile_numbered').select('user_id,credits,full_name,pk_number,email,whatsapp,avatar_url');
+      if (data) data.forEach(p => { profilesByUserId[p.user_id] = p; });
+      _renderOnlineUsers();
     }).subscribe();
 }
 
@@ -2903,9 +2908,9 @@ I18N.en.backup_auto='🕐 Auto'; I18N.en.backup_manual='✋ Manual'; I18N.en.bac
 I18N.en.backup_download='Download'; I18N.en.backup_restore='Restore'; I18N.en.backup_creating='Creating backup...'; I18N.en.backup_created='✅ Backup created successfully';
 I18N.en.manual_queue_title='🖐 Manual Review'; I18N.en.manual_queue_action='Action';
 I18N.ar.sec_online_users='🟢 المستخدمون الأونلاين'; I18N.ar.online_empty='لا يوجد مستخدمون أونلاين حالياً'; I18N.ar.btn_send_msg='إرسال رسالة';
-I18N.ar.online_col_pk='كود العميل'; I18N.ar.online_col_name='الاسم'; I18N.ar.online_col_email='الإيميل'; I18N.ar.online_col_since='دخل منذ';
+I18N.ar.online_col_pk='كود العميل'; I18N.ar.online_col_name='الاسم'; I18N.ar.online_col_email='الإيميل'; I18N.ar.online_col_credits='الكريديت'; I18N.ar.online_col_since='دخل منذ';
 I18N.en.sec_online_users='🟢 Online Users'; I18N.en.online_empty='No users currently online'; I18N.en.btn_send_msg='Send message';
-I18N.en.online_col_pk='Customer code'; I18N.en.online_col_name='Name'; I18N.en.online_col_email='Email'; I18N.en.online_col_since='Online since';
+I18N.en.online_col_pk='Customer code'; I18N.en.online_col_name='Name'; I18N.en.online_col_email='Email'; I18N.en.online_col_credits='Credits'; I18N.en.online_col_since='Online since';
 
 // ── Online Users Presence ────────────────────────────────────────────────────
 let _onlinePresenceMap = {}; // presence_ref → payload
@@ -2951,8 +2956,12 @@ function _renderOnlineUsers(){
     const name = escapeHtml(u.name || '—');
     const email = escapeHtml(u.email || '—');
     const since = timeAgo(u.joined_at);
+    const credits = (profilesByUserId[u.user_id]?.credits ?? '—');
+    const creditsHtml = credits !== '—'
+      ? `<span style="font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--ok);">${credits}</span>`
+      : '—';
     const sendBtn = `<button class="icon-btn" title="${t('btn_send_msg')}" onclick="_openChatForOnlineUser('${escapeHtml(u.user_id)}')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>`;
-    return `<tr><td><b>${pk}</b></td><td>${name}</td><td style="direction:ltr;text-align:start;">${email}</td><td>${since}</td><td>${sendBtn}</td></tr>`;
+    return `<tr><td><b>${pk}</b></td><td>${name}</td><td style="direction:ltr;text-align:start;">${email}</td><td>${creditsHtml}</td><td>${since}</td><td>${sendBtn}</td></tr>`;
   }).join('');
 
   renderPaginationBar('onlineUsers', 'onlineUsersPagination', users.length);
