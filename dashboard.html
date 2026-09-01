@@ -1243,10 +1243,10 @@
   .chat-msg-action-btn.del:hover{border-color:var(--danger);color:var(--danger);}
   /* ===== Back to Top ===== */
   #scrollProgress{position:fixed;top:0;left:0;width:0%;height:3px;background:var(--blue);z-index:9999;transition:width .1s linear;pointer-events:none;}
-  #backToTop{position:fixed;bottom:22px;right:20px;width:38px;height:38px;border-radius:50%;background:var(--blue);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(37,99,235,0.35);opacity:0;transform:translateY(12px);transition:opacity .25s,transform .25s;z-index:9998;pointer-events:none;}
-  html[dir="rtl"] #backToTop{right:auto;left:20px;}
+  #backToTop{position:fixed;bottom:88px;left:22px;width:42px;height:42px;border-radius:50%;background:var(--blue);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(37,99,235,0.35);opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s;z-index:51;pointer-events:none;}
+  html[dir="ltr"] #backToTop{left:auto;right:22px;}
   #backToTop.visible{opacity:1;transform:translateY(0);pointer-events:auto;}
-  #backToTop:hover{background:var(--blue-deep);transform:translateY(-2px);}
+  #backToTop:hover{background:var(--blue-deep);transform:translateY(-3px);}
   #backToTop svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;}
   /* ======================== */
   .chat-edit-banner{display:none;align-items:center;gap:8px;padding:6px 12px;border-top:1px solid var(--paper-line);font-size:11.5px;color:var(--blue-deep);background:var(--blue-wash);flex:none;}
@@ -6778,6 +6778,7 @@ async function loadUIConfig(){
       // so it can't be patched the same way. Instead, any element carrying
       // data-icon-key="..." gets swapped/resized directly.
       applyCustomIcons();
+      applyDarkPackIcons(); // swap dark variants now that icons are loaded and elements are IMGs
       applyFavicon();
     }
   } catch (err) {
@@ -6937,6 +6938,7 @@ let isDarkMode = localStorage.getItem('prokeys-dark-mode') === 'true';
 
 /* Swap any icon that has a _dark variant when dark mode is active */
 const DARK_ICON_PAIRS = [
+  ['header_notif','header_notif_dark'],
   ['wal_slider_prev','wal_slider_prev_dark'],
   ['wal_slider_next','wal_slider_next_dark'],
   ['pack_highlight','pack_highlight_dark'],
@@ -6949,11 +6951,10 @@ function applyDarkPackIcons(){
   DARK_ICON_PAIRS.forEach(([light, dark]) => {
     const darkUrl  = icons[dark];
     const lightUrl = icons[light];
+    if (!darkUrl && !lightUrl) return; // nothing uploaded for this pair, skip
     document.querySelectorAll(`[data-icon-key="${light}"]`).forEach(el => {
-      const target = (isDarkMode && darkUrl) ? darkUrl : (lightUrl || null);
-      if (!target) return;
-      if (el.tagName === 'IMG') { el.src = target; }
-      else if (el.src !== undefined) { el.src = target; }
+      if (el.tagName !== 'IMG') return; // only IMG elements (applyIcons already replaced SVGs)
+      el.src = (isDarkMode && darkUrl) ? darkUrl : (lightUrl || el.src);
     });
   });
 }
@@ -6972,16 +6973,6 @@ function updateDarkModeUI(){
   }
   applyColorOverrides();
   applyDarkPackIcons();
-  // Swap notification bell icon for dark mode override if uploaded
-  const notifIconEl = document.querySelector('[data-icon-key="header_notif"]');
-  if (notifIconEl) {
-    const overrides = (typeof getIconOverrides === 'function' ? getIconOverrides() : null) || {};
-    const icons = (overrides.icons || {});
-    const darkUrl = icons['header_notif_dark'];
-    const lightUrl = icons['header_notif'];
-    const targetUrl = (isDarkMode && darkUrl) ? darkUrl : (lightUrl || null);
-    if (targetUrl) notifIconEl.src ? (notifIconEl.src = targetUrl) : null;
-  }
 }
 
 darkModeBtn.addEventListener('click', ()=>{
@@ -7492,7 +7483,6 @@ updateDarkModeUI();
 })();
 </script>
 
-<!-- Back to Top + Scroll Progress -->
 <div id="scrollProgress"></div>
 <button id="backToTop" onclick="document.getElementById('mainWrap').scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
   <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
@@ -7505,11 +7495,9 @@ updateDarkModeUI();
   if(!wrap || !bar || !btn) return;
   wrap.addEventListener('scroll', function(){
     const scrolled = wrap.scrollTop;
-    const total = wrap.scrollHeight - wrap.clientHeight;
-    const pct = total > 0 ? (scrolled / total) * 100 : 0;
-    bar.style.width = pct + '%';
-    if(scrolled > 300){ btn.classList.add('visible'); }
-    else { btn.classList.remove('visible'); }
+    const total    = wrap.scrollHeight - wrap.clientHeight;
+    bar.style.width = (total > 0 ? (scrolled / total) * 100 : 0) + '%';
+    btn.classList.toggle('visible', scrolled > 300);
   }, {passive:true});
 })();
 </script>

@@ -66,7 +66,7 @@
   .hero-visual-img{max-width:100%;height:auto;display:block;}
   /* Stacked report cards */
   .hero-cards-stack{position:relative;width:100%;height:320px;}
-  .hero-report-card{position:absolute;width:72%;background:#fff;border-radius:10px;border:1px solid #E5E9F2;box-shadow:0 8px 32px -8px rgba(27,37,86,.18);padding:0;overflow:hidden;cursor:pointer;transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .35s,z-index 0s .18s;}
+  .hero-report-card{position:absolute;width:72%;background:#fff;border-radius:10px;border:1px solid #E5E9F2;box-shadow:0 8px 32px -8px rgba(27,37,86,.18);padding:0;overflow:hidden;cursor:pointer;transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .35s,z-index 0s .18s;min-height:180px;}
   .hero-report-card .hrc-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid #E5E9F2;font-size:9.5px;color:#666;font-family:'Manrope',sans-serif;}
   .hero-report-card .hrc-turnitin{font-weight:800;font-size:11px;color:#E74C3C;letter-spacing:.02em;}
   .hero-report-card .hrc-sep{flex:1;}
@@ -487,37 +487,43 @@
     </div>
     <div class="hero-visual" data-aos="zoom-in" data-aos-delay="200">
       <div class="hero-cards-stack">
-        <!-- Back card: Similarity report -->
-        <div class="hero-report-card hrc-back">
-          <div class="hrc-head">
-            <span class="hrc-turnitin">turnitin</span>
-            <span>Page 1 of 6 · Similarity Overview</span>
-            <span class="hrc-sep"></span>
-            <span class="hrc-sid">Submission ID: invalid-0390</span>
-          </div>
-          <div class="hrc-body">
-            <div class="hrc-pct blue">5%</div>
-            <div class="hrc-label">Overall Similarity</div>
-            <div class="hrc-bar sim"></div>
-            <div class="hrc-row"><span class="hrc-dot" style="background:#3498DB;"></span><span class="hrc-row-lbl">Internet Sources</span><span class="hrc-row-val">3%</span></div>
-            <div class="hrc-row"><span class="hrc-dot" style="background:#E67E22;"></span><span class="hrc-row-lbl">Publications</span><span class="hrc-row-val">1%</span></div>
-            <div class="hrc-row"><span class="hrc-dot" style="background:#27AE60;"></span><span class="hrc-row-lbl">Student Papers</span><span class="hrc-row-val">1%</span></div>
+        <!-- Back card: Similarity report (or uploaded image) -->
+        <div class="hero-report-card hrc-back" id="hrcBack">
+          <img class="hrc-photo" id="hrcBackImg" data-icon-key="hero_card_sim" alt="" src="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:9px;">
+          <div class="hrc-default-content">
+            <div class="hrc-head">
+              <span class="hrc-turnitin">turnitin</span>
+              <span>Page 1 of 6 · Similarity Overview</span>
+              <span class="hrc-sep"></span>
+              <span class="hrc-sid">Submission ID: invalid-0390</span>
+            </div>
+            <div class="hrc-body">
+              <div class="hrc-pct blue">5%</div>
+              <div class="hrc-label">Overall Similarity</div>
+              <div class="hrc-bar sim"></div>
+              <div class="hrc-row"><span class="hrc-dot" style="background:#3498DB;"></span><span class="hrc-row-lbl">Internet Sources</span><span class="hrc-row-val">3%</span></div>
+              <div class="hrc-row"><span class="hrc-dot" style="background:#E67E22;"></span><span class="hrc-row-lbl">Publications</span><span class="hrc-row-val">1%</span></div>
+              <div class="hrc-row"><span class="hrc-dot" style="background:#27AE60;"></span><span class="hrc-row-lbl">Student Papers</span><span class="hrc-row-val">1%</span></div>
+            </div>
           </div>
         </div>
-        <!-- Front card: AI detection report -->
-        <div class="hero-report-card hrc-front">
-          <div class="hrc-head">
-            <span class="hrc-turnitin">turnitin</span>
-            <span>Page 2 of 7 · AI Writing Overview</span>
-            <span class="hrc-sep"></span>
-            <span class="hrc-sid">Submission ID: invalid-0390</span>
-          </div>
-          <div class="hrc-body">
-            <div class="hrc-pct red">100%</div>
-            <div class="hrc-label">detected as AI</div>
-            <div class="hrc-bar ai"></div>
-            <div class="hrc-row"><span class="hrc-dot" style="background:#C0392B;"></span><span class="hrc-row-lbl">AI-generated only</span><span class="hrc-row-val">100%</span></div>
-            <div class="hrc-row"><span class="hrc-dot" style="background:#E8D5B7;"></span><span class="hrc-row-lbl">AI paraphrased</span><span class="hrc-row-val">0%</span></div>
+        <!-- Front card: AI detection report (or uploaded image) -->
+        <div class="hero-report-card hrc-front" id="hrcFront">
+          <img class="hrc-photo" id="hrcFrontImg" data-icon-key="hero_card_ai" alt="" src="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:9px;">
+          <div class="hrc-default-content">
+            <div class="hrc-head">
+              <span class="hrc-turnitin">turnitin</span>
+              <span>Page 2 of 7 · AI Writing Overview</span>
+              <span class="hrc-sep"></span>
+              <span class="hrc-sid">Submission ID: invalid-0390</span>
+            </div>
+            <div class="hrc-body">
+              <div class="hrc-pct red">100%</div>
+              <div class="hrc-label">detected as AI</div>
+              <div class="hrc-bar ai"></div>
+              <div class="hrc-row"><span class="hrc-dot" style="background:#C0392B;"></span><span class="hrc-row-lbl">AI-generated only</span><span class="hrc-row-val">100%</span></div>
+              <div class="hrc-row"><span class="hrc-dot" style="background:#E8D5B7;"></span><span class="hrc-row-lbl">AI paraphrased</span><span class="hrc-row-val">0%</span></div>
+            </div>
           </div>
         </div>
       </div>
@@ -812,6 +818,7 @@ document.querySelectorAll('[data-scroll]').forEach(el => {
 // data-icon-key="X" gets swapped for the admin's uploaded image (or just
 // resized) if a matching override exists in ui_config.icons/icon_sizes.
 const ICON_SIZE_MAP = { logo_index:'46px', logo_auth:'38px', home_watch:'18px', hero_cta_icon:'18px', home_g1:'20px', home_g2:'20px', home_g3:'20px', home_g4:'20px', home_g5:'20px', home_g6:'20px', hero_visual:'260px',
+  hero_card_sim:'100%', hero_card_ai:'100%',
   faq_icon_0:'14px', faq_icon_1:'14px', faq_icon_2:'14px', faq_icon_3:'14px', faq_icon_4:'14px',
   faq_icon_5:'14px', faq_icon_6:'14px', faq_icon_7:'14px', faq_icon_8:'14px', faq_icon_9:'14px' };
 function applyFavicon(){
@@ -821,8 +828,28 @@ function applyFavicon(){
   if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
   link.href = url;
 }
+function applyHeroCardImages(){
+  const icons = (uiOverrides.icons || {});
+  [['hero_card_sim','hrcBackImg','hrcBack'],['hero_card_ai','hrcFrontImg','hrcFront']].forEach(([key,imgId,cardId])=>{
+    const url = icons[key];
+    const img = document.getElementById(imgId);
+    const card = document.getElementById(cardId);
+    if(!img || !card) return;
+    if(url){
+      img.src = url;
+      img.style.display = 'block';
+      const def = card.querySelector('.hrc-default-content');
+      if(def) def.style.display = 'none';
+    } else {
+      img.style.display = 'none';
+      const def = card.querySelector('.hrc-default-content');
+      if(def) def.style.display = '';
+    }
+  });
+}
 function applyCustomIcons(){
-  PK.applyIcons(() => uiOverrides, ICON_SIZE_MAP, ['hero_visual']);
+  PK.applyIcons(() => uiOverrides, ICON_SIZE_MAP, ['hero_visual','hero_card_sim','hero_card_ai']);
+  applyHeroCardImages();
 }
 
 async function loadUIConfig(){
@@ -1763,33 +1790,6 @@ supabaseClient
 })();
 </script>
 
-<!-- Back to Top + Scroll Progress -->
-<style>
-  #scrollProgress{position:fixed;top:0;left:0;width:0%;height:3px;background:var(--blue);z-index:9999;transition:width .1s linear;pointer-events:none;}
-  #backToTop{position:fixed;bottom:22px;right:20px;width:38px;height:38px;border-radius:50%;background:var(--navy);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(27,37,86,0.3);opacity:0;transform:translateY(12px);transition:opacity .25s,transform .25s;z-index:9998;pointer-events:none;}
-  html[dir="rtl"] #backToTop{right:auto;left:20px;}
-  #backToTop.visible{opacity:1;transform:translateY(0);pointer-events:auto;}
-  #backToTop:hover{background:var(--blue);transform:translateY(-2px);}
-  #backToTop svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;}
-</style>
-<div id="scrollProgress"></div>
-<button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
-  <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
-</button>
-<script>
-(function(){
-  const bar = document.getElementById('scrollProgress');
-  const btn = document.getElementById('backToTop');
-  if(!bar || !btn) return;
-  window.addEventListener('scroll', function(){
-    const scrolled = window.scrollY || document.documentElement.scrollTop;
-    const total = document.documentElement.scrollHeight - window.innerHeight;
-    const pct = total > 0 ? (scrolled / total) * 100 : 0;
-    bar.style.width = pct + '%';
-    btn.classList.toggle('visible', scrolled > 300);
-  }, {passive:true});
-})();
-</script>
 
 </body>
 </html>

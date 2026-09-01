@@ -48,6 +48,7 @@ PK.applyIcons = function (getOverrides, sizeMap, extraLogoKeys) {
         const img = document.createElement('img');
         img.src = url;
         img.alt = key;
+        img.dataset.iconKey = key; /* preserve so dark-mode swaps can query [data-icon-key] */
         img.style.cssText = isLogo
           ? `width:100%;max-height:${size};height:auto;object-fit:contain;display:block;`
           : `width:${size};height:${size};object-fit:contain;flex:none;display:inline-block;vertical-align:middle;border-radius:6px;`;
