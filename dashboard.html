@@ -197,6 +197,8 @@
 
   /* --- Chat toast (navy→white in dark = white bg + white text) --- */
   [data-theme="dark"] .chat-toast{background:var(--navy-soft);}
+  [data-theme="dark"] .chat-bubble{background:linear-gradient(150deg,#1a5fba,#3b82f6);box-shadow:0 10px 24px -8px rgba(59,130,246,0.5);}
+  [data-theme="dark"] .chat-window-head{background:linear-gradient(150deg,#1a4499 0%,#2563eb 100%);}
 
   /* --- Icon contrast: upgrade blue-deep (#0B5FC9) → blue (#0E7AFE) on dark bgs --- */
   [data-theme="dark"] .kpi .icon,
@@ -1242,12 +1244,10 @@
   .chat-msg-action-btn:hover{border-color:var(--blue);color:var(--blue-deep);}
   .chat-msg-action-btn.del:hover{border-color:var(--danger);color:var(--danger);}
   /* ===== Back to Top ===== */
-  #scrollProgress{position:fixed;top:0;left:0;width:0%;height:3px;background:var(--blue);z-index:9999;transition:width .1s linear;pointer-events:none;}
-  #backToTop{position:fixed;bottom:88px;left:22px;width:42px;height:42px;border-radius:50%;background:var(--blue);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(37,99,235,0.35);opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s;z-index:51;pointer-events:none;}
-  html[dir="ltr"] #backToTop{left:auto;right:22px;}
-  #backToTop.visible{opacity:1;transform:translateY(0);pointer-events:auto;}
-  #backToTop:hover{background:var(--blue-deep);transform:translateY(-3px);}
-  #backToTop svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;}
+  #pkScrollBar{position:fixed;top:0;left:0;height:3px;width:0;background:#d99401;z-index:999999;opacity:.9;pointer-events:none;}
+  #pkTopBtn{position:fixed;right:18px;bottom:90px;z-index:999999;width:46px;height:46px;border:0!important;border-radius:999px!important;background:#d99401!important;cursor:pointer;display:inline-flex!important;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(0,0,0,.25);transition:transform .25s ease,filter .25s ease,opacity .25s ease;opacity:0;pointer-events:none;transform:translateY(10px);}
+  #pkTopBtn.pkShow{opacity:1;pointer-events:auto;transform:translateY(0);}
+  html[dir="rtl"] #pkTopBtn{right:auto;left:18px;}
   /* ======================== */
   .chat-edit-banner{display:none;align-items:center;gap:8px;padding:6px 12px;border-top:1px solid var(--paper-line);font-size:11.5px;color:var(--blue-deep);background:var(--blue-wash);flex:none;}
   .chat-edit-banner.show{display:flex;}
@@ -6951,10 +6951,22 @@ function applyDarkPackIcons(){
   DARK_ICON_PAIRS.forEach(([light, dark]) => {
     const darkUrl  = icons[dark];
     const lightUrl = icons[light];
-    if (!darkUrl && !lightUrl) return; // nothing uploaded for this pair, skip
+    if (!darkUrl && !lightUrl) return;
+    const targetUrl = (isDarkMode && darkUrl) ? darkUrl : (lightUrl || null);
+    if (!targetUrl) return;
     document.querySelectorAll(`[data-icon-key="${light}"]`).forEach(el => {
-      if (el.tagName !== 'IMG') return; // only IMG elements (applyIcons already replaced SVGs)
-      el.src = (isDarkMode && darkUrl) ? darkUrl : (lightUrl || el.src);
+      if (el.tagName === 'IMG') {
+        el.src = targetUrl;
+      } else if (isDarkMode && darkUrl && !lightUrl) {
+        // dark icon uploaded but no light — replace SVG with img for dark mode
+        const size = el.style.width || '14px';
+        const img = document.createElement('img');
+        img.src = darkUrl;
+        img.alt = light;
+        img.dataset.iconKey = light;
+        img.style.cssText = `width:${size};height:${size};object-fit:contain;flex:none;display:inline-block;vertical-align:middle;`;
+        el.replaceWith(img);
+      }
     });
   });
 }
@@ -7483,22 +7495,34 @@ updateDarkModeUI();
 })();
 </script>
 
-<div id="scrollProgress"></div>
-<button id="backToTop" onclick="document.getElementById('mainWrap').scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
-  <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+<div id="pkScrollBar"></div>
+<button id="pkTopBtn" aria-label="Back to top" style="position:relative;">
+  <svg viewBox="0 0 46 46" width="46" height="46" style="position:absolute;top:0;left:0;pointer-events:none;">
+    <circle cx="23" cy="23" r="18" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="3"/>
+    <circle id="pkRingProg" cx="23" cy="23" r="18" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="3" stroke-linecap="round" transform="rotate(-90 23 23)"/>
+  </svg>
+  <svg viewBox="0 0 24 24" width="16" height="16" style="position:relative;z-index:1;flex:none;" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
 </button>
 <script>
 (function(){
-  const wrap = document.getElementById('mainWrap');
-  const bar  = document.getElementById('scrollProgress');
-  const btn  = document.getElementById('backToTop');
-  if(!wrap || !bar || !btn) return;
-  wrap.addEventListener('scroll', function(){
-    const scrolled = wrap.scrollTop;
-    const total    = wrap.scrollHeight - wrap.clientHeight;
-    bar.style.width = (total > 0 ? (scrolled / total) * 100 : 0) + '%';
-    btn.classList.toggle('visible', scrolled > 300);
-  }, {passive:true});
+  var wrap = document.getElementById('mainWrap');
+  var bar  = document.getElementById('pkScrollBar');
+  var btn  = document.getElementById('pkTopBtn');
+  var ring = document.getElementById('pkRingProg');
+  if(!wrap || !bar || !btn || !ring) return;
+  var r = 18, C = +(2 * Math.PI * r).toFixed(4);
+  ring.style.strokeDasharray  = C;
+  ring.style.strokeDashoffset = C;
+  function onScroll(){
+    var sc  = wrap.scrollTop;
+    var max = (wrap.scrollHeight - wrap.clientHeight) || 1;
+    var p   = Math.min(sc / max, 1);
+    bar.style.width = (p * 100) + '%';
+    ring.style.strokeDashoffset = C * (1 - p);
+    sc > 500 ? btn.classList.add('pkShow') : btn.classList.remove('pkShow');
+  }
+  wrap.addEventListener('scroll', onScroll, {passive:true});
+  btn.addEventListener('click', function(){ wrap.scrollTo({top:0,behavior:'smooth'}); });
 })();
 </script>
 

@@ -65,7 +65,7 @@
   .hero-visual{width:100%;min-height:320px;display:flex;align-items:center;justify-content:center;}
   .hero-visual-img{max-width:100%;height:auto;display:block;}
   /* Stacked report cards */
-  .hero-cards-stack{position:relative;width:100%;height:320px;}
+  .hero-cards-stack{position:relative;width:100%;min-height:220px;height:320px;}
   .hero-report-card{position:absolute;width:72%;background:#fff;border-radius:10px;border:1px solid #E5E9F2;box-shadow:0 8px 32px -8px rgba(27,37,86,.18);padding:0;overflow:hidden;cursor:pointer;transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .35s,z-index 0s .18s;min-height:180px;}
   .hero-report-card .hrc-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid #E5E9F2;font-size:9.5px;color:#666;font-family:'Manrope',sans-serif;}
   .hero-report-card .hrc-turnitin{font-weight:800;font-size:11px;color:#E74C3C;letter-spacing:.02em;}
@@ -828,6 +828,25 @@ function applyFavicon(){
   if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
   link.href = url;
 }
+function _heroResetCard(img, card){
+  img.style.display = 'none';
+  card.style.width = '';
+  card.style.height = '';
+  card.style.minHeight = '';
+  const def = card.querySelector('.hrc-default-content');
+  if(def) def.style.display = '';
+}
+function _heroRefreshStackHeight(){
+  const stack = document.querySelector('.hero-cards-stack');
+  if(!stack) return;
+  const back  = document.getElementById('hrcBack');
+  const front = document.getElementById('hrcFront');
+  if(!back || !front) return;
+  const bh = parseInt(back.style.height) || back.offsetHeight || 0;
+  const fh = parseInt(front.style.height) || front.offsetHeight || 0;
+  const maxH = Math.max(bh, fh, 180);
+  stack.style.height = (maxH + 60) + 'px';
+}
 function applyHeroCardImages(){
   const icons = (uiOverrides.icons || {});
   [['hero_card_sim','hrcBackImg','hrcBack'],['hero_card_ai','hrcFrontImg','hrcFront']].forEach(([key,imgId,cardId])=>{
@@ -836,14 +855,25 @@ function applyHeroCardImages(){
     const card = document.getElementById(cardId);
     if(!img || !card) return;
     if(url){
+      img.onload = function(){
+        const nw = img.naturalWidth || 300;
+        const nh = img.naturalHeight || 200;
+        const maxW = 290;
+        const w = Math.min(nw, maxW);
+        const h = Math.round((nh / nw) * w);
+        card.style.width    = w + 'px';
+        card.style.height   = h + 'px';
+        card.style.minHeight = '0';
+        img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:9px;display:block;';
+        const def = card.querySelector('.hrc-default-content');
+        if(def) def.style.display = 'none';
+        _heroRefreshStackHeight();
+      };
+      img.onerror = function(){ _heroResetCard(img, card); };
       img.src = url;
-      img.style.display = 'block';
-      const def = card.querySelector('.hrc-default-content');
-      if(def) def.style.display = 'none';
+      img.style.display = 'none'; // hidden until onload fires
     } else {
-      img.style.display = 'none';
-      const def = card.querySelector('.hrc-default-content');
-      if(def) def.style.display = '';
+      _heroResetCard(img, card);
     }
   });
 }
