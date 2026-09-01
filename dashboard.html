@@ -2623,7 +2623,9 @@ let checkSettings = { service_enabled: true, api_mode_enabled: true, sim_only_vi
                       service_off_msg_ar: '', service_off_msg_en: '' };
 let currentCurrency = 'USD';
 const exchangeRate = 50; // 1 USD = 50 EGP = 10 credits
-let currentUser = { name: '...', id: '...', whatsapp: '', email: '', avatarUrl: '' }; // placeholder until loadUserProfile() fills in the real pk_number-based ID — avoids briefly flashing a UUID fragment
+let currentUser = { name: '', id: '', whatsapp: '', email: '', avatarUrl: '' };
+let _profileLoaded = false;  // set after first successful profile load; skips re-fetch on 30s poll
+let _dashRefreshing = false; // guard against concurrent loadDashboardData calls
 
 // Cache of { id -> {name, avatar_url, display_title} } for every admin —
 // used so ticket replies and chat messages show the actual admin's photo
@@ -4472,6 +4474,7 @@ async function saveProfileFromTab(){
     currentUser.name = name;
     currentUser.whatsapp = whatsapp;
     currentUser.phone = phone;
+    _profileLoaded = false; // allow next loadDashboardData to re-fetch fresh profile
     applyLang();
     updateSidebarUserPopup();
     if(statusEl){ statusEl.style.color='var(--ok)'; statusEl.textContent = t('profile_save_ok'); }
@@ -6539,13 +6542,16 @@ function applyAuthProfileFields(authUser, profileData){
   if (!authUser) return;
   currentUser.email = authUser.email || '';
   const meta = authUser.user_metadata || {};
-  // Google sends this under "avatar_url" in most setups, but some OAuth
-  // configurations expose it as "picture" instead — check both.
-  currentUser.avatarUrl = meta.avatar_url || meta.picture || '';
-  // Pre-fill name from Google metadata — applyProfileRowFields will override
-  // with the stored users_profile value once it loads (custom name wins).
-  if (!currentUser.name || currentUser.name === '...') {
-    currentUser.name = meta.full_name || meta.name || currentUser.name;
+  // Only use OAuth photo as a fallback — never overwrite a custom-uploaded
+  // avatar that applyProfileRowFields already set from the DB (identified by
+  // the _dbAvatarSet flag).  This prevents the avatar from flashing back to
+  // the Google photo on every 30-second profile re-read.
+  if (!currentUser._dbAvatarSet) {
+    currentUser.avatarUrl = meta.avatar_url || meta.picture || '';
+  }
+  // Pre-fill name from Google metadata — only before the DB value is known.
+  if (!currentUser.name) {
+    currentUser.name = meta.full_name || meta.name || '';
   }
   renderUserAvatar(document.getElementById('userAvatar'));
   renderUserAvatar(document.getElementById('userAvatarLg'));
@@ -6582,6 +6588,7 @@ function applyProfileRowFields(data){
   // auto-derived Google OAuth picture set earlier in this function.
   if (data.avatar_url) {
     currentUser.avatarUrl = data.avatar_url;
+    currentUser._dbAvatarSet = true; // mark so applyAuthProfileFields won't overwrite it
     renderUserAvatar(document.getElementById('userAvatar'));
     renderUserAvatar(document.getElementById('userAvatarLg'));
     if (typeof renderInbox === 'function' && document.getElementById('inboxList')) renderInbox();
@@ -6619,12 +6626,11 @@ function applyProfileRowFields(data){
   updateAllPrices();
 }
 
-async function loadUserProfile(){
-  // Reads from users_profile_numbered (a view — see fix_gapless_numbering.sql)
-  // instead of the raw users_profile table. The view computes pk_number on
-  // the fly as a gapless sequential rank among currently-existing users, so
-  // deleting a user automatically shifts everyone after them down by one —
-  // unlike a stored BIGSERIAL column, which leaves permanent gaps.
+async function loadUserProfile({ force = false } = {}){
+  // Skip on periodic refreshes — name/PK code don't change on their own.
+  // Pass force:true after the user saves their profile settings.
+  if (_profileLoaded && !force) return;
+
   const [{ data, error }, { data: sessionData }] = await Promise.all([
     supabaseClient.from('users_profile_numbered').select('*').eq('user_id', PROKEYS_USER_ID).single(),
     supabaseClient.auth.getSession(),
@@ -6638,7 +6644,6 @@ async function loadUserProfile(){
     if (error.code === 'PGRST116') {
       const meta = authUser?.user_metadata || {};
       const googleName = meta.full_name || meta.name || '';
-      // Create the profile row so the numbered view assigns a PK code
       const { error: insertErr } = await supabaseClient.from('users_profile').insert({
         user_id: PROKEYS_USER_ID,
         full_name: googleName,
@@ -6646,10 +6651,9 @@ async function loadUserProfile(){
         avatar_url: meta.avatar_url || meta.picture || '',
       });
       if (insertErr) { console.error('profile create failed:', insertErr); return; }
-      // Re-read from the numbered view to get pk_number
       const { data: newData } = await supabaseClient
         .from('users_profile_numbered').select('*').eq('user_id', PROKEYS_USER_ID).single();
-      if (newData) applyProfileRowFields(newData);
+      if (newData) { applyProfileRowFields(newData); _profileLoaded = true; }
       return;
     }
     console.error('loadUserProfile failed:', error);
@@ -6657,7 +6661,8 @@ async function loadUserProfile(){
   }
   if (data) {
     applyProfileRowFields(data);
-    // Backfill name from Google metadata if the profile was created without a name
+    _profileLoaded = true;
+    // Backfill name from Google metadata if the profile was created without one
     if (!data.full_name && authUser) {
       const meta = authUser.user_metadata || {};
       const googleName = meta.full_name || meta.name || '';
@@ -6740,24 +6745,28 @@ async function loadWallet(){
 }
 
 async function loadDashboardData(){
-  if (!PROKEYS_USER_ID) return; // no session yet — redirect to index.html is already underway
+  if (!PROKEYS_USER_ID) return;
+  // Guard: skip if a refresh is already running to prevent pileup from
+  // overlapping realtime events + periodic timer firing simultaneously.
+  if (_dashRefreshing) return;
+  _dashRefreshing = true;
 
-  // The date-range filter on "My Orders" defaults to a fixed wide range in
-  // the HTML (see statFromDate/statToDate), but "To" should always include
-  // today — otherwise any order submitted after that fixed date silently
-  // disappears from the table. We push it forward to the real current date
-  // here so the filter never goes stale.
+  try {
   const toDateInput = document.getElementById('statToDate');
   if (toDateInput) {
     const todayStr = new Date().toISOString().split('T')[0];
     if (toDateInput.value < todayStr) toDateInput.value = todayStr;
   }
 
+  // loadUserProfile skips itself after first success (_profileLoaded flag)
   await Promise.all([ loadUserProfile(), loadOrders(), loadWallet(), loadTickets(), loadApiSettings(), loadNotifications() ]);
   updatePrice();
   renderOrders();
   renderKpis();
   if (typeof checkAndShowReviewPrompt === 'function') checkAndShowReviewPrompt();
+  } finally {
+    _dashRefreshing = false;
+  }
 }
 
 
