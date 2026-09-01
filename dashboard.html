@@ -3903,8 +3903,8 @@ function showNotificationToast(notif){
   el.innerHTML = `
     <div class="push-toast-icon">${TOAST_ICONS[notif.type]}</div>
     <div class="push-toast-body">
-      <div class="push-toast-title">${escapeHtml(ar ? notif.title_ar : notif.title_en)}</div>
-      <div class="push-toast-text">${escapeHtml(ar ? notif.body_ar : notif.body_en)}</div>
+      <div class="push-toast-title">${escapeHtml(ar ? notif.title_ar : (notif.title_en || notif.title_ar))}</div>
+      <div class="push-toast-text">${escapeHtml(ar ? notif.body_ar : (notif.body_en || notif.body_ar))}</div>
     </div>
     <span class="push-toast-close">×</span>
   `;
@@ -3938,8 +3938,8 @@ async function loadNotifications(){
     id: row.id,
     icon: row.type,
     unread: !row.is_read,
-    title: currentLang === 'ar' ? row.title_ar : row.title_en,
-    body: currentLang === 'ar' ? row.body_ar : row.body_en,
+    title: currentLang === 'ar' ? row.title_ar : (row.title_en || row.title_ar),
+    body: currentLang === 'ar' ? row.body_ar : (row.body_en || row.body_ar),
     time: formatRelativeTime(row.created_at, currentLang),
     relatedOrderId: row.related_order_id,
     relatedTicketId: row.related_ticket_id,

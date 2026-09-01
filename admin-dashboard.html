@@ -5565,15 +5565,11 @@ async function toggleBroadcastVisibility(id){
 }
 
 async function deleteBroadcast(id){
-  if(!confirm('حذف نهائي؟ ستُحذف من سجل الرسائل تماماً.')) return;
-  const row = (allBroadcastRows || []).find(r => r.id === id);
-  const { error } = await supabaseClient.from('broadcast_messages').delete().eq('id', id);
+  if(!confirm('حذف نهائي؟ ستُحذف من سجل الرسائل وتختفي من عند العملاء تماماً.')) return;
+  const { error } = await supabaseClient.rpc('admin_delete_broadcast', { p_broadcast_id: Number(id) });
   if(error){ toast('فشل الحذف: ' + error.message, 'error'); return; }
-  if(row && row.title_ar){
-    await supabaseClient.from('notifications').delete().eq('type','broadcast').eq('title_ar', row.title_ar);
-  }
   await loadBroadcastHistory();
-  toast('تم الحذف النهائي', 'success');
+  toast('تم الحذف النهائي — اختفت من عند العملاء', 'success');
 }
 
 async function loadBroadcastHistory(){
