@@ -1211,7 +1211,7 @@
   .chat-badge{position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:10.5px;font-weight:700;min-width:19px;height:19px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid var(--paper);}
   html[dir="ltr"] .chat-badge{right:auto;left:-4px;}
 
-  .chat-window{position:fixed;bottom:88px;left:22px;width:320px;max-width:88vw;height:420px;background:rgba(255,255,255,0.72);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:16px;box-shadow:0 24px 48px rgba(0,0,0,0.14);z-index:50;display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,0.70);}
+  .chat-window{position:fixed;bottom:142px;left:22px;width:320px;max-width:88vw;height:420px;background:rgba(255,255,255,0.72);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:16px;box-shadow:0 24px 48px rgba(0,0,0,0.14);z-index:50;display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,0.70);}
   [data-theme="dark"] .chat-window{background:rgba(12,17,28,0.82);border-color:rgba(255,255,255,0.09);box-shadow:0 24px 60px rgba(0,0,0,0.6);}
   html[dir="ltr"] .chat-window{left:auto;right:22px;}
   .chat-window-head{display:flex;align-items:center;gap:10px;padding:14px 16px;background:linear-gradient(150deg, var(--navy) 0%, #5C3317 100%);flex:none;}
@@ -1257,8 +1257,9 @@
   .chat-msg-action-btn:hover{border-color:var(--blue);color:var(--blue-deep);}
   .chat-msg-action-btn.del:hover{border-color:var(--danger);color:var(--danger);}
   /* ===== Back to Top ===== */
-  #pkScrollBar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--blue);z-index:999999;opacity:.9;pointer-events:none;}
-  #pkTopBtn{position:fixed;left:22px;bottom:90px;z-index:999999;width:46px;height:46px;border:0!important;border-radius:999px!important;background:var(--blue)!important;cursor:pointer;display:inline-flex!important;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(37,99,235,.35);transition:transform .25s ease,filter .25s ease,opacity .25s ease;opacity:0;pointer-events:none;transform:translateY(10px);}
+  /* Stack from bottom: chat-bubble(22px+54px) → gap(10px) → back-to-top(46px) → gap(10px) → chat-window */
+  #pkScrollBar{position:fixed;top:0;left:0;height:5px;width:0;background:var(--blue);z-index:999999;opacity:1;pointer-events:none;}
+  #pkTopBtn{position:fixed;left:22px;bottom:86px;z-index:999999;width:46px;height:46px;border:0!important;border-radius:999px!important;background:var(--blue)!important;cursor:pointer;display:inline-flex!important;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(37,99,235,.35);transition:transform .25s ease,filter .25s ease,opacity .25s ease;opacity:0;pointer-events:none;transform:translateY(10px);}
   #pkTopBtn.pkShow{opacity:1;pointer-events:auto;transform:translateY(0);}
   html[dir="ltr"] #pkTopBtn{left:auto;right:22px;}
   /* ======================== */
@@ -7543,7 +7544,7 @@ updateDarkModeUI();
 <button id="pkTopBtn" aria-label="Back to top">
   <svg viewBox="0 0 46 46" width="46" height="46" style="position:absolute;top:0;left:0;pointer-events:none;">
     <circle cx="23" cy="23" r="18" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="3"/>
-    <circle id="pkRingProg" cx="23" cy="23" r="18" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="3" stroke-linecap="round" transform="rotate(-90 23 23)"/>
+    <circle id="pkRingProg" cx="23" cy="23" r="18" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" transform="rotate(-90 23 23)"/>
   </svg>
   <svg viewBox="0 0 24 24" width="16" height="16" style="position:relative;z-index:1;flex:none;" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
 </button>
