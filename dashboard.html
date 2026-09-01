@@ -213,7 +213,7 @@
   [data-theme="dark"] .file-chip .fchip-ic{color:var(--blue);}
   /* ===== SIDEBAR LAYOUT — FULL SCREEN ===== */
   .app-layout{display:flex;width:100%;height:100vh;overflow:hidden;position:relative;}
-  .main-wrap{flex:1;min-width:0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:clip;}
+  .main-wrap{flex:1;min-width:0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:clip;overscroll-behavior:contain;}
 
   /* Sidebar */
   .sidebar{
@@ -378,13 +378,25 @@
   [data-theme="dark"] .sidebar-collapse-btn{
     background:rgba(30,40,60,0.95);border-color:rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);
   }
-  /* Collapse wrap: flex sibling so it moves naturally with the sidebar during transition */
+  /* Collapse wrap: zero-width flex sibling — moves with sidebar transition, takes no layout space */
   .sidebar-collapse-wrap{
     position:relative;
     z-index:200;
     align-self:center;
     flex:none;
-    margin-inline-start:-10px;
+    width:0;
+    overflow:visible;
+  }
+  /* Button positioned at the sidebar edge — negative offset centers it on the edge */
+  .sidebar-collapse-btn{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    left:-10px;            /* RTL default: sidebar on right, button sticks out left */
+  }
+  html[dir="ltr"] .sidebar-collapse-btn{
+    left:auto;
+    right:-10px;           /* LTR: sidebar on left, button sticks out right */
   }
   /* Chevron direction */
   /* RTL default: sidebar on right, collapse = point right (towards content on left) */
@@ -1245,7 +1257,7 @@
   .chat-msg-action-btn:hover{border-color:var(--blue);color:var(--blue-deep);}
   .chat-msg-action-btn.del:hover{border-color:var(--danger);color:var(--danger);}
   /* ===== Back to Top ===== */
-  #pkScrollBar{position:fixed;top:0;left:0;height:3px;width:0;background:#d99401;z-index:999999;opacity:.9;pointer-events:none;}
+  #pkScrollBar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--blue);z-index:999999;opacity:.9;pointer-events:none;}
   #pkTopBtn{position:fixed;left:22px;bottom:90px;z-index:999999;width:46px;height:46px;border:0!important;border-radius:999px!important;background:var(--blue)!important;cursor:pointer;display:inline-flex!important;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(37,99,235,.35);transition:transform .25s ease,filter .25s ease,opacity .25s ease;opacity:0;pointer-events:none;transform:translateY(10px);}
   #pkTopBtn.pkShow{opacity:1;pointer-events:auto;transform:translateY(0);}
   html[dir="ltr"] #pkTopBtn{left:auto;right:22px;}
@@ -6965,7 +6977,9 @@ function updateDarkModeUI(){
     if (darkWrap)  darkWrap.style.display  = 'none';
   }
   applyColorOverrides();
-  applyDarkPackIcons();
+  // Rebuild pack cards so dark/light icons apply correctly
+  if(typeof renderPacks === 'function') renderPacks();
+  else applyDarkPackIcons();
 }
 
 darkModeBtn.addEventListener('click', ()=>{
