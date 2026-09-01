@@ -5549,18 +5549,19 @@ async function sendBroadcast(){
 }
 
 let allBroadcastRows = [];
-async function hideBroadcast(id){
+async function toggleBroadcastVisibility(id){
   if(!id){ toast('معرّف الرسالة مفقود', 'error'); return; }
-  const btn = document.querySelector(`tr[data-bc-id="${id}"] button[data-action="hide"]`);
+  const btn = document.querySelector(`tr[data-bc-id="${id}"] button[data-action="toggle-visibility"]`);
   if(btn){ btn.disabled = true; btn.style.opacity = '0.5'; }
-  const { error } = await supabaseClient.rpc('admin_hide_broadcast', { p_broadcast_id: Number(id) });
+  const { data, error } = await supabaseClient.rpc('admin_toggle_broadcast_visibility', { p_broadcast_id: Number(id) });
   if(error){
-    toast('فشل الإخفاء: ' + error.message, 'error');
+    toast('فشل: ' + error.message, 'error');
     if(btn){ btn.disabled = false; btn.style.opacity = '1'; }
     return;
   }
   await loadBroadcastHistory();
-  toast('تم الإخفاء — اختفت من dashboard العملاء فوراً', 'success');
+  const isNowHidden = data?.is_hidden;
+  toast(isNowHidden ? 'تم الإخفاء — اختفت من العملاء' : 'تم الإظهار — ظهرت للعملاء مجدداً', 'success');
 }
 
 async function deleteBroadcast(id){
@@ -5592,8 +5593,9 @@ function renderBroadcastHistory(rows){
     document.getElementById('bcHistoryPagination').innerHTML = '';
     return;
   }
-  const hideIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
-  const delIcon  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex:none;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+  const hideIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex:none;pointer-events:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+  const showIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex:none;pointer-events:none;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  const delIcon  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex:none;pointer-events:none;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
   const pageRows = paginateList('broadcast', rows, () => renderBroadcastHistory(rows));
   body.innerHTML = pageRows.map(b=>`<tr style="${b.is_hidden?'opacity:0.5;':''}" data-bc-id="${b.id}">
     <td><b>${escapeHtml(b.title_ar||'')}</b>${b.is_hidden?` <span style="display:inline-block;font-size:10px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:4px;padding:1px 5px;color:#64748b;margin-right:4px;">مخفي</span>`:''}</td>
@@ -5604,8 +5606,8 @@ function renderBroadcastHistory(rows){
     <td>
       <div style="display:flex;gap:6px;align-items:center;">
         ${!b.is_hidden
-          ? `<button data-action="hide" data-id="${b.id}" style="display:inline-flex;align-items:center;gap:4px;background:none;border:1px solid #cbd5e1;color:#475569;border-radius:7px;padding:4px 9px;font-size:11px;font-family:'Cairo',sans-serif;cursor:pointer;" title="إخفاء من العملاء — يبقى في السجل">${hideIcon} إخفاء</button>`
-          : `<span style="font-size:10px;color:#94a3b8;padding:4px 6px;">مخفي</span>`
+          ? `<button data-action="toggle-visibility" data-id="${b.id}" style="display:inline-flex;align-items:center;gap:4px;background:none;border:1px solid #cbd5e1;color:#475569;border-radius:7px;padding:4px 9px;font-size:11px;font-family:'Cairo',sans-serif;cursor:pointer;" title="إخفاء من العملاء">${hideIcon} إخفاء</button>`
+          : `<button data-action="toggle-visibility" data-id="${b.id}" style="display:inline-flex;align-items:center;gap:4px;background:none;border:1px solid #0E9F6E;color:#0E9F6E;border-radius:7px;padding:4px 9px;font-size:11px;font-family:'Cairo',sans-serif;cursor:pointer;" title="إظهار للعملاء مجدداً">${showIcon} إظهار</button>`
         }
         <button onclick="deleteBroadcast('${b.id}')" style="display:inline-flex;align-items:center;gap:4px;background:none;border:1px solid var(--danger-wash);color:var(--danger);border-radius:7px;padding:4px 9px;font-size:11px;font-family:'Cairo',sans-serif;cursor:pointer;" title="حذف نهائي">${delIcon} حذف</button>
       </div>
@@ -5616,8 +5618,8 @@ function renderBroadcastHistory(rows){
 
   // Event delegation — safer than inline onclick for dynamic rows
   body.onclick = (e) => {
-    const hideBtn = e.target.closest('[data-action="hide"]');
-    if(hideBtn){ hideBroadcast(hideBtn.dataset.id); return; }
+    const visBtn = e.target.closest('[data-action="toggle-visibility"]');
+    if(visBtn){ toggleBroadcastVisibility(visBtn.dataset.id); return; }
   };
 }
 
