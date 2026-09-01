@@ -6295,7 +6295,16 @@ async function submitOrder(){
     }
   } catch (err) {
     console.error('submitOrder failed:', err);
-    await appAlert(currentLang==='ar' ? 'حدث خطأ أثناء إرسال الطلب. حاول مرة أخرى.' : 'Something went wrong submitting your order. Please try again.', {icon:'error'});
+    const errMsg = err?.message || err?.toString() || '';
+    let userMsg;
+    if (errMsg.includes('Insufficient balance') || errMsg.includes('insufficient')) {
+      userMsg = currentLang==='ar' ? 'رصيدك غير كافٍ. اشحن محفظتك أولاً.' : 'Insufficient balance. Please top up your wallet first.';
+    } else if (errMsg.includes('Not authenticated') || errMsg.includes('session')) {
+      userMsg = currentLang==='ar' ? 'انتهت جلستك. أعد تسجيل الدخول.' : 'Session expired. Please sign in again.';
+    } else {
+      userMsg = (currentLang==='ar' ? 'حدث خطأ: ' : 'Error: ') + (errMsg || (currentLang==='ar' ? 'حاول مرة أخرى.' : 'Please try again.'));
+    }
+    await appAlert(userMsg, {icon:'error'});
   } finally {
     btn.disabled = false;
     btn.textContent = prevText;
