@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -592,6 +592,8 @@
   .btn-apply-filter{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;}
   .btn-reset-filter{background:var(--paper);border:1.5px solid var(--paper-line);color:var(--muted);border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;}
 </style>
+<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 
@@ -3114,6 +3116,9 @@ async function uploadManualReportFile(orderId, kind, inputEl){
     if (nowComplete) {
       const p = o ? profilesByUserId[o.user_id] : null;
       await logAdminActivity('manual_complete', o?.user_id || null, p ? `PK${formatPkNumber(p.pk_number)}` : '', `إكمال يدوي لطلب: ${o?.display_id || orderId.slice(0,8)}`);
+      // Auto-deduct credits if they were previously refunded (idempotent RPC)
+      try { await supabaseClient.rpc('deduct_order_credits_on_delivery', { p_order_id: orderId }); }
+      catch (e) { console.warn('deduct_order_credits_on_delivery failed:', e); }
     }
     renderOrdersTable();
     renderProblemOrdersList();
@@ -3145,6 +3150,10 @@ async function editOrderLink(orderId, field){
   const { error } = await supabaseClient.from('orders').update(updates).eq('id', orderId);
   if (error) { await adminAlert('تعذر التحديث: ' + error.message, {icon:'❌', danger:true}); return; }
   if (order) { order[field] = newUrl || null; if (updates.status) order.status = 'completed'; }
+  if (updates.status === 'completed') {
+    try { await supabaseClient.rpc('deduct_order_credits_on_delivery', { p_order_id: orderId }); }
+    catch (e) { console.warn('deduct_order_credits_on_delivery failed:', e); }
+  }
   renderOrdersTable();
 }
 
