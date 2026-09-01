@@ -3367,6 +3367,7 @@ async function confirmWalletPurchase(){
   const selectedGatewayCard = document.querySelector('#walletPayGrid .paycard.on');
   const gateway = selectedGatewayCard ? selectedGatewayCard.dataset.pay : 'binance';
   const cfg = PAYMENT_DETAILS[gateway];
+  if(!cfg){ await appAlert(currentLang==='ar' ? 'بوابة الدفع غير متاحة. اختر بوابة أخرى.' : 'Payment gateway unavailable. Please choose another.', {icon:'error'}); return; }
 
   if(cfg?.dynamic){ await handleDynamicGatewayPurchase(gateway, cfg); return; }
 
@@ -5798,6 +5799,10 @@ function showAppModal({ icon = 'info', title, body = '', buttons, autoDismissMs 
     });
     overlay.classList.add('show');
     if (autoDismissMs) setTimeout(() => finish(buttons[0]?.value ?? true), autoDismissMs);
+    // Allow ESC key and click-outside to dismiss (especially for success modals with no buttons)
+    const onKey = (e) => { if (e.key === 'Escape') { document.removeEventListener('keydown', onKey); finish(false); } };
+    document.addEventListener('keydown', onKey);
+    overlay.onclick = (e) => { if (e.target === overlay) { overlay.onclick = null; document.removeEventListener('keydown', onKey); finish(false); } };
   });
 }
 
@@ -5996,7 +6001,7 @@ async function submitCheckToApi(orderId, file){
 // Runs on its own faster interval (5s, per the provider's documented
 // recommendation) separate from the general 15s dashboard refresh.
 async function pollPendingApiOrders(){
-  const pending = orders.filter(o => o.processingMode === 'api' && (o.phase === 'pending' || o.phase === 'processing') && o.externalOrderId);
+  const pending = orders.filter(o => o.processingMode === 'api' && (o.phase === 'pending' || o.phase === 'processing' || o.phase === 'run' || o.phase === 'uploading') && o.externalOrderId);
   if (pending.length === 0) return;
 
   const { data: sessionData } = await supabaseClient.auth.getSession();
@@ -6241,7 +6246,9 @@ async function finalizeManualOrder(orderRow){
   await appAlert(currentLang==='ar' ? 'تم إرسال ملفك لخدمة الفحص بنجاح.' : 'Your file was submitted to the check service successfully.', {icon:'success'});
 }
 
+let _orderSubmitting = false;
 async function submitOrder(){
+  if (_orderSubmitting) return;
   if (!PROKEYS_USER_ID) { window.location.href = 'index.html'; return; }
   if (!currentFile) {
     showUploadError(currentLang==='ar' ? 'من فضلك اختر ملفًا أولاً' : 'Please choose a file first');
@@ -6249,7 +6256,8 @@ async function submitOrder(){
   }
   const perFile = checkType==='sim' ? 10 : 20;
   const cost = perFile;
-  if(userBalance < cost) return; // safety guard — button should already be disabled/redirecting
+  if(userBalance < cost) return;
+  _orderSubmitting = true; // safety guard — button should already be disabled/redirecting
 
   const fileToSubmit = currentFile; // hold a reference: currentFile gets reset before the API call returns
   const fileName = fileToSubmit.name;
@@ -6275,10 +6283,17 @@ async function submitOrder(){
     await backupOrderSourceFile(orderRow, fileToSubmit, fileName);
 
     // 2) Deduct credits server-side.
-    const newBalance = await deductOrderCredits(orderRow, checkTypeDb);
+    let newBalance;
+    try {
+      newBalance = await deductOrderCredits(orderRow, checkTypeDb);
+    } catch (deductErr) {
+      // Clean up the orphaned order row so it doesn't appear in customer history
+      await supabaseClient.from('orders').delete().eq('id', orderRow.id);
+      throw deductErr;
+    }
 
     // 3) Update local state to reflect the new order immediately (optimistic UI)
-    userBalance = newBalance;
+    userBalance = newBalance ?? userBalance;
     addOrderToLocalState(orderRow, fileName, fileToSubmit, checkTypeDb, willUseApi);
 
     currentFile = null;
@@ -6306,6 +6321,7 @@ async function submitOrder(){
     }
     await appAlert(userMsg, {icon:'error'});
   } finally {
+    _orderSubmitting = false;
     btn.disabled = false;
     btn.textContent = prevText;
   }
