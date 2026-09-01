@@ -6598,9 +6598,12 @@ function applyProfileRowFields(data){
   // JSON, so we coerce with Number() rather than assuming a JS number.
   // We check `!= null` (not truthy) so a legitimate pk_number of 0 still
   // renders as PK000 instead of falling back to the UUID fragment.
-  currentUser.id = (data.pk_number !== null && data.pk_number !== undefined)
-    ? 'PK' + String(Number(data.pk_number)).padStart(3, '0')
-    : (PROKEYS_USER_ID ? PROKEYS_USER_ID.slice(0,8).toUpperCase() : 'PK000');
+  // pk_number must be >= 1 — treat 0 / null / undefined as "not yet assigned"
+  // (a 0 can appear if the view uses 0-based ROW_NUMBER or from an old migration).
+  const pkNum = Number(data.pk_number);
+  currentUser.id = (pkNum >= 1)
+    ? 'PK' + String(pkNum).padStart(3, '0')
+    : (PROKEYS_USER_ID ? PROKEYS_USER_ID.slice(0,8).toUpperCase() : 'PK???');
   // Language: localStorage (the user's own toggle on THIS device) wins over
   // whatever is stored in users_profile — otherwise, if the DB still has an
   // old value, it overwrites the user's live choice the moment this async
