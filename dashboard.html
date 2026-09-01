@@ -747,7 +747,7 @@
   .notice-ok-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
   .notice-ok-head b{margin-bottom:0;color:var(--ok);}
   .data-tbl{width:100%;border-collapse:collapse;font-size:12.5px;}
-  .data-tbl th{text-align:start;color:var(--muted);font-weight:700;padding:10px 12px;border-bottom:1.5px solid var(--paper-line);white-space:nowrap;}
+  .data-tbl th{text-align:start;color:var(--muted);font-weight:700;padding:16px 12px;border-bottom:1.5px solid var(--paper-line);white-space:nowrap;font-family:'Cairo',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.03em;}
   .data-tbl td{padding:10px 12px;border-bottom:1px solid var(--paper-line);white-space:nowrap;text-align:start;}
   .data-tbl tr:last-child td{border-bottom:none;}
   .ph-status{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;}
@@ -1479,7 +1479,9 @@
         <b id="userNameDropdown">محمد</b>
         <span id="userEmailDropdown">—</span>
       </div>
-      <div class="topbar-right" style="width:100%;justify-content:flex-end;">
+      <!-- Welcome greeting on the sidebar side -->
+      <div id="topbarGreeting" style="flex:1;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;color:var(--navy);opacity:0.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+      <div class="topbar-right" style="justify-content:flex-end;">
         <div class="icon-btn-wrap">
           <div class="icon-btn" id="notifBtn"><span class="dot" id="notifDot"></span>
             <svg class="ic" data-icon-key="header_notif" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -1614,6 +1616,15 @@
             <span class="glabel" data-i18n="filters_label">فلاتر الاقتباس (اختياري)</span>
             <div class="chk-row"><input type="checkbox" id="exBib"><label for="exBib" data-i18n="exclude_bib">استبعاد المراجع</label></div>
             <div class="chk-row"><input type="checkbox" id="exQuo"><label for="exQuo" data-i18n="exclude_quotes">استبعاد الاقتباسات المنصوصة</label></div>
+            <div class="chk-row"><input type="checkbox" id="exAbstract"><label for="exAbstract" data-i18n="exclude_abstract">استبعاد الملخص</label></div>
+            <div class="chk-row" style="align-items:center;gap:8px;">
+              <input type="checkbox" id="exSmall">
+              <label for="exSmall" data-i18n="exclude_small_matches">استبعاد التطابقات الصغيرة</label>
+              <span style="display:inline-flex;align-items:center;gap:4px;margin-right:6px;">
+                <input type="number" id="exSmallWords" min="1" max="40" value="8" style="width:52px;padding:2px 6px;border:1px solid var(--paper-line);border-radius:6px;font-size:12px;background:var(--paper);color:var(--ink);text-align:center;" oninput="document.getElementById('exSmall').checked=true">
+                <span style="font-size:11.5px;color:var(--muted);" data-i18n="words_unit">كلمة</span>
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -1733,6 +1744,8 @@
         <div class="ctag">Pro Keys · Wallet</div>
         <div class="cbal latin" id="walletBalanceNum">17</div>
         <div class="csub" data-i18n="wallet_available">كريديت عام متاح للاستخدام</div>
+        <!-- Checks capacity hint -->
+        <div id="walletCapacityHint" style="margin-top:10px;font-size:12px;color:rgba(169,180,214,0.9);line-height:1.6;position:relative;"></div>
         <div class="crow">
           <div><b class="latin" id="walletDailyNum">0</b><span data-i18n="wallet_daily_credits">كريديت يومي</span></div>
           <div style="display:none;"><b class="latin" id="walletRefSimNum">4</b><span data-i18n="wallet_sim_credits">كريديت اقتباس (من الإحالات)</span></div>
@@ -1986,11 +1999,11 @@
           <!-- Row 1: Full Name + Email -->
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
             <div class="field-block">
-              <span class="glabel">الاسم الكامل</span>
+              <span class="glabel" data-i18n="profile_name">الاسم الكامل</span>
               <input id="profileNameInput2" class="ticket-input" placeholder="" style="margin-top:4px;">
             </div>
             <div class="field-block">
-              <span class="glabel">البريد الإلكتروني</span>
+              <span class="glabel" data-i18n="profile_email">البريد الإلكتروني</span>
               <input id="profileEmailInput2" class="ticket-input" readonly style="margin-top:4px;background:var(--paper-soft);color:var(--muted);">
             </div>
           </div>
@@ -1998,14 +2011,14 @@
           <!-- Row 2: WhatsApp + New Password (2-col) -->
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
             <div class="field-block">
-              <span class="glabel">واتساب</span>
+              <span class="glabel" data-i18n="profile_whatsapp">واتساب</span>
               <div style="display:flex;gap:6px;margin-top:4px;">
                 <select id="profileWhatsappCountry2" class="ticket-input" style="width:110px;flex:none;"></select>
                 <input id="profileWhatsappInput2" class="ticket-input" placeholder="1012345678" style="flex:1;">
               </div>
             </div>
             <div class="field-block">
-              <span class="glabel">كلمة المرور الجديدة</span>
+              <span class="glabel" data-i18n="profile_new_pass">كلمة المرور الجديدة</span>
               <div style="position:relative;margin-top:4px;">
                 <input id="profilePassword2" type="password" class="ticket-input" placeholder="•••••••" style="padding-left:38px;">
                 <button type="button" onclick="togglePassVis('profilePassword2',this)" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:0;display:flex;">
@@ -2018,21 +2031,21 @@
           <!-- Divider -->
           <div style="border-top:1px solid var(--border);margin:0 -32px;padding:0 32px;"></div>
 
-          <!-- Row 4: Language toggle -->
-          <div style="display:flex;align-items:center;gap:12px;">
-            <span style="font-size:12.5px;color:var(--ink-soft);flex:1;">اللغة</span>
-            <div class="seg" style="flex:none;">
-              <button class="on" onclick="setLangFromPopup('ar')" id="tabLangAr">عربي</button>
-              <button onclick="setLangFromPopup('en')" id="tabLangEn">EN</button>
+          <!-- Row 4+5: Language & Currency toggles side by side -->
+          <div style="display:flex;gap:32px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:12.5px;color:var(--ink-soft);white-space:nowrap;" data-i18n="sup_lang">اللغة</span>
+              <div class="seg" style="flex:none;">
+                <button class="on" onclick="setLangFromPopup('ar')" id="tabLangAr">عربي</button>
+                <button onclick="setLangFromPopup('en')" id="tabLangEn">EN</button>
+              </div>
             </div>
-          </div>
-
-          <!-- Row 5: Currency toggle -->
-          <div style="display:flex;align-items:center;gap:12px;">
-            <span style="font-size:12.5px;color:var(--ink-soft);flex:1;">العملة</span>
-            <div class="seg" style="flex:none;">
-              <button class="on" onclick="setCurrencyFromPopup('EGP')" id="tabCurrEgp">EGP</button>
-              <button onclick="setCurrencyFromPopup('USD')" id="tabCurrUsd">USD</button>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:12.5px;color:var(--ink-soft);white-space:nowrap;" data-i18n="sup_currency">العملة</span>
+              <div class="seg" style="flex:none;">
+                <button class="on" onclick="setCurrencyFromPopup('EGP')" id="tabCurrEgp">EGP</button>
+                <button onclick="setCurrencyFromPopup('USD')" id="tabCurrUsd">USD</button>
+              </div>
             </div>
           </div>
 
@@ -2341,6 +2354,7 @@ const I18N = {
     nav_home:"الرئيسية", nav_new_check:"فحص جديد", nav_orders:"ملفاتي", nav_wallet:"المحفظة", nav_support:"الدعم", nav_my_profile:"حسابي",
     sup_lang:"اللغة", sup_currency:"العملة", sup_settings:"الإعدادات",
     profile_modal_title:"الملف الشخصي", profile_save_btn:"حفظ", profile_cancel_btn:"إلغاء",
+    profile_name:"الاسم الكامل", profile_email:"البريد الإلكتروني", profile_whatsapp:"واتساب", profile_new_pass:"كلمة المرور الجديدة", profile_save:"حفظ التغييرات",
     profile_save_success:"تم حفظ بياناتك بنجاح", profile_save_error:"تعذر حفظ البيانات",
     signout_confirm:"هل تريد تسجيل الخروج؟",
     my_requests_title:"طلباتي",
@@ -2357,7 +2371,7 @@ const I18N = {
     check_opts_title:"خيارات الفحص", check_type_label:"نوع الفحص",
     file_requirements_chip:"📋 شروط الملف",
     ct_sim:"اقتباس فقط", ct_both:"اقتباس + ذكاء اصطناعي",
-    filters_label:"فلاتر الاقتباس (اختياري)", exclude_bib:"استبعاد المراجع", exclude_quotes:"استبعاد الاقتباسات المنصوصة",
+    filters_label:"فلاتر الاقتباس (اختياري)", exclude_bib:"استبعاد المراجع", exclude_quotes:"استبعاد الاقتباسات المنصوصة", exclude_abstract:"استبعاد الملخص", exclude_small_matches:"استبعاد التطابقات الصغيرة", words_unit:"كلمة",
     payment_title:"وسيلة الدفع", pay_auto:"تلقائي", pay_ref:"رقم مرجعي", vf_cash:"فودافون كاش",
     payment_history_title:"سجل المدفوعات", payment_history_desc:"كل عمليات الشحن اللي عملتها وحالتها",
     ph_col_code:"كود العملية", ph_col_method:"وسيلة الدفع", ph_col_amount:"القيمة", ph_col_credits:"الكريديت", ph_col_pack:"اسم الباقة", ph_col_datetime:"التاريخ والوقت", ph_col_status:"الحالة",
@@ -2448,7 +2462,8 @@ const I18N = {
   en: {
     nav_home:"Home", nav_new_check:"New Check", nav_orders:"My orders", nav_wallet:"Wallet", nav_support:"Support", nav_my_profile:"My Account",
     sup_lang:"Language", sup_currency:"Currency", sup_settings:"Settings",
-    profile_modal_title:"Profile", profile_save_btn:"Save", profile_cancel_btn:"Cancel",
+    profile_modal_title:"Account Settings", profile_save_btn:"Save", profile_cancel_btn:"Cancel",
+    profile_name:"Full Name", profile_email:"Email Address", profile_whatsapp:"WhatsApp", profile_new_pass:"New Password", profile_save:"Save Changes",
     profile_save_success:"Your details were saved successfully", profile_save_error:"Couldn't save your details",
     signout_confirm:"Sign out of your account?",
     my_requests_title:"My requests",
@@ -2465,7 +2480,7 @@ const I18N = {
     check_opts_title:"Check options", check_type_label:"Check type",
     file_requirements_chip:"📋 File Requirements",
     ct_sim:"Similarity only", ct_both:"Similarity + AI",
-    filters_label:"Similarity filters (optional)", exclude_bib:"Exclude bibliography", exclude_quotes:"Exclude quoted text",
+    filters_label:"Similarity filters (optional)", exclude_bib:"Exclude bibliography", exclude_quotes:"Exclude quoted text", exclude_abstract:"Exclude abstract", exclude_small_matches:"Exclude small matches", words_unit:"words",
     payment_title:"Payment method", pay_auto:"Automatic", pay_ref:"Reference number", vf_cash:"Vodafone Cash",
     payment_history_title:"Payment History", payment_history_desc:"All your top-ups and their status",
     ph_col_code:"Transaction code", ph_col_method:"Payment method", ph_col_amount:"Amount", ph_col_credits:"Credits", ph_col_pack:"Package", ph_col_datetime:"Date & time", ph_col_status:"Status",
@@ -2990,7 +3005,7 @@ function renderPaymentDetails(gateway){
     if(uidValue) {
       uidValue.style.display = 'block';
       uidValue.dataset.uid = cfg.uid;
-      uidValue.innerHTML = escapeHtml(cfg.uid) + ' ' + ICONS.wal_copy;
+      uidValue.innerHTML = `<span dir="ltr" style="unicode-bidi:embed;">${escapeHtml(cfg.uid)}</span> ` + ICONS.wal_copy;
     }
   }
 
@@ -5452,8 +5467,18 @@ function toggleFaq(i){
 }
 function t(key){ return (uiConfigOverrides[currentLang]||{})[key] ?? I18N[currentLang][key] ?? key; }
 
+function updateTopbarGreeting(){
+  const el = document.getElementById('topbarGreeting');
+  if(!el) return;
+  const firstName = (currentUser.name || '').trim().split(/\s+/)[0] || '';
+  if(!firstName){ el.textContent = ''; return; }
+  el.textContent = currentLang === 'ar'
+    ? `أهلاً، ${firstName}`
+    : `Welcome, ${firstName}`;
+}
 function applyLang(){
   PK.translateDom(currentLang, t);
+  updateTopbarGreeting();
   document.getElementById('langSwitch').textContent = currentLang==='ar' ? 'EN' : 'AR';
   document.getElementById('userIdTag').textContent = currentUser.id;
   document.getElementById('userNameDropdown').textContent = currentUser.name;
@@ -5463,6 +5488,7 @@ function applyLang(){
   // Sidebar user info sync
   if (typeof updateSidebarUserPopup === 'function') updateSidebarUserPopup();
   renderOrders();
+  renderWalletCapacity();
   updatePrice();
   renderFaq();
   renderPacks();
@@ -5877,8 +5903,12 @@ async function submitCheckToApi(orderId, file){
   const fd = new FormData();
   fd.append('order_id', orderId);
   fd.append('file', file);
-  if (document.getElementById('exQuo')?.checked) fd.append('excludeQuotes', 'true');
-  if (document.getElementById('exBib')?.checked) fd.append('excludeBibliography', 'true');
+  if (document.getElementById('exQuo')?.checked)      fd.append('excludeQuotes', 'true');
+  if (document.getElementById('exBib')?.checked)      fd.append('excludeBibliography', 'true');
+  if (document.getElementById('exAbstract')?.checked) fd.append('excludeAbstract', 'true');
+  const exSmallEl = document.getElementById('exSmall');
+  const exSmallWords = parseInt(document.getElementById('exSmallWords')?.value) || 8;
+  if (exSmallEl?.checked && exSmallWords > 0) fd.append('excludeSmallMatchesWordLimit', String(exSmallWords));
 
   try {
     const res = await fetch(`${SUPABASE_URL}/functions/v1/submit-check`, {
@@ -6016,6 +6046,8 @@ async function insertOrderRow(fileName, fileToSubmit, checkTypeDb, willUseApi){
       processing_mode: willUseApi ? 'api' : 'manual',
       exclude_bibliography: document.getElementById('exBib')?.checked || false,
       exclude_quotes:       document.getElementById('exQuo')?.checked || false,
+      exclude_abstract:     document.getElementById('exAbstract')?.checked || false,
+      exclude_small_matches_word_limit: (document.getElementById('exSmall')?.checked ? (parseInt(document.getElementById('exSmallWords')?.value)||8) : null),
     })
     .select()
     .single();
@@ -6353,7 +6385,7 @@ function buildOrderRow(o){
     <div class="ocell ohandle-cell">${handle ? `<b class="mono">${handle}</b>` : '<span style="color:var(--muted);">—</span>'}</div>
     <div class="dl-cell">${simDl}</div>
     <div class="dl-cell">${aiDl}</div>
-    <div class="ocell">${canDownload ? ratingCellHtml(o) : '<span style="color:var(--muted);font-size:11px;">—</span>'}</div>
+    <div class="ocell" style="display:flex;justify-content:center;">${canDownload ? ratingCellHtml(o) : '<span style="color:var(--muted);font-size:11px;">—</span>'}</div>
   </div>`;
 }
 
@@ -6451,9 +6483,23 @@ function renderLastOrder(){
   row.innerHTML = buildOrderRow(o);
 }
 
+function renderWalletCapacity(){
+  const el = document.getElementById('walletCapacityHint');
+  if(!el) return;
+  const bal = Math.floor(userBalance);
+  const SIM_COST = 10, BOTH_COST = 20;
+  const simCount  = Math.floor(bal / SIM_COST);
+  const bothCount = Math.floor(bal / BOTH_COST);
+  if(bal <= 0){ el.textContent = ''; return; }
+  const ar = currentLang === 'ar';
+  el.innerHTML = ar
+    ? `يكفي لـ <b style="color:#fff;">${simCount}</b> فحص اقتباس فقط &nbsp;·&nbsp; أو <b style="color:#fff;">${bothCount}</b> فحص اقتباس + AI`
+    : `Enough for <b style="color:#fff;">${simCount}</b> similarity checks &nbsp;·&nbsp; or <b style="color:#fff;">${bothCount}</b> similarity + AI checks`;
+}
 function renderKpis(){
   document.getElementById('kpiBalanceNum').textContent = userBalance;
   document.getElementById('walletBalanceNum').textContent = Math.round(userBalance);
+  renderWalletCapacity();
   document.getElementById('kpiFloatingNum').textContent = orders.filter(o=>o.phase==='floating' || o.phase==='uploading' || o.phase==='pending').length;
   document.getElementById('kpiProcessingNum').textContent = orders.filter(o=>o.phase==='pending' || o.phase==='processing').length;
   document.getElementById('kpiCompletedNum').textContent = orders.filter(o=>o.phase==='completed').length;
@@ -6509,6 +6555,7 @@ function applyProfileRowFields(data){
   currentUser.name = data.full_name || currentUser.name;
   currentUser.whatsapp = data.whatsapp || '';
   currentUser.phone = data.phone || '';
+  if (typeof updateTopbarGreeting === 'function') updateTopbarGreeting();
   // A custom-uploaded avatar (via the profile popup) should win over the
   // auto-derived Google OAuth picture set earlier in this function.
   if (data.avatar_url) {
