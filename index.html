@@ -47,7 +47,7 @@
   .wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
 
   /* ===== HEADER ===== */
-  header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--paper-line);}
+  header{position:sticky;top:0;z-index:100;background:linear-gradient(to bottom,rgba(255,255,255,0.93) 0%,rgba(255,255,255,0.85) 100%);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border-bottom:1px solid rgba(220,228,241,0.7);}
   .header-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 0;gap:16px;}
   .logo-img{height:44px;width:auto;max-width:100%;display:block;object-fit:contain;}
   .header-nav{display:flex;align-items:center;gap:22px;font-size:13.5px;font-weight:700;color:var(--ink-soft);}
@@ -193,11 +193,11 @@
     .step-line{display:none;}
     .header-nav{display:none;}
     .wrap{padding:0 14px;}
-    .header-inner{gap:8px;}
+    .header-inner{gap:8px;padding:16px 0;}
     .header-actions{gap:6px;}
     .header-actions .btn-lang, .header-actions .btn-store{display:none;}
-    .header-actions .btn{padding:8px 12px;font-size:12px;}
-    .logo-img{height:36px;}
+    .header-actions .btn{padding:9px 16px;font-size:13px;}
+    .logo-img{height:42px;}
     .hamburger-btn{display:flex;}
   }
 </style>
@@ -1608,7 +1608,15 @@ supabaseClient
       enterEmailFirst:'من فضلك أدخل بريدك الإلكتروني', sent:'اتبعت! تحقق من صندوق الوارد (وممكن يكون في Spam).',
       googleError:'حدث خطأ أثناء الدخول بجوجل', googleRedirecting:'جاري التحويل...',
       ruleLength:'8 أحرف على الأقل', ruleUpper:'حرف كبير واحد على الأقل (A-Z)', ruleLower:'حرف صغير واحد على الأقل (a-z)',
-      ruleNumber:'رقم واحد على الأقل (0-9)', ruleSpecial:'رمز خاص واحد على الأقل (!@#$%^&*)' },
+      ruleNumber:'رقم واحد على الأقل (0-9)', ruleSpecial:'رمز خاص واحد على الأقل (!@#$%^&*)',
+      emailLabel:'البريد الإلكتروني', passLabel:'كلمة المرور', forgotLink:'هل نسيت كلمة المرور؟',
+      loginBtn:'دخول', divOr:'أو', googleLogin:'الدخول بحساب Google',
+      noAccount:'ليس لديك حساب؟', toSignup:'إنشاء حساب جديد',
+      nameLabel:'الاسم الكامل', whatsappLabel:'رقم الواتساب', confirmLabel:'تأكيد',
+      agreeLabel:'أوافق على شروط الخدمة', signupBtn:'إنشاء حساب', googleSignup:'التسجيل بحساب Google',
+      haveAccount:'لديك حساب؟', toLogin:'تسجيل دخول',
+      forgotInstructions:'أدخل بريدك الإلكتروني وهنبعتلك لينك لإعادة تعيين كلمة المرور.',
+      forgotEmailLabel:'البريد الإلكتروني', forgotBtn:'إرسال الرابط', backToLogin:'← رجوع لتسجيل الدخول' },
     en: { login:'Sign In', signup:'Sign Up', loginTitle:'Welcome back', loginSub:'Enter your details to continue',
       signupTitle:'Create your account', signupSub:'Join Pro Keys in under a minute',
       forgotTitle:'Reset your password', forgotSub:"We'll email you a reset link",
@@ -1619,7 +1627,15 @@ supabaseClient
       enterEmailFirst:'Please enter your email', sent:'Sent! Check your inbox (and Spam folder).',
       googleError:'Something went wrong signing in with Google', googleRedirecting:'Redirecting...',
       ruleLength:'At least 8 characters', ruleUpper:'At least one uppercase letter (A-Z)', ruleLower:'At least one lowercase letter (a-z)',
-      ruleNumber:'At least one number (0-9)', ruleSpecial:'At least one special character (!@#$%^&*)' },
+      ruleNumber:'At least one number (0-9)', ruleSpecial:'At least one special character (!@#$%^&*)',
+      emailLabel:'Email address', passLabel:'Password', forgotLink:'Forgot your password?',
+      loginBtn:'Sign In', divOr:'or', googleLogin:'Continue with Google',
+      noAccount:"Don't have an account?", toSignup:'Create one',
+      nameLabel:'Full name', whatsappLabel:'WhatsApp number', confirmLabel:'Confirm',
+      agreeLabel:'I agree to the Terms of Service', signupBtn:'Create Account', googleSignup:'Continue with Google',
+      haveAccount:'Already have an account?', toLogin:'Sign In',
+      forgotInstructions:"Enter your email and we'll send you a link to reset your password.",
+      forgotEmailLabel:'Email address', forgotBtn:'Send reset link', backToLogin:'← Back to Sign In' },
   };
 
   function amLang(){ return (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'en' : 'ar'; }
@@ -1647,6 +1663,40 @@ supabaseClient
     if (formId === 'login') { byId('amTitleText').textContent = L.loginTitle; byId('amSubtitleText').textContent = L.loginSub; }
     else if (formId === 'signup') { byId('amTitleText').textContent = L.signupTitle; byId('amSubtitleText').textContent = L.signupSub; }
     else { byId('amTitleText').textContent = L.forgotTitle; byId('amSubtitleText').textContent = L.forgotSub; }
+    /* Translate tab labels */
+    byId('amTabLogin').textContent = L.login;
+    byId('amTabSignup').textContent = L.signup;
+    /* Translate login form */
+    byId('amEmailLabel').textContent = L.emailLabel;
+    byId('amPassLabel').textContent = L.passLabel;
+    byId('amForgotLink').textContent = L.forgotLink;
+    byId('amLoginBtnText').textContent = L.loginBtn;
+    byId('amDividerOr1').textContent = L.divOr;
+    byId('amGoogleLoginText').textContent = L.googleLogin;
+    byId('amNoAccountText').textContent = L.noAccount;
+    byId('amToSignupLink').textContent = L.toSignup;
+    /* Translate signup form */
+    byId('amNameLabel').textContent = L.nameLabel;
+    byId('amEmailLabel2').textContent = L.emailLabel;
+    byId('amWhatsappLabel').textContent = L.whatsappLabel;
+    byId('amPassLabel2').textContent = L.passLabel;
+    byId('amConfirmLabel').textContent = L.confirmLabel;
+    byId('amRuleLength').textContent = '○ ' + L.ruleLength;
+    byId('amRuleUpper').textContent  = '○ ' + L.ruleUpper;
+    byId('amRuleLower').textContent  = '○ ' + L.ruleLower;
+    byId('amRuleNumber').textContent = '○ ' + L.ruleNumber;
+    byId('amRuleSpecial').textContent= '○ ' + L.ruleSpecial;
+    byId('amAgreeLabel').textContent = L.agreeLabel;
+    byId('amSignupBtnText').textContent = L.signupBtn;
+    byId('amDividerOr2').textContent = L.divOr;
+    byId('amGoogleSignupText').textContent = L.googleSignup;
+    byId('amHaveAccountText').textContent = L.haveAccount;
+    byId('amToLoginLink').textContent = L.toLogin;
+    /* Translate forgot form */
+    byId('amForgotInstructions').textContent = L.forgotInstructions;
+    byId('amForgotEmailLabel').textContent = L.forgotEmailLabel;
+    byId('amForgotSubmitText').textContent = L.forgotBtn;
+    byId('amBackToLoginLink').textContent = L.backToLogin;
     window.location.hash = formId === 'forgot' ? 'reset-password' : formId;
   }
 
