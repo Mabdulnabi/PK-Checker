@@ -6563,7 +6563,9 @@ function applyAuthProfileFields(authUser, profileData){
   // for any row that still slips through, e.g. a profile created by a
   // trigger that predates the email column). Fire-and-forget — never
   // blocks the UI, and RLS already lets a user update their own row.
-  if (profileData && currentUser.email && profileData.email !== currentUser.email) {
+  // Only fill in a missing email — never overwrite an existing one.
+  // auth.users is the source of truth; a DB migration syncs all rows on deploy.
+  if (profileData && currentUser.email && !profileData.email) {
     supabaseClient.from('users_profile').update({ email: currentUser.email }).eq('user_id', PROKEYS_USER_ID)
       .then(({ error }) => { if (error) console.error('email backfill failed:', error); });
   }
