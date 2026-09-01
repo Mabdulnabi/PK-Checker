@@ -1372,6 +1372,8 @@
       gap:8px;
     }
     .orders-head{background:var(--paper);}
+    /* Fill the 18px side-padding so no background gap shows at header edges */
+    .orders-scroll{background:var(--paper);}
 
     /* Wallet: full-width card responsive sizing */
     .credit-card-full{padding:22px 20px;}
@@ -2202,6 +2204,14 @@
             <div id="profileTabPassStatus" style="font-size:12px;color:var(--ok);min-height:16px;"></div>
             <button class="btn btn-gold" style="padding:9px 28px;" onclick="saveProfileFromTab();changePasswordFromTab();">
               <span>حفظ التغييرات</span>
+            </button>
+          </div>
+
+          <!-- Sign Out -->
+          <div style="border-top:1px solid var(--paper-line);padding-top:16px;margin-top:4px;">
+            <button onclick="signOut()" style="width:100%;padding:11px 14px;border-radius:10px;font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer;background:var(--paper-soft);border:1.5px solid var(--paper-line);color:var(--ink-soft);display:flex;align-items:center;justify-content:center;gap:8px;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="16" height="16"><path d="M224,56V200a16,16,0,0,1-16,16H48V40H208A16,16,0,0,1,224,56Z" opacity="0.2"/><path d="M120,216a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V40a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H56V208h56A8,8,0,0,1,120,216Zm109.66-93.66-40-40a8,8,0,0,0-11.32,11.32L204.69,120H112a8,8,0,0,0,0,16h92.69l-26.35,26.34a8,8,0,0,0,11.32,11.32l40-40A8,8,0,0,0,229.66,122.34Z"/></svg>
+              <span data-i18n="user_signout">تسجيل الخروج</span>
             </button>
           </div>
 
