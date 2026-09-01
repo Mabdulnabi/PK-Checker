@@ -866,6 +866,7 @@
   .btn-primary{background:var(--navy);color:var(--paper);}
   .btn-gold{background:var(--blue);color:var(--paper);}
   .btn-gold:hover{background:var(--blue-deep);}
+  [data-theme="dark"] .btn-gold{color:#fff;}
   .btn-outline{background:transparent;border-color:var(--paper-line);color:var(--navy);}
 
   /* ===== ORDERS TABLE ===== */
@@ -1198,7 +1199,7 @@
   .chat-window{position:fixed;bottom:88px;left:22px;width:320px;max-width:88vw;height:420px;background:rgba(255,255,255,0.72);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:16px;box-shadow:0 24px 48px rgba(0,0,0,0.14);z-index:50;display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,0.70);}
   [data-theme="dark"] .chat-window{background:rgba(12,17,28,0.82);border-color:rgba(255,255,255,0.09);box-shadow:0 24px 60px rgba(0,0,0,0.6);}
   html[dir="ltr"] .chat-window{left:auto;right:22px;}
-  .chat-window-head{display:flex;align-items:center;gap:10px;padding:14px 16px;background:linear-gradient(150deg, var(--navy), #243873);flex:none;}
+  .chat-window-head{display:flex;align-items:center;gap:10px;padding:14px 16px;background:linear-gradient(150deg, var(--navy) 0%, #5C3317 100%);flex:none;}
   .chat-admin-av{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.15);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;flex:none;}
   .chat-window-headinfo{flex:1;color:#fff;}
   .chat-window-headinfo b{display:block;font-family:'Cairo',sans-serif;font-size:13px;}
@@ -2324,7 +2325,7 @@ const ICONS = {
 // which apply to a plain <img>, so the uploaded image needs an explicit size.
 const ICON_SIZE_MAP = {
   logo_dashboard:'52px',
-  header_notif:'18px', header_lightmode:'18px', header_darkmode:'18px', header_profile:'16px', header_signout:'16px',
+  header_notif:'18px', header_notif_dark:'18px', header_lightmode:'18px', header_darkmode:'18px', header_profile:'16px', header_signout:'16px',
   tab_home:'18px', tab_new_check:'18px', tab_orders:'18px', tab_wallet:'18px', tab_support:'18px',
   home_watch:'15px', home_g1:'20px', home_g2:'20px', home_g3:'20px',
   nc_balance:'18px', nc_floating:'18px', nc_processing:'18px', nc_completed:'18px',
@@ -4557,7 +4558,11 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCollapseBtn();
   window.addEventListener('resize', updateCollapseBtn);
   const sidebar = document.getElementById('appSidebar');
-  if(sidebar) sidebar.addEventListener('transitionend', updateCollapseBtn);
+  if(sidebar) sidebar.addEventListener('transitionend', () => {
+    updateCollapseBtn();
+    const activeItem = document.querySelector('.sidebar-item.on');
+    if(activeItem) movePill(activeItem);
+  });
 });
 
 /* ===================== PROFILE POPUP ===================== */
@@ -5142,6 +5147,9 @@ function renderChat(){
       bubbleInner = `${escapeHtml(m.text||'')}${m.editedAt?` <i style="font-size:9px;opacity:.6;">(${currentLang==='ar'?'معدّلة':'edited'})</i>`:''}${receipt}`;
     }
 
+    const msgTimeStr = m.createdAt ? new Date(m.createdAt).toLocaleTimeString(currentLang==='ar'?'ar-EG':'en-GB',{hour:'2-digit',minute:'2-digit'}) : '';
+    const timeSpan = msgTimeStr ? `<span style="display:block;font-size:9.5px;color:var(--muted);opacity:.75;margin-top:3px;font-family:'Cairo',sans-serif;">${msgTimeStr}</span>` : '';
+
     if (m.from === 'user') {
       // User message with hover edit/delete actions
       const actions = !isDeleted && !m.fileName ? `
@@ -5151,7 +5159,7 @@ function renderChat(){
         </div>` : '';
       html += `<div class="chat-msg-row mine" onmouseenter="this.querySelector('.chat-msg-actions')&&(this.querySelector('.chat-msg-actions').style.display='flex')" onmouseleave="this.querySelector('.chat-msg-actions')&&(this.querySelector('.chat-msg-actions').style.display='none')">
         ${actions}
-        <div class="chat-msg from-user">${bubbleInner}</div>
+        <div><div class="chat-msg from-user">${bubbleInner}</div>${timeSpan}</div>
       </div>`;
     } else {
       const p = adminProfilesById[m.senderId] || getDefaultAdminProfile() || {};
@@ -5162,6 +5170,7 @@ function renderChat(){
         <div style="min-width:0;">
           <b style="display:block;font-size:10.5px;color:var(--muted);margin-bottom:3px;font-family:'Cairo',sans-serif;">${escapeHtml(nameLabel)}</b>
           <div class="chat-msg from-admin" style="margin:0;max-width:100%;">${bubbleInner}</div>
+          ${timeSpan}
         </div>
       </div>`;
     }
@@ -5479,6 +5488,7 @@ function updateTopbarGreeting(){
 function applyLang(){
   PK.translateDom(currentLang, t);
   updateTopbarGreeting();
+  updateCollapseBtn();
   document.getElementById('langSwitch').textContent = currentLang==='ar' ? 'EN' : 'AR';
   document.getElementById('userIdTag').textContent = currentUser.id;
   document.getElementById('userNameDropdown').textContent = currentUser.name;
@@ -6923,6 +6933,16 @@ function updateDarkModeUI(){
     if (darkWrap)  darkWrap.style.display  = 'none';
   }
   applyColorOverrides();
+  // Swap notification bell icon for dark mode override if uploaded
+  const notifIconEl = document.querySelector('[data-icon-key="header_notif"]');
+  if (notifIconEl) {
+    const overrides = (typeof getIconOverrides === 'function' ? getIconOverrides() : null) || {};
+    const icons = (overrides.icons || {});
+    const darkUrl = icons['header_notif_dark'];
+    const lightUrl = icons['header_notif'];
+    const targetUrl = (isDarkMode && darkUrl) ? darkUrl : (lightUrl || null);
+    if (targetUrl) notifIconEl.src ? (notifIconEl.src = targetUrl) : null;
+  }
 }
 
 darkModeBtn.addEventListener('click', ()=>{
@@ -7331,6 +7351,10 @@ updateDarkModeUI();
       #publicReviewCard .prc-close{position:absolute;top:8px;inset-inline-end:10px;border:none;background:none;cursor:pointer;font-size:14px;color:#9A7B2E;}
       #publicReviewCard h3{font-size:14.5px;color:#7A5A0E;margin:0 0 4px;}
       #publicReviewCard p{font-size:11.5px;color:#96792F;margin:0 0 10px;}
+      [data-theme="dark"] #publicReviewCard{background:linear-gradient(135deg,rgba(120,90,14,0.25),rgba(100,72,8,0.18));border-color:rgba(240,194,101,0.35);}
+      [data-theme="dark"] #publicReviewCard h3{color:#F0C265;}
+      [data-theme="dark"] #publicReviewCard p{color:#C9A84C;}
+      [data-theme="dark"] #publicReviewCard .prc-close{color:#C9A84C;}
       #prcStars{display:flex;justify-content:center;gap:6px;direction:ltr;margin-bottom:10px;}
       #prcStars i{font-size:22px;color:#E9D6A8;cursor:pointer;transition:color .12s,transform .12s;display:inline-flex;}
       #prcStars i.filled,#prcStars i.hover-fill{color:#E8A020;transform:scale(1.08);}
