@@ -5553,7 +5553,7 @@ async function hideBroadcast(id){
   if(!id){ toast('معرّف الرسالة مفقود', 'error'); return; }
   const btn = document.querySelector(`tr[data-bc-id="${id}"] button[data-action="hide"]`);
   if(btn){ btn.disabled = true; btn.style.opacity = '0.5'; }
-  const { error } = await supabaseClient.rpc('admin_hide_broadcast', { p_broadcast_id: id });
+  const { error } = await supabaseClient.rpc('admin_hide_broadcast', { p_broadcast_id: Number(id) });
   if(error){
     toast('فشل الإخفاء: ' + error.message, 'error');
     if(btn){ btn.disabled = false; btn.style.opacity = '1'; }
