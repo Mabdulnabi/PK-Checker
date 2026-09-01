@@ -841,6 +841,10 @@
   .app-modal-btn-cancel:hover{background:var(--danger-wash);}
   .app-modal-btn-update{background:var(--blue-deep);color:#fff;border:none !important;}
   .app-modal-btn-delete{background:var(--danger);color:#fff;border:none !important;}
+  .ob-seg-btn{border:1.5px solid var(--paper-line);border-radius:10px;padding:10px 14px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;background:var(--paper-soft);color:var(--ink-soft);cursor:pointer;transition:all 0.18s;}
+  .ob-seg-btn.ob-seg-on{border-color:var(--blue);background:var(--blue-wash);color:var(--blue-deep);}
+  [data-theme="dark"] .ob-seg-btn{background:var(--paper-soft);color:var(--ink-soft);}
+  [data-theme="dark"] .ob-seg-btn.ob-seg-on{background:var(--blue-wash);color:#60A5FA;border-color:var(--blue);}
 
   /* ===== SUBMIT BAR ===== */
   .submit-bar{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(120deg, var(--navy), #233269);border-radius:var(--radius);padding:18px 22px;margin-bottom:6px;}
@@ -1206,12 +1210,12 @@
   .inbox-closed-note{font-size:11px;color:var(--muted);text-align:center;padding:10px;background:var(--paper);border-top:1px solid var(--paper-line);}
 
   /* ===== LIVE CHAT (floating bubble + window) ===== */
-  .chat-bubble{position:fixed;bottom:22px;left:22px;width:54px;height:54px;border-radius:50%;background:linear-gradient(150deg, var(--navy), var(--blue-deep));display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 10px 24px -8px rgba(27,37,86,0.45);z-index:50;}
+  .chat-bubble{position:fixed;bottom:22px;left:22px;width:54px;height:54px;border-radius:50%;background:linear-gradient(150deg, var(--navy), var(--blue-deep));display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 10px 24px -8px rgba(27,37,86,0.45);z-index:1000000;}
   html[dir="ltr"] .chat-bubble{left:auto;right:22px;}
   .chat-badge{position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:10.5px;font-weight:700;min-width:19px;height:19px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid var(--paper);}
   html[dir="ltr"] .chat-badge{right:auto;left:-4px;}
 
-  .chat-window{position:fixed;bottom:142px;left:22px;width:320px;max-width:88vw;height:420px;background:rgba(255,255,255,0.72);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:16px;box-shadow:0 24px 48px rgba(0,0,0,0.14);z-index:50;display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,0.70);}
+  .chat-window{position:fixed;bottom:142px;left:22px;width:320px;max-width:88vw;height:420px;background:rgba(255,255,255,0.72);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:16px;box-shadow:0 24px 48px rgba(0,0,0,0.14);z-index:1000000;display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,0.70);}
   [data-theme="dark"] .chat-window{background:rgba(12,17,28,0.82);border-color:rgba(255,255,255,0.09);box-shadow:0 24px 60px rgba(0,0,0,0.6);}
   html[dir="ltr"] .chat-window{left:auto;right:22px;}
   .chat-window-head{display:flex;align-items:center;gap:10px;padding:14px 16px;background:linear-gradient(150deg, var(--navy) 0%, #5C3317 100%);flex:none;}
@@ -2176,6 +2180,34 @@
     <div class="app-modal-title" id="appModalTitle"></div>
     <div class="app-modal-body" id="appModalBody"></div>
     <div class="app-modal-actions" id="appModalActions"></div>
+  </div>
+</div>
+
+<!-- First-time onboarding: language + currency selection (shown once per new user) -->
+<div class="app-modal-overlay" id="onboardingOverlay" style="z-index:10001;">
+  <div class="app-modal" style="text-align:center;max-width:420px;">
+    <div style="font-size:42px;margin-bottom:8px;">🎉</div>
+    <div class="app-modal-title" id="onboardingTitle" style="font-size:18px;">مرحباً بك في Pro Keys!</div>
+    <div class="app-modal-body" id="onboardingBody" style="margin-bottom:20px;">اختر لغة التطبيق والعملة المفضلة لديك. يمكنك تغييرهم لاحقاً من بطاقة الملف الشخصي.</div>
+    <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:24px;">
+      <!-- Language -->
+      <div>
+        <div id="onboardingLangLabel" style="font-size:12px;color:var(--ink-soft);margin-bottom:8px;font-weight:600;">اللغة</div>
+        <div style="display:flex;gap:10px;justify-content:center;">
+          <button id="obLangAr" onclick="obSelectLang('ar')" class="ob-seg-btn ob-seg-on" style="flex:1;max-width:150px;">عربي</button>
+          <button id="obLangEn" onclick="obSelectLang('en')" class="ob-seg-btn" style="flex:1;max-width:150px;">English</button>
+        </div>
+      </div>
+      <!-- Currency -->
+      <div>
+        <div id="onboardingCurrLabel" style="font-size:12px;color:var(--ink-soft);margin-bottom:8px;font-weight:600;">العملة</div>
+        <div style="display:flex;gap:10px;justify-content:center;">
+          <button id="obCurrEgp" onclick="obSelectCurr('EGP')" class="ob-seg-btn ob-seg-on" style="flex:1;max-width:150px;">EGP — جنيه مصري</button>
+          <button id="obCurrUsd" onclick="obSelectCurr('USD')" class="ob-seg-btn" style="flex:1;max-width:150px;">USD — دولار</button>
+        </div>
+      </div>
+    </div>
+    <button class="app-modal-btn-primary" id="onboardingConfirm" onclick="submitOnboarding()" style="width:100%;border:none;border-radius:11px;padding:13px 18px;font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;cursor:pointer;">ابدأ الآن ✓</button>
   </div>
 </div>
 
@@ -6659,7 +6691,7 @@ async function loadUserProfile({ force = false } = {}){
       if (insertErr) { console.error('profile create failed:', insertErr); return; }
       const { data: newData } = await supabaseClient
         .from('users_profile_numbered').select('*').eq('user_id', PROKEYS_USER_ID).single();
-      if (newData) { applyProfileRowFields(newData); _profileLoaded = true; }
+      if (newData) { applyProfileRowFields(newData); _profileLoaded = true; maybeShowOnboarding(newData); }
       return;
     }
     console.error('loadUserProfile failed:', error);
@@ -6668,6 +6700,7 @@ async function loadUserProfile({ force = false } = {}){
   if (data) {
     applyProfileRowFields(data);
     _profileLoaded = true;
+    maybeShowOnboarding(data);
     // Backfill name from Google metadata if the profile was created without one
     if (!data.full_name && authUser) {
       const meta = authUser.user_metadata || {};
@@ -6885,6 +6918,10 @@ async function refreshCheckSettings(){
         showNotificationToast(payload.new);
         if (typeof loadNotifications === 'function') loadNotifications();
       })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'notifications', filter: `user_id=eq.${PROKEYS_USER_ID}` }, () => {
+        // Admin deleted a broadcast → remove it from the user's panel immediately
+        if (typeof loadNotifications === 'function') loadNotifications();
+      })
       .subscribe();
   }
   // Instant order status updates (completed/processing/error) instead of
@@ -6994,11 +7031,18 @@ function applyDarkPackIcons(){
     const darkUrl  = icons[dark];
     const lightUrl = icons[light];
     if (!darkUrl && !lightUrl) return;
+    // In dark mode: prefer the dark variant; if none uploaded use the light
+    // one but invert it so it's visible on a dark card background.
     const url = (isDarkMode && darkUrl) ? darkUrl : (lightUrl || null);
     if (!url) return;
+    // Apply a white-invert filter when we're falling back to a light icon in
+    // dark mode (the dark-colored image would be invisible on a dark card).
+    const needsInvert = isDarkMode && !darkUrl;
+    const filterVal = needsInvert ? 'brightness(0) invert(1)' : '';
     document.querySelectorAll(`[data-icon-key="${light}"]`).forEach(el => {
       if (el.tagName === 'IMG') {
         el.src = url;
+        el.style.filter = filterVal;
       } else {
         // SVG or other — replace directly with img (handles the case where
         // PK.applyIcons skipped it because no light URL was uploaded)
@@ -7007,7 +7051,7 @@ function applyDarkPackIcons(){
         img.src = url;
         img.alt = light;
         img.dataset.iconKey = light;
-        img.style.cssText = `width:${size};height:${size};object-fit:contain;flex:none;display:inline-block;vertical-align:middle;`;
+        img.style.cssText = `width:${size};height:${size};object-fit:contain;flex:none;display:inline-block;vertical-align:middle;filter:${filterVal};`;
         el.replaceWith(img);
       }
     });
@@ -7040,6 +7084,74 @@ darkModeBtn.addEventListener('click', ()=>{
 
 // Apply saved dark mode preference on load
 updateDarkModeUI();
+
+// ===== FIRST-TIME ONBOARDING POPUP =====
+// Shows once when user has no language/currency saved in the DB yet.
+// Preferences are persisted to both localStorage and users_profile so they
+// survive sign-out, new devices, and browser data clears (DB is the source of truth).
+let _obLang = currentLang;
+let _obCurr = currentCurrency;
+
+function obSelectLang(lang){
+  _obLang = lang;
+  document.getElementById('obLangAr').classList.toggle('ob-seg-on', lang === 'ar');
+  document.getElementById('obLangEn').classList.toggle('ob-seg-on', lang === 'en');
+  // Update button label and body language in real-time
+  const title = document.getElementById('onboardingTitle');
+  const body  = document.getElementById('onboardingBody');
+  const ll    = document.getElementById('onboardingLangLabel');
+  const cl    = document.getElementById('onboardingCurrLabel');
+  const btn   = document.getElementById('onboardingConfirm');
+  if (lang === 'en') {
+    if (title) title.textContent = 'Welcome to Pro Keys!';
+    if (body)  body.textContent  = 'Choose your preferred language and currency. You can change them later from your profile card.';
+    if (ll)    ll.textContent    = 'Language';
+    if (cl)    cl.textContent    = 'Currency';
+    if (btn)   btn.textContent   = 'Get Started ✓';
+  } else {
+    if (title) title.textContent = 'مرحباً بك في Pro Keys!';
+    if (body)  body.textContent  = 'اختر لغة التطبيق والعملة المفضلة لديك. يمكنك تغييرهم لاحقاً من بطاقة الملف الشخصي.';
+    if (ll)    ll.textContent    = 'اللغة';
+    if (cl)    cl.textContent    = 'العملة';
+    if (btn)   btn.textContent   = 'ابدأ الآن ✓';
+  }
+}
+
+function obSelectCurr(cur){
+  _obCurr = cur;
+  document.getElementById('obCurrEgp').classList.toggle('ob-seg-on', cur === 'EGP');
+  document.getElementById('obCurrUsd').classList.toggle('ob-seg-on', cur === 'USD');
+}
+
+function submitOnboarding(){
+  const overlay = document.getElementById('onboardingOverlay');
+  if (overlay) overlay.classList.remove('show');
+  setLangFromPopup(_obLang);
+  setCurrencyFromPopup(_obCurr);
+  // Mark onboarding complete in DB so it never shows again for this account
+  if (PROKEYS_USER_ID) {
+    supabaseClient.from('users_profile')
+      .update({ language: _obLang, currency: _obCurr })
+      .eq('user_id', PROKEYS_USER_ID)
+      .then(({ error }) => { if (error) console.error('onboarding save:', error); });
+  }
+}
+
+function maybeShowOnboarding(profileData){
+  // Show only if the DB has no language AND no currency — truly first time.
+  // If the user previously set either preference we skip the popup.
+  if (profileData && (profileData.language || profileData.currency)) return;
+  const overlay = document.getElementById('onboardingOverlay');
+  if (!overlay) return;
+  // Pre-select based on current browser/system defaults
+  _obLang = currentLang;
+  _obCurr = currentCurrency;
+  document.getElementById('obLangAr').classList.toggle('ob-seg-on', _obLang === 'ar');
+  document.getElementById('obLangEn').classList.toggle('ob-seg-on', _obLang === 'en');
+  document.getElementById('obCurrEgp').classList.toggle('ob-seg-on', _obCurr === 'EGP');
+  document.getElementById('obCurrUsd').classList.toggle('ob-seg-on', _obCurr === 'USD');
+  overlay.classList.add('show');
+}
 </script>
 
 <script>
