@@ -1766,6 +1766,7 @@
             <div class="chk-row"><input type="checkbox" id="exBib" autocomplete="off"><label for="exBib" data-i18n="exclude_bib">استبعاد المراجع</label></div>
             <div class="chk-row"><input type="checkbox" id="exQuo" autocomplete="off"><label for="exQuo" data-i18n="exclude_quotes">استبعاد الاقتباسات المنصوصة</label></div>
             <div class="chk-row"><input type="checkbox" id="exAbstract" autocomplete="off"><label for="exAbstract" data-i18n="exclude_abstract">استبعاد الملخص</label></div>
+            <div class="chk-row"><input type="checkbox" id="exCitations" autocomplete="off"><label for="exCitations" data-i18n="exclude_citations">استثناء الاقتباسات داخل النص</label></div>
             <div class="chk-row" style="align-items:center;gap:8px;">
               <input type="checkbox" id="exSmall" autocomplete="off">
               <label for="exSmall" data-i18n="exclude_small_matches">استبعاد التطابقات الصغيرة</label>
@@ -2564,7 +2565,7 @@ const I18N = {
     check_opts_title:"خيارات الفحص", check_type_label:"نوع الفحص",
     file_requirements_chip:"📋 شروط الملف",
     ct_sim:"اقتباس فقط", ct_both:"اقتباس + ذكاء اصطناعي",
-    filters_label:"فلاتر الاقتباس (اختياري)", exclude_bib:"استبعاد المراجع", exclude_quotes:"استبعاد الاقتباسات المنصوصة", exclude_abstract:"استبعاد الملخص", exclude_small_matches:"استبعاد التطابقات الصغيرة", words_unit:"كلمة",
+    filters_label:"فلاتر الاقتباس (اختياري)", exclude_bib:"استبعاد المراجع", exclude_quotes:"استبعاد الاقتباسات المنصوصة", exclude_abstract:"استبعاد الملخص", exclude_citations:"استثناء الاقتباسات داخل النص", exclude_small_matches:"استبعاد التطابقات الصغيرة", words_unit:"كلمة",
     payment_title:"وسيلة الدفع", pay_auto:"تلقائي", pay_ref:"رقم مرجعي", vf_cash:"فودافون كاش",
     payment_history_title:"سجل المدفوعات", payment_history_desc:"كل عمليات الشحن اللي عملتها وحالتها",
     ph_col_code:"كود العملية", ph_col_method:"وسيلة الدفع", ph_col_amount:"القيمة", ph_col_credits:"الكريديت", ph_col_pack:"اسم الباقة", ph_col_datetime:"التاريخ والوقت", ph_col_status:"الحالة",
@@ -2673,7 +2674,7 @@ const I18N = {
     check_opts_title:"Check options", check_type_label:"Check type",
     file_requirements_chip:"📋 File Requirements",
     ct_sim:"Similarity only", ct_both:"Similarity + AI",
-    filters_label:"Similarity filters (optional)", exclude_bib:"Exclude bibliography", exclude_quotes:"Exclude quoted text", exclude_abstract:"Exclude abstract", exclude_small_matches:"Exclude small matches", words_unit:"words",
+    filters_label:"Similarity filters (optional)", exclude_bib:"Exclude bibliography", exclude_quotes:"Exclude quoted text", exclude_abstract:"Exclude abstract", exclude_citations:"Exclude in-text citations", exclude_small_matches:"Exclude small matches", words_unit:"words",
     payment_title:"Payment method", pay_auto:"Automatic", pay_ref:"Reference number", vf_cash:"Vodafone Cash",
     payment_history_title:"Payment History", payment_history_desc:"All your top-ups and their status",
     ph_col_code:"Transaction code", ph_col_method:"Payment method", ph_col_amount:"Amount", ph_col_credits:"Credits", ph_col_pack:"Package", ph_col_datetime:"Date & time", ph_col_status:"Status",
@@ -4736,7 +4737,7 @@ function toggleSidebar(){
 }
 document.addEventListener('DOMContentLoaded', () => {
   /* Reset check-option checkboxes — browser form-restore can wrongly pre-check them */
-  ['exBib','exQuo','exAbstract','exSmall'].forEach(id => {
+  ['exBib','exQuo','exAbstract','exSmall','exCitations'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.checked = false;
   });
@@ -6103,9 +6104,10 @@ async function submitCheckToApi(orderId, file){
   const fd = new FormData();
   fd.append('order_id', orderId);
   fd.append('file', file);
-  if (document.getElementById('exQuo')?.checked)      fd.append('excludeQuotes', 'true');
-  if (document.getElementById('exBib')?.checked)      fd.append('excludeBibliography', 'true');
-  if (document.getElementById('exAbstract')?.checked) fd.append('excludeAbstract', 'true');
+  if (document.getElementById('exQuo')?.checked)       fd.append('excludeQuotes', 'true');
+  if (document.getElementById('exBib')?.checked)       fd.append('excludeBibliography', 'true');
+  if (document.getElementById('exAbstract')?.checked)  fd.append('excludeAbstract', 'true');
+  if (document.getElementById('exCitations')?.checked) fd.append('excludeCitations', 'true');
   const exSmallEl = document.getElementById('exSmall');
   const exSmallWords = parseInt(document.getElementById('exSmallWords')?.value) || 8;
   if (exSmallEl?.checked && exSmallWords > 0) fd.append('excludeSmallMatchesWordLimit', String(exSmallWords));
