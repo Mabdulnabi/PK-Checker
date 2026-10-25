@@ -3,6 +3,8 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const TURNISCAN_API_KEY = Deno.env.get("TURNISCAN_API_KEY")!;
+const TURNISCAN_BASE = "https://turniscan.com/v1";
 
 // No JWT verification — TurniScan calls this endpoint without a Supabase token.
 // Auth is implicit: only TurniScan knows this URL (passed as webhook_url on submit).
@@ -19,7 +21,6 @@ Deno.serve(async (req: Request) => {
   const fileId       = payload.file_id as string | undefined;
   const customId     = payload.custom_id as string | undefined; // our order ID
   const status       = (payload.status as string) || "";
-  const downloadUrl  = payload.download_url as string | undefined;
   const similarityScore = payload.similarity_score as number | undefined;
   const aiScore      = payload.ai_score as number | undefined;
 
@@ -45,12 +46,29 @@ Deno.serve(async (req: Request) => {
 
   if (fileId) updates.external_order_id = fileId;
 
-  if (internalStatus === "completed") {
-    if (downloadUrl) updates.report_url = downloadUrl;
-    // AI report is the same file viewed with report_type=ai
-    if (fileId) {
-      updates.ai_report_url = `https://turniscan.com/v1/scan/download?file_id=${fileId}&report_type=ai`;
+  if (internalStatus === "completed" && fileId) {
+    // Fetch status from TurniScan to get the direct CDN download_url.
+    // The webhook payload's download_url is the API endpoint (requires auth),
+    // while the status endpoint returns the direct CDN URL usable in a browser.
+    try {
+      const tsStatus = await fetch(`${TURNISCAN_BASE}/scan/status?file_id=${fileId}`, {
+        headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` },
+      });
+      const tsData = await tsStatus.json();
+      if (tsStatus.ok && tsData.success && tsData.download_url) {
+        updates.report_url = tsData.download_url;
+        // AI report is the same file streamed via report_type=ai.
+        // We store this as a download endpoint URL — the user's browser will
+        // navigate to /v1/scan/download which TurniScan serves as a binary PDF.
+        updates.ai_report_url = `${TURNISCAN_BASE}/scan/download?file_id=${fileId}&report_type=ai`;
+      }
+    } catch (e) {
+      console.error("turnitin-webhook: failed to fetch status from TurniScan", e);
+      // Fall back to the webhook's own download_url
+      const fallbackUrl = payload.download_url as string | undefined;
+      if (fallbackUrl) updates.report_url = fallbackUrl;
     }
+
     if (similarityScore !== undefined) updates.similarity_score = similarityScore;
     if (aiScore !== undefined) updates.ai_score = aiScore;
   } else if (internalStatus === "error") {
