@@ -1086,6 +1086,30 @@
           </div>
         </div>
 
+        <!-- Pending top-up approvals -->
+        <div class="tab-card" id="pendingPaymentsCard" style="margin-bottom:16px;display:none;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+            <span style="font-size:17px;">⏳</span>
+            <b style="font-family:'Cairo',sans-serif;font-size:13.5px;">طلبات شحن بانتظار الموافقة</b>
+            <span id="pendingPaymentsBadge" style="background:var(--danger);color:#fff;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;font-family:'Cairo',sans-serif;"></span>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="data-tbl" id="pendingPaymentsTbl">
+              <thead><tr>
+                <th>PK</th>
+                <th>الاسم</th>
+                <th>الباقة</th>
+                <th>الكريديت</th>
+                <th>المبلغ</th>
+                <th>وسيلة الدفع</th>
+                <th>التاريخ</th>
+                <th>إجراء</th>
+              </tr></thead>
+              <tbody id="pendingPaymentsBody"></tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- Transactions table -->
         <div class="tab-card" style="margin-bottom:16px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
@@ -1852,12 +1876,18 @@ function subscribeTicketRepliesChannel(){
 function subscribeWalletChannel(){
   supabaseClient.channel('admin-wallet-changes')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'wallet_transactions' }, () => {
-      // Refresh whichever view is currently showing this data — no point
-      // hammering Supabase refreshing tabs the admin isn't even looking at.
       if (document.getElementById('tab-payments')?.classList.contains('on')) loadCreditsTab();
       if (document.getElementById('tab-overview')?.classList.contains('on')) loadOverview();
       if (document.getElementById('tab-accounts')?.classList.contains('on')) loadUsersTab();
-    }).subscribe();
+    })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'payments' }, () => {
+      // New payment arrived — refresh pending list if credits tab is visible
+      if (document.getElementById('tab-payments')?.classList.contains('on')) loadPendingPayments();
+    })
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'payments' }, () => {
+      if (document.getElementById('tab-payments')?.classList.contains('on')) loadPendingPayments();
+    })
+    .subscribe();
 }
 
 // New orders, status changes (API polling, manual accept/reject) — keeps
@@ -4568,7 +4598,56 @@ async function initCreditsTab(){
   await loadCreditsTab();
 }
 
+async function loadPendingPayments(){
+  const { data, error } = await supabaseClient
+    .from('payments')
+    .select('id, user_id, pack_id, gateway, amount, currency, credits, created_at')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false });
+
+  const card = document.getElementById('pendingPaymentsCard');
+  const tbody = document.getElementById('pendingPaymentsBody');
+  const badge = document.getElementById('pendingPaymentsBadge');
+  if (error || !data || data.length === 0) {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = '';
+  badge.textContent = data.length;
+
+  const PACK_LABELS = {
+    pack_1:'1 ملف', pack_5:'5 ملفات', pack_10:'10 ملفات', pack_25:'25 ملف',
+  };
+  const GW = { binance:'Binance', bybit:'Bybit', bep20:'BEP20', easykash:'EasyKash', instapay:'InstaPay', vodafone:'فودافون كاش' };
+
+  tbody.innerHTML = data.map(p => {
+    const profile = profilesByUserId[p.user_id] || {};
+    const pkStr = profile.pk_number != null ? `PK${formatPkNumber(profile.pk_number)}` : '—';
+    const name  = escapeHtml(profile.full_name || '—');
+    const pack  = escapeHtml(PACK_LABELS[p.pack_id] || p.pack_id || '—');
+    const gw    = escapeHtml(GW[p.gateway] || p.gateway || '—');
+    const amt   = p.amount != null ? `${p.amount} ${p.currency || 'EGP'}` : '—';
+    const date  = formatDate(p.created_at);
+    return `<tr>
+      <td class="mono" style="color:var(--blue-deep);font-weight:700;">${clickablePk(p.user_id, profile.pk_number)}</td>
+      <td><b style="font-size:12px;">${name}</b></td>
+      <td style="font-size:12px;">${pack}</td>
+      <td style="font-weight:800;color:var(--ok);">+${p.credits}</td>
+      <td style="font-size:12px;font-weight:700;">${escapeHtml(amt)}</td>
+      <td style="font-size:12px;">${gw}</td>
+      <td style="font-size:11px;color:var(--muted);">${date}</td>
+      <td style="display:flex;gap:6px;">
+        <button class="btn btn-primary" style="background:var(--ok);border-color:var(--ok);padding:5px 12px;font-size:12px;"
+          onclick="approvePendingPayment('${p.id}','${p.user_id}',${p.credits},this)">✅ موافقة</button>
+        <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger);padding:5px 12px;font-size:12px;"
+          onclick="rejectPendingPayment('${p.id}',this)">❌ رفض</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
 async function loadCreditsTab(){
+  loadPendingPayments();
   document.getElementById('creditsBody').innerHTML =
     '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px;">جاري التحميل...</td></tr>';
 
@@ -5592,6 +5671,7 @@ async function approvePendingPayment(paymentId, userId, credits, triggerBtn){
     if (txErr) throw txErr;
 
     await logAdminActivity('manual_approve',userId,'','الموافقة على دفعة معلقة: '+paymentId);
+    loadPendingPayments();
     loadCreditsTab();
   } catch(err) {
     console.error('approvePendingPayment failed:', err);
@@ -5606,6 +5686,7 @@ async function rejectPendingPayment(paymentId, triggerBtn){
     const { error } = await supabaseClient.from('payments').update({status:'rejected'}).eq('id',paymentId);
     if (error) throw error;
     await logAdminActivity('payment_reject',null,'','رفض دفعة: '+paymentId);
+    loadPendingPayments();
     loadCreditsTab();
   } catch(err) {
     console.error('rejectPendingPayment failed:', err);
