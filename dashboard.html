@@ -1981,19 +1981,9 @@
           </button>
         </div>
 
-        <!-- Daily packs slider -->
-        <div class="pack-section-head" style="margin-top:36px;">
-          <h2 class="pack-section-title" data-i18n="packs_daily_tab">الباقات اليومية</h2>
-          <p class="pack-section-desc" data-i18n="packs_daily_desc">لعمليات الفحص الكثيفة — صلاحية 24 ساعة فقط</p>
-        </div>
-        <div class="pack-slider-wrap">
-          <button class="slider-arrow slider-arrow-prev" id="dailyPrev" aria-label="prev">
-            <svg class="ic" data-icon-key="wal_slider_prev" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
-          </button>
+        <!-- Daily packs slider — hidden (kept for legacy compatibility) -->
+        <div id="dailyPacksSection" style="display:none;">
           <div class="pack-slider" id="dailySlider"></div>
-          <button class="slider-arrow slider-arrow-next" id="dailyNext" aria-label="next">
-            <svg class="ic" data-icon-key="wal_slider_next" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-          </button>
         </div>
       </div>
 
@@ -2673,6 +2663,7 @@ const I18N = {
     best_seller_badge:"الأكثر مبيعاً", high_value_badge:"أفضل قيمة",
     packs_topup_tab:"باقات الشحن", packs_daily_tab:"الباقات اليومية",
     packs_topup_desc:"كريديت لا تنتهي صلاحيتها — مثالية للأساتذة والباحثين", packs_daily_desc:"لعمليات الفحص الكثيفة — صلاحية 24 ساعة فقط",
+    pack_pack_1:"فحص واحد", pack_pack_5:"5 ملفات", pack_pack_10:"10 ملفات", pack_pack_25:"25 ملف",
     pack_single:"فحص واحد — Single Check", pack_starter:"Starter — البداية", pack_student:"Student — الطالب", pack_college:"College — الكلية",
     pack_professor:"Professor — الدكتور", pack_scholar:"Scholar — الباحث",
     pack_daily_starter:"Daily Starter", pack_daily_pro:"Daily Pro", pack_daily_master:"Daily Master",
@@ -2803,6 +2794,7 @@ const I18N = {
     best_seller_badge:"Best Seller", high_value_badge:"High Value",
     packs_topup_tab:"Top-up packs", packs_daily_tab:"Daily packs",
     packs_topup_desc:"Credits that never expire — ideal for professors and researchers", packs_daily_desc:"For heavy-checking days — valid for 24 hours only",
+    pack_pack_1:"1 File", pack_pack_5:"5 Files", pack_pack_10:"10 Files", pack_pack_25:"25 Files",
     pack_single:"Single Check", pack_starter:"Starter", pack_student:"Student", pack_college:"College",
     pack_professor:"Professor", pack_scholar:"Scholar",
     pack_daily_starter:"Daily Starter", pack_daily_pro:"Daily Pro", pack_daily_master:"Daily Master",
@@ -2934,7 +2926,8 @@ function renderUserAvatar(el){
 }
 
 /* ===================== WALLET — TOP-UP & DAILY PACKS ===================== */
-const TOPUP_PACKS = [
+// ── Old packs (kept for reference, not shown in UI) ──
+const _OLD_TOPUP_PACKS = [
   {id:"single", icon:'<circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/>', credits:20, price:2, priceEgp:100, simChecks:2, aiChecks:1},
   {id:"starter", icon:'<path d="M12 2c-3 4-5 7-5 10a5 5 0 0 0 10 0c0-3-2-6-5-10z"/>', credits:40, price:4, priceEgp:200, simChecks:4, aiChecks:2},
   {id:"student", icon:'<path d="M4 19.5V6a2 2 0 0 1 2-2h13v15"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H19v2.5"/>', credits:90, price:8, priceEgp:400, simChecks:9, aiChecks:4},
@@ -2942,13 +2935,22 @@ const TOPUP_PACKS = [
   {id:"professor", icon:'<circle cx="12" cy="8" r="4"/><path d="M4 21v-2a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v2"/>', credits:320, price:25, priceEgp:1250, simChecks:32, aiChecks:16},
   {id:"scholar", icon:'<path d="M12 2l9 5-9 5-9-5z"/><path d="M3 7v6c0 1.5 4 4 9 4s9-2.5 9-4V7"/>', credits:520, price:40, priceEgp:2000, simChecks:52, aiChecks:26},
 ];
-const DAILY_PACKS = [
+const _OLD_DAILY_PACKS = [
   {id:"daily_starter", icon:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>', credits:100, price:5, priceEgp:250, files:10, simChecks:10, aiChecks:5},
   {id:"daily_pro", icon:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>', credits:300, price:12, priceEgp:600, files:30, simChecks:30, aiChecks:15},
   {id:"daily_master", icon:'<path d="M5 19h14M5 19l1.5-9L12 14l5.5-4L19 19"/>', credits:600, price:25, priceEgp:1250, files:60, simChecks:60, aiChecks:30},
   {id:"daily_elite", icon:'<path d="M12 2c-3 4-5 7-5 10a5 5 0 0 0 10 0c0-3-2-6-5-10z"/>', credits:1000, price:40, priceEgp:2000, files:100, simChecks:100, aiChecks:50},
   {id:"daily_ultimate", icon:'<path d="M5 13l4 4L19 7"/>', credits:1600, price:60, priceEgp:3000, files:160, simChecks:160, aiChecks:80},
 ];
+
+// ── Active packs (all include Similarity + AI, with expiry) ──
+const TOPUP_PACKS = [
+  {id:"pack_1",  icon:'<circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/>',                                                                     credits:20,  priceEgp:100,  files:1,  expiryDays:2,  simChecks:1,  aiChecks:1},
+  {id:"pack_5",  icon:'<path d="M12 2c-3 4-5 7-5 10a5 5 0 0 0 10 0c0-3-2-6-5-10z"/>',                                                                credits:110, priceEgp:480,  files:5,  expiryDays:5,  simChecks:5,  aiChecks:5},
+  {id:"pack_10", icon:'<path d="M4 19.5V6a2 2 0 0 1 2-2h13v15"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H19v2.5"/>',                                   credits:230, priceEgp:950,  files:10, expiryDays:10, simChecks:10, aiChecks:10},
+  {id:"pack_25", icon:'<path d="M12 3l9 4-9 4-9-4z"/><path d="M5 9v6c0 1.5 3 3 7 3s7-1.5 7-3V9"/>',                                                  credits:600, priceEgp:2300, files:25, expiryDays:15, simChecks:25, aiChecks:25, popular:true},
+];
+const DAILY_PACKS = [];
 let selectedPack = null;
 
 // ── Payment gateway details (QR, UID, instructions per gateway) ──
@@ -3126,7 +3128,8 @@ function currencyLabel(){
 }
 /* Price number to display for a pack, honoring the active currency */
 function packPriceNumber(p){
-  return currentCurrency === 'USD' ? p.price : p.priceEgp;
+  if(currentCurrency === 'USD' && p.price != null) return p.price;
+  return p.priceEgp;
 }
 /* "Credit" / "Credits" in EN depending on count, always "كريديت" in AR */
 function creditsWord(n){
@@ -3144,16 +3147,14 @@ const PACK_TONES = ['orange','green','blue','navy','gold'];
 function buildPackCard(p, tab, index){
   let tone = `tone-${PACK_TONES[index % PACK_TONES.length]}`;
   const isSelected = selectedPack && selectedPack.id===p.id;
-  const validityLabel = tab==='daily' ? t('validity_1day') : t('credits_no_expiry');
+  const validityLabel = p.expiryDays
+    ? `${t('validity_prefix')} ${p.expiryDays} ${t('validity_days_unit')}`
+    : (tab==='daily' ? t('validity_1day') : t('credits_no_expiry'));
   let badge = '';
   if(tab==='topup'){
-    // single(0)=black, starter(1)=trial badge, professor(4)=orange+best, scholar(5)=gold+highvalue
     if(index===0){ tone='tone-black'; }
-    else if(index===1){ badge=`<div class="badge-trial" data-i18n="trial_badge">${t('trial_badge')}</div>`; }
-    else if(index===4){ tone='tone-orange'; badge=`<div class="badge-best" data-i18n="best_seller_badge">${t('best_seller_badge')}</div>`; }
-    else if(index===5){ tone='tone-gold';   badge=`<div class="badge-highvalue" data-i18n="high_value_badge">${t('high_value_badge')}</div>`; }
+    if(p.popular){ tone='tone-orange'; badge=`<div class="badge-best" data-i18n="best_seller_badge">${t('best_seller_badge')}</div>`; }
   } else {
-    // daily: starter(0)=trial, elite(3)=best, ultimate(4)=highvalue
     if(index===0){ badge=`<div class="badge-trial" data-i18n="trial_badge">${t('trial_badge')}</div>`; }
     else if(index===3){ badge=`<div class="badge-best" data-i18n="best_seller_badge">${t('best_seller_badge')}</div>`; }
     else if(index===4){ badge=`<div class="badge-highvalue" data-i18n="high_value_badge">${t('high_value_badge')}</div>`; }
@@ -3215,7 +3216,10 @@ function selectPack(tab, id){
   renderPacks();
   document.getElementById('walletPayBlock').style.display = 'block';
   document.getElementById('walletPackSummary').textContent = `${packName(id)} — ${selectedPack.credits} ${creditsWord(selectedPack.credits)} (${formatPrice(packPriceNumber(selectedPack))})`;
-  document.getElementById('walletPriceOut').innerHTML = `${formatPrice(packPriceNumber(selectedPack))} <small>${tab==='daily' ? t('daily_expiry_note') : t('credits_no_expiry')}</small>`;
+  const expiryNote = selectedPack.expiryDays
+    ? `${t('validity_prefix')} ${selectedPack.expiryDays} ${t('validity_days_unit')}`
+    : (tab==='daily' ? t('daily_expiry_note') : t('credits_no_expiry'));
+  document.getElementById('walletPriceOut').innerHTML = `${formatPrice(packPriceNumber(selectedPack))} <small>${expiryNote}</small>`;
   document.getElementById('walletPayBlock').scrollIntoView({behavior:'smooth', block:'nearest'});
   // Render details for the currently selected gateway
   const currentCard = document.querySelector('#walletPayGrid .paycard.on');
@@ -3397,11 +3401,14 @@ async function checkEasykashPayment(paymentId){
       stopEasykashPolling();
       localStorage.removeItem(EASYKASH_LS_KEY);
       easykashPendingPaymentId = null;
-      userBalance = json.newBalance ?? userBalance;
-      renderKpis();
       const ar = currentLang === 'ar';
       easykashStatusUI('idle');
-      await appAlert(ar ? '✅ تم تأكيد الدفع وشحن رصيدك!' : '✅ Payment confirmed and wallet credited!', {icon:'success'});
+      await appAlert(
+        ar
+          ? '✅ تم استلام طلب الشحن!\n\nسيتم مراجعة الدفعة وإضافة الكريديت لرصيدك فور موافقة الأدمن.'
+          : '✅ Top-up request received!\n\nYour payment is pending admin approval. Credits will be added once approved.',
+        {icon:'success'}
+      );
       selectedPack = null;
       const payBlock = document.getElementById('walletPayBlock');
       if(payBlock) payBlock.style.display = 'none';
@@ -3550,20 +3557,15 @@ async function callVerifyEdgeFunction(cfg, paymentRow, refValue){
 // verified (credit the wallet) or not verified (show the specific reason).
 async function handleVerificationResult(json, credits){
   if (json.verified) {
-    // Payment confirmed, wallet credited
+    // Payment verified — awaiting admin approval before credits are added
     document.getElementById('walletTxidInput').value = '';
-    userBalance = json.newBalance ?? userBalance;
-    renderKpis();
-    if (window.confetti) {
-      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ['#0E7AFE', '#00BAF7', '#0E9F6E', '#FFA500'] });
-    }
     await appAlert(
       currentLang==='ar'
-        ? `✅ تم التحقق وإضافة ${credits} كريديت لرصيدك!`
-        : `✅ Verified! ${credits} credits added to your wallet.`,
+        ? `✅ تم استلام طلب الشحن بنجاح!\n\nسيتم مراجعة الدفعة وإضافة ${credits} كريديت لرصيدك فور موافقة الأدمن.`
+        : `✅ Top-up request received!\n\nYour payment is pending admin approval. ${credits} credits will be added once approved.`,
       {icon:'success'}
     );
-    loadDashboardData();
+    loadPaymentHistory?.();
   } else {
     // Not verified — show specific reason
     const reasonMessages = {
