@@ -781,6 +781,29 @@
   .notice-ok{background:var(--ok-wash);border:1.5px solid var(--ok);color:var(--ok);}
   .notice-ok-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
   .notice-ok-head b{margin-bottom:0;color:var(--ok);}
+  /* ── Plan limits + Requirements cards ── */
+  .plan-limits-box{border-radius:11px;padding:11px 14px;margin-bottom:12px;background:var(--warn-wash);border:1.5px solid var(--warn);display:flex;align-items:flex-start;gap:10px;font-size:12px;line-height:1.7;color:var(--ink);}
+  .plan-limits-box .plb-icon{flex:none;width:18px;height:18px;margin-top:2px;color:var(--warn);}
+  .plan-limits-box .plb-body{flex:1;min-width:0;}
+  .plan-limits-box .plb-title{font-family:'Cairo',sans-serif;font-weight:800;font-size:12.5px;color:var(--ink);display:inline;}
+  .plan-limits-box .plb-muted{color:var(--muted);font-size:11.5px;}
+  .plan-limits-badge{flex:none;font-size:10.5px;font-weight:700;font-family:'Cairo',sans-serif;padding:3px 10px;border-radius:20px;background:var(--warn);color:#fff;white-space:nowrap;align-self:center;}
+  .req-card{border-radius:11px;border:1.5px solid var(--paper-line);background:var(--paper);margin-bottom:14px;overflow:hidden;}
+  .req-card-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 8px;border-bottom:1px solid var(--paper-line);}
+  .req-card-head-left{display:flex;align-items:center;gap:7px;font-family:'Cairo',sans-serif;font-weight:800;font-size:13px;color:var(--ink);}
+  .req-card-badge{font-size:10.5px;font-weight:700;font-family:'Cairo',sans-serif;padding:3px 10px;border-radius:20px;background:var(--blue-wash,#E8F0FF);color:var(--blue-deep,#1A3C7A);white-space:nowrap;}
+  .req-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+  .req-cell{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:12px;color:var(--ink-soft);border-bottom:1px solid var(--paper-line);}
+  .req-cell:nth-child(odd){border-inline-end:1px solid var(--paper-line);}
+  .req-cell:nth-last-child(-n+2){border-bottom:none;}
+  .req-cell .rc-icon{flex:none;width:18px;height:18px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;}
+  .req-cell .rc-icon.blue{background:var(--blue-wash,#E8F0FF);color:var(--blue-deep,#1A3C7A);}
+  .req-cell .rc-icon.green{background:var(--ok-wash);color:var(--ok);}
+  .req-cell .rc-icon.muted{background:var(--paper-soft);color:var(--muted);}
+  .req-cell b{font-weight:700;color:var(--ink);font-family:'Cairo',sans-serif;}
+  .req-privacy{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:12px;background:var(--ok-wash);color:var(--ink-soft);}
+  .req-privacy b{font-weight:700;color:var(--ok);text-decoration:underline;font-family:'Cairo',sans-serif;}
+  .req-privacy .rc-icon{flex:none;width:18px;height:18px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;background:var(--ok-wash);color:var(--ok);}
   .data-tbl{width:100%;border-collapse:collapse;font-size:12.5px;}
   .data-tbl th{text-align:start;color:var(--muted);font-weight:700;padding:16px 12px;border-bottom:1.5px solid var(--paper-line);white-space:nowrap;font-family:'Cairo',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.03em;}
   .data-tbl td{padding:10px 12px;border-bottom:1px solid var(--paper-line);white-space:nowrap;text-align:start;}
@@ -1727,24 +1750,49 @@
 
       <div class="upload-error" id="uploadError" style="display:none;color:#E0445B;font-size:12px;margin-top:8px;"></div>
 
-      <div class="notice-box notice-danger">
-        <b data-i18n="file_req_notice_title">متطلبات Turnitin لقبول ملفات الفحص</b>
-        <ul>
-          <li data-i18n="file_req_li1">شروط Turnitin: لتقارير الاقتباس فقط، لا توجد قيود على عدد الصفحات ويدعم النظام جميع اللغات بصيغة DOC أو DOCX.</li>
-          <li data-i18n="file_req_li2">أما إذا كان تقرير الذكاء الاصطناعي مطلوباً، فيشترط رفع ملف DOCX نصي فقط باللغة الإنجليزية أو الإسبانية أو اليابانية، بعدد كلمات يتراوح بين 300 و 30,000 كلمة، مع ضرورة حذف صفحة الغلاف التي تتضمن اسم وشعار الجامعة وكذلك الصور والجداول والمعادلات المعقدة.</li>
-          <li data-i18n="file_req_li3">وفي كافة الأحوال، يجب ألا يتجاوز حجم الملف 100 ميجابايت.</li>
-          <li data-i18n="file_req_li4">الالتزام بهذه الشروط هو مسؤولية الباحث بالكامل، وعدم التقيد بها سيؤدي إلى خصم الرصيد نظراً لاحتساب عملية الفحص تلقائياً.</li>
-        </ul>
+      <!-- Plan Limits banner -->
+      <div class="plan-limits-box">
+        <svg class="plb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div class="plb-body">
+          <span class="plb-title" data-i18n="plan_limits_label">Turnitin Plan Limits:</span>
+          <span data-i18n="plan_limits_sim_pre"> Plagiarism up to </span><b>50,000</b><span data-i18n="plan_limits_words"> words.</span>
+          <span data-i18n="plan_limits_ai_pre"> AI Detection valid up to </span><b>30,000</b><span data-i18n="plan_limits_words_end"> words</span>
+          <span class="plb-muted" data-i18n="plan_limits_note"> (Turnitin's official AI engine rule, not our platform limit).</span>
+        </div>
+        <span class="plan-limits-badge" data-i18n="plan_limits_badge">Turnitin Rule</span>
       </div>
 
-      <div class="notice-box notice-ok">
-        <div class="notice-ok-head">
-          <svg class="ic" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;flex:none;"><path d="M12 2l8 4v6c0 5-4 8-8 10-4-2-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
-          <b data-i18n="file_privacy_notice_title">خصوصية الملفات</b>
+      <!-- Requirements for AI Detection card -->
+      <div class="req-card">
+        <div class="req-card-head">
+          <div class="req-card-head-left">
+            <span>✨</span>
+            <span data-i18n="req_card_title">Requirements for AI Detection</span>
+          </div>
+          <span class="req-card-badge" data-i18n="req_card_badge">Turnitin Standard</span>
         </div>
-        <ul>
-          <li data-i18n="file_privacy_li1">يتم رفع الأبحاث بإعداد "No Repository" مفعل دائماً (آمن 100%).</li>
-        </ul>
+        <div class="req-grid">
+          <div class="req-cell">
+            <div class="rc-icon blue">🗂</div>
+            <span><b data-i18n="req_size_label">Size:</b> <span data-i18n="req_size_val">Below 100 MB</span></span>
+          </div>
+          <div class="req-cell">
+            <div class="rc-icon blue">🔡</div>
+            <span><b data-i18n="req_lang_label">Lang:</b> <span data-i18n="req_lang_val">EN, ES, JA</span></span>
+          </div>
+          <div class="req-cell">
+            <div class="rc-icon muted">≡</div>
+            <span><b data-i18n="req_min_label">Min:</b> <span data-i18n="req_min_val">300 words (para)</span></span>
+          </div>
+          <div class="req-cell">
+            <div class="rc-icon green">🟩</div>
+            <span><b data-i18n="req_max_label">AI Max:</b> <span data-i18n="req_max_val">30,000 words</span></span>
+          </div>
+        </div>
+        <div class="req-privacy">
+          <div class="rc-icon">🔒</div>
+          <span><b data-i18n="req_privacy_label">Privacy:</b> <span data-i18n="req_privacy_pre">Files are </span><b data-i18n="req_privacy_not_saved">not saved</b><span data-i18n="req_privacy_post"> in any repository (100% safe).</span></span>
+        </div>
       </div>
 
       <div class="panel-block">
@@ -2588,6 +2636,27 @@ const I18N = {
     file_privacy_notice_title:"خصوصية الملفات",
     file_privacy_li1:"يتم رفع الأبحاث بإعداد \"No Repository\" مفعل دائماً (آمن 100%).",
     file_privacy_li2:"ملفاتك آمنه تماماً ولن يتم حفظها أو تخزينها في أي قاعدة بيانات طلابية أو مستودع مؤسسي.",
+    plan_limits_label:"حدود خطة Turnitin:",
+    plan_limits_sim_pre:" كشف الاقتباس حتى ",
+    plan_limits_words:" كلمة.",
+    plan_limits_ai_pre:" كشف الذكاء الاصطناعي حتى ",
+    plan_limits_words_end:" كلمة",
+    plan_limits_note:" (قاعدة محرك الذكاء الاصطناعي الرسمي من Turnitin، وليست قاعدة منصتنا).",
+    plan_limits_badge:"قاعدة Turnitin",
+    req_card_title:"متطلبات كشف الذكاء الاصطناعي",
+    req_card_badge:"Turnitin Standard",
+    req_size_label:"الحجم:",
+    req_size_val:"أقل من 100 ميجابايت",
+    req_lang_label:"اللغة:",
+    req_lang_val:"EN, ES, JA",
+    req_min_label:"الحد الأدنى:",
+    req_min_val:"300 كلمة (فقرة)",
+    req_max_label:"حد الذكاء الاصطناعي:",
+    req_max_val:"30,000 كلمة",
+    req_privacy_label:"الخصوصية:",
+    req_privacy_pre:"الملفات ",
+    req_privacy_not_saved:"لا تُحفظ",
+    req_privacy_post:" في أي مستودع (آمن 100%).",
     faq_q0:"هل البوت يوفر تقارير Turnitin رسمية؟", faq_a0:"نعم، نحن نستخدم واجهات Turnitin Instructor الرسمية مربوطة مباشرة بنظامنا لإصدار تقارير الذكاء الاصطناعي والانتحال.",
     faq_q1:"كيف يعمل هذا البوت؟", faq_a1:"يقوم النظام تلقائيًا بإجراء فحوصات بالتوازي من خلال عدد محدود من الـ Slots، بدون أي تعامل أو اطلاع بشري على الملفات. ويقوم فريق الدعم فقط بتأكيد الدفع ومتابعة العملية لضمان تسليم التقارير بنجاح، خاصة خلال أوقات الضغط.",
     faq_q2:"هل ملفاتي وبياناتي آمنة؟", faq_a2:"نعم بالكامل. ملفاتك لا يتم تخزينها داخل مستودع Turnitin، لذلك تبقى ملكيتك الفكرية محفوظة. جميع عمليات الفحص تعمل بنظام No Repository.",
@@ -2697,6 +2766,27 @@ const I18N = {
     file_privacy_notice_title:"File privacy",
     file_privacy_li1:"File privacy: papers are uploaded with \"No Repository\" always enabled (100% safe).",
     file_privacy_li2:"Your files are completely secure and will never be saved or stored in any student database or institutional repository.",
+    plan_limits_label:"Turnitin Plan Limits:",
+    plan_limits_sim_pre:" Plagiarism up to ",
+    plan_limits_words:" words.",
+    plan_limits_ai_pre:" AI Detection valid up to ",
+    plan_limits_words_end:" words",
+    plan_limits_note:" (Turnitin's official AI engine rule, not our platform limit).",
+    plan_limits_badge:"Turnitin Rule",
+    req_card_title:"Requirements for AI Detection",
+    req_card_badge:"Turnitin Standard",
+    req_size_label:"Size:",
+    req_size_val:"Below 100 MB",
+    req_lang_label:"Lang:",
+    req_lang_val:"EN, ES, JA",
+    req_min_label:"Min:",
+    req_min_val:"300 words (para)",
+    req_max_label:"AI Max:",
+    req_max_val:"30,000 words",
+    req_privacy_label:"Privacy:",
+    req_privacy_pre:"Files are ",
+    req_privacy_not_saved:"not saved",
+    req_privacy_post:" in any repository (100% safe).",
     faq_q0:"Is your bot providing official Turnitin reports?", faq_a0:"Yes. We use official Turnitin Instructor APIs integrated with our system to generate AI and Plagiarism reports.",
     faq_q1:"How does this bot work?", faq_a1:"Our system performs automatic checks in parallel through a limited number of slots, with no manual handling of your files. Our support team only supervises the process to confirm payment and ensure successful delivery, especially during high traffic.",
     faq_q2:"Is my data safe?", faq_a2:"Yes. Your files are not stored in the Turnitin repository, so your intellectual property remains yours. All checks are configured in No Repository mode.",
