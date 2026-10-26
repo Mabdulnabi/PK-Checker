@@ -64,13 +64,18 @@ Deno.serve(async (req: Request) => {
 
     if (!fileId) return new Response(JSON.stringify({ error: "Report not ready" }), { status: 404, headers: { ...cors, "Content-Type": "application/json" } });
 
+    console.log("get-report: fileId=", fileId, "keyPrefix=", TURNISCAN_API_KEY?.substring(0, 10));
+
     // Proxy the download from TurniScan
     const tsRes = await fetch(`${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(fileId)}`, {
       headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` },
     });
 
+    console.log("get-report: TurniScan status=", tsRes.status);
+
     if (!tsRes.ok) {
       const errText = await tsRes.text();
+      console.error("get-report: TurniScan error=", errText);
       return new Response(errText, { status: tsRes.status, headers: { ...cors, "Content-Type": "application/json" } });
     }
 

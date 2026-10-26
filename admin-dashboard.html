@@ -3276,9 +3276,56 @@ async function uploadManualReportFile(orderId, kind, inputEl){
 }
 
 function linkCell(orderId, field, url){
-  const openLink = url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${t('link_open')}</a>` : `<span class="source-none">${t('link_none')}</span>`;
-  const previewBtn = url ? `<button class="edit-link-btn" onclick="openPdfPreview('${url}')" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>` : '';
+  // AI report URLs (proxy: markers or turniscan URLs) must go through the get-report proxy
+  const isAiReport = field === 'ai_report_url';
+  const hasReport = !!url;
+  let openLink, previewBtn;
+  if (isAiReport && hasReport) {
+    openLink = `<button class="edit-link-btn" onclick="adminDownloadAiReport('${orderId}')">${t('link_open')}</button>`;
+    previewBtn = `<button class="edit-link-btn" onclick="adminDownloadAiReport('${orderId}',true)" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`;
+  } else if (!isAiReport && hasReport) {
+    openLink = `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${t('link_open')}</a>`;
+    previewBtn = `<button class="edit-link-btn" onclick="openPdfPreview('${escapeHtml(url)}')" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`;
+  } else {
+    openLink = `<span class="source-none">${t('link_none')}</span>`;
+    previewBtn = '';
+  }
   return `<div class="link-cell">${openLink}${previewBtn}<button class="edit-link-btn" onclick="editOrderLink('${orderId}','${field}')" title="${t('edit_link')}">✎</button></div>`;
+}
+
+let _adminAiDownloading = false;
+async function adminDownloadAiReport(orderId, preview = false){
+  if (_adminAiDownloading) return;
+  _adminAiDownloading = true;
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const token = session?.access_token;
+    const res = await fetch('/api/fn/get-report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify({ order_id: orderId })
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      await adminAlert('خطأ في تحميل التقرير: ' + err, {icon:'❌', danger:true});
+      return;
+    }
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    if (preview) {
+      openPdfPreview(blobUrl);
+    } else {
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = `ai_report_${orderId}.pdf`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+    }
+  } catch(e) {
+    await adminAlert('خطأ في تحميل التقرير: ' + (e?.message || e), {icon:'❌', danger:true});
+  } finally {
+    _adminAiDownloading = false;
+  }
 }
 
 async function editOrderLink(orderId, field){
