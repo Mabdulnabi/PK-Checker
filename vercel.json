@@ -4,6 +4,10 @@
     {
       "source": "/api/fn/:path*",
       "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/:path*"
+    },
+    {
+      "source": "/storage/:path*",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/storage/v1/object/public/order-reports/:path*"
     }
   ]
 }

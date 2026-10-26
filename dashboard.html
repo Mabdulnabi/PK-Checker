@@ -6676,15 +6676,15 @@ function buildOrderRow(o){
   const hasAi = o.checkType==='sim_ai';
 
   const simDl = (canDownload && o.reportUrl)
-    ? `<button type="button" class="dl-btn" onclick="downloadReport('${o.id}','sim')" title="${t('similarity')}">${ICONS.download}</button><button type="button" class="dl-btn pdf-preview-btn" onclick="downloadReport('${o.id}','sim',true)" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`
+    ? `<a class="dl-btn" href="${o.reportUrl}" target="_blank" rel="noopener" title="${t('similarity')}" onclick="trackReportDownload('${o.id}','sim',${hasAi})">${ICONS.download}</a><button type="button" class="dl-btn pdf-preview-btn" onclick="openPdfPreview('${o.reportUrl}')" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`
     : `<div class="dl-btn disabled" title="${t('similarity')}">${ICONS.download}</div>`;
 
   let aiDl;
   if (!hasAi) {
     aiDl = `<span style="color:var(--muted);font-size:11px;">—</span>`;
   } else if (canDownload && o.aiReportUrl) {
-    // AI report always via proxy (Storage signed URL or TurniScan API)
-    aiDl = `<button type="button" class="dl-btn" onclick="downloadAiReport('${o.id}')" title="${t('ai')}">${ICONS.download}</button><button type="button" class="dl-btn pdf-preview-btn" onclick="downloadAiReport('${o.id}',true)" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`;
+    // CDN URL — direct link exactly like similarity
+    aiDl = `<a class="dl-btn" href="${o.aiReportUrl}" target="_blank" rel="noopener" title="${t('ai')}" onclick="trackReportDownload('${o.id}','ai',${hasAi})">${ICONS.download}</a><button type="button" class="dl-btn pdf-preview-btn" onclick="openPdfPreview('${o.aiReportUrl}')" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`;
   } else {
     aiDl = `<div class="dl-btn disabled" title="${t('ai')}">${ICONS.download}</div>`;
   }
@@ -7006,17 +7006,17 @@ function buildAiReportUrl(orderId, storedValue){
   return null;
 }
 
-let _reportDownloading = false;
-async function downloadReport(orderId, type = 'ai', preview = false){
-  if (_reportDownloading) return;
-  _reportDownloading = true;
+let _aiDownloading = false;
+async function downloadAiReport(orderId, preview = false){
+  if (_aiDownloading) return;
+  _aiDownloading = true;
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
     const token = session?.access_token;
     const res = await fetch(`${FN_BASE}/get-report`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      body: JSON.stringify({ order_id: orderId, report_type: type })
+      body: JSON.stringify({ order_id: orderId, report_type: 'ai' })
     });
     if (!res.ok) {
       const err = await res.text();
@@ -7030,19 +7030,17 @@ async function downloadReport(orderId, type = 'ai', preview = false){
     } else {
       const a = document.createElement('a');
       a.href = blobUrl;
-      a.download = `${type}_report_${orderId}.pdf`;
+      a.download = `ai_report_${orderId}.pdf`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
     }
   } catch(e) {
-    console.error('downloadReport error:', e);
+    console.error('downloadAiReport error:', e);
     await appAlert((currentLang==='ar' ? 'خطأ في تحميل التقرير: ' : 'Error downloading report: ') + (e?.message || e), {icon:'error'});
   } finally {
-    _reportDownloading = false;
+    _aiDownloading = false;
   }
 }
-// Keep backward-compat alias
-function downloadAiReport(orderId, preview = false){ return downloadReport(orderId, 'ai', preview); }
 
 async function loadOrders(){
   const { data, error } = await supabaseClient
