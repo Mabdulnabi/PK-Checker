@@ -26,25 +26,31 @@ Deno.serve(async (req: Request) => {
 
     const url = new URL(req.url);
     let orderId = url.searchParams.get("order_id");
-    let reportType = url.searchParams.get("report_type") || "ai";
     // Also accept POST body (avoids ad blocker blocking UUID in URL path)
     if (req.method === "POST") {
       try {
         const body = await req.json();
         if (body.order_id) orderId = body.order_id;
-        if (body.report_type) reportType = body.report_type;
       } catch { /* ignore, fall back to query params */ }
     }
 
     if (!orderId) return new Response(JSON.stringify({ error: "Missing order_id" }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
 
-    // Fetch order (verify ownership)
-    const { data: order, error: orderErr } = await supabase
+    // Check if user is admin
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    const isAdmin = profile?.role === "admin";
+
+    // Fetch order — admins can access any order, users only their own
+    const orderQuery = supabase
       .from("orders")
       .select("id, external_order_id, user_id, ai_report_url")
-      .eq("id", orderId)
-      .eq("user_id", user.id)
-      .single();
+      .eq("id", orderId);
+    if (!isAdmin) orderQuery.eq("user_id", user.id);
+    const { data: order, error: orderErr } = await orderQuery.single();
 
     if (orderErr || !order) return new Response(JSON.stringify({ error: "Order not found" }), { status: 404, headers: { ...cors, "Content-Type": "application/json" } });
 
@@ -59,7 +65,7 @@ Deno.serve(async (req: Request) => {
     if (!fileId) return new Response(JSON.stringify({ error: "Report not ready" }), { status: 404, headers: { ...cors, "Content-Type": "application/json" } });
 
     // Proxy the download from TurniScan
-    const tsRes = await fetch(`${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(fileId)}&report_type=${reportType}`, {
+    const tsRes = await fetch(`${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(fileId)}`, {
       headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` },
     });
 
@@ -70,7 +76,7 @@ Deno.serve(async (req: Request) => {
 
     // Stream the PDF back
     const contentType = tsRes.headers.get("Content-Type") || "application/pdf";
-    const disposition = tsRes.headers.get("Content-Disposition") || `attachment; filename="${reportType}_report.pdf"`;
+    const disposition = tsRes.headers.get("Content-Disposition") || `attachment; filename="ai_report.pdf"`;
 
     return new Response(tsRes.body, {
       status: 200,
