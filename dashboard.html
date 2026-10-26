@@ -8165,7 +8165,8 @@ function maybeShowOnboarding(profileData){
 <style>
 #tourOverlay{position:fixed;inset:0;z-index:99999;pointer-events:none;display:none;}
 #tourOverlay.active{pointer-events:auto;display:block;}
-#tourBackdrop{position:absolute;inset:0;background:rgba(0,0,0,.62);transition:opacity .3s;}
+#tourBackdrop{position:absolute;inset:0;background:transparent;transition:background .3s;}
+#tourOverlay.center-step #tourBackdrop{background:rgba(0,0,0,.62);}
 /* Spotlight: transparent cutout + outer shadow */
 #tourSpotlight{
   position:absolute;
@@ -8417,9 +8418,19 @@ function positionBox(el){
 function clamp(v, lo, hi){ return Math.max(lo, Math.min(v, hi)); }
 
 async function scrollAndPosition(el){
-  // Scroll element to center so it's not obscured by header/footer
   el.scrollIntoView({ behavior:'smooth', block:'center' });
   await new Promise(r => setTimeout(r, 420));
+  // If element is in lower half of viewport, nudge it up so there's room below for the box
+  const r = el.getBoundingClientRect();
+  const vh = window.innerHeight;
+  const bh = getBoxHeight();
+  const spaceBelow = vh - r.bottom - 20 - 16;
+  if(spaceBelow < bh && r.top > vh * 0.35){
+    const scrollEl = document.scrollingElement || document.documentElement;
+    const nudge = r.top - vh * 0.28;
+    scrollEl.scrollBy({ top: nudge, behavior: 'smooth' });
+    await new Promise(r2 => setTimeout(r2, 320));
+  }
   positionSpotlight(el);
   positionBox(el);
 }
@@ -8493,6 +8504,7 @@ async function showStep(idx){
 
   // Position
   if(s.center || !s.target){
+    overlay.classList.add('center-step');
     spotlight.style.cssText = 'display:none;';
     box.style.top       = '50%';
     box.style.left      = '50%';
@@ -8500,6 +8512,7 @@ async function showStep(idx){
     arrow.className     = 'tour-arrow';
     arrow.style.cssText = 'display:none;';
   } else {
+    overlay.classList.remove('center-step');
     arrow.style.display    = '';
     spotlight.style.display = '';
     let el = document.querySelector(s.target);
