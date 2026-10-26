@@ -2,6 +2,10 @@
   "rewrites": [
     { "source": "/", "destination": "/index.html" },
     {
+      "source": "/r/:orderId/ai",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/get-report?order_id=:orderId&report_type=ai"
+    },
+    {
       "source": "/api/fn/:path*",
       "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/:path*"
     }

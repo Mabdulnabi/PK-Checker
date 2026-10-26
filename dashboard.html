@@ -7000,7 +7000,7 @@ async function loadUserProfile({ force = false } = {}){
 
 const FN_BASE = '/api/fn';
 function buildAiReportUrl(orderId, storedValue){
-  return `${FN_BASE}/get-report?order_id=${encodeURIComponent(orderId)}&report_type=ai`;
+  return `/r/${encodeURIComponent(orderId)}/ai`;
 }
 
 let _aiDownloading = false;
