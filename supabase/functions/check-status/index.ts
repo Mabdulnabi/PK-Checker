@@ -73,19 +73,28 @@ Deno.serve(async (req: Request) => {
     let reports: { similarity?: { downloadUrl: string }; ai?: { downloadUrl: string } } = {};
 
     if (internalStatus === "completed") {
-      const simUrl: string | undefined = tsData.download_url;
-      // Store the file_id as ai_report_url — the client will proxy through download-report edge function
-      const aiMarker = `proxy:${fileId}`;
+      // Follow redirects to get actual public CDN URLs (no auth needed by browser)
+      const simRes = await fetch(`${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(fileId)}`, {
+        headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` },
+        redirect: "manual",
+      });
+      const simCdnUrl = simRes.headers.get("location") || tsData.download_url;
 
-      if (simUrl) {
-        updates.report_url = simUrl;
-        reports.similarity = { downloadUrl: simUrl };
+      const aiRes = await fetch(`${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(fileId)}&report_type=ai`, {
+        headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` },
+        redirect: "manual",
+      });
+      const aiCdnUrl = aiRes.headers.get("location");
+
+      if (simCdnUrl) {
+        updates.report_url = simCdnUrl;
+        reports.similarity = { downloadUrl: simCdnUrl };
       }
-      updates.ai_report_url = aiMarker;
+      if (aiCdnUrl) {
+        updates.ai_report_url = aiCdnUrl;
+        reports.ai = { downloadUrl: aiCdnUrl };
+      }
       updates.completed_at = new Date().toISOString();
-      // Build the proxied download URL for the client
-      const aiProxyUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/get-report?order_id=${orderId}&report_type=ai`;
-      reports.ai = { downloadUrl: aiProxyUrl };
 
       if (tsData.similarity_score !== undefined) updates.similarity_score = tsData.similarity_score;
       if (tsData.ai_score !== undefined) updates.ai_score = tsData.ai_score;

@@ -56,11 +56,19 @@ Deno.serve(async (req: Request) => {
       });
       const tsData = await tsStatus.json();
       if (tsStatus.ok && tsData.success && tsData.download_url) {
-        updates.report_url = tsData.download_url;
-        // AI report is the same file streamed via report_type=ai.
-        // We store this as a download endpoint URL — the user's browser will
-        // navigate to /v1/scan/download which TurniScan serves as a binary PDF.
-        updates.ai_report_url = `${TURNISCAN_BASE}/scan/download?file_id=${fileId}&report_type=ai`;
+        // Follow the redirect to get the actual public CDN URL (no auth needed)
+        const simRes = await fetch(`${TURNISCAN_BASE}/scan/download?file_id=${fileId}`, {
+          headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` },
+          redirect: "manual",
+        });
+        updates.report_url = simRes.headers.get("location") || tsData.download_url;
+
+        const aiRes = await fetch(`${TURNISCAN_BASE}/scan/download?file_id=${fileId}&report_type=ai`, {
+          headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` },
+          redirect: "manual",
+        });
+        const aiCdnUrl = aiRes.headers.get("location");
+        if (aiCdnUrl) updates.ai_report_url = aiCdnUrl;
       }
     } catch (e) {
       console.error("turnitin-webhook: failed to fetch status from TurniScan", e);
