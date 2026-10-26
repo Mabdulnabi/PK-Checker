@@ -8431,7 +8431,7 @@ function positionBox(el){
     arrow.style.cssText = 'display:none;';
   }
   left = clamp(left, margin, vw - bw - margin);
-  top  = Math.max(margin, top);
+  top  = clamp(top,  margin, Math.max(margin, vh - bh - margin));
   box.style.left      = left + 'px';
   box.style.top       = top  + 'px';
   box.style.transform = 'none';
