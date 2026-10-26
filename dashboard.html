@@ -5975,8 +5975,9 @@ function updatePrice(){
   updateSubmitState(total);
 }
 
+let _orderSubmitting = false;
 function updateSubmitState(needed){
-  if (typeof _orderSubmitting !== 'undefined' && _orderSubmitting) return;
+  if (_orderSubmitting) return;
   const btn = document.getElementById('submitBtn');
   const warn = document.getElementById('balanceWarning');
   const insufficient = userBalance < needed;
@@ -6498,7 +6499,6 @@ async function finalizeManualOrder(orderRow){
   await appAlert(currentLang==='ar' ? 'تم إرسال ملفك لخدمة الفحص بنجاح.' : 'Your file was submitted to the check service successfully.', {icon:'success'});
 }
 
-let _orderSubmitting = false;
 async function submitOrder(){
   if (_orderSubmitting) return;
   if (!PROKEYS_USER_ID) { window.location.href = 'index.html'; return; }
