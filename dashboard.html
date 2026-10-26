@@ -8260,8 +8260,8 @@ const TOUR_STEPS_DEF = [
   { id:'welcome',           center:true,  emoji:'👋' },
   { id:'balance',           target:'#kpiBalanceNum',           emoji:'💰', tab:'new-check' },
   { id:'topup_btn',         target:'#showPacksBtn',            emoji:'💳', tab:'wallet',    expandPacks:true },
-  { id:'select_pack',       target:'#topupSlider',             emoji:'🗂️', tab:'wallet',    expandPacks:true, scrollBlock:'start' },
-  { id:'instapay_method',   target:'[data-pay="instapay"]',    emoji:'📲', tab:'wallet',    expandPacks:true, scrollBlock:'start' },
+  { id:'select_pack',       target:'.pack-slider-wrap',        emoji:'🗂️', tab:'wallet',    expandPacks:true, scrollBlock:'start' },
+  { id:'instapay_method',   target:'[data-pay="instapay"]',    emoji:'📲', tab:'wallet',    expandPacks:true, scrollBlock:'center' },
   { id:'instapay_transfer', target:'#walletUidValue',          emoji:'💸', tab:'wallet',    expandPacks:true, scrollBlock:'start' },
   { id:'txid_input',        target:'#walletTxidInput',         emoji:'🔢', tab:'wallet',    expandPacks:true, scrollBlock:'start' },
   { id:'confirm_pay',       target:'#walletPayBlock .btn-gold', emoji:'✅', tab:'wallet',    expandPacks:true, scrollBlock:'end' },
@@ -8493,8 +8493,9 @@ async function showStep(idx){
           await new Promise(r => setTimeout(r, 250));
         }
       }
-      // For instapay steps, also select the instapay paycard
-      if(['instapay_method','instapay_transfer','txid_input','confirm_pay'].includes(s.id)){
+      // For steps AFTER instapay selection, pre-select instapay so details are visible
+      // instapay_method itself does NOT pre-click — it teaches the user to click it
+      if(['instapay_transfer','txid_input','confirm_pay'].includes(s.id)){
         const instapayCard = document.querySelector('[data-pay="instapay"]');
         if(instapayCard && !instapayCard.classList.contains('on')){
           instapayCard.click();
