@@ -1576,7 +1576,7 @@
       <div class="sidebar-user-av" id="sidebarAv">مح</div>
       <div class="sidebar-user-info">
         <div class="sidebar-user-name" id="sidebarName">—</div>
-        <div class="sidebar-user-pk mono" id="sidebarUid">PK000</div>
+        <div class="sidebar-user-pk mono" id="sidebarUid">—</div>
       </div>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="14" height="14" style="flex:none;color:var(--muted);"><path d="M208,160H48l80-80Z" opacity="0.2"/><path d="M213.66,154.34l-80-80a8,8,0,0,0-11.32,0l-80,80A8,8,0,0,0,48,168H208a8,8,0,0,0,5.66-13.66ZM67.31,152,128,91.31,188.69,152Z"/></svg>
     </div>
@@ -1594,7 +1594,7 @@
       <div class="sup-av" id="supAv">مح</div>
       <div>
         <div class="sup-name" id="supName">—</div>
-        <div class="sup-sub mono" id="supPk">PK000</div>
+        <div class="sup-sub mono" id="supPk">—</div>
         <div class="sup-sub" id="supEmail" style="margin-top:2px;">—</div>
       </div>
     </div>
@@ -1641,7 +1641,7 @@
       <!-- Hidden elements kept for JS compatibility (lang/currency/user dropdown still used by JS) -->
       <span id="langSwitch" style="display:none;">EN</span>
       <span id="currencySwitch" style="display:none;">USD</span>
-      <div style="display:none;" id="userChipBtn"><div class="av" id="userAvatar">مح</div><span class="user-chip-id mono" id="userIdTag">PK000</span></div>
+      <div style="display:none;" id="userChipBtn"><div class="av" id="userAvatar">مح</div><span class="user-chip-id mono" id="userIdTag">—</span></div>
       <div style="display:none;" id="userDropdown">
         <div class="av-lg" id="userAvatarLg">مح</div>
         <b id="userNameDropdown">محمد</b>
@@ -2185,7 +2185,7 @@
           <div style="min-width:0;">
             <div style="font-size:15px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="profileHeaderName2">—</div>
             <div style="font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="profileHeaderEmail2">—</div>
-            <span class="mono" style="display:inline-block;margin-top:5px;font-size:10px;font-weight:700;background:rgba(255,255,255,0.15);color:#fff;padding:2px 8px;border-radius:5px;" id="profileHeaderPk2">PK000</span>
+            <span class="mono" style="display:inline-block;margin-top:5px;font-size:10px;font-weight:700;background:rgba(255,255,255,0.15);color:#fff;padding:2px 8px;border-radius:5px;" id="profileHeaderPk2">—</span>
           </div>
         </div>
 
@@ -7257,9 +7257,9 @@ async function refreshCheckSettings(){
 }
 
 (async function initDashboard(){
-  applyLang();            // immediate: translate from localStorage lang before any network calls
+  try { PK.translateDom(currentLang, t); } catch(e) {} // immediate text translation, no crash risk
   await loadUIConfig();   // load admin UI overrides
-  applyLang();            // re-apply with overrides
+  applyLang();            // full apply with overrides + all renders
   loadPaymentMethodsConfig();
   loadAdminProfiles();
   loadDashboardData().then(() => {
