@@ -19,10 +19,18 @@ function mapStatus(s: string): string {
   return "run";
 }
 
+function extractFilename(contentDisposition: string | null, fallback: string): string {
+  if (contentDisposition) {
+    const m = contentDisposition.match(/filename\*?=(?:UTF-8'')?["']?([^"';\r\n]+)["']?/i);
+    if (m) return decodeURIComponent(m[1].trim());
+  }
+  return fallback;
+}
+
 async function fetchAndStore(
   supabase: ReturnType<typeof createClient>,
   fileId: string,
-  storagePath: string,
+  folder: string,
   reportType: "sim" | "ai",
 ): Promise<string | null> {
   const apiUrl = reportType === "ai"
@@ -35,6 +43,8 @@ async function fetchAndStore(
     console.error(`check-status: ${reportType} fetch failed`, res.status, await res.text());
     return null;
   }
+  const filename = extractFilename(res.headers.get("Content-Disposition"), `${reportType}_report.pdf`);
+  const storagePath = `${folder}/${filename}`;
   const pdf = await res.arrayBuffer();
   const { error } = await supabase.storage
     .from("order-reports")
@@ -85,10 +95,10 @@ Deno.serve(async (req: Request) => {
     const reports: { similarity?: { downloadUrl: string }; ai?: { downloadUrl: string } } = {};
 
     if (internalStatus === "completed") {
-      const simUrl = await fetchAndStore(supabase, fileId, `sim-reports/${orderId}/sim_report.pdf`, "sim");
+      const simUrl = await fetchAndStore(supabase, fileId, `sim-reports/${orderId}`, "sim");
       if (simUrl) { updates.report_url = simUrl; reports.similarity = { downloadUrl: simUrl }; }
 
-      const aiUrl = await fetchAndStore(supabase, fileId, `ai-reports/${orderId}/ai_report.pdf`, "ai");
+      const aiUrl = await fetchAndStore(supabase, fileId, `ai-reports/${orderId}`, "ai");
       if (aiUrl) { updates.ai_report_url = aiUrl; reports.ai = { downloadUrl: aiUrl }; }
 
       updates.completed_at = new Date().toISOString();
