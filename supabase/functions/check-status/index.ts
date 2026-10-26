@@ -75,7 +75,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: order, error: orderErr } = await supabase
       .from("orders")
-      .select("id, external_order_id, status, user_id")
+      .select("id, external_order_id, status, user_id, check_type")
       .eq("id", orderId).eq("user_id", user.id).single();
     if (orderErr || !order) return json({ success: false, error: "Order not found" }, 404);
 
@@ -94,12 +94,15 @@ Deno.serve(async (req: Request) => {
     const updates: Record<string, unknown> = { status: internalStatus };
     const reports: { similarity?: { downloadUrl: string }; ai?: { downloadUrl: string } } = {};
 
+    const checkType = (order as { check_type: string }).check_type;
     if (internalStatus === "completed") {
       const simUrl = await fetchAndStore(supabase, fileId, `sim-reports/${orderId}`, "sim");
       if (simUrl) { updates.report_url = simUrl; reports.similarity = { downloadUrl: simUrl }; }
 
-      const aiUrl = await fetchAndStore(supabase, fileId, `ai-reports/${orderId}`, "ai");
-      if (aiUrl) { updates.ai_report_url = aiUrl; reports.ai = { downloadUrl: aiUrl }; }
+      if (checkType !== "sim_only") {
+        const aiUrl = await fetchAndStore(supabase, fileId, `ai-reports/${orderId}`, "ai");
+        if (aiUrl) { updates.ai_report_url = aiUrl; reports.ai = { downloadUrl: aiUrl }; }
+      }
 
       updates.completed_at = new Date().toISOString();
       if (tsData.similarity_score !== undefined) updates.similarity_score = tsData.similarity_score;

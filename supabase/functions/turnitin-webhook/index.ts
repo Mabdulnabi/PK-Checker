@@ -67,11 +67,16 @@ Deno.serve(async (req: Request) => {
   if (fileId) updates.external_order_id = fileId;
 
   if (internalStatus === "completed" && fileId) {
+    const { data: orderRow } = await supabase.from("orders").select("check_type").eq("id", customId).single();
+    const checkType = (orderRow as { check_type: string } | null)?.check_type;
+
     const simUrl = await fetchAndStore(supabase, fileId, `sim-reports/${customId}`, "sim");
     if (simUrl) updates.report_url = simUrl;
 
-    const aiUrl = await fetchAndStore(supabase, fileId, `ai-reports/${customId}`, "ai");
-    if (aiUrl) updates.ai_report_url = aiUrl;
+    if (checkType !== "sim_only") {
+      const aiUrl = await fetchAndStore(supabase, fileId, `ai-reports/${customId}`, "ai");
+      if (aiUrl) updates.ai_report_url = aiUrl;
+    }
 
     updates.completed_at = new Date().toISOString();
     if (similarityScore !== undefined) updates.similarity_score = similarityScore;
