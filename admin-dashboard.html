@@ -2781,7 +2781,7 @@ async function loadOverview(){
   const [ordersRes, profilesRes, walletRes] = await Promise.all([
     supabaseClient.from('orders').select('id, status, submitted_at, check_type'),
     supabaseClient.from('users_profile_numbered').select('user_id', { count: 'exact', head: true }),
-    supabaseClient.from('wallet_transactions').select('amount, created_at').eq('type', 'credit'),
+    supabaseClient.from('wallet_transactions').select('amount, created_at').in('type', ['credit', 'admin_credit']),
   ]);
 
   if (ordersRes.error) { console.error(ordersRes.error); document.getElementById('overviewSub').textContent = 'تعذر التحميل'; return; }

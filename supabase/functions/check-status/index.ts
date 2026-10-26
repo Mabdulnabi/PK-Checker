@@ -74,14 +74,18 @@ Deno.serve(async (req: Request) => {
 
     if (internalStatus === "completed") {
       const simUrl: string | undefined = tsData.download_url;
-      const aiUrl = `${TURNISCAN_BASE}/scan/download?file_id=${fileId}&report_type=ai`;
+      // Store the file_id as ai_report_url — the client will proxy through download-report edge function
+      const aiMarker = `proxy:${fileId}`;
 
       if (simUrl) {
         updates.report_url = simUrl;
         reports.similarity = { downloadUrl: simUrl };
       }
-      updates.ai_report_url = aiUrl;
-      reports.ai = { downloadUrl: aiUrl };
+      updates.ai_report_url = aiMarker;
+      updates.completed_at = new Date().toISOString();
+      // Build the proxied download URL for the client
+      const aiProxyUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/download-report?order_id=${orderId}&report_type=ai`;
+      reports.ai = { downloadUrl: aiProxyUrl };
 
       if (tsData.similarity_score !== undefined) updates.similarity_score = tsData.similarity_score;
       if (tsData.ai_score !== undefined) updates.ai_score = tsData.ai_score;
