@@ -959,11 +959,19 @@ supabaseClient
 // If the visitor already has a live session, skip the marketing page and
 // go straight to the dashboard — no point showing a logged-in user the
 // sign-up pitch again.
-(function checkExistingSession(){
+(async function checkExistingSession(){
   try {
-    const hasSession = localStorage.getItem('prokeys-user-id');
-    if (hasSession) {
+    const cached = localStorage.getItem('prokeys-user-id');
+    if (!cached) return;
+    // Verify the cached id matches the real Supabase session before redirecting.
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session && session.user) {
+      if (session.user.id !== cached) {
+        localStorage.setItem('prokeys-user-id', session.user.id);
+      }
       window.location.href = 'dashboard.html';
+    } else {
+      localStorage.removeItem('prokeys-user-id');
     }
   } catch (e) { /* localStorage unavailable — just show the landing page */ }
 })();
