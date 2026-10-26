@@ -5754,15 +5754,15 @@ const PACK_EXPIRY_DAYS = {
 async function approvePendingPayment(paymentId, userId, credits, triggerBtn){
   if (triggerBtn) { triggerBtn.disabled = true; triggerBtn.textContent = '...'; }
   try {
-    // Fetch payment to get pack_id and created_at (purchase timestamp)
+    // Fetch payment to get pack_id only — expiry starts from approval time (now)
     const { data: payData } = await supabaseClient
-      .from('payments').select('pack_id, created_at').eq('id', paymentId).single();
+      .from('payments').select('pack_id').eq('id', paymentId).single();
     const packId      = payData?.pack_id || null;
-    const purchasedAt = payData?.created_at ? new Date(payData.created_at) : new Date();
+    const approvedAt  = new Date();
     const expiryDays  = packId ? (PACK_EXPIRY_DAYS[packId] ?? null) : null;
     let expiresAt = null;
     if (expiryDays) {
-      const d = new Date(purchasedAt);
+      const d = new Date(approvedAt);
       d.setDate(d.getDate() + expiryDays);
       expiresAt = d.toISOString();
     }
