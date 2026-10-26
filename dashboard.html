@@ -7001,8 +7001,7 @@ async function loadUserProfile({ force = false } = {}){
 
 const FN_BASE = '/api/fn';
 function buildAiReportUrl(orderId, storedValue){
-  // Return the URL directly if it's a real HTTP URL; ignore proxy: markers
-  if (storedValue && storedValue.startsWith('http')) return storedValue;
+  if (storedValue && (storedValue.startsWith('http') || storedValue.startsWith('/'))) return storedValue;
   return null;
 }
 

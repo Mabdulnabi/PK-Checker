@@ -3276,15 +3276,15 @@ async function uploadManualReportFile(orderId, kind, inputEl){
 }
 
 function linkCell(orderId, field, url){
-  const isAiReport = field === 'ai_report_url';
   const hasReport = !!url;
+  // /storage/... paths are served from our domain — direct link
+  const isStoragePath = url && url.startsWith('/storage/');
   let openLink, previewBtn;
-  if (isAiReport && hasReport) {
-    // AI report always goes through get-report proxy (handles proxy:, TurniScan API, CDN, Storage URLs)
-    openLink = `<button class="edit-link-btn" onclick="adminDownloadAiReport('${orderId}')">${t('link_open')}</button>`;
-    previewBtn = `<button class="edit-link-btn" onclick="adminDownloadAiReport('${orderId}',true)" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`;
-  } else if (!isAiReport && hasReport) {
-    // Similarity: if Supabase Storage URL (private bucket), generate signed URL first
+  if (hasReport && isStoragePath) {
+    openLink = `<a class="edit-link-btn" href="${escapeHtml(url)}" target="_blank" rel="noopener">${t('link_open')}</a>`;
+    previewBtn = `<button class="edit-link-btn" onclick="openPdfPreview('${escapeHtml(url)}')" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`;
+  } else if (hasReport) {
+    // Legacy: old TurniScan CDN/API URLs
     openLink = `<button class="edit-link-btn" onclick="adminOpenReport('${escapeHtml(url)}')">${t('link_open')}</button>`;
     previewBtn = `<button class="edit-link-btn" onclick="adminOpenReport('${escapeHtml(url)}',true)" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`;
   } else {
