@@ -8265,7 +8265,7 @@ const TOUR_STEPS_DEF = [
   { id:'instapay_transfer', target:'#walletUidValue',          emoji:'💸', tab:'wallet',    expandPacks:true, scrollBlock:'center' },
   { id:'txid_input',        target:'#walletTxidInput',         emoji:'🔢', tab:'wallet',    expandPacks:true, scrollBlock:'center' },
   { id:'confirm_pay',       target:'#walletPayBlock .btn-gold', emoji:'✅', tab:'wallet',    expandPacks:true, scrollBlock:'end' },
-  { id:'upload',            target:'#uploadzoneBox',           emoji:'📂', tab:'new-check', scrollBlock:'start' },
+  { id:'upload',            target:'#uploadzoneBox',           emoji:'📂', tab:'new-check', scrollBlock:'top' },
   { id:'checktype',         target:'.seg',                     emoji:'⚙️', tab:'new-check' },
   { id:'submit',            target:'#submitBtn',               emoji:'🚀', tab:'new-check' },
   { id:'result',            target:'#ordersBody',              emoji:'📊', tab:'orders',    mockOrder:true },
@@ -8450,6 +8450,16 @@ function findScrollContainer(el){
 }
 
 async function scrollAndPosition(el, scrollBlock){
+  if(scrollBlock === 'top'){
+    // Scroll the page to the very top, then the element will be at its natural position
+    const sc = findScrollContainer(el);
+    sc.scrollTo({ top: 0, behavior:'instant' });
+    await new Promise(r => requestAnimationFrame(r));
+    await new Promise(r => requestAnimationFrame(r));
+    positionSpotlight(el);
+    positionBox(el);
+    return;
+  }
   // Instant scroll so getBoundingClientRect() reflects the final position
   el.scrollIntoView({ behavior:'instant', block: scrollBlock || 'center' });
   await new Promise(r => requestAnimationFrame(r));
