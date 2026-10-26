@@ -6998,8 +6998,9 @@ async function loadUserProfile({ force = false } = {}){
   }
 }
 
+const FN_BASE = '/api/fn'; // proxied via Vercel rewrites → avoids ad-blocker false positives
 function buildAiReportUrl(orderId, storedValue){
-  return `${SUPABASE_URL}/functions/v1/get-report?order_id=${encodeURIComponent(orderId)}&report_type=ai`;
+  return `${FN_BASE}/get-report?order_id=${encodeURIComponent(orderId)}&report_type=ai`;
 }
 
 async function downloadAiReport(orderId, preview = false){

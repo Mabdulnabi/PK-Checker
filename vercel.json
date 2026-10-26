@@ -1,5 +1,9 @@
 {
   "rewrites": [
-    { "source": "/", "destination": "/index.html" }
+    { "source": "/", "destination": "/index.html" },
+    {
+      "source": "/api/fn/:path*",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/:path*"
+    }
   ]
 }
