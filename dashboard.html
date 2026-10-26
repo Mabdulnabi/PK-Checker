@@ -7003,7 +7003,10 @@ function buildAiReportUrl(orderId, storedValue){
   return `${FN_BASE}/get-report?order_id=${encodeURIComponent(orderId)}&report_type=ai`;
 }
 
+let _aiDownloading = false;
 async function downloadAiReport(orderId, preview = false){
+  if (_aiDownloading) return;
+  _aiDownloading = true;
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
     const token = session?.access_token;
@@ -7028,6 +7031,8 @@ async function downloadAiReport(orderId, preview = false){
   } catch(e) {
     console.error('downloadAiReport error:', e);
     await appAlert((currentLang==='ar' ? 'خطأ في تحميل التقرير: ' : 'Error downloading report: ') + (e?.message || e), {icon:'error'});
+  } finally {
+    _aiDownloading = false;
   }
 }
 
