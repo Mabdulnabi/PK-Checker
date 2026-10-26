@@ -6683,6 +6683,7 @@ function buildOrderRow(o){
   if (!hasAi) {
     aiDl = `<span style="color:var(--muted);font-size:11px;">—</span>`;
   } else if (canDownload && o.aiReportUrl) {
+    // CDN URL — direct link exactly like similarity
     aiDl = `<a class="dl-btn" href="${o.aiReportUrl}" target="_blank" rel="noopener" title="${t('ai')}" onclick="trackReportDownload('${o.id}','ai',${hasAi})">${ICONS.download}</a><button type="button" class="dl-btn pdf-preview-btn" onclick="openPdfPreview('${o.aiReportUrl}')" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`;
   } else {
     aiDl = `<div class="dl-btn disabled" title="${t('ai')}">${ICONS.download}</div>`;
@@ -7000,7 +7001,9 @@ async function loadUserProfile({ force = false } = {}){
 
 const FN_BASE = '/api/fn';
 function buildAiReportUrl(orderId, storedValue){
-  return `${FN_BASE}/get-report`;
+  // Return the URL directly if it's a real HTTP URL; ignore proxy: markers
+  if (storedValue && storedValue.startsWith('http')) return storedValue;
+  return null;
 }
 
 let _aiDownloading = false;

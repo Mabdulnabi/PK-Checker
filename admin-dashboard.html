@@ -3296,10 +3296,9 @@ function linkCell(orderId, field, url){
 
 async function adminOpenReport(url, preview = false){
   let finalUrl = url;
-  // Supabase Storage URLs need a signed URL (bucket may be private)
   if (url && url.includes('/storage/v1/object/')) {
+    // Supabase Storage — generate signed URL (bucket may be private)
     try {
-      // Extract bucket and path from URL: .../storage/v1/object/public/{bucket}/{path}
       const match = url.match(/\/storage\/v1\/object\/(?:public\/)?([^/]+)\/(.+)/);
       if (match) {
         const bucket = match[1];
@@ -3309,6 +3308,7 @@ async function adminOpenReport(url, preview = false){
       }
     } catch(e) { /* fall back to original URL */ }
   }
+  // CDN URLs (download.php) and signed Storage URLs can open directly
   if (preview) {
     openPdfPreview(finalUrl);
   } else {
