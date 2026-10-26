@@ -7004,7 +7004,7 @@ function buildAiReportUrl(orderId, storedValue){
 
 async function downloadAiReport(orderId, preview = false){
   try {
-    const session = supabaseClient.auth.session ? supabaseClient.auth.session() : (await supabaseClient.auth.getSession()).data.session;
+    const { data: { session } } = await supabaseClient.auth.getSession();
     const token = session?.access_token;
     const url = buildAiReportUrl(orderId);
     const res = await fetch(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} });

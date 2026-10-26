@@ -69,6 +69,7 @@ Deno.serve(async (req: Request) => {
       if (fallbackUrl) updates.report_url = fallbackUrl;
     }
 
+    updates.completed_at = new Date().toISOString();
     if (similarityScore !== undefined) updates.similarity_score = similarityScore;
     if (aiScore !== undefined) updates.ai_score = aiScore;
   } else if (internalStatus === "error") {
