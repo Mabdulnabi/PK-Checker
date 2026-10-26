@@ -3285,14 +3285,10 @@ function linkCell(orderId, field, url){
     // API/proxy URL — route through get-report which adds Authorization
     openLink = `<button class="edit-link-btn" onclick="adminDownloadAiReport('${orderId}')">${t('link_open')}</button>`;
     previewBtn = `<button class="edit-link-btn" onclick="adminDownloadAiReport('${orderId}',true)" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`;
-  } else if (hasReport && isCdnUrl) {
-    // CDN URL — direct <a href> link (shows URL on hover, same as user dashboard)
-    openLink = `<a class="edit-link-btn" href="${escapeHtml(url)}" target="_blank" rel="noopener">${t('link_open')}</a>`;
-    previewBtn = `<button class="edit-link-btn" onclick="openPdfPreview('${escapeHtml(url)}')" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`;
   } else if (!isAiReport && hasReport) {
-    // Similarity: Supabase Storage URL (private bucket) — needs signed URL
-    openLink = `<button class="edit-link-btn" onclick="adminOpenReport('${escapeHtml(url)}')">${t('link_open')}</button>`;
-    previewBtn = `<button class="edit-link-btn" onclick="adminOpenReport('${escapeHtml(url)}',true)" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`;
+    // Similarity — proxy via get-report (serves from our domain)
+    openLink = `<button class="edit-link-btn" onclick="adminDownloadReport('${orderId}','sim')">${t('link_open')}</button>`;
+    previewBtn = `<button class="edit-link-btn" onclick="adminDownloadReport('${orderId}','sim',true)" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`;
   } else {
     openLink = `<span class="source-none">${t('link_none')}</span>`;
     previewBtn = '';
@@ -3322,17 +3318,17 @@ async function adminOpenReport(url, preview = false){
   }
 }
 
-let _adminAiDownloading = false;
-async function adminDownloadAiReport(orderId, preview = false){
-  if (_adminAiDownloading) return;
-  _adminAiDownloading = true;
+let _adminReportDownloading = false;
+async function adminDownloadReport(orderId, type = 'ai', preview = false){
+  if (_adminReportDownloading) return;
+  _adminReportDownloading = true;
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
     const token = session?.access_token;
     const res = await fetch('/api/fn/get-report', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      body: JSON.stringify({ order_id: orderId })
+      body: JSON.stringify({ order_id: orderId, report_type: type })
     });
     if (!res.ok) {
       const err = await res.text();
@@ -3346,16 +3342,17 @@ async function adminDownloadAiReport(orderId, preview = false){
     } else {
       const a = document.createElement('a');
       a.href = blobUrl;
-      a.download = `ai_report_${orderId}.pdf`;
+      a.download = `${type}_report_${orderId}.pdf`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
     }
   } catch(e) {
     await adminAlert('خطأ في تحميل التقرير: ' + (e?.message || e), {icon:'❌', danger:true});
   } finally {
-    _adminAiDownloading = false;
+    _adminReportDownloading = false;
   }
 }
+function adminDownloadAiReport(orderId, preview = false){ return adminDownloadReport(orderId, 'ai', preview); }
 
 async function editOrderLink(orderId, field){
   const order = allOrders.find(o => o.id === orderId);

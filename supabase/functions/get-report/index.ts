@@ -15,7 +15,6 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
   try {
-    // Auth
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
 
@@ -26,69 +25,65 @@ Deno.serve(async (req: Request) => {
 
     const url = new URL(req.url);
     let orderId = url.searchParams.get("order_id");
-    // Also accept POST body (avoids ad blocker blocking UUID in URL path)
+    let reportType = url.searchParams.get("report_type") || "ai"; // "ai" or "sim"
+
     if (req.method === "POST") {
       try {
         const body = await req.json();
         if (body.order_id) orderId = body.order_id;
-      } catch { /* ignore, fall back to query params */ }
+        if (body.report_type) reportType = body.report_type;
+      } catch { /* ignore */ }
     }
 
     if (!orderId) return new Response(JSON.stringify({ error: "Missing order_id" }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
 
-    // Check if user is admin
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
+    // Check if admin
+    const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
     const isAdmin = profile?.role === "admin";
 
-    // Fetch order — admins can access any order, users only their own
-    const orderQuery = supabase
-      .from("orders")
-      .select("id, external_order_id, user_id, ai_report_url")
-      .eq("id", orderId);
+    // Fetch order
+    const orderQuery = supabase.from("orders").select("id, external_order_id, user_id, report_url, ai_report_url").eq("id", orderId);
     if (!isAdmin) orderQuery.eq("user_id", user.id);
     const { data: order, error: orderErr } = await orderQuery.single();
-
     if (orderErr || !order) return new Response(JSON.stringify({ error: "Order not found" }), { status: 404, headers: { ...cors, "Content-Type": "application/json" } });
 
-    // Determine the actual download URL and whether it needs an API key
+    const storedUrl: string | undefined = reportType === "sim" ? order.report_url : order.ai_report_url;
+    const filename = reportType === "sim" ? "sim_report.pdf" : "ai_report.pdf";
+
     let downloadUrl: string | null = null;
     let needsAuth = false;
-    const storedUrl: string | undefined = order.ai_report_url;
 
     if (storedUrl && storedUrl.startsWith("proxy:")) {
-      // proxy:FL-xxx → API endpoint, needs Bearer auth
       const fileId = storedUrl.replace("proxy:", "");
       downloadUrl = `${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(fileId)}`;
       needsAuth = true;
+
     } else if (storedUrl && storedUrl.includes("/storage/v1/object/")) {
-      // Supabase Storage URL — generate a signed URL server-side
+      // Supabase Storage — generate signed URL and stream content
       const match = storedUrl.match(/\/storage\/v1\/object\/(?:public\/)?([^/]+)\/(.+)/);
       if (match) {
         const bucket = match[1];
         const path = decodeURIComponent(match[2]);
         const { data: signed } = await supabase.storage.from(bucket).createSignedUrl(path, 3600);
         if (signed?.signedUrl) {
-          return Response.redirect(signed.signedUrl, 302);
+          downloadUrl = signed.signedUrl;
+          needsAuth = false;
         }
       }
-      return new Response(JSON.stringify({ error: "Could not generate signed URL" }), { status: 500, headers: { ...cors, "Content-Type": "application/json" } });
+      if (!downloadUrl) return new Response(JSON.stringify({ error: "Could not generate signed URL" }), { status: 500, headers: { ...cors, "Content-Type": "application/json" } });
+
     } else if (storedUrl && storedUrl.startsWith("http")) {
-      // Always authenticate — even download.php AI URLs require the API key.
       downloadUrl = storedUrl;
-      needsAuth = true;
+      // TurniScan API URLs need auth; CDN download.php is public for sim, needs auth for AI
+      needsAuth = storedUrl.includes("/v1/") || (reportType === "ai" && storedUrl.includes("download.php"));
+
     } else if (order.external_order_id) {
-      // Fallback: construct from file_id
       downloadUrl = `${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(order.external_order_id)}`;
       needsAuth = true;
     }
 
     if (!downloadUrl) return new Response(JSON.stringify({ error: "Report not ready" }), { status: 404, headers: { ...cors, "Content-Type": "application/json" } });
 
-    // Proxy the download from TurniScan
     const fetchHeaders: Record<string, string> = {};
     if (needsAuth) fetchHeaders["Authorization"] = `Bearer ${TURNISCAN_API_KEY}`;
     const tsRes = await fetch(downloadUrl, { headers: fetchHeaders });
@@ -98,21 +93,16 @@ Deno.serve(async (req: Request) => {
       return new Response(errText, { status: tsRes.status, headers: { ...cors, "Content-Type": "application/json" } });
     }
 
-    // Stream the PDF back
     const contentType = tsRes.headers.get("Content-Type") || "application/pdf";
-    const disposition = tsRes.headers.get("Content-Disposition") || `attachment; filename="ai_report.pdf"`;
+    const disposition = tsRes.headers.get("Content-Disposition") || `attachment; filename="${filename}"`;
 
     return new Response(tsRes.body, {
       status: 200,
-      headers: {
-        ...cors,
-        "Content-Type": contentType,
-        "Content-Disposition": disposition,
-      },
+      headers: { ...cors, "Content-Type": contentType, "Content-Disposition": disposition },
     });
 
   } catch (err) {
-    console.error("download-report error:", err);
+    console.error("get-report error:", err);
     return new Response(JSON.stringify({ error: "Internal server error" }), { status: 500, headers: { ...cors, "Content-Type": "application/json" } });
   }
 });

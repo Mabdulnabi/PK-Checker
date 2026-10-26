@@ -6676,7 +6676,7 @@ function buildOrderRow(o){
   const hasAi = o.checkType==='sim_ai';
 
   const simDl = (canDownload && o.reportUrl)
-    ? `<a class="dl-btn" href="${o.reportUrl}" target="_blank" rel="noopener" title="${t('similarity')}" onclick="trackReportDownload('${o.id}','sim',${hasAi})">${ICONS.download}</a><button type="button" class="dl-btn pdf-preview-btn" onclick="openPdfPreview('${o.reportUrl}')" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`
+    ? `<button type="button" class="dl-btn" onclick="downloadReport('${o.id}','sim')" title="${t('similarity')}">${ICONS.download}</button><button type="button" class="dl-btn pdf-preview-btn" onclick="downloadReport('${o.id}','sim',true)" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`
     : `<div class="dl-btn disabled" title="${t('similarity')}">${ICONS.download}</div>`;
 
   let aiDl;
@@ -7006,17 +7006,17 @@ function buildAiReportUrl(orderId, storedValue){
   return null;
 }
 
-let _aiDownloading = false;
-async function downloadAiReport(orderId, preview = false){
-  if (_aiDownloading) return;
-  _aiDownloading = true;
+let _reportDownloading = false;
+async function downloadReport(orderId, type = 'ai', preview = false){
+  if (_reportDownloading) return;
+  _reportDownloading = true;
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
     const token = session?.access_token;
     const res = await fetch(`${FN_BASE}/get-report`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      body: JSON.stringify({ order_id: orderId, report_type: 'ai' })
+      body: JSON.stringify({ order_id: orderId, report_type: type })
     });
     if (!res.ok) {
       const err = await res.text();
@@ -7030,17 +7030,19 @@ async function downloadAiReport(orderId, preview = false){
     } else {
       const a = document.createElement('a');
       a.href = blobUrl;
-      a.download = `ai_report_${orderId}.pdf`;
+      a.download = `${type}_report_${orderId}.pdf`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
     }
   } catch(e) {
-    console.error('downloadAiReport error:', e);
+    console.error('downloadReport error:', e);
     await appAlert((currentLang==='ar' ? 'خطأ في تحميل التقرير: ' : 'Error downloading report: ') + (e?.message || e), {icon:'error'});
   } finally {
-    _aiDownloading = false;
+    _reportDownloading = false;
   }
 }
+// Keep backward-compat alias
+function downloadAiReport(orderId, preview = false){ return downloadReport(orderId, 'ai', preview); }
 
 async function loadOrders(){
   const { data, error } = await supabaseClient
