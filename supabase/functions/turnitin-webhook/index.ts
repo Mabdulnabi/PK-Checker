@@ -63,11 +63,11 @@ Deno.serve(async (req: Request) => {
         });
         updates.report_url = simRes.headers.get("location") || tsData.download_url;
 
-        const aiRes = await fetch(`${TURNISCAN_BASE}/scan/download?file_id=${fileId}&report_type=ai`, {
-          headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` },
-          redirect: "manual",
-        });
-        const aiCdnUrl = aiRes.headers.get("location");
+        // Try to get AI CDN URL from status response fields
+        const aiCdnUrl: string | null =
+          (tsData.ai_download_url as string | undefined) ||
+          (tsData.ai_report_url as string | undefined) ||
+          null;
         if (aiCdnUrl) updates.ai_report_url = aiCdnUrl;
       }
     } catch (e) {

@@ -83,12 +83,12 @@ Deno.serve(async (req: Request) => {
       const simCdnUrl = simRes.headers.get("location") || tsData.download_url;
       console.log("check-status: simRes status=", simRes.status, "simCdnUrl=", simCdnUrl);
 
-      const aiRes = await fetch(`${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(fileId)}&report_type=ai`, {
-        headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` },
-        redirect: "manual",
-      });
-      const aiCdnUrl = aiRes.headers.get("location");
-      console.log("check-status: aiRes status=", aiRes.status, "aiCdnUrl=", aiCdnUrl, "aiHeaders=", JSON.stringify(Object.fromEntries(aiRes.headers)));
+      // Try to get AI CDN URL: check status response fields first, then follow redirect
+      const aiCdnUrl: string | null =
+        (tsData.ai_download_url as string | undefined) ||
+        (tsData.ai_report_url as string | undefined) ||
+        null;
+      console.log("check-status: aiCdnUrl from status=", aiCdnUrl, "tsData.ai_download_url=", tsData.ai_download_url, "tsData.ai_report_url=", tsData.ai_report_url);
 
       if (simCdnUrl) {
         updates.report_url = simCdnUrl;

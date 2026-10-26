@@ -77,11 +77,9 @@ Deno.serve(async (req: Request) => {
       }
       return new Response(JSON.stringify({ error: "Could not generate signed URL" }), { status: 500, headers: { ...cors, "Content-Type": "application/json" } });
     } else if (storedUrl && storedUrl.startsWith("http")) {
-      // Full URL already stored:
-      // - download.php URLs are public CDN (no auth needed)
-      // - /v1/ URLs are API endpoints (need auth)
+      // Always authenticate — even download.php AI URLs require the API key.
       downloadUrl = storedUrl;
-      needsAuth = storedUrl.includes("/v1/");
+      needsAuth = true;
     } else if (order.external_order_id) {
       // Fallback: construct from file_id
       downloadUrl = `${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(order.external_order_id)}`;
