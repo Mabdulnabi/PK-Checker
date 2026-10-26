@@ -7025,7 +7025,8 @@ async function downloadAiReport(orderId, preview = false){
       setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
     }
   } catch(e) {
-    await appAlert((currentLang==='ar' ? 'خطأ في تحميل التقرير' : 'Error downloading report'), {icon:'error'});
+    console.error('downloadAiReport error:', e);
+    await appAlert((currentLang==='ar' ? 'خطأ في تحميل التقرير: ' : 'Error downloading report: ') + (e?.message || e), {icon:'error'});
   }
 }
 
