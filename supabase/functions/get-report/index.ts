@@ -25,8 +25,16 @@ Deno.serve(async (req: Request) => {
     if (authErr || !user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
 
     const url = new URL(req.url);
-    const orderId = url.searchParams.get("order_id");
-    const reportType = url.searchParams.get("report_type") || "ai";
+    let orderId = url.searchParams.get("order_id");
+    let reportType = url.searchParams.get("report_type") || "ai";
+    // Also accept POST body (avoids ad blocker blocking UUID in URL path)
+    if (req.method === "POST") {
+      try {
+        const body = await req.json();
+        if (body.order_id) orderId = body.order_id;
+        if (body.report_type) reportType = body.report_type;
+      } catch { /* ignore, fall back to query params */ }
+    }
 
     if (!orderId) return new Response(JSON.stringify({ error: "Missing order_id" }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
 

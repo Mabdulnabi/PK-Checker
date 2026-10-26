@@ -7000,7 +7000,7 @@ async function loadUserProfile({ force = false } = {}){
 
 const FN_BASE = '/api/fn';
 function buildAiReportUrl(orderId, storedValue){
-  return `/r/${encodeURIComponent(orderId)}/ai`;
+  return `${FN_BASE}/get-report`;
 }
 
 let _aiDownloading = false;
@@ -7010,8 +7010,11 @@ async function downloadAiReport(orderId, preview = false){
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
     const token = session?.access_token;
-    const url = buildAiReportUrl(orderId);
-    const res = await fetch(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+    const res = await fetch(`${FN_BASE}/get-report`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify({ order_id: orderId, report_type: 'ai' })
+    });
     if (!res.ok) {
       const err = await res.text();
       await appAlert((currentLang==='ar' ? 'خطأ في تحميل التقرير: ' : 'Error downloading report: ') + err, {icon:'error'});

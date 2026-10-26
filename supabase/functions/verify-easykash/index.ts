@@ -87,13 +87,13 @@ Deno.serve(async (req) => {
     if (!authHeader) return jsonResponse({ success: false, error: 'Missing Authorization header' }, 401);
 
     const supabaseClient = createClient(
-      Deno.env.get('PROKEYS_SUPABASE_URL') ?? '',
-      Deno.env.get('PROKEYS_ANON_KEY') ?? '',
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       { global: { headers: { Authorization: authHeader } } }
     );
     const adminClient = createClient(
-      Deno.env.get('PROKEYS_SUPABASE_URL') ?? '',
-      Deno.env.get('PROKEYS_SERVICE_ROLE_KEY') ?? ''
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
     const { data: userData, error: userError } = await supabaseClient.auth.getUser();
