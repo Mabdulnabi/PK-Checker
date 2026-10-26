@@ -6003,6 +6003,7 @@ fileChipRemove.addEventListener('click', (e)=>{
 });
 
 let userBalance = 0; // loaded from Supabase wallet_transactions (latest balance_after)
+let _balanceLoaded = false; // guard: don't show insufficient-balance warning before first load
 
 function updatePrice(){
   const fileCount = currentFile && currentFile.name ? 1 : 0;
@@ -6019,7 +6020,7 @@ function updateSubmitState(needed){
   if (_orderSubmitting) return;
   const btn = document.getElementById('submitBtn');
   const warn = document.getElementById('balanceWarning');
-  const insufficient = userBalance < needed;
+  const insufficient = _balanceLoaded && userBalance < needed;
   warn.style.display = insufficient ? 'flex' : 'none';
   if(insufficient){
     btn.classList.add('needs-topup');
@@ -7146,6 +7147,7 @@ async function loadWallet(){
     return;
   }
   userBalance = (data && data.length > 0) ? Number(data[0].balance_after) : 0;
+  _balanceLoaded = true;
 }
 
 async function loadDashboardData(){
@@ -7255,8 +7257,9 @@ async function refreshCheckSettings(){
 }
 
 (async function initDashboard(){
-  await loadUIConfig();   // load admin UI overrides first
-  applyLang();            // now t() uses overrides
+  applyLang();            // immediate: translate from localStorage lang before any network calls
+  await loadUIConfig();   // load admin UI overrides
+  applyLang();            // re-apply with overrides
   loadPaymentMethodsConfig();
   loadAdminProfiles();
   loadDashboardData().then(() => {
@@ -7543,6 +7546,7 @@ function submitOnboarding(){
   setLangFromPopup(_obLang);
   setCurrencyFromPopup(_obCurr);
   launchConfetti();
+  if (typeof goTab === 'function') goTab('new-check');
   // Mark onboarding complete in DB so it never shows again for this account
   if (PROKEYS_USER_ID) {
     supabaseClient.from('users_profile')
