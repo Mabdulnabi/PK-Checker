@@ -2613,6 +2613,22 @@ const I18N = {
     last_order_title:"آخر طلب لك", view_all_orders:"عرض كل الطلبات",
     welcome_message:"أهلاً بك مجدداً",
     tour_btn_title:"جولة تعريفية",
+    tour_skip:"تخطي الجولة", tour_back:"→ السابق", tour_next:"التالي ←", tour_finish:"ابدأ الآن 🚀",
+    tour_welcome_title:"أهلاً بك في Pro Keys! 🎉", tour_welcome_desc:"هنريك في خطوات بسيطة إزاي تشحن رصيدك، ترفع ملفك، وتاخد تقرير Turnitin رسمي في دقائق.",
+    tour_balance_title:"رصيدك الحالي", tour_balance_desc:"كل فحص بيتكلف <b>10 كريديت</b> (اقتباس فقط) أو <b>20 كريديت</b> (اقتباس + AI). الرصيد بيتخصم تلقائياً لما ترسل الملف.",
+    tour_topup_btn_title:"اشحن محفظتك", tour_topup_btn_desc:"اضغط على زرار <b>\"اشحن المحفظة الآن\"</b> لإظهار باقات الشحن المتاحة.",
+    tour_select_pack_title:"اختار الباقة المناسبة", tour_select_pack_desc:"اختار الباقة اللي تناسبك واضغط زرار <b>اختار</b> عليها — هيظهر قسم الدفع تلقائياً تحت.",
+    tour_instapay_method_title:"اختار InstaPay", tour_instapay_method_desc:"انزل لتحت واختار <b>InstaPay</b> كوسيلة دفع. هيظهر رقم المحفظة اللي هتحوّل عليه.",
+    tour_instapay_transfer_title:"حوّل المبلغ على الرقم ده", tour_instapay_transfer_desc:"افتح تطبيق InstaPay وحوّل المبلغ المطلوب على الرقم اللي شايفه. <b>احتفظ برقم العملية</b> اللي هييجيلك في الـ SMS.",
+    tour_txid_input_title:"أدخل رقم العملية المرجعي", tour_txid_input_desc:"ادخل <b>رقم الـ Reference</b> اللي وصلك في الـ SMS بعد التحويل في الخانة دي.",
+    tour_confirm_pay_title:"اضغط \"تأكيد الشراء\"", tour_confirm_pay_desc:"بعد ما تدخل الرقم المرجعي اضغط <b>تأكيد الشراء</b>. الكريديت هيتضاف لرصيدك بعد مراجعة الأدمن وموافقته.",
+    tour_upload_title:"ارفع ملفك", tour_upload_desc:"اسحب وأفلت ملفك هنا أو اضغط لتختاره. المنصة بتدعم PDF, Word, PowerPoint وأكثر.",
+    tour_checktype_title:"اختار نوع الفحص", tour_checktype_desc:"\"اقتباس فقط\" بيفحص التشابه مع المصادر. \"اقتباس + AI\" بيضيف كشف المحتوى المولّد بالذكاء الاصطناعي.",
+    tour_submit_title:"أرسل للفحص", tour_submit_desc:"لما تكون الملف محمّل والخيارات محددة، اضغط هنا لترسل الطلب. هيظهر في تاب \"ملفاتي\" مباشرةً.",
+    tour_result_title:"نتائجك هنا", tour_result_desc:"بعد ما الفحص يكتمل هتلاقي طلبك هنا بالحالة. الطلبات بتتحدث تلقائياً من غير ما تعيد تحميل الصفحة.",
+    tour_download_title:"حمّل التقرير وقيّم تجربتك", tour_download_desc:"زرار التحميل بيحملك التقرير مباشرةً. بعده هتظهر لك نجوم التقييم — رأيك بيساعدنا نتحسن!",
+    tour_support_title:"محتاج مساعدة؟", tour_support_desc:"افتح تذكرة دعم أو كلمنا على اللايف شات من الفقاعة الزرقاء في أسفل الشاشة — فريقنا دايماً موجود.",
+    tour_done_title:"كل حاجة واضحة؟", tour_done_desc:"الجولة التعريفية خلصت. تقدر تبدأ دلوقتي وترفع أول ملف بثقة. بالتوفيق! 🌟",
     kpi_topup:"شحن +", kpi_credits_unit:"كريديت", credit_unit_singular:"كريديت", kpi_balance:"رصيدك الحالي",
     kpi_processing:"قيد الفحص الآن", kpi_floating:"رصيد عائم (معلّق)",
     kpi_completed_label:"مكتمل بالكامل", kpi_rejected_word:"مرفوض", kpi_cancelled_word:"ملغي",
@@ -2745,6 +2761,22 @@ const I18N = {
     last_order_title:"Your last order", view_all_orders:"View all orders",
     welcome_message:"Welcome back",
     tour_btn_title:"Guided tour",
+    tour_skip:"Skip tour", tour_back:"← Back", tour_next:"Next →", tour_finish:"Start now 🚀",
+    tour_welcome_title:"Welcome to Pro Keys! 🎉", tour_welcome_desc:"Let's walk you through how to top up, upload your file, and receive an official Turnitin report in minutes.",
+    tour_balance_title:"Your current balance", tour_balance_desc:"Each check costs <b>10 credits</b> (Similarity only) or <b>20 credits</b> (Similarity + AI). Credits are deducted automatically on submit.",
+    tour_topup_btn_title:"Top up your wallet", tour_topup_btn_desc:"Click the <b>\"Top Up Wallet Now\"</b> button to reveal the available top-up packages.",
+    tour_select_pack_title:"Choose a package", tour_select_pack_desc:"Browse the packages and click <b>Select</b> on the one that suits you — the payment section will appear below automatically.",
+    tour_instapay_method_title:"Choose InstaPay", tour_instapay_method_desc:"Scroll down and select <b>InstaPay</b> as your payment method. The wallet number you need to transfer to will appear.",
+    tour_instapay_transfer_title:"Transfer to this number", tour_instapay_transfer_desc:"Open the InstaPay app and transfer the required amount to the number shown here. <b>Keep the reference number</b> you receive in the SMS.",
+    tour_txid_input_title:"Enter the reference number", tour_txid_input_desc:"Enter the <b>Reference number</b> you received in the SMS after the transfer into this field.",
+    tour_confirm_pay_title:"Click \"Confirm Purchase\"", tour_confirm_pay_desc:"After entering the reference number click <b>Confirm Purchase</b>. Credits will be added to your balance once the admin reviews and approves.",
+    tour_upload_title:"Upload your file", tour_upload_desc:"Drag & drop your file here or click to browse. We support PDF, Word, PowerPoint and more.",
+    tour_checktype_title:"Choose check type", tour_checktype_desc:"\"Similarity only\" checks for matches with sources. \"Similarity + AI\" adds AI-generated content detection.",
+    tour_submit_title:"Submit for checking", tour_submit_desc:"Once your file is uploaded and options selected, press here to submit. It will appear in \"My Files\" instantly.",
+    tour_result_title:"Your results are here", tour_result_desc:"Once the check is complete you'll find your order here with its status. Orders update automatically without refreshing.",
+    tour_download_title:"Download & rate your experience", tour_download_desc:"The download button fetches your report directly. Afterwards the star rating appears — your feedback helps us improve!",
+    tour_support_title:"Need help?", tour_support_desc:"Open a support ticket or chat with us via the blue bubble at the bottom of the screen — our team is always here.",
+    tour_done_title:"All set!", tour_done_desc:"The tour is complete. You're ready to upload your first file with confidence. Good luck! 🌟",
     kpi_topup:"Top up", kpi_credits_unit:"credits", credit_unit_singular:"credit", kpi_balance:"Current balance",
     kpi_processing:"Processing now", kpi_floating:"Floating (pending)",
     kpi_completed_label:"Total completed", kpi_rejected_word:"rejected", kpi_cancelled_word:"cancelled",
@@ -8199,227 +8231,42 @@ const MOCK_ORDER_ID = '__tour_mock__';
 /* ---- i18n helper ---- */
 function isAr(){ return (typeof currentLang !== 'undefined' ? currentLang : 'ar') === 'ar'; }
 
-/* ============================================================
-   TOUR TEXT CONFIG — edit here to change any text in Arabic or English
-   ============================================================ */
-const TOUR_TEXT = {
-  ar: {
-    skip:         'تخطي الجولة',
-    back:         '← السابق',
-    next:         'التالي →',
-    finish:       'ابدأ الآن 🚀',
-    step_of:      (i,n) => `خطوة ${i} من ${n}`,
-    pct:          (p) => `${p}%`,
-    steps: [
-      {
-        id:'welcome', center:true, emoji:'👋',
-        title: 'أهلاً بك في Pro Keys! 🎉',
-        desc:  'هنريك في خطوات بسيطة إزاي تشحن رصيدك، ترفع ملفك، وتاخد تقرير Turnitin رسمي في دقائق.',
-      },
-      {
-        id:'balance', target:'#kpiBalanceNum', emoji:'💰',
-        title: 'رصيدك الحالي',
-        desc:  'كل فحص بيتكلف <b>10 كريديت</b> (اقتباس فقط) أو <b>20 كريديت</b> (اقتباس + AI). الرصيد بيتخصم تلقائياً لما ترسل الملف.',
-        tab:   'new-check',
-      },
-      {
-        id:'topup_btn', target:'#showPacksBtn', emoji:'💳',
-        title: 'اشحن محفظتك',
-        desc:  'اضغط على زرار <b>"اشحن المحفظة الآن"</b> لإظهار باقات الشحن المتاحة.',
-        tab:   'wallet',
-        expandPacks: true,
-      },
-      {
-        id:'select_pack', target:'#topupSlider', emoji:'🗂️',
-        title: 'اختار الباقة المناسبة',
-        desc:  'اختار الباقة اللي تناسبك واضغط زرار <b>اختار</b> عليها — هيظهر قسم الدفع تلقائياً تحت.',
-        tab:   'wallet',
-        expandPacks: true,
-      },
-      {
-        id:'instapay_method', target:'[data-pay="instapay"]', emoji:'📲',
-        title: 'اختار InstaPay',
-        desc:  'انزل لتحت وختار <b>InstaPay</b> كوسيلة دفع. هيظهر رقم المحفظة اللي هتحوّل عليه.',
-        tab:   'wallet',
-        expandPacks: true,
-      },
-      {
-        id:'instapay_transfer', target:'#walletUidValue', emoji:'💸',
-        title: 'حوّل المبلغ على الرقم ده',
-        desc:  'افتح تطبيق InstaPay وحوّل المبلغ المطلوب على الرقم اللي شايفه. <b>احتفظ برقم العملية</b> اللي هييجيلك في الـ SMS.',
-        tab:   'wallet',
-        expandPacks: true,
-      },
-      {
-        id:'txid_input', target:'#walletTxidInput', emoji:'🔢',
-        title: 'أدخل رقم العملية المرجعي',
-        desc:  'ادخل <b>رقم الـ Reference</b> اللي وصلك في الـ SMS بعد التحويل في الخانة دي.',
-        tab:   'wallet',
-        expandPacks: true,
-      },
-      {
-        id:'confirm_pay', target:'.btn-gold', emoji:'✅',
-        title: 'اضغط "تأكيد الشراء"',
-        desc:  'بعد ما تدخل الرقم المرجعي اضغط <b>تأكيد الشراء</b>. الكريديت هيتضاف لرصيدك بعد مراجعة الأدمن وموافقته.',
-        tab:   'wallet',
-        expandPacks: true,
-      },
-      {
-        id:'upload', target:'#uploadzoneBox', emoji:'📂',
-        title: 'ارفع ملفك',
-        desc:  'اسحب وأفلت ملفك هنا أو اضغط لتختاره. المنصة بتدعم PDF, Word, PowerPoint وأكثر.',
-        tab:   'new-check',
-      },
-      {
-        id:'checktype', target:'.seg', emoji:'⚙️',
-        title: 'اختار نوع الفحص',
-        desc:  '"اقتباس فقط" بيفحص التشابه مع المصادر. "اقتباس + AI" بيضيف كشف المحتوى المولّد بالذكاء الاصطناعي.',
-        tab:   'new-check',
-      },
-      {
-        id:'submit', target:'#submitBtn', emoji:'🚀',
-        title: 'أرسل للفحص',
-        desc:  'لما تكون الملف محمّل والخيارات محددة، اضغط هنا لترسل الطلب. هيظهر في تاب "ملفاتي" مباشرةً.',
-        tab:   'new-check',
-      },
-      {
-        id:'result', target:'#ordersBody', emoji:'📊', mockOrder: true,
-        title: 'نتائجك هنا',
-        desc:  'بعد ما الفحص يكتمل هتلاقي طلبك هنا بالحالة. الطلبات بتتحدث تلقائياً من غير ما تعيد تحميل الصفحة.',
-        tab:   'orders',
-      },
-      {
-        id:'download', target:'.tour-mock-row .dl-cell', emoji:'⬇️', mockOrder: true,
-        title: 'حمّل التقرير وقيّم تجربتك',
-        desc:  'زرار التحميل بيحملك التقرير مباشرةً. بعده هتظهر لك نجوم التقييم — رأيك بيساعدنا نتحسن!',
-        tab:   'orders',
-      },
-      {
-        id:'support', target:'[data-tab="support"]', emoji:'💬',
-        title: 'محتاج مساعدة؟',
-        desc:  'افتح تذكرة دعم أو كلمنا على اللايف شات من الفقاعة الزرقاء في أسفل الشاشة — فريقنا دايماً موجود.',
-        tab:   'support',
-      },
-      {
-        id:'done', center:true, emoji:'🎉',
-        title: 'كل حاجة واضحة؟',
-        desc:  'الجولة التعريفية خلصت. تقدر تبدأ دلوقتي وترفع أول ملف بثقة. بالتوفيق! 🌟',
-        isLast: true,
-      },
-    ],
-  },
-  en: {
-    skip:         'Skip tour',
-    back:         '← Back',
-    next:         'Next →',
-    finish:       'Start now 🚀',
-    step_of:      (i,n) => `Step ${i} of ${n}`,
-    pct:          (p) => `${p}%`,
-    steps: [
-      {
-        id:'welcome', center:true, emoji:'👋',
-        title: 'Welcome to Pro Keys! 🎉',
-        desc:  "Let's walk you through how to top up, upload your file, and receive an official Turnitin report in minutes.",
-      },
-      {
-        id:'balance', target:'#kpiBalanceNum', emoji:'💰',
-        title: 'Your current balance',
-        desc:  'Each check costs <b>10 credits</b> (Similarity only) or <b>20 credits</b> (Similarity + AI). Credits are deducted automatically on submit.',
-        tab:   'new-check',
-      },
-      {
-        id:'topup_btn', target:'#showPacksBtn', emoji:'💳',
-        title: 'Top up your wallet',
-        desc:  'Click the <b>"Top Up Wallet Now"</b> button to reveal the available top-up packages.',
-        tab:   'wallet',
-        expandPacks: true,
-      },
-      {
-        id:'select_pack', target:'#topupSlider', emoji:'🗂️',
-        title: 'Choose a package',
-        desc:  'Browse the packages and click <b>Select</b> on the one that suits you — the payment section will appear below automatically.',
-        tab:   'wallet',
-        expandPacks: true,
-      },
-      {
-        id:'instapay_method', target:'[data-pay="instapay"]', emoji:'📲',
-        title: 'Choose InstaPay',
-        desc:  'Scroll down and select <b>InstaPay</b> as your payment method. The wallet number you need to transfer to will appear.',
-        tab:   'wallet',
-        expandPacks: true,
-      },
-      {
-        id:'instapay_transfer', target:'#walletUidValue', emoji:'💸',
-        title: 'Transfer to this number',
-        desc:  'Open the InstaPay app and transfer the required amount to the number shown here. <b>Keep the reference number</b> you receive in the SMS.',
-        tab:   'wallet',
-        expandPacks: true,
-      },
-      {
-        id:'txid_input', target:'#walletTxidInput', emoji:'🔢',
-        title: 'Enter the reference number',
-        desc:  'Enter the <b>Reference number</b> you received in the SMS after the transfer into this field.',
-        tab:   'wallet',
-        expandPacks: true,
-      },
-      {
-        id:'confirm_pay', target:'.btn-gold', emoji:'✅',
-        title: 'Click "Confirm Purchase"',
-        desc:  'After entering the reference number click <b>Confirm Purchase</b>. Credits will be added to your balance once the admin reviews and approves.',
-        tab:   'wallet',
-        expandPacks: true,
-      },
-      {
-        id:'upload', target:'#uploadzoneBox', emoji:'📂',
-        title: 'Upload your file',
-        desc:  'Drag & drop your file here or click to browse. We support PDF, Word, PowerPoint and more.',
-        tab:   'new-check',
-      },
-      {
-        id:'checktype', target:'.seg', emoji:'⚙️',
-        title: 'Choose check type',
-        desc:  '"Similarity only" checks for matches with sources. "Similarity + AI" adds AI-generated content detection.',
-        tab:   'new-check',
-      },
-      {
-        id:'submit', target:'#submitBtn', emoji:'🚀',
-        title: 'Submit for checking',
-        desc:  'Once your file is uploaded and options selected, press here to submit. It will appear in "My Files" instantly.',
-        tab:   'new-check',
-      },
-      {
-        id:'result', target:'#ordersBody', emoji:'📊', mockOrder: true,
-        title: 'Your results are here',
-        desc:  "Once the check is complete you'll find your order here with its status. Orders update automatically without refreshing.",
-        tab:   'orders',
-      },
-      {
-        id:'download', target:'.tour-mock-row .dl-cell', emoji:'⬇️', mockOrder: true,
-        title: 'Download & rate your experience',
-        desc:  'The download button fetches your report directly. Afterwards the star rating appears — your feedback helps us improve!',
-        tab:   'orders',
-      },
-      {
-        id:'support', target:'[data-tab="support"]', emoji:'💬',
-        title: 'Need help?',
-        desc:  'Open a support ticket or chat with us via the blue bubble at the bottom of the screen — our team is always here.',
-        tab:   'support',
-      },
-      {
-        id:'done', center:true, emoji:'🎉',
-        title: 'All set!',
-        desc:  "The tour is complete. You're ready to upload your first file with confidence. Good luck! 🌟",
-        isLast: true,
-      },
-    ],
-  },
-};
+/* Steps structure — titles/descs come from i18n t() so admin can edit them */
+const TOUR_STEPS_DEF = [
+  { id:'welcome',           center:true,  emoji:'👋' },
+  { id:'balance',           target:'#kpiBalanceNum',           emoji:'💰', tab:'new-check' },
+  { id:'topup_btn',         target:'#showPacksBtn',            emoji:'💳', tab:'wallet',    expandPacks:true },
+  { id:'select_pack',       target:'#topupSlider',             emoji:'🗂️', tab:'wallet',    expandPacks:true },
+  { id:'instapay_method',   target:'[data-pay="instapay"]',    emoji:'📲', tab:'wallet',    expandPacks:true },
+  { id:'instapay_transfer', target:'#walletUidValue',          emoji:'💸', tab:'wallet',    expandPacks:true },
+  { id:'txid_input',        target:'#walletTxidInput',         emoji:'🔢', tab:'wallet',    expandPacks:true },
+  { id:'confirm_pay',       target:'.btn-gold',                emoji:'✅', tab:'wallet',    expandPacks:true },
+  { id:'upload',            target:'#uploadzoneBox',           emoji:'📂', tab:'new-check' },
+  { id:'checktype',         target:'.seg',                     emoji:'⚙️', tab:'new-check' },
+  { id:'submit',            target:'#submitBtn',               emoji:'🚀', tab:'new-check' },
+  { id:'result',            target:'#ordersBody',              emoji:'📊', tab:'orders',    mockOrder:true },
+  { id:'download',          target:'.tour-mock-row .dl-cell',  emoji:'⬇️', tab:'orders',    mockOrder:true },
+  { id:'support',           target:'[data-tab="support"]',     emoji:'💬', tab:'support' },
+  { id:'done',              center:true,  emoji:'🎉', isLast:true },
+];
 
 function getSteps(){
-  return TOUR_TEXT[isAr() ? 'ar' : 'en'].steps;
+  return TOUR_STEPS_DEF.map(s => ({
+    ...s,
+    title: t('tour_' + s.id + '_title'),
+    desc:  t('tour_' + s.id + '_desc'),
+  }));
 }
 function getT(){
-  return TOUR_TEXT[isAr() ? 'ar' : 'en'];
+  const ar = isAr();
+  return {
+    skip:    t('tour_skip'),
+    back:    t('tour_back'),
+    next:    t('tour_next'),
+    finish:  t('tour_finish'),
+    step_of: ar ? (i,n) => `خطوة ${i} من ${n}` : (i,n) => `Step ${i} of ${n}`,
+    pct:     (p) => `${p}%`,
+  };
 }
 
 /* ---- Mock order HTML ---- */
@@ -8648,9 +8495,6 @@ window.startTour = function(){
   overlay.classList.add('active');
   showStep(0);
 };
-
-/* Expose text config so admin can edit tour text without touching the engine */
-window.TOUR_TEXT = TOUR_TEXT;
 
 function endTour(){
   active = false;
