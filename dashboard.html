@@ -6999,7 +6999,7 @@ async function loadUserProfile({ force = false } = {}){
 }
 
 function buildAiReportUrl(orderId, storedValue){
-  return `${SUPABASE_URL}/functions/v1/download-report?order_id=${encodeURIComponent(orderId)}&report_type=ai`;
+  return `${SUPABASE_URL}/functions/v1/get-report?order_id=${encodeURIComponent(orderId)}&report_type=ai`;
 }
 
 async function downloadAiReport(orderId, preview = false){

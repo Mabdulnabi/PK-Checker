@@ -84,7 +84,7 @@ Deno.serve(async (req: Request) => {
       updates.ai_report_url = aiMarker;
       updates.completed_at = new Date().toISOString();
       // Build the proxied download URL for the client
-      const aiProxyUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/download-report?order_id=${orderId}&report_type=ai`;
+      const aiProxyUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/get-report?order_id=${orderId}&report_type=ai`;
       reports.ai = { downloadUrl: aiProxyUrl };
 
       if (tsData.similarity_score !== undefined) updates.similarity_score = tsData.similarity_score;
