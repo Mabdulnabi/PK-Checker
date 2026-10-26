@@ -3276,21 +3276,44 @@ async function uploadManualReportFile(orderId, kind, inputEl){
 }
 
 function linkCell(orderId, field, url){
-  // AI report URLs (proxy: markers or turniscan URLs) must go through the get-report proxy
   const isAiReport = field === 'ai_report_url';
   const hasReport = !!url;
   let openLink, previewBtn;
   if (isAiReport && hasReport) {
+    // AI report always goes through get-report proxy (handles proxy:, TurniScan API, CDN, Storage URLs)
     openLink = `<button class="edit-link-btn" onclick="adminDownloadAiReport('${orderId}')">${t('link_open')}</button>`;
     previewBtn = `<button class="edit-link-btn" onclick="adminDownloadAiReport('${orderId}',true)" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`;
   } else if (!isAiReport && hasReport) {
-    openLink = `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${t('link_open')}</a>`;
-    previewBtn = `<button class="edit-link-btn" onclick="openPdfPreview('${escapeHtml(url)}')" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`;
+    // Similarity: if Supabase Storage URL (private bucket), generate signed URL first
+    openLink = `<button class="edit-link-btn" onclick="adminOpenReport('${escapeHtml(url)}')">${t('link_open')}</button>`;
+    previewBtn = `<button class="edit-link-btn" onclick="adminOpenReport('${escapeHtml(url)}',true)" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`;
   } else {
     openLink = `<span class="source-none">${t('link_none')}</span>`;
     previewBtn = '';
   }
   return `<div class="link-cell">${openLink}${previewBtn}<button class="edit-link-btn" onclick="editOrderLink('${orderId}','${field}')" title="${t('edit_link')}">✎</button></div>`;
+}
+
+async function adminOpenReport(url, preview = false){
+  let finalUrl = url;
+  // Supabase Storage URLs need a signed URL (bucket may be private)
+  if (url && url.includes('/storage/v1/object/')) {
+    try {
+      // Extract bucket and path from URL: .../storage/v1/object/public/{bucket}/{path}
+      const match = url.match(/\/storage\/v1\/object\/(?:public\/)?([^/]+)\/(.+)/);
+      if (match) {
+        const bucket = match[1];
+        const path = decodeURIComponent(match[2]);
+        const { data, error } = await supabaseClient.storage.from(bucket).createSignedUrl(path, 3600);
+        if (!error && data?.signedUrl) finalUrl = data.signedUrl;
+      }
+    } catch(e) { /* fall back to original URL */ }
+  }
+  if (preview) {
+    openPdfPreview(finalUrl);
+  } else {
+    window.open(finalUrl, '_blank', 'noopener');
+  }
 }
 
 let _adminAiDownloading = false;

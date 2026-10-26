@@ -64,6 +64,18 @@ Deno.serve(async (req: Request) => {
       const fileId = storedUrl.replace("proxy:", "");
       downloadUrl = `${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(fileId)}`;
       needsAuth = true;
+    } else if (storedUrl && storedUrl.includes("/storage/v1/object/")) {
+      // Supabase Storage URL — generate a signed URL server-side
+      const match = storedUrl.match(/\/storage\/v1\/object\/(?:public\/)?([^/]+)\/(.+)/);
+      if (match) {
+        const bucket = match[1];
+        const path = decodeURIComponent(match[2]);
+        const { data: signed } = await supabase.storage.from(bucket).createSignedUrl(path, 3600);
+        if (signed?.signedUrl) {
+          return Response.redirect(signed.signedUrl, 302);
+        }
+      }
+      return new Response(JSON.stringify({ error: "Could not generate signed URL" }), { status: 500, headers: { ...cors, "Content-Type": "application/json" } });
     } else if (storedUrl && storedUrl.startsWith("http")) {
       // Full URL already stored:
       // - download.php URLs are public CDN (no auth needed)
