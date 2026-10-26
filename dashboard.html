@@ -8065,7 +8065,7 @@ function maybeShowOnboarding(profileData){
 #tourOverlay.active{pointer-events:auto;}
 #tourBackdrop{position:absolute;inset:0;background:rgba(0,0,0,.6);transition:opacity .3s;}
 #tourSpotlight{position:absolute;border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,.6);transition:all .35s cubic-bezier(.4,0,.2,1);pointer-events:none;z-index:1;}
-#tourBox{position:fixed;z-index:2;background:#fff;border-radius:18px;padding:24px 24px 20px;width:360px;max-width:calc(100vw - 32px);box-shadow:0 12px 50px rgba(0,0,0,.35);pointer-events:auto;color:#1B2556;}
+#tourBox{position:absolute;z-index:2;background:#fff;border-radius:18px;padding:24px 24px 20px;width:360px;max-width:calc(100vw - 32px);box-shadow:0 12px 50px rgba(0,0,0,.35);pointer-events:auto;color:#1B2556;}
 [data-theme="dark"] #tourBox{background:#1e2436;color:#e8eff5;}
 [data-theme="dark"] #tourTitle{color:#e8eff5 !important;}
 [data-theme="dark"] #tourDesc{color:#c8d3e3 !important;}
@@ -8075,8 +8075,6 @@ function maybeShowOnboarding(profileData){
 [data-theme="dark"] .tour-prev-btn{background:#2a3148;border-color:#3a4468;color:#e8eff5;}
 [data-theme="dark"] .tour-progress-dot{background:#2a3148;}
 [data-theme="dark"] .tour-progress-dot.active{background:#4f7ef5;}
-#tourBox.center{top:50% !important;left:50% !important;transform:translate(-50%,-50%);}
-#tourBox:not(.center){transform:none;}
 .tour-step-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#6B7494;font-family:'IBM Plex Mono',monospace;margin-bottom:8px;}
 .tour-emoji{font-size:26px;margin-bottom:6px;display:block;}
 #tourTitle{font-family:'Cairo',sans-serif;font-weight:800;font-size:16px;color:#1B2556;margin-bottom:10px;line-height:1.4;}
@@ -8322,11 +8320,9 @@ function positionBox(el){
   // Clamp within viewport
   left = Math.max(margin, Math.min(left, vw - bw - margin));
   top  = Math.max(margin, Math.min(top,  vh - 320));
-  box.style.position  = 'fixed';
   box.style.left      = left + 'px';
   box.style.top       = top  + 'px';
   box.style.transform = 'none';
-  box.classList.remove('center');
 }
 
 async function showStep(idx){
@@ -8368,8 +8364,6 @@ async function showStep(idx){
   // Position
   if(s.center || !s.target){
     spotlight.style.cssText = 'display:none;';
-    box.classList.remove('center');
-    box.style.position  = 'fixed';
     box.style.top       = '50%';
     box.style.left      = '50%';
     box.style.transform = 'translate(-50%,-50%)';
