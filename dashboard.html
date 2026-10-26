@@ -1668,8 +1668,11 @@
           </div>
         </div>
         <button id="tourIconBtn" onclick="window.startTour&&window.startTour()" data-i18n-title="tour_btn_title">
-          <span data-icon-key="header_tour" style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span class="tour-lightmode-icon" style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;">
+            <span data-icon-key="header_tour" style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></span>
+          </span>
+          <span class="tour-darkmode-icon" style="display:none;align-items:center;justify-content:center;width:18px;height:18px;">
+            <span data-icon-key="header_tour_dark" style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path d="M12 2a7 7 0 1 0 10 9.2A9 9 0 1 1 12 2z"/></svg></span>
           </span>
         </button>
       </div>
@@ -2574,7 +2577,7 @@ const ICONS = {
 // which apply to a plain <img>, so the uploaded image needs an explicit size.
 const ICON_SIZE_MAP = {
   logo_dashboard:'52px',
-  header_notif:'18px', header_notif_dark:'18px', header_lightmode:'18px', header_darkmode:'18px', header_profile:'16px', header_signout:'16px',
+  header_notif:'18px', header_notif_dark:'18px', header_lightmode:'18px', header_darkmode:'18px', header_tour:'18px', header_tour_dark:'18px', header_profile:'16px', header_signout:'16px',
   tab_home:'18px', tab_new_check:'18px', tab_orders:'18px', tab_wallet:'18px', tab_support:'18px',
   home_watch:'15px', home_g1:'20px', home_g2:'20px', home_g3:'20px',
   nc_balance:'18px', nc_floating:'18px', nc_processing:'18px', nc_completed:'18px',
@@ -7456,16 +7459,22 @@ function applyDarkPackIcons(){
 }
 
 function updateDarkModeUI(){
-  const lightWrap = darkModeBtn.querySelector('.lightmode-icon-wrap');
-  const darkWrap  = darkModeBtn.querySelector('.darkmode-icon-wrap');
+  const lightWrap     = darkModeBtn.querySelector('.lightmode-icon-wrap');
+  const darkWrap      = darkModeBtn.querySelector('.darkmode-icon-wrap');
+  const tourLight     = document.querySelector('#tourIconBtn .tour-lightmode-icon');
+  const tourDark      = document.querySelector('#tourIconBtn .tour-darkmode-icon');
   if(isDarkMode){
     document.documentElement.setAttribute('data-theme', 'dark');
-    if (lightWrap) lightWrap.style.display = 'none';
-    if (darkWrap)  darkWrap.style.display  = 'inline-flex';
+    if (lightWrap)  lightWrap.style.display  = 'none';
+    if (darkWrap)   darkWrap.style.display   = 'inline-flex';
+    if (tourLight)  tourLight.style.display  = 'none';
+    if (tourDark)   tourDark.style.display   = 'inline-flex';
   } else {
     document.documentElement.removeAttribute('data-theme');
-    if (lightWrap) lightWrap.style.display = 'inline-flex';
-    if (darkWrap)  darkWrap.style.display  = 'none';
+    if (lightWrap)  lightWrap.style.display  = 'inline-flex';
+    if (darkWrap)   darkWrap.style.display   = 'none';
+    if (tourLight)  tourLight.style.display  = 'inline-flex';
+    if (tourDark)   tourDark.style.display   = 'none';
   }
   applyColorOverrides();
   // Rebuild pack cards so dark/light icons apply correctly
@@ -8244,7 +8253,7 @@ const TOUR_STEPS_DEF = [
   { id:'instapay_method',   target:'[data-pay="instapay"]',    emoji:'📲', tab:'wallet',    expandPacks:true },
   { id:'instapay_transfer', target:'#walletUidValue',          emoji:'💸', tab:'wallet',    expandPacks:true },
   { id:'txid_input',        target:'#walletTxidInput',         emoji:'🔢', tab:'wallet',    expandPacks:true },
-  { id:'confirm_pay',       target:'.btn-gold',                emoji:'✅', tab:'wallet',    expandPacks:true },
+  { id:'confirm_pay',       target:'#walletPayBlock .btn-gold', emoji:'✅', tab:'wallet',    expandPacks:true, scrollBlock:'end' },
   { id:'upload',            target:'#uploadzoneBox',           emoji:'📂', tab:'new-check' },
   { id:'checktype',         target:'.seg',                     emoji:'⚙️', tab:'new-check' },
   { id:'submit',            target:'#submitBtn',               emoji:'🚀', tab:'new-check' },
@@ -8403,13 +8412,13 @@ function positionBox(el){
     arrow.className = 'tour-arrow r';
     arrow.style.top = (r.top + r.height/2 - top) + 'px';
   } else {
-    // Fallback: bottom of screen, centered
-    top  = vh - bh - margin;
+    // Fallback: center on screen (no room on any side)
+    top  = Math.max(margin, Math.round((vh - bh) / 2));
     left = clamp(vw/2 - bw/2, margin, vw - bw - margin);
     arrow.style.cssText = 'display:none;';
   }
   left = clamp(left, margin, vw - bw - margin);
-  top  = clamp(top,  margin, vh - bh - margin);
+  top  = Math.max(margin, top);
   box.style.left      = left + 'px';
   box.style.top       = top  + 'px';
   box.style.transform = 'none';
@@ -8417,20 +8426,9 @@ function positionBox(el){
 
 function clamp(v, lo, hi){ return Math.max(lo, Math.min(v, hi)); }
 
-async function scrollAndPosition(el){
-  el.scrollIntoView({ behavior:'smooth', block:'center' });
+async function scrollAndPosition(el, scrollBlock){
+  el.scrollIntoView({ behavior:'smooth', block: scrollBlock || 'center' });
   await new Promise(r => setTimeout(r, 420));
-  // If element is in lower half of viewport, nudge it up so there's room below for the box
-  const r = el.getBoundingClientRect();
-  const vh = window.innerHeight;
-  const bh = getBoxHeight();
-  const spaceBelow = vh - r.bottom - 20 - 16;
-  if(spaceBelow < bh && r.top > vh * 0.35){
-    const scrollEl = document.scrollingElement || document.documentElement;
-    const nudge = r.top - vh * 0.28;
-    scrollEl.scrollBy({ top: nudge, behavior: 'smooth' });
-    await new Promise(r2 => setTimeout(r2, 320));
-  }
   positionSpotlight(el);
   positionBox(el);
 }
@@ -8521,7 +8519,7 @@ async function showStep(idx){
       el = document.querySelector(s.target);
     }
     if(el){
-      await scrollAndPosition(el);
+      await scrollAndPosition(el, s.scrollBlock);
     }
   }
 }
