@@ -1739,10 +1739,10 @@
       <div id="serviceOffBanner" style="display:none;background:var(--danger-wash);color:var(--danger);border-radius:10px;padding:12px 16px;margin-bottom:14px;font-size:13px;font-weight:700;text-align:center;"></div>
 
       <div class="uploadzone" id="uploadzoneBox">
-        <input type="file" id="fileInput" accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;">
+        <input type="file" id="fileInput" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;">
         <div class="uicon"><svg class="ic" data-icon-key="nc_upload" viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg></div>
         <b data-i18n="upload_cta">اختر الملف أو اسحبه هنا</b>
-        <span data-i18n="upload_hint">DOC, DOCX — حتى 100MB · ملف واحد لكل طلب</span>
+        <span data-i18n="upload_hint">PDF, DOCX — حتى 100MB · ملف واحد لكل طلب</span>
       </div>
 
       <div class="file-chip" id="fileChip" style="display:none;">
@@ -2602,7 +2602,7 @@ const I18N = {
     balance_needed_label:"الكريديت المطلوب لهذا الطلب", balance_insufficient:"رصيدك غير كافٍ لإتمام هذا الطلب. اشحن محفظتك أولًا.",
     submit_to_queue:"أرسل الملف للفحص", topup_now:"اشحن المحفظة الآن",
     newcheck_title:"طلب فحص جديد", newcheck_hint:"ملف واحد في الطلب الواحد",
-    upload_cta:"اختر الملف أو اسحبه هنا", upload_hint:"DOC, DOCX — حتى 100MB · ملف واحد لكل طلب",
+    upload_cta:"اختر الملف أو اسحبه هنا", upload_hint:"PDF, DOCX — حتى 100MB · ملف واحد لكل طلب",
     check_opts_title:"خيارات الفحص", check_type_label:"نوع الفحص",
     file_requirements_chip:"📋 شروط الملف",
     ct_sim:"اقتباس فقط", ct_both:"اقتباس + ذكاء اصطناعي",
@@ -2733,7 +2733,7 @@ const I18N = {
     balance_needed_label:"Credits required for this order", balance_insufficient:"Your balance isn't enough to cover this order. Top up your wallet first.",
     submit_to_queue:"Send File for Check", topup_now:"Top up wallet now",
     newcheck_title:"New check request", newcheck_hint:"One file per request",
-    upload_cta:"Choose or drag your file here", upload_hint:"DOC, DOCX — up to 100MB · one file per request",
+    upload_cta:"Choose or drag your file here", upload_hint:"PDF, DOCX — up to 100MB · one file per request",
     check_opts_title:"Check options", check_type_label:"Check type",
     file_requirements_chip:"📋 File Requirements",
     ct_sim:"Similarity only", ct_both:"Similarity + AI",
@@ -5865,15 +5865,14 @@ const uploadError = document.getElementById('uploadError');
 // text, not enforced here).
 const FILE_RULES = {
   sim: {
-    mimeTypes: ['application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-    extensions: ['.doc', '.docx'],
-    maxSize: 100 * 1024 * 1024, // 100MB
+    mimeTypes: ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+    extensions: ['.pdf', '.docx'],
+    maxSize: 100 * 1024 * 1024,
   },
   both: {
-    // AI-detection support is narrower: no legacy .doc, only docx.
-    mimeTypes: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-    extensions: ['.docx'],
-    maxSize: 100 * 1024 * 1024, // 100MB
+    mimeTypes: ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+    extensions: ['.pdf', '.docx'],
+    maxSize: 100 * 1024 * 1024,
   }
 };
 
