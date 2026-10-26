@@ -1666,8 +1666,10 @@
             <div class="notif-list" id="notifList"></div>
           </div>
         </div>
-        <button id="tourIconBtn" onclick="window.startTour&&window.startTour()" title="Tour">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        <button id="tourIconBtn" onclick="window.startTour&&window.startTour()" data-i18n-title="tour_btn_title">
+          <span data-icon-key="header_tour" style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          </span>
         </button>
         <button id="darkModeBtn" style="width:36px;height:36px;border-radius:50%;background:var(--paper-soft);border:1.5px solid var(--paper-line);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-soft);font-size:18px;padding:0;transition:all 0.3s;"><span class="lightmode-icon-wrap" style="display:inline-flex;align-items:center;justify-content:center;"><span data-icon-key="header_lightmode" style="width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;line-height:1;">☀️</span></span><span class="darkmode-icon-wrap" style="display:none;align-items:center;justify-content:center;"><span data-icon-key="header_darkmode" style="width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;line-height:1;">🌙</span></span></button>
       </div>
@@ -2610,6 +2612,7 @@ const I18N = {
     my_requests_title:"طلباتي",
     last_order_title:"آخر طلب لك", view_all_orders:"عرض كل الطلبات",
     welcome_message:"أهلاً بك مجدداً",
+    tour_btn_title:"جولة تعريفية",
     kpi_topup:"شحن +", kpi_credits_unit:"كريديت", credit_unit_singular:"كريديت", kpi_balance:"رصيدك الحالي",
     kpi_processing:"قيد الفحص الآن", kpi_floating:"رصيد عائم (معلّق)",
     kpi_completed_label:"مكتمل بالكامل", kpi_rejected_word:"مرفوض", kpi_cancelled_word:"ملغي",
@@ -2741,6 +2744,7 @@ const I18N = {
     my_requests_title:"My requests",
     last_order_title:"Your last order", view_all_orders:"View all orders",
     welcome_message:"Welcome back",
+    tour_btn_title:"Guided tour",
     kpi_topup:"Top up", kpi_credits_unit:"credits", credit_unit_singular:"credit", kpi_balance:"Current balance",
     kpi_processing:"Processing now", kpi_floating:"Floating (pending)",
     kpi_completed_label:"Total completed", kpi_rejected_word:"rejected", kpi_cancelled_word:"cancelled",
@@ -8108,7 +8112,15 @@ function maybeShowOnboarding(profileData){
     <div class="tour-step-badge" id="tourStepBadge"></div>
     <div id="tourTitle"></div>
     <div id="tourDesc"></div>
-    <div class="tour-progress" id="tourProgress"></div>
+    <div class="tour-progress-wrap">
+      <div class="tour-progress-label">
+        <span id="tourProgressLabel"></span>
+        <span id="tourProgressPct"></span>
+      </div>
+      <div class="tour-progress-bar-track">
+        <div class="tour-progress-bar-fill" id="tourProgressBar" style="width:0%"></div>
+      </div>
+    </div>
     <div class="tour-actions">
       <button class="tour-skip-btn" id="tourSkipBtn"></button>
       <button class="tour-prev-btn" id="tourPrevBtn" style="display:none;"></button>
@@ -8121,9 +8133,26 @@ function maybeShowOnboarding(profileData){
 <style>
 #tourOverlay{position:fixed;inset:0;z-index:99999;pointer-events:none;display:none;}
 #tourOverlay.active{pointer-events:auto;display:block;}
-#tourBackdrop{position:absolute;inset:0;background:rgba(0,0,0,.6);transition:opacity .3s;}
-#tourSpotlight{position:absolute;border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,.6);transition:all .35s cubic-bezier(.4,0,.2,1);pointer-events:none;z-index:1;}
-#tourBox{position:absolute;z-index:2;background:#fff;border-radius:18px;padding:24px 24px 20px;width:360px;max-width:calc(100vw - 32px);box-shadow:0 12px 50px rgba(0,0,0,.35);pointer-events:auto;color:#1B2556;}
+#tourBackdrop{position:absolute;inset:0;background:rgba(0,0,0,.62);transition:opacity .3s;}
+/* Spotlight: transparent cutout + outer shadow */
+#tourSpotlight{
+  position:absolute;
+  border-radius:14px;
+  box-shadow:0 0 0 9999px rgba(0,0,0,.62), 0 0 0 3px rgba(14,122,254,.9), 0 0 28px 8px rgba(14,122,254,.55);
+  transition:all .38s cubic-bezier(.4,0,.2,1);
+  pointer-events:none;
+  z-index:1;
+  animation:tourGlow 1.8s ease-in-out infinite;
+}
+@keyframes tourGlow{
+  0%,100%{box-shadow:0 0 0 9999px rgba(0,0,0,.62), 0 0 0 3px rgba(14,122,254,.9), 0 0 28px 8px rgba(14,122,254,.55);}
+  50%{box-shadow:0 0 0 9999px rgba(0,0,0,.62), 0 0 0 4px rgba(14,122,254,1), 0 0 44px 14px rgba(14,122,254,.75);}
+}
+#tourBox{
+  position:absolute;z-index:2;background:#fff;border-radius:20px;
+  padding:26px 26px 22px;width:420px;max-width:calc(100vw - 28px);
+  box-shadow:0 16px 60px rgba(0,0,0,.38);pointer-events:auto;color:#1B2556;
+}
 [data-theme="dark"] #tourBox{background:#1e2436;color:#e8eff5;}
 [data-theme="dark"] #tourTitle{color:#e8eff5 !important;}
 [data-theme="dark"] #tourDesc{color:#c8d3e3 !important;}
@@ -8131,17 +8160,18 @@ function maybeShowOnboarding(profileData){
 [data-theme="dark"] .tour-skip-btn{background:#2a3148;border-color:#3a4468;color:#8b99b8;}
 [data-theme="dark"] .tour-skip-btn:hover{color:#f87171;border-color:#f87171;}
 [data-theme="dark"] .tour-prev-btn{background:#2a3148;border-color:#3a4468;color:#e8eff5;}
-[data-theme="dark"] .tour-progress-dot{background:#2a3148;}
-[data-theme="dark"] .tour-progress-dot.active{background:#4f7ef5;}
+[data-theme="dark"] .tour-progress-bar-track{background:#2a3148;}
 .tour-step-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#6B7494;font-family:'IBM Plex Mono',monospace;margin-bottom:8px;}
-.tour-emoji{font-size:26px;margin-bottom:6px;display:block;}
-#tourTitle{font-family:'Cairo',sans-serif;font-weight:800;font-size:16px;color:#1B2556;margin-bottom:10px;line-height:1.4;}
-#tourDesc{font-size:13px;color:#3D4A6B;line-height:1.75;margin-bottom:16px;}
+.tour-emoji{font-size:28px;margin-bottom:8px;display:block;}
+#tourTitle{font-family:'Cairo',sans-serif;font-weight:800;font-size:17px;color:#1B2556;margin-bottom:10px;line-height:1.4;}
+#tourDesc{font-size:13.5px;color:#3D4A6B;line-height:1.78;margin-bottom:16px;}
 #tourDesc ul{margin:8px 0 0 0;padding-inline-start:18px;display:flex;flex-direction:column;gap:5px;}
 #tourDesc li{list-style:disc;}
-.tour-progress{display:flex;gap:5px;margin-bottom:14px;}
-.tour-progress-dot{width:6px;height:6px;border-radius:50%;background:var(--paper-line);transition:background .2s;}
-.tour-progress-dot.active{background:var(--blue);width:18px;border-radius:4px;}
+/* Progress bar */
+.tour-progress-wrap{margin-bottom:16px;}
+.tour-progress-label{display:flex;justify-content:space-between;font-size:10.5px;font-family:'IBM Plex Mono',monospace;color:var(--muted);margin-bottom:5px;}
+.tour-progress-bar-track{width:100%;height:5px;border-radius:99px;background:var(--paper-line);overflow:hidden;}
+.tour-progress-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--blue),#38bdf8);transition:width .35s cubic-bezier(.4,0,.2,1);}
 .tour-actions{display:flex;align-items:center;gap:8px;}
 .tour-skip-btn{font-size:12px;color:var(--muted);background:var(--paper-soft);border:1.5px solid var(--paper-line);border-radius:8px;cursor:pointer;padding:9px 14px;font-family:'Cairo',sans-serif;font-weight:700;white-space:nowrap;}
 .tour-skip-btn:hover{color:var(--danger);border-color:var(--danger);}
@@ -8149,14 +8179,11 @@ function maybeShowOnboarding(profileData){
 .tour-next-btn:hover{opacity:.88;}
 .tour-prev-btn{flex:none;background:var(--paper-soft);color:var(--ink);border:1.5px solid var(--paper-line);border-radius:9px;padding:10px 12px;font-weight:700;font-size:13px;font-family:'Cairo',sans-serif;cursor:pointer;}
 .tour-prev-btn:hover{background:var(--paper-line);}
-.tour-arrow{position:absolute;width:14px;height:14px;background:var(--paper);transform:rotate(45deg);z-index:-1;}
+.tour-arrow{position:absolute;width:14px;height:14px;background:inherit;transform:rotate(45deg);z-index:-1;}
 .tour-arrow.b{bottom:-7px;left:50%;margin-left:-7px;}
 .tour-arrow.t{top:-7px;left:50%;margin-left:-7px;}
 .tour-arrow.l{left:-7px;top:50%;margin-top:-7px;}
 .tour-arrow.r{right:-7px;top:50%;margin-top:-7px;}
-/* Tour icon button in header */
-#tourIconBtn{width:36px;height:36px;border-radius:50%;background:var(--paper-soft);border:1.5px solid var(--paper-line);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-soft);transition:all .2s;flex:none;}
-#tourIconBtn:hover{background:var(--blue-wash);color:var(--blue-deep);border-color:var(--blue);}
 /* Mock order highlight */
 .tour-mock-row{border:2px dashed var(--blue) !important;background:var(--blue-wash) !important;border-radius:10px;}
 </style>
@@ -8166,96 +8193,233 @@ function maybeShowOnboarding(profileData){
 (function(){
 'use strict';
 
-const LS_KEY = 'prokeys-tour-seen-v1';
+const LS_KEY = 'prokeys-tour-seen-v2';
 const MOCK_ORDER_ID = '__tour_mock__';
 
 /* ---- i18n helper ---- */
 function isAr(){ return (typeof currentLang !== 'undefined' ? currentLang : 'ar') === 'ar'; }
 
-/* ---- Steps definition ---- */
+/* ============================================================
+   TOUR TEXT CONFIG — edit here to change any text in Arabic or English
+   ============================================================ */
+const TOUR_TEXT = {
+  ar: {
+    skip:         'تخطي الجولة',
+    back:         '← السابق',
+    next:         'التالي →',
+    finish:       'ابدأ الآن 🚀',
+    step_of:      (i,n) => `خطوة ${i} من ${n}`,
+    pct:          (p) => `${p}%`,
+    steps: [
+      {
+        id:'welcome', center:true, emoji:'👋',
+        title: 'أهلاً بك في Pro Keys! 🎉',
+        desc:  'هنريك في خطوات بسيطة إزاي تشحن رصيدك، ترفع ملفك، وتاخد تقرير Turnitin رسمي في دقائق.',
+      },
+      {
+        id:'balance', target:'#kpiBalanceNum', emoji:'💰',
+        title: 'رصيدك الحالي',
+        desc:  'كل فحص بيتكلف <b>10 كريديت</b> (اقتباس فقط) أو <b>20 كريديت</b> (اقتباس + AI). الرصيد بيتخصم تلقائياً لما ترسل الملف.',
+        tab:   'new-check',
+      },
+      {
+        id:'topup_btn', target:'#showPacksBtn', emoji:'💳',
+        title: 'اشحن محفظتك',
+        desc:  'اضغط على زرار <b>"اشحن المحفظة الآن"</b> لإظهار باقات الشحن المتاحة.',
+        tab:   'wallet',
+        expandPacks: true,
+      },
+      {
+        id:'select_pack', target:'#topupSlider', emoji:'🗂️',
+        title: 'اختار الباقة المناسبة',
+        desc:  'اختار الباقة اللي تناسبك واضغط زرار <b>اختار</b> عليها — هيظهر قسم الدفع تلقائياً تحت.',
+        tab:   'wallet',
+        expandPacks: true,
+      },
+      {
+        id:'instapay_method', target:'[data-pay="instapay"]', emoji:'📲',
+        title: 'اختار InstaPay',
+        desc:  'انزل لتحت وختار <b>InstaPay</b> كوسيلة دفع. هيظهر رقم المحفظة اللي هتحوّل عليه.',
+        tab:   'wallet',
+        expandPacks: true,
+      },
+      {
+        id:'instapay_transfer', target:'#walletUidValue', emoji:'💸',
+        title: 'حوّل المبلغ على الرقم ده',
+        desc:  'افتح تطبيق InstaPay وحوّل المبلغ المطلوب على الرقم اللي شايفه. <b>احتفظ برقم العملية</b> اللي هييجيلك في الـ SMS.',
+        tab:   'wallet',
+        expandPacks: true,
+      },
+      {
+        id:'txid_input', target:'#walletTxidInput', emoji:'🔢',
+        title: 'أدخل رقم العملية المرجعي',
+        desc:  'ادخل <b>رقم الـ Reference</b> اللي وصلك في الـ SMS بعد التحويل في الخانة دي.',
+        tab:   'wallet',
+        expandPacks: true,
+      },
+      {
+        id:'confirm_pay', target:'.btn-gold', emoji:'✅',
+        title: 'اضغط "تأكيد الشراء"',
+        desc:  'بعد ما تدخل الرقم المرجعي اضغط <b>تأكيد الشراء</b>. الكريديت هيتضاف لرصيدك بعد مراجعة الأدمن وموافقته.',
+        tab:   'wallet',
+        expandPacks: true,
+      },
+      {
+        id:'upload', target:'#uploadzoneBox', emoji:'📂',
+        title: 'ارفع ملفك',
+        desc:  'اسحب وأفلت ملفك هنا أو اضغط لتختاره. المنصة بتدعم PDF, Word, PowerPoint وأكثر.',
+        tab:   'new-check',
+      },
+      {
+        id:'checktype', target:'.seg', emoji:'⚙️',
+        title: 'اختار نوع الفحص',
+        desc:  '"اقتباس فقط" بيفحص التشابه مع المصادر. "اقتباس + AI" بيضيف كشف المحتوى المولّد بالذكاء الاصطناعي.',
+        tab:   'new-check',
+      },
+      {
+        id:'submit', target:'#submitBtn', emoji:'🚀',
+        title: 'أرسل للفحص',
+        desc:  'لما تكون الملف محمّل والخيارات محددة، اضغط هنا لترسل الطلب. هيظهر في تاب "ملفاتي" مباشرةً.',
+        tab:   'new-check',
+      },
+      {
+        id:'result', target:'#ordersBody', emoji:'📊', mockOrder: true,
+        title: 'نتائجك هنا',
+        desc:  'بعد ما الفحص يكتمل هتلاقي طلبك هنا بالحالة. الطلبات بتتحدث تلقائياً من غير ما تعيد تحميل الصفحة.',
+        tab:   'orders',
+      },
+      {
+        id:'download', target:'.tour-mock-row .dl-cell', emoji:'⬇️', mockOrder: true,
+        title: 'حمّل التقرير وقيّم تجربتك',
+        desc:  'زرار التحميل بيحملك التقرير مباشرةً. بعده هتظهر لك نجوم التقييم — رأيك بيساعدنا نتحسن!',
+        tab:   'orders',
+      },
+      {
+        id:'support', target:'[data-tab="support"]', emoji:'💬',
+        title: 'محتاج مساعدة؟',
+        desc:  'افتح تذكرة دعم أو كلمنا على اللايف شات من الفقاعة الزرقاء في أسفل الشاشة — فريقنا دايماً موجود.',
+        tab:   'support',
+      },
+      {
+        id:'done', center:true, emoji:'🎉',
+        title: 'كل حاجة واضحة؟',
+        desc:  'الجولة التعريفية خلصت. تقدر تبدأ دلوقتي وترفع أول ملف بثقة. بالتوفيق! 🌟',
+        isLast: true,
+      },
+    ],
+  },
+  en: {
+    skip:         'Skip tour',
+    back:         '← Back',
+    next:         'Next →',
+    finish:       'Start now 🚀',
+    step_of:      (i,n) => `Step ${i} of ${n}`,
+    pct:          (p) => `${p}%`,
+    steps: [
+      {
+        id:'welcome', center:true, emoji:'👋',
+        title: 'Welcome to Pro Keys! 🎉',
+        desc:  "Let's walk you through how to top up, upload your file, and receive an official Turnitin report in minutes.",
+      },
+      {
+        id:'balance', target:'#kpiBalanceNum', emoji:'💰',
+        title: 'Your current balance',
+        desc:  'Each check costs <b>10 credits</b> (Similarity only) or <b>20 credits</b> (Similarity + AI). Credits are deducted automatically on submit.',
+        tab:   'new-check',
+      },
+      {
+        id:'topup_btn', target:'#showPacksBtn', emoji:'💳',
+        title: 'Top up your wallet',
+        desc:  'Click the <b>"Top Up Wallet Now"</b> button to reveal the available top-up packages.',
+        tab:   'wallet',
+        expandPacks: true,
+      },
+      {
+        id:'select_pack', target:'#topupSlider', emoji:'🗂️',
+        title: 'Choose a package',
+        desc:  'Browse the packages and click <b>Select</b> on the one that suits you — the payment section will appear below automatically.',
+        tab:   'wallet',
+        expandPacks: true,
+      },
+      {
+        id:'instapay_method', target:'[data-pay="instapay"]', emoji:'📲',
+        title: 'Choose InstaPay',
+        desc:  'Scroll down and select <b>InstaPay</b> as your payment method. The wallet number you need to transfer to will appear.',
+        tab:   'wallet',
+        expandPacks: true,
+      },
+      {
+        id:'instapay_transfer', target:'#walletUidValue', emoji:'💸',
+        title: 'Transfer to this number',
+        desc:  'Open the InstaPay app and transfer the required amount to the number shown here. <b>Keep the reference number</b> you receive in the SMS.',
+        tab:   'wallet',
+        expandPacks: true,
+      },
+      {
+        id:'txid_input', target:'#walletTxidInput', emoji:'🔢',
+        title: 'Enter the reference number',
+        desc:  'Enter the <b>Reference number</b> you received in the SMS after the transfer into this field.',
+        tab:   'wallet',
+        expandPacks: true,
+      },
+      {
+        id:'confirm_pay', target:'.btn-gold', emoji:'✅',
+        title: 'Click "Confirm Purchase"',
+        desc:  'After entering the reference number click <b>Confirm Purchase</b>. Credits will be added to your balance once the admin reviews and approves.',
+        tab:   'wallet',
+        expandPacks: true,
+      },
+      {
+        id:'upload', target:'#uploadzoneBox', emoji:'📂',
+        title: 'Upload your file',
+        desc:  'Drag & drop your file here or click to browse. We support PDF, Word, PowerPoint and more.',
+        tab:   'new-check',
+      },
+      {
+        id:'checktype', target:'.seg', emoji:'⚙️',
+        title: 'Choose check type',
+        desc:  '"Similarity only" checks for matches with sources. "Similarity + AI" adds AI-generated content detection.',
+        tab:   'new-check',
+      },
+      {
+        id:'submit', target:'#submitBtn', emoji:'🚀',
+        title: 'Submit for checking',
+        desc:  'Once your file is uploaded and options selected, press here to submit. It will appear in "My Files" instantly.',
+        tab:   'new-check',
+      },
+      {
+        id:'result', target:'#ordersBody', emoji:'📊', mockOrder: true,
+        title: 'Your results are here',
+        desc:  "Once the check is complete you'll find your order here with its status. Orders update automatically without refreshing.",
+        tab:   'orders',
+      },
+      {
+        id:'download', target:'.tour-mock-row .dl-cell', emoji:'⬇️', mockOrder: true,
+        title: 'Download & rate your experience',
+        desc:  'The download button fetches your report directly. Afterwards the star rating appears — your feedback helps us improve!',
+        tab:   'orders',
+      },
+      {
+        id:'support', target:'[data-tab="support"]', emoji:'💬',
+        title: 'Need help?',
+        desc:  'Open a support ticket or chat with us via the blue bubble at the bottom of the screen — our team is always here.',
+        tab:   'support',
+      },
+      {
+        id:'done', center:true, emoji:'🎉',
+        title: 'All set!',
+        desc:  "The tour is complete. You're ready to upload your first file with confidence. Good luck! 🌟",
+        isLast: true,
+      },
+    ],
+  },
+};
+
 function getSteps(){
-  const ar = isAr();
-  return [
-    {
-      id:'welcome', center:true, emoji:'👋',
-      title: ar ? 'أهلاً بك في Pro Keys! 🎉' : 'Welcome to Pro Keys! 🎉',
-      desc:  ar
-        ? 'هنريك في خطوات بسيطة إزاي تشحن رصيدك، ترفع ملفك، وتاخد تقرير Turnitin رسمي في دقائق.'
-        : "Let's walk you through how to top up, upload your file, and receive an official Turnitin report in minutes.",
-    },
-    {
-      id:'balance', target:'#kpiBalanceNum', emoji:'💰',
-      title: ar ? 'رصيدك الحالي' : 'Your current balance',
-      desc:  ar
-        ? 'كل فحص بيتكلف <b>10 كريديت</b> (اقتباس فقط) أو <b>20 كريديت</b> (اقتباس + AI). الرصيد بيتخصم تلقائياً لما ترسل الملف.'
-        : 'Each check costs <b>10 credits</b> (Similarity only) or <b>20 credits</b> (Similarity + AI). Credits are deducted automatically on submit.',
-      tab: 'new-check',
-    },
-    {
-      id:'topup', target:'[data-tab="wallet"]', emoji:'💳',
-      title: ar ? 'اشحن محفظتك' : 'Top up your wallet',
-      desc:  ar
-        ? 'اختار باقة تناسبك، ادفع بوسيلتك المفضلة، وبعد موافقة الأدمن على الدفعة هيتضاف الكريديت لرصيدك.'
-        : 'Choose a package, pay with your preferred method, and once the admin approves your payment your credits will be added.',
-      tab: 'wallet',
-    },
-    {
-      id:'upload', target:'#uploadzoneBox', emoji:'📂',
-      title: ar ? 'ارفع ملفك' : 'Upload your file',
-      desc:  ar
-        ? 'اسحب وأفلت ملفك هنا أو اضغط لتختاره. المنصة بتدعم PDF, Word, PowerPoint وأكثر.'
-        : 'Drag & drop your file here or click to browse. We support PDF, Word, PowerPoint and more.',
-      tab: 'new-check',
-    },
-    {
-      id:'checktype', target:'.seg', emoji:'⚙️',
-      title: ar ? 'اختار نوع الفحص' : 'Choose check type',
-      desc:  ar
-        ? '"اقتباس فقط" بيفحص التشابه مع المصادر. "اقتباس + AI" بيضيف كشف المحتوى المولّد بالذكاء الاصطناعي.'
-        : '"Similarity only" checks for matches with sources. "Similarity + AI" adds AI-generated content detection.',
-      tab: 'new-check',
-    },
-    {
-      id:'submit', target:'#submitBtn', emoji:'🚀',
-      title: ar ? 'أرسل للفحص' : 'Submit for checking',
-      desc:  ar
-        ? 'لما تكون الملف محمّل والخيارات محددة، اضغط هنا لترسل الطلب. هيظهر في تاب "ملفاتي" مباشرةً.'
-        : 'Once your file is uploaded and options selected, press here to submit. It will appear in "My Files" instantly.',
-      tab: 'new-check',
-    },
-    {
-      id:'result', target:'#ordersBody', emoji:'📊', mockOrder: true,
-      title: ar ? 'نتائجك هنا' : 'Your results are here',
-      desc:  ar
-        ? 'بعد ما الفحص يكتمل هتلاقي طلبك هنا بالحالة. الطلبات بتتحدث تلقائياً من غير ما تعيد تحميل الصفحة.'
-        : 'Once the check is complete you\'ll find your order here with its status. Orders update automatically without refreshing.',
-      tab: 'orders',
-    },
-    {
-      id:'download', target:'.tour-mock-row .dl-cell', emoji:'⬇️', mockOrder: true,
-      title: ar ? 'حمّل التقرير وقيّم تجربتك' : 'Download & rate your experience',
-      desc:  ar
-        ? 'زرار التحميل بيحملك التقرير مباشرةً. بعده هتظهر لك نجوم التقييم — رأيك بيساعدنا نتحسن!'
-        : 'The download button fetches your report directly. Afterwards the star rating appears — your feedback helps us improve!',
-      tab: 'orders',
-    },
-    {
-      id:'support', target:'[data-tab="support"]', emoji:'💬',
-      title: ar ? 'محتاج مساعدة؟' : 'Need help?',
-      desc:  ar
-        ? 'افتح تذكرة دعم أو كلمنا على اللايف شات من الفقاعة الزرقاء في أسفل الشاشة — فريقنا دايماً موجود.'
-        : 'Open a support ticket or chat with us via the blue bubble at the bottom of the screen — our team is always here.',
-      tab: 'support',
-    },
-    {
-      id:'done', center:true, emoji:'🎉',
-      title: ar ? 'كل حاجة واضحة؟' : 'All set!',
-      desc:  ar
-        ? 'الجولة التعريفية خلصت. تقدر تبدأ دلوقتي وترفع أول ملف بثقة. بالتوفيق! 🌟'
-        : 'The tour is complete. You\'re ready to upload your first file with confidence. Good luck! 🌟',
-      isLast: true,
-    },
-  ];
+  return TOUR_TEXT[isAr() ? 'ar' : 'en'].steps;
+}
+function getT(){
+  return TOUR_TEXT[isAr() ? 'ar' : 'en'];
 }
 
 /* ---- Mock order HTML ---- */
@@ -8267,7 +8431,7 @@ function buildMockOrderRow(){
 
   return `<div class="order-row tour-mock-row" id="${MOCK_ORDER_ID}" style="position:relative;">
     <div class="stat-ic done">${simIcon}</div>
-    <div class="ocell oid-cell"><b class="mono">${ar?'PK-DEMO-001':'PK-DEMO-001'}</b><span class="new-order-badge">${ar?'✦ نموذج توضيحي':'✦ Demo'}</span></div>
+    <div class="ocell oid-cell"><b class="mono">PK-DEMO-001</b><span class="new-order-badge">${ar?'✦ نموذج توضيحي':'✦ Demo'}</span></div>
     <div class="ofile">
       <div class="oname-row">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;flex:none;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -8310,19 +8474,20 @@ function removeMockOrder(){
 /* ---- Core tour state ---- */
 let steps = [], currentStep = 0, active = false;
 
-const overlay  = document.getElementById('tourOverlay');
-const backdrop = document.getElementById('tourBackdrop');
-const spotlight= document.getElementById('tourSpotlight');
-const box      = document.getElementById('tourBox');
-const arrow    = document.getElementById('tourArrow');
-const progress = document.getElementById('tourProgress');
-const emoji    = document.getElementById('tourEmoji');
-const stepBadge= document.getElementById('tourStepBadge');
-const titleEl  = document.getElementById('tourTitle');
-const descEl   = document.getElementById('tourDesc');
-const skipBtn  = document.getElementById('tourSkipBtn');
-const prevBtn  = document.getElementById('tourPrevBtn');
-const nextBtn  = document.getElementById('tourNextBtn');
+const overlay     = document.getElementById('tourOverlay');
+const spotlight   = document.getElementById('tourSpotlight');
+const box         = document.getElementById('tourBox');
+const arrow       = document.getElementById('tourArrow');
+const progressBar = document.getElementById('tourProgressBar');
+const progressLbl = document.getElementById('tourProgressLabel');
+const progressPct = document.getElementById('tourProgressPct');
+const emoji       = document.getElementById('tourEmoji');
+const stepBadge   = document.getElementById('tourStepBadge');
+const titleEl     = document.getElementById('tourTitle');
+const descEl      = document.getElementById('tourDesc');
+const skipBtn     = document.getElementById('tourSkipBtn');
+const prevBtn     = document.getElementById('tourPrevBtn');
+const nextBtn     = document.getElementById('tourNextBtn');
 
 skipBtn.addEventListener('click', endTour);
 prevBtn.addEventListener('click', ()=>{ if(currentStep>0) showStep(currentStep-1); });
@@ -8334,58 +8499,86 @@ nextBtn.addEventListener('click', ()=>{
 
 function positionSpotlight(el){
   const r = el.getBoundingClientRect();
-  const pad = 10;
+  const pad = 12;
   spotlight.style.left   = (r.left - pad) + 'px';
   spotlight.style.top    = (r.top  - pad) + 'px';
   spotlight.style.width  = (r.width  + pad*2) + 'px';
   spotlight.style.height = (r.height + pad*2) + 'px';
 }
 
+function getBoxHeight(){
+  // Estimate actual rendered height before placement
+  return box.offsetHeight || 360;
+}
+
 function positionBox(el){
-  const r = el.getBoundingClientRect();
-  const bw = 370, margin = 16;
+  const r   = el.getBoundingClientRect();
+  const bw  = 430;
+  const bh  = getBoxHeight();
+  const gap = 20;
+  const margin = 16;
   const vw = window.innerWidth, vh = window.innerHeight;
   let left, top;
-  arrow.className = 'tour-arrow';
+  arrow.className  = 'tour-arrow';
   arrow.style.cssText = '';
 
-  // Prefer: below
-  if(r.bottom + 220 + margin < vh){
-    top  = r.bottom + 14;
-    left = Math.min(Math.max(r.left + r.width/2 - bw/2, margin), vw - bw - margin);
-    arrow.className = 'tour-arrow top';
+  const spaceBelow  = vh - r.bottom - gap - margin;
+  const spaceAbove  = r.top - gap - margin;
+  const spaceRight  = vw - r.right - gap - margin;
+  const spaceLeft   = r.left - gap - margin;
+
+  if(spaceBelow >= bh){
+    // Below — best case, spotlight fully visible above box
+    top  = r.bottom + gap;
+    left = clamp(r.left + r.width/2 - bw/2, margin, vw - bw - margin);
+    arrow.className = 'tour-arrow t';
     arrow.style.left = (r.left + r.width/2 - left) + 'px';
-  // above
-  } else if(r.top - 220 - margin > 0){
-    top  = r.top - 220 - 14;
-    left = Math.min(Math.max(r.left + r.width/2 - bw/2, margin), vw - bw - margin);
-    arrow.className = 'tour-arrow bottom';
+  } else if(spaceAbove >= bh){
+    // Above
+    top  = r.top - bh - gap;
+    left = clamp(r.left + r.width/2 - bw/2, margin, vw - bw - margin);
+    arrow.className = 'tour-arrow b';
     arrow.style.left = (r.left + r.width/2 - left) + 'px';
-  // right
-  } else if(r.right + bw + margin < vw){
-    left = r.right + 14;
-    top  = Math.min(Math.max(r.top + r.height/2 - 110, margin), vh - 240);
-    arrow.className = 'tour-arrow left';
-    arrow.style.top  = (r.top + r.height/2 - top) + 'px';
-  // left
+  } else if(spaceRight >= bw){
+    // Right
+    left = r.right + gap;
+    top  = clamp(r.top + r.height/2 - bh/2, margin, vh - bh - margin);
+    arrow.className = 'tour-arrow l';
+    arrow.style.top = (r.top + r.height/2 - top) + 'px';
+  } else if(spaceLeft >= bw){
+    // Left
+    left = r.left - bw - gap;
+    top  = clamp(r.top + r.height/2 - bh/2, margin, vh - bh - margin);
+    arrow.className = 'tour-arrow r';
+    arrow.style.top = (r.top + r.height/2 - top) + 'px';
   } else {
-    left = r.left - bw - 14;
-    top  = Math.min(Math.max(r.top + r.height/2 - 110, margin), vh - 240);
-    arrow.className = 'tour-arrow right';
-    arrow.style.top  = (r.top + r.height/2 - top) + 'px';
+    // Fallback: bottom of screen, centered
+    top  = vh - bh - margin;
+    left = clamp(vw/2 - bw/2, margin, vw - bw - margin);
+    arrow.style.cssText = 'display:none;';
   }
-  // Clamp within viewport
-  left = Math.max(margin, Math.min(left, vw - bw - margin));
-  top  = Math.max(margin, Math.min(top,  vh - 320));
+  left = clamp(left, margin, vw - bw - margin);
+  top  = clamp(top,  margin, vh - bh - margin);
   box.style.left      = left + 'px';
   box.style.top       = top  + 'px';
   box.style.transform = 'none';
 }
 
+function clamp(v, lo, hi){ return Math.max(lo, Math.min(v, hi)); }
+
+async function scrollAndPosition(el){
+  // Scroll element to center so it's not obscured by header/footer
+  el.scrollIntoView({ behavior:'smooth', block:'center' });
+  await new Promise(r => setTimeout(r, 420));
+  positionSpotlight(el);
+  positionBox(el);
+}
+
 async function showStep(idx){
   currentStep = idx;
-  const s = steps[idx];
-  const ar = isAr();
+  const s   = steps[idx];
+  const t   = getT();
+  const n   = steps.length;
 
   // Switch tab if needed
   if(s.tab && typeof goTab === 'function'){
@@ -8393,30 +8586,39 @@ async function showStep(idx){
     const currentTabName = activeTabEl ? activeTabEl.dataset.tab : '';
     if(currentTabName !== s.tab){
       goTab(s.tab);
-      await new Promise(r => setTimeout(r, 350));
-      // Re-render packs when switching to wallet
+      await new Promise(r => setTimeout(r, 380));
       if(s.tab === 'wallet' && typeof renderPacks === 'function') renderPacks();
+    }
+  }
+
+  // Expand packs section if needed for wallet steps
+  if(s.expandPacks){
+    const collapsed = document.getElementById('packsCollapsible');
+    if(collapsed && collapsed.style.display === 'none'){
+      if(typeof togglePacksVisibility === 'function') togglePacksVisibility();
+      await new Promise(r => setTimeout(r, 300));
     }
   }
 
   // Mock order
   if(s.mockOrder){ injectMockOrder(); }
 
-  // Progress dots
-  progress.innerHTML = steps.map((_, i) =>
-    `<div class="tour-progress-dot ${i===idx?'active':''}"></div>`
-  ).join('');
+  // Progress bar
+  const pct = Math.round((idx / (n - 1)) * 100);
+  progressBar.style.width = pct + '%';
+  progressLbl.textContent = t.step_of(idx + 1, n);
+  progressPct.textContent = t.pct(pct);
 
-  emoji.textContent = s.emoji || '';
-  stepBadge.textContent = ar ? `${idx+1} / ${steps.length}` : `${idx+1} / ${steps.length}`;
-  titleEl.textContent = s.title;
-  descEl.innerHTML = s.desc;
+  emoji.textContent       = s.emoji || '';
+  stepBadge.textContent   = t.step_of(idx + 1, n);
+  titleEl.textContent     = s.title;
+  descEl.innerHTML        = s.desc;
 
-  skipBtn.textContent = ar ? (s.isLast ? '' : 'تخطي الجولة') : (s.isLast ? '' : 'Skip tour');
-  skipBtn.style.display = s.isLast ? 'none' : '';
+  skipBtn.textContent    = s.isLast ? '' : t.skip;
+  skipBtn.style.display  = s.isLast ? 'none' : '';
   prevBtn.style.display  = idx > 0 ? '' : 'none';
-  prevBtn.textContent    = ar ? '← السابق' : '← Back';
-  nextBtn.textContent    = s.isLast ? (ar ? 'ابدأ الآن 🚀' : 'Start now 🚀') : (ar ? 'التالي ←' : 'Next →');
+  prevBtn.textContent    = t.back;
+  nextBtn.textContent    = s.isLast ? t.finish : t.next;
 
   // Position
   if(s.center || !s.target){
@@ -8424,22 +8626,18 @@ async function showStep(idx){
     box.style.top       = '50%';
     box.style.left      = '50%';
     box.style.transform = 'translate(-50%,-50%)';
-    arrow.className = 'tour-arrow';
+    arrow.className     = 'tour-arrow';
     arrow.style.cssText = 'display:none;';
   } else {
-    arrow.style.display = '';
+    arrow.style.display    = '';
     spotlight.style.display = '';
-    // Resolve target — may need a tick after tab switch
     let el = document.querySelector(s.target);
     if(!el){
-      await new Promise(r => setTimeout(r, 100));
+      await new Promise(r => setTimeout(r, 150));
       el = document.querySelector(s.target);
     }
     if(el){
-      el.scrollIntoView({ behavior:'smooth', block:'nearest' });
-      await new Promise(r => setTimeout(r, 200));
-      positionSpotlight(el);
-      positionBox(el);
+      await scrollAndPosition(el);
     }
   }
 }
@@ -8450,6 +8648,9 @@ window.startTour = function(){
   overlay.classList.add('active');
   showStep(0);
 };
+
+/* Expose text config so admin can edit tour text without touching the engine */
+window.TOUR_TEXT = TOUR_TEXT;
 
 function endTour(){
   active = false;
@@ -8462,19 +8663,16 @@ function endTour(){
 // Auto-start on first visit
 window.addEventListener('load', () => {
   const seen = localStorage.getItem(LS_KEY);
-  if(!seen){
-    setTimeout(startTour, 1200);
-  }
+  if(!seen){ setTimeout(startTour, 1200); }
 });
 
 // Handle lang change while tour is active
-const _origTranslateDom = typeof PK !== 'undefined' && PK.translateDom;
 if(typeof PK !== 'undefined'){
   const _origSetLang = PK.setLang;
   if(_origSetLang){
     PK.setLang = function(){
       _origSetLang.apply(this, arguments);
-      if(active) showStep(currentStep);
+      if(active){ steps = getSteps(); showStep(currentStep); }
     };
   }
 }
