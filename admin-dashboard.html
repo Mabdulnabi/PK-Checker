@@ -3278,11 +3278,17 @@ async function uploadManualReportFile(orderId, kind, inputEl){
 function linkCell(orderId, field, url){
   const isAiReport = field === 'ai_report_url';
   const hasReport = !!url;
+  // CDN URLs (download.php) work as direct links; only API/proxy URLs need get-report
+  const isCdnUrl = url && url.includes('download.php');
   let openLink, previewBtn;
-  if (isAiReport && hasReport) {
-    // AI report always goes through get-report proxy (handles proxy:, TurniScan API, CDN, Storage URLs)
+  if (isAiReport && hasReport && !isCdnUrl) {
+    // API/proxy URL — route through get-report which adds Authorization
     openLink = `<button class="edit-link-btn" onclick="adminDownloadAiReport('${orderId}')">${t('link_open')}</button>`;
     previewBtn = `<button class="edit-link-btn" onclick="adminDownloadAiReport('${orderId}',true)" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`;
+  } else if (hasReport && isCdnUrl) {
+    // CDN URL — direct link (same as sim)
+    openLink = `<button class="edit-link-btn" onclick="adminOpenReport('${escapeHtml(url)}')">${t('link_open')}</button>`;
+    previewBtn = `<button class="edit-link-btn" onclick="adminOpenReport('${escapeHtml(url)}',true)" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`;
   } else if (!isAiReport && hasReport) {
     // Similarity: if Supabase Storage URL (private bucket), generate signed URL first
     openLink = `<button class="edit-link-btn" onclick="adminOpenReport('${escapeHtml(url)}')">${t('link_open')}</button>`;
