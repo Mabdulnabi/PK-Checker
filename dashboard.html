@@ -8258,12 +8258,12 @@ const TOUR_STEPS_DEF = [
   { id:'welcome',           center:true,  emoji:'👋' },
   { id:'balance',           target:'#kpiBalanceNum',           emoji:'💰', tab:'new-check' },
   { id:'topup_btn',         target:'#showPacksBtn',            emoji:'💳', tab:'wallet',    expandPacks:true },
-  { id:'select_pack',       target:'#topupSlider',             emoji:'🗂️', tab:'wallet',    expandPacks:true },
-  { id:'instapay_method',   target:'[data-pay="instapay"]',    emoji:'📲', tab:'wallet',    expandPacks:true },
-  { id:'instapay_transfer', target:'#walletUidValue',          emoji:'💸', tab:'wallet',    expandPacks:true },
-  { id:'txid_input',        target:'#walletTxidInput',         emoji:'🔢', tab:'wallet',    expandPacks:true },
+  { id:'select_pack',       target:'#topupSlider',             emoji:'🗂️', tab:'wallet',    expandPacks:true, scrollBlock:'start' },
+  { id:'instapay_method',   target:'[data-pay="instapay"]',    emoji:'📲', tab:'wallet',    expandPacks:true, scrollBlock:'start' },
+  { id:'instapay_transfer', target:'#walletUidValue',          emoji:'💸', tab:'wallet',    expandPacks:true, scrollBlock:'start' },
+  { id:'txid_input',        target:'#walletTxidInput',         emoji:'🔢', tab:'wallet',    expandPacks:true, scrollBlock:'start' },
   { id:'confirm_pay',       target:'#walletPayBlock .btn-gold', emoji:'✅', tab:'wallet',    expandPacks:true, scrollBlock:'end' },
-  { id:'upload',            target:'#uploadzoneBox',           emoji:'📂', tab:'new-check', scrollBlock:'start' },
+  { id:'upload',            target:'#uploadzoneBox',           emoji:'📂', tab:'new-check', scrollBlock:'top' },
   { id:'checktype',         target:'.seg',                     emoji:'⚙️', tab:'new-check' },
   { id:'submit',            target:'#submitBtn',               emoji:'🚀', tab:'new-check' },
   { id:'result',            target:'#ordersBody',              emoji:'📊', tab:'orders',    mockOrder:true },
@@ -8436,8 +8436,21 @@ function positionBox(el){
 function clamp(v, lo, hi){ return Math.max(lo, Math.min(v, hi)); }
 
 async function scrollAndPosition(el, scrollBlock){
-  el.scrollIntoView({ behavior:'smooth', block: scrollBlock || 'center' });
-  await new Promise(r => setTimeout(r, 420));
+  if(scrollBlock === 'top'){
+    // Scroll the nearest scrollable ancestor to its top, then position
+    let sc = el.parentElement;
+    while(sc && sc !== document.body){
+      const os = getComputedStyle(sc).overflowY;
+      if(os === 'auto' || os === 'scroll'){ break; }
+      sc = sc.parentElement;
+    }
+    const container = (sc && sc !== document.body) ? sc : (document.scrollingElement || document.documentElement);
+    container.scrollTo({ top:0, behavior:'smooth' });
+    await new Promise(r => setTimeout(r, 450));
+  } else {
+    el.scrollIntoView({ behavior:'smooth', block: scrollBlock || 'center' });
+    await new Promise(r => setTimeout(r, 420));
+  }
   positionSpotlight(el);
   positionBox(el);
 }
