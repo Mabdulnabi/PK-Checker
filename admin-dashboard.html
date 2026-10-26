@@ -4716,15 +4716,18 @@ async function loadPendingPayments(){
     const profile = profilesByUserId[p.user_id] || {};
     const pkStr = profile.pk_number != null ? `PK${formatPkNumber(profile.pk_number)}` : '—';
     const name  = escapeHtml(profile.full_name || '—');
-    const pack  = escapeHtml(PACK_LABELS[p.pack_id] || p.pack_id || '—');
-    const gw    = escapeHtml(GW[p.gateway] || p.gateway || '—');
-    const amt   = p.amount != null ? `${p.amount} ${p.currency || 'EGP'}` : '—';
-    const date  = formatDate(p.created_at);
+    const pack      = escapeHtml(PACK_LABELS[p.pack_id] || p.pack_id || '—');
+    const gw        = escapeHtml(GW[p.gateway] || p.gateway || '—');
+    const amt       = p.amount != null ? `${p.amount} ${p.currency || 'EGP'}` : '—';
+    const date      = formatDate(p.created_at);
+    const expDays   = p.pack_id ? (PACK_EXPIRY_DAYS[p.pack_id] ?? null) : null;
+    const expLabel  = expDays ? `<span style="color:var(--warn);font-weight:700;">⏳ ${expDays}د</span>` : `<span style="color:var(--ok);">∞</span>`;
     return `<tr>
       <td class="mono" style="color:var(--blue-deep);font-weight:700;">${clickablePk(p.user_id, profile.pk_number)}</td>
       <td><b style="font-size:12px;">${name}</b></td>
       <td style="font-size:12px;">${pack}</td>
       <td style="font-weight:800;color:var(--ok);">+${p.credits}</td>
+      <td style="font-size:12px;">${expLabel}</td>
       <td style="font-size:12px;font-weight:700;">${escapeHtml(amt)}</td>
       <td style="font-size:12px;">${gw}</td>
       <td style="font-size:11px;color:var(--muted);">${date}</td>
@@ -5741,9 +5744,29 @@ async function sendComposedMessage(){
    FEATURE 3: PENDING PAYMENTS — already in Credits tab table
    (adds approve/reject buttons for payments with status=pending)
    ================================================================ */
+// pack_id → expiry days (must match DB get_pack_expiry_days() and dashboard.html TOPUP_PACKS)
+const PACK_EXPIRY_DAYS = {
+  pack_1:2, pack_5:5, pack_10:10, pack_25:15,
+  pack_daily_starter:1, pack_daily_pro:1, pack_daily_master:1,
+  pack_daily_elite:1, pack_daily_ultimate:1,
+};
+
 async function approvePendingPayment(paymentId, userId, credits, triggerBtn){
   if (triggerBtn) { triggerBtn.disabled = true; triggerBtn.textContent = '...'; }
   try {
+    // Fetch payment to get pack_id and created_at (purchase timestamp)
+    const { data: payData } = await supabaseClient
+      .from('payments').select('pack_id, created_at').eq('id', paymentId).single();
+    const packId      = payData?.pack_id || null;
+    const purchasedAt = payData?.created_at ? new Date(payData.created_at) : new Date();
+    const expiryDays  = packId ? (PACK_EXPIRY_DAYS[packId] ?? null) : null;
+    let expiresAt = null;
+    if (expiryDays) {
+      const d = new Date(purchasedAt);
+      d.setDate(d.getDate() + expiryDays);
+      expiresAt = d.toISOString();
+    }
+
     const { data: bal } = await supabaseClient
       .from('wallet_transactions').select('balance_after')
       .eq('user_id',userId).order('created_at',{ascending:false}).limit(1);
@@ -5758,7 +5781,11 @@ async function approvePendingPayment(paymentId, userId, credits, triggerBtn){
       .from('wallet_transactions').insert({
         user_id:userId, type:'credit', amount:credits,
         balance_before:balBefore, balance_after:balAfter,
-        payment_id:paymentId, description:'موافقة يدوية من الأدمن'
+        payment_id:paymentId,
+        expires_at: expiresAt,
+        description: expiresAt
+          ? `موافقة يدوية — ${packId} — تنتهي ${new Date(expiresAt).toLocaleDateString('ar-EG')}`
+          : 'موافقة يدوية من الأدمن'
       });
     if (txErr) throw txErr;
 
