@@ -8260,7 +8260,7 @@ const TOUR_STEPS_DEF = [
   { id:'welcome',           center:true,  emoji:'👋' },
   { id:'balance',           target:'#kpiBalanceNum',           emoji:'💰', tab:'new-check' },
   { id:'topup_btn',         target:'#showPacksBtn',            emoji:'💳', tab:'wallet',    expandPacks:true },
-  { id:'select_pack',       target:'.pack-slider-wrap',        emoji:'🗂️', tab:'wallet',    expandPacks:true, scrollBlock:'start' },
+  { id:'select_pack',       target:'.pack-slider-wrap',        emoji:'🗂️', tab:'wallet',    expandPacks:true, scrollBlock:'center' },
   { id:'instapay_method',   target:'[data-pay="instapay"]',    emoji:'📲', tab:'wallet',    expandPacks:true, scrollBlock:'center' },
   { id:'instapay_transfer', target:'#walletUidValue',          emoji:'💸', tab:'wallet',    expandPacks:true, scrollBlock:'start' },
   { id:'txid_input',        target:'#walletTxidInput',         emoji:'🔢', tab:'wallet',    expandPacks:true, scrollBlock:'start' },
@@ -8439,20 +8439,44 @@ function positionBox(el){
 
 function clamp(v, lo, hi){ return Math.max(lo, Math.min(v, hi)); }
 
+function findScrollContainer(el){
+  let sc = el.parentElement;
+  while(sc && sc !== document.body){
+    const ov = getComputedStyle(sc).overflowY;
+    if(ov === 'auto' || ov === 'scroll') return sc;
+    sc = sc.parentElement;
+  }
+  return document.scrollingElement || document.documentElement;
+}
+
 async function scrollAndPosition(el, scrollBlock){
-  // Use instant scroll so getBoundingClientRect() reflects the final position
+  // Instant scroll so getBoundingClientRect() reflects the final position
   el.scrollIntoView({ behavior:'instant', block: scrollBlock || 'center' });
-  // One rAF to let the browser finish layout after the scroll
   await new Promise(r => requestAnimationFrame(r));
   await new Promise(r => requestAnimationFrame(r));
-  // If element is still not in view (e.g. inside a lazy-revealed section),
-  // give it one extra frame
+
+  // If element has no size yet (lazy section), wait and retry
   const r0 = el.getBoundingClientRect();
   if(r0.height < 4){
     await new Promise(r => setTimeout(r, 200));
     el.scrollIntoView({ behavior:'instant', block: scrollBlock || 'center' });
     await new Promise(r => requestAnimationFrame(r));
   }
+
+  // If centering didn't leave enough room below for the box, nudge element
+  // up to the upper quarter of the viewport so the box can appear below it
+  const rc  = el.getBoundingClientRect();
+  const vh  = window.innerHeight;
+  const bhEst = box.offsetHeight || 360;
+  const gap   = 20, margin = 16;
+  if((scrollBlock === 'center' || !scrollBlock) &&
+     (vh - rc.bottom - gap - margin) < bhEst &&
+     rc.top > bhEst + gap + margin){
+    const sc = findScrollContainer(el);
+    sc.scrollBy({ top: rc.top - Math.round(vh * 0.25), behavior:'instant' });
+    await new Promise(r => requestAnimationFrame(r));
+  }
+
   positionSpotlight(el);
   positionBox(el);
 }
