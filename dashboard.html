@@ -2931,7 +2931,7 @@ let checkSettings = { service_enabled: true, api_mode_enabled: true, sim_only_vi
                       service_off_msg_ar: '', service_off_msg_en: '' };
 let currentCurrency = 'USD';
 const exchangeRate = 50; // 1 USD = 50 EGP = 10 credits
-let currentUser = { name: '', id: '', whatsapp: '', email: '', avatarUrl: '' };
+let currentUser = { name: localStorage.getItem('prokeys-user-name') || '', id: '', whatsapp: '', email: '', avatarUrl: '' };
 let _profileLoaded = false;  // set after first successful profile load; skips re-fetch on 30s poll
 let _dashRefreshing = false; // guard against concurrent loadDashboardData calls
 
@@ -6940,6 +6940,7 @@ function applyAuthProfileFields(authUser, profileData){
 
 function applyProfileRowFields(data){
   currentUser.name = data.full_name || currentUser.name;
+  if (currentUser.name) localStorage.setItem('prokeys-user-name', currentUser.name);
   currentUser.whatsapp = data.whatsapp || '';
   currentUser.phone = data.phone || '';
   if (typeof updateTopbarGreeting === 'function') updateTopbarGreeting();
@@ -7184,6 +7185,7 @@ async function loadUIConfig(){
     if (error || !data) {
       console.warn('ui_config not available');
     } else {
+      try { localStorage.setItem('prokeys-uiconfig', JSON.stringify(data)); } catch(e) {}
       uiConfigOverrides.ar        = data.i18n_ar    || {};
       uiConfigOverrides.en        = data.i18n_en    || {};
       uiConfigOverrides.icons     = data.icons      || {};
@@ -7257,8 +7259,22 @@ async function refreshCheckSettings(){
 }
 
 (async function initDashboard(){
-  try { PK.translateDom(currentLang, t); } catch(e) {} // immediate text translation, no crash risk
-  await loadUIConfig();   // load admin UI overrides
+  // Apply cached ui_config synchronously so icons/colors show before the network call
+  try {
+    const _cached = JSON.parse(localStorage.getItem('prokeys-uiconfig') || 'null');
+    if (_cached) {
+      uiConfigOverrides.ar        = _cached.i18n_ar    || {};
+      uiConfigOverrides.en        = _cached.i18n_en    || {};
+      uiConfigOverrides.icons     = _cached.icons      || {};
+      uiConfigOverrides.iconSizes = _cached.icon_sizes || {};
+      uiConfigOverrides.colors    = _cached.colors     || { light: {}, dark: {} };
+      applyColorOverrides();
+      applyCustomIcons();
+      applyFavicon();
+    }
+  } catch(e) {}
+  try { PK.translateDom(currentLang, t); } catch(e) {} // immediate text translation
+  await loadUIConfig();   // load admin UI overrides (updates cache + re-applies if changed)
   applyLang();            // full apply with overrides + all renders
   loadPaymentMethodsConfig();
   loadAdminProfiles();
