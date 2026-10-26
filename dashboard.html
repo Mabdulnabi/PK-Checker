@@ -1654,6 +1654,7 @@
       <!-- Welcome greeting on the sidebar side -->
       <div id="topbarGreeting" style="flex:1;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;color:var(--navy);opacity:0.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
       <div class="topbar-right" style="justify-content:flex-end;">
+        <button id="darkModeBtn" style="width:36px;height:36px;border-radius:50%;background:var(--paper-soft);border:1.5px solid var(--paper-line);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-soft);font-size:18px;padding:0;transition:all 0.3s;"><span class="lightmode-icon-wrap" style="display:inline-flex;align-items:center;justify-content:center;"><span data-icon-key="header_lightmode" style="width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;line-height:1;">☀️</span></span><span class="darkmode-icon-wrap" style="display:none;align-items:center;justify-content:center;"><span data-icon-key="header_darkmode" style="width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;line-height:1;">🌙</span></span></button>
         <div class="icon-btn-wrap">
           <div class="icon-btn" id="notifBtn"><span class="dot" id="notifDot"></span>
             <svg class="ic" data-icon-key="header_notif" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -1671,7 +1672,6 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
           </span>
         </button>
-        <button id="darkModeBtn" style="width:36px;height:36px;border-radius:50%;background:var(--paper-soft);border:1.5px solid var(--paper-line);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-soft);font-size:18px;padding:0;transition:all 0.3s;"><span class="lightmode-icon-wrap" style="display:inline-flex;align-items:center;justify-content:center;"><span data-icon-key="header_lightmode" style="width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;line-height:1;">☀️</span></span><span class="darkmode-icon-wrap" style="display:none;align-items:center;justify-content:center;"><span data-icon-key="header_darkmode" style="width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;line-height:1;">🌙</span></span></button>
       </div>
     </div>
   </div>
@@ -8216,6 +8216,9 @@ function maybeShowOnboarding(profileData){
 .tour-arrow.t{top:-7px;left:50%;margin-left:-7px;}
 .tour-arrow.l{left:-7px;top:50%;margin-top:-7px;}
 .tour-arrow.r{right:-7px;top:50%;margin-top:-7px;}
+/* Tour icon button in header */
+#tourIconBtn{width:36px;height:36px;border-radius:50%;background:var(--paper-soft);border:1.5px solid var(--paper-line);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-soft);transition:all .2s;flex:none;padding:0;}
+#tourIconBtn:hover{background:var(--blue-wash);color:var(--blue-deep);border-color:var(--blue);}
 /* Mock order highlight */
 .tour-mock-row{border:2px dashed var(--blue) !important;background:var(--blue-wash) !important;border-radius:10px;}
 </style>
@@ -8444,6 +8447,27 @@ async function showStep(idx){
     if(collapsed && collapsed.style.display === 'none'){
       if(typeof togglePacksVisibility === 'function') togglePacksVisibility();
       await new Promise(r => setTimeout(r, 300));
+    }
+    // For payment steps (after pack selection), ensure a pack is selected so walletPayBlock is visible
+    const paySteps = ['instapay_method','instapay_transfer','txid_input','confirm_pay'];
+    if(paySteps.includes(s.id)){
+      const payBlock = document.getElementById('walletPayBlock');
+      if(payBlock && payBlock.style.display === 'none'){
+        // Select first available topup pack to reveal payment section
+        const packs = typeof TOPUP_PACKS !== 'undefined' ? TOPUP_PACKS : [];
+        if(packs.length && typeof selectPack === 'function'){
+          selectPack('topup', packs[0].id);
+          await new Promise(r => setTimeout(r, 250));
+        }
+      }
+      // For instapay steps, also select the instapay paycard
+      if(['instapay_method','instapay_transfer','txid_input','confirm_pay'].includes(s.id)){
+        const instapayCard = document.querySelector('[data-pay="instapay"]');
+        if(instapayCard && !instapayCard.classList.contains('on')){
+          instapayCard.click();
+          await new Promise(r => setTimeout(r, 200));
+        }
+      }
     }
   }
 
