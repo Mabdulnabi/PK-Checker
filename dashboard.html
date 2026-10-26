@@ -8061,8 +8061,8 @@ function maybeShowOnboarding(profileData){
 
 <!-- ===================== ONBOARDING TOUR STYLES ===================== -->
 <style>
-#tourOverlay{position:fixed;inset:0;z-index:99999;pointer-events:none;}
-#tourOverlay.active{pointer-events:auto;}
+#tourOverlay{position:fixed;inset:0;z-index:99999;pointer-events:none;display:none;}
+#tourOverlay.active{pointer-events:auto;display:block;}
 #tourBackdrop{position:absolute;inset:0;background:rgba(0,0,0,.6);transition:opacity .3s;}
 #tourSpotlight{position:absolute;border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,.6);transition:all .35s cubic-bezier(.4,0,.2,1);pointer-events:none;z-index:1;}
 #tourBox{position:absolute;z-index:2;background:#fff;border-radius:18px;padding:24px 24px 20px;width:360px;max-width:calc(100vw - 32px);box-shadow:0 12px 50px rgba(0,0,0,.35);pointer-events:auto;color:#1B2556;}
@@ -8273,7 +8273,6 @@ nextBtn.addEventListener('click', ()=>{
   if(s.isLast){ endTour(); return; }
   showStep(currentStep+1);
 });
-backdrop.addEventListener('click', endTour);
 
 function positionSpotlight(el){
   const r = el.getBoundingClientRect();
