@@ -54,28 +54,37 @@ Deno.serve(async (req: Request) => {
 
     if (orderErr || !order) return new Response(JSON.stringify({ error: "Order not found" }), { status: 404, headers: { ...cors, "Content-Type": "application/json" } });
 
-    // Extract file_id from proxy marker or external_order_id
-    let fileId: string | null = null;
-    if (order.ai_report_url && order.ai_report_url.startsWith("proxy:")) {
-      fileId = order.ai_report_url.replace("proxy:", "");
-    } else {
-      fileId = order.external_order_id;
+    // Determine the actual download URL and whether it needs an API key
+    let downloadUrl: string | null = null;
+    let needsAuth = false;
+    const storedUrl: string | undefined = order.ai_report_url;
+
+    if (storedUrl && storedUrl.startsWith("proxy:")) {
+      // proxy:FL-xxx → API endpoint, needs Bearer auth
+      const fileId = storedUrl.replace("proxy:", "");
+      downloadUrl = `${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(fileId)}`;
+      needsAuth = true;
+    } else if (storedUrl && storedUrl.startsWith("http")) {
+      // Full URL already stored:
+      // - download.php URLs are public CDN (no auth needed)
+      // - /v1/ URLs are API endpoints (need auth)
+      downloadUrl = storedUrl;
+      needsAuth = storedUrl.includes("/v1/");
+    } else if (order.external_order_id) {
+      // Fallback: construct from file_id
+      downloadUrl = `${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(order.external_order_id)}`;
+      needsAuth = true;
     }
 
-    if (!fileId) return new Response(JSON.stringify({ error: "Report not ready" }), { status: 404, headers: { ...cors, "Content-Type": "application/json" } });
-
-    console.log("get-report: fileId=", fileId, "keyPrefix=", TURNISCAN_API_KEY?.substring(0, 10));
+    if (!downloadUrl) return new Response(JSON.stringify({ error: "Report not ready" }), { status: 404, headers: { ...cors, "Content-Type": "application/json" } });
 
     // Proxy the download from TurniScan
-    const tsRes = await fetch(`${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(fileId)}`, {
-      headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` },
-    });
-
-    console.log("get-report: TurniScan status=", tsRes.status);
+    const fetchHeaders: Record<string, string> = {};
+    if (needsAuth) fetchHeaders["Authorization"] = `Bearer ${TURNISCAN_API_KEY}`;
+    const tsRes = await fetch(downloadUrl, { headers: fetchHeaders });
 
     if (!tsRes.ok) {
       const errText = await tsRes.text();
-      console.error("get-report: TurniScan error=", errText);
       return new Response(errText, { status: tsRes.status, headers: { ...cors, "Content-Type": "application/json" } });
     }
 
