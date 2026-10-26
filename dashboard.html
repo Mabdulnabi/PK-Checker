@@ -8203,6 +8203,8 @@ function maybeShowOnboarding(profileData){
   position:absolute;z-index:2;background:#fff;border-radius:20px;
   padding:26px 26px 22px;width:420px;max-width:calc(100vw - 28px);
   box-shadow:0 16px 60px rgba(0,0,0,.38);pointer-events:auto;color:#1B2556;
+  display:flex;flex-direction:column;
+  max-height:clamp(280px, calc(100vh - 260px), 500px);
 }
 [data-theme="dark"] #tourBox{background:#1e2436;color:#e8eff5;}
 [data-theme="dark"] #tourTitle{color:#e8eff5 !important;}
@@ -8215,7 +8217,7 @@ function maybeShowOnboarding(profileData){
 .tour-step-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#6B7494;font-family:'IBM Plex Mono',monospace;margin-bottom:8px;}
 .tour-emoji{font-size:28px;margin-bottom:8px;display:block;}
 #tourTitle{font-family:'Cairo',sans-serif;font-weight:800;font-size:17px;color:#1B2556;margin-bottom:10px;line-height:1.4;}
-#tourDesc{font-size:13.5px;color:#3D4A6B;line-height:1.78;margin-bottom:16px;}
+#tourDesc{font-size:13.5px;color:#3D4A6B;line-height:1.78;margin-bottom:16px;flex:1;overflow-y:auto;min-height:30px;}
 #tourDesc ul{margin:8px 0 0 0;padding-inline-start:18px;display:flex;flex-direction:column;gap:5px;}
 #tourDesc li{list-style:disc;}
 /* Progress bar */
@@ -8263,7 +8265,7 @@ const TOUR_STEPS_DEF = [
   { id:'instapay_transfer', target:'#walletUidValue',          emoji:'💸', tab:'wallet',    expandPacks:true, scrollBlock:'start' },
   { id:'txid_input',        target:'#walletTxidInput',         emoji:'🔢', tab:'wallet',    expandPacks:true, scrollBlock:'start' },
   { id:'confirm_pay',       target:'#walletPayBlock .btn-gold', emoji:'✅', tab:'wallet',    expandPacks:true, scrollBlock:'end' },
-  { id:'upload',            target:'#uploadzoneBox',           emoji:'📂', tab:'new-check', scrollBlock:'top' },
+  { id:'upload',            target:'#uploadzoneBox',           emoji:'📂', tab:'new-check', scrollBlock:'start' },
   { id:'checktype',         target:'.seg',                     emoji:'⚙️', tab:'new-check' },
   { id:'submit',            target:'#submitBtn',               emoji:'🚀', tab:'new-check' },
   { id:'result',            target:'#ordersBody',              emoji:'📊', tab:'orders',    mockOrder:true },
@@ -8421,8 +8423,10 @@ function positionBox(el){
     arrow.className = 'tour-arrow r';
     arrow.style.top = (r.top + r.height/2 - top) + 'px';
   } else {
-    // Fallback: center on screen (no room on any side)
-    top  = Math.max(margin, Math.round((vh - bh) / 2));
+    // Fallback: place below element if possible, else at viewport bottom
+    // Element should be near top (scrollBlock:'start'), so bottom of viewport is free
+    const candidate = r.bottom + gap;
+    top  = (candidate + bh + margin <= vh) ? candidate : Math.max(r.bottom + gap, vh - bh - margin);
     left = clamp(vw/2 - bw/2, margin, vw - bw - margin);
     arrow.style.cssText = 'display:none;';
   }
@@ -8436,20 +8440,18 @@ function positionBox(el){
 function clamp(v, lo, hi){ return Math.max(lo, Math.min(v, hi)); }
 
 async function scrollAndPosition(el, scrollBlock){
-  if(scrollBlock === 'top'){
-    // Scroll the nearest scrollable ancestor to its top, then position
-    let sc = el.parentElement;
-    while(sc && sc !== document.body){
-      const os = getComputedStyle(sc).overflowY;
-      if(os === 'auto' || os === 'scroll'){ break; }
-      sc = sc.parentElement;
-    }
-    const container = (sc && sc !== document.body) ? sc : (document.scrollingElement || document.documentElement);
-    container.scrollTo({ top:0, behavior:'smooth' });
-    await new Promise(r => setTimeout(r, 450));
-  } else {
-    el.scrollIntoView({ behavior:'smooth', block: scrollBlock || 'center' });
-    await new Promise(r => setTimeout(r, 420));
+  // Use instant scroll so getBoundingClientRect() reflects the final position
+  el.scrollIntoView({ behavior:'instant', block: scrollBlock || 'center' });
+  // One rAF to let the browser finish layout after the scroll
+  await new Promise(r => requestAnimationFrame(r));
+  await new Promise(r => requestAnimationFrame(r));
+  // If element is still not in view (e.g. inside a lazy-revealed section),
+  // give it one extra frame
+  const r0 = el.getBoundingClientRect();
+  if(r0.height < 4){
+    await new Promise(r => setTimeout(r, 200));
+    el.scrollIntoView({ behavior:'instant', block: scrollBlock || 'center' });
+    await new Promise(r => requestAnimationFrame(r));
   }
   positionSpotlight(el);
   positionBox(el);
