@@ -855,6 +855,16 @@
   .req-modal-body li{display:flex;gap:8px;margin-bottom:10px;align-items:flex-start;}
   .req-modal-body li .req-ic{flex-shrink:0;margin-top:1px;}
   .req-modal-note{margin-top:14px;padding:10px 12px;background:var(--paper-soft);border-radius:8px;font-size:12px;color:var(--muted);}
+  .req-plan-banner{margin-bottom:14px;padding:10px 14px;background:#fefce8;border:1px solid #fde68a;border-radius:10px;font-size:12.5px;color:#92400e;line-height:1.6;}
+  [data-theme="dark"] .req-plan-banner{background:rgba(254,243,199,0.08);border-color:rgba(253,230,138,0.2);color:#fde68a;}
+  .req-ai-section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .req-ai-section-title{font-size:13.5px;font-weight:800;color:var(--navy);}
+  .req-badge{font-size:11px;font-weight:700;padding:3px 10px;background:var(--paper-soft);color:var(--muted);border-radius:20px;border:1px solid var(--paper-line);}
+  .req-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+  .req-grid-cell{padding:8px 12px;background:var(--paper-soft);border-radius:8px;font-size:12.5px;color:var(--ink-soft);}
+  .req-lbl{font-weight:700;color:var(--navy);}
+  .req-privacy-row{padding:9px 12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;font-size:12.5px;color:#166534;}
+  [data-theme="dark"] .req-privacy-row{background:rgba(187,247,208,0.07);border-color:rgba(187,247,208,0.18);color:#86efac;}
   .chk-row{display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;color:var(--ink-soft);}
   .chk-row input{accent-color:var(--blue);width:15px;height:15px;}
   /* Prevent iOS auto-zoom on input focus */
@@ -2642,6 +2652,23 @@ const I18N = {
     upload_cta:"اختر الملف أو اسحبه هنا", upload_hint:"PDF, DOCX — حتى 100MB · ملف واحد لكل طلب",
     check_opts_title:"خيارات الفحص", check_type_label:"نوع الفحص",
     file_requirements_chip:"📋 شروط الملف",
+    plan_limits_label:"حدود خطة Turnitin:", plan_limits_sim_pre:" الاقتباس حتى ", plan_limits_words:" كلمة.",
+    plan_limits_ai_pre:" كشف الذكاء الاصطناعي صالح حتى ", plan_limits_words_end:" كلمة",
+    plan_limits_note:" (قاعدة محرك الذكاء الاصطناعي الرسمية لـ Turnitin وليست حدنا نحن).",
+    plan_limits_badge:"قاعدة Turnitin",
+    req_card_title:"متطلبات كشف الذكاء الاصطناعي", req_card_badge:"Turnitin Standard",
+    req_size_label:"الحجم:", req_size_val:"أقل من 100 MB",
+    req_lang_label:"اللغة:", req_lang_val:"EN, ES, JA",
+    req_min_label:"الحد الأدنى:", req_min_val:"300 كلمة (نص مقالي)",
+    req_max_label:"الحد الأقصى للذكاء الاصطناعي:", req_max_val:"30,000 كلمة",
+    req_privacy_label:"الخصوصية:", req_privacy_pre:"الملفات ", req_privacy_not_saved:"لا تُحفظ", req_privacy_post:" في أي مستودع (آمن 100%).",
+    req_sim_title:"شروط الملف — فحص الاقتباس",
+    req_sim_item1:"📄 الحد الأقصى لحجم الملف: 100 ميجابايت",
+    req_sim_item2:"📑 الحد الأقصى لعدد الصفحات: 800 صفحة",
+    req_sim_item3:"🔤 الحد الأدنى للنص: أكثر من 20 كلمة",
+    req_sim_item4:"📁 الصيغ المقبولة: DOC, DOCX",
+    req_sim_note:"الشروط الخاصة بعدد الصفحات وعدد الكلمات لا يتم فحصها تلقائيًا عند الرفع — يرجى التأكد منها يدويًا قبل الإرسال لتجنب رفض الملف.",
+    req_both_title:"شروط الملف — اقتباس + ذكاء اصطناعي",
     ct_sim:"اقتباس فقط", ct_both:"اقتباس + ذكاء اصطناعي",
     filters_label:"فلاتر الاقتباس (اختياري)", exclude_bib:"استبعاد المراجع", exclude_quotes:"استبعاد الاقتباسات المنصوصة", exclude_abstract:"استبعاد الملخص", exclude_citations:"استثناء الاقتباسات داخل النص", exclude_small_matches:"استبعاد التطابقات الصغيرة", words_unit:"كلمة",
     payment_title:"وسيلة الدفع", pay_auto:"تلقائي", pay_ref:"رقم مرجعي", vf_cash:"فودافون كاش",
@@ -2790,6 +2817,23 @@ const I18N = {
     upload_cta:"Choose or drag your file here", upload_hint:"PDF, DOCX — up to 100MB · one file per request",
     check_opts_title:"Check options", check_type_label:"Check type",
     file_requirements_chip:"📋 File Requirements",
+    plan_limits_label:"Turnitin Plan Limits:", plan_limits_sim_pre:" Plagiarism up to ", plan_limits_words:" words.",
+    plan_limits_ai_pre:" AI Detection valid up to ", plan_limits_words_end:" words",
+    plan_limits_note:" (Turnitin's official AI engine rule, not our platform limit).",
+    plan_limits_badge:"Turnitin Rule",
+    req_card_title:"Requirements for AI Detection", req_card_badge:"Turnitin Standard",
+    req_size_label:"Size:", req_size_val:"Below 100 MB",
+    req_lang_label:"Lang:", req_lang_val:"EN, ES, JA",
+    req_min_label:"Min:", req_min_val:"300 words (para)",
+    req_max_label:"AI Max:", req_max_val:"30,000 words",
+    req_privacy_label:"Privacy:", req_privacy_pre:"Files are ", req_privacy_not_saved:"not saved", req_privacy_post:" in any repository (100% safe).",
+    req_sim_title:"File Requirements — Similarity Check",
+    req_sim_item1:"📄 Maximum file size: 100 MB",
+    req_sim_item2:"📑 Maximum page count: 800 pages",
+    req_sim_item3:"🔤 Minimum text: more than 20 words",
+    req_sim_item4:"📁 Accepted formats: DOC, DOCX",
+    req_sim_note:"Page count and word count are not automatically verified at upload time — please confirm them yourself before submitting to avoid the file being rejected.",
+    req_both_title:"File Requirements — Similarity + AI Check",
     ct_sim:"Similarity only", ct_both:"Similarity + AI",
     filters_label:"Similarity filters (optional)", exclude_bib:"Exclude bibliography", exclude_quotes:"Exclude quoted text", exclude_abstract:"Exclude abstract", exclude_citations:"Exclude in-text citations", exclude_small_matches:"Exclude small matches", words_unit:"words",
     payment_title:"Payment method", pay_auto:"Automatic", pay_ref:"Reference number", vf_cash:"Vodafone Cash",
@@ -6200,11 +6244,24 @@ const FILE_REQUIREMENTS_TEXT = {
 };
 
 function renderFileRequirements(){
-  const data = FILE_REQUIREMENTS_TEXT[currentLang][reqModalActiveTab];
-  reqModalTitle.textContent = data.title;
-  reqModalBody.innerHTML =
-    '<ul>' + data.items.map(item => `<li><span class="req-ic">•</span><span>${item}</span></li>`).join('') + '</ul>' +
-    '<div class="req-modal-note">' + data.note + '</div>';
+  if (reqModalActiveTab === 'sim') {
+    reqModalTitle.textContent = t('req_sim_title');
+    reqModalBody.innerHTML =
+      '<ul>' + [1,2,3,4].map(i => `<li><span class="req-ic">•</span><span>${t('req_sim_item'+i)}</span></li>`).join('') + '</ul>' +
+      '<div class="req-modal-note">' + t('req_sim_note') + '</div>';
+  } else {
+    reqModalTitle.textContent = t('req_both_title');
+    reqModalBody.innerHTML =
+      `<div class="req-plan-banner"><span>${t('req_plan_limit')}</span></div>` +
+      `<div class="req-ai-section-head"><span class="req-ai-section-title">✨ ${t('req_ai_section_title')}</span><span class="req-badge">${t('req_turnitin_standard')}</span></div>` +
+      `<div class="req-grid">` +
+        `<div class="req-grid-cell"><span class="req-lbl">${t('req_size_label')}:</span> ${t('req_size_val')}</div>` +
+        `<div class="req-grid-cell"><span class="req-lbl">${t('req_lang_label')}:</span> ${t('req_lang_val')}</div>` +
+        `<div class="req-grid-cell"><span class="req-lbl">${t('req_min_label')}:</span> ${t('req_min_val')}</div>` +
+        `<div class="req-grid-cell"><span class="req-lbl">${t('req_ai_max_label')}:</span> ${t('req_ai_max_val')}</div>` +
+      `</div>` +
+      `<div class="req-privacy-row">🔒 <b>Privacy:</b> ${t('req_privacy')}</div>`;
+  }
 }
 
 if (fileRequirementsBtn) fileRequirementsBtn.addEventListener('click', () => {
