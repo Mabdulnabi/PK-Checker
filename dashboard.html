@@ -7529,11 +7529,20 @@ function obSelectCurr(cur){
   document.getElementById('obCurrUsd').classList.toggle('ob-seg-on', cur === 'USD');
 }
 
+function launchConfetti(){
+  if(typeof confetti !== 'function') return;
+  const colors = ['#0e7afe','#38bdf8','#ffd700','#ff6b6b','#a855f7','#22c55e'];
+  confetti({ particleCount:80,  spread:70,  origin:{x:0.3, y:0.65}, colors });
+  confetti({ particleCount:80,  spread:70,  origin:{x:0.7, y:0.65}, colors });
+  setTimeout(()=> confetti({ particleCount:50, spread:100, origin:{x:0.5, y:0.5}, colors }), 250);
+}
+
 function submitOnboarding(){
   const overlay = document.getElementById('onboardingOverlay');
   if (overlay) overlay.classList.remove('show');
   setLangFromPopup(_obLang);
   setCurrencyFromPopup(_obCurr);
+  launchConfetti();
   // Mark onboarding complete in DB so it never shows again for this account
   if (PROKEYS_USER_ID) {
     supabaseClient.from('users_profile')
@@ -8254,7 +8263,7 @@ const TOUR_STEPS_DEF = [
   { id:'instapay_transfer', target:'#walletUidValue',          emoji:'💸', tab:'wallet',    expandPacks:true },
   { id:'txid_input',        target:'#walletTxidInput',         emoji:'🔢', tab:'wallet',    expandPacks:true },
   { id:'confirm_pay',       target:'#walletPayBlock .btn-gold', emoji:'✅', tab:'wallet',    expandPacks:true, scrollBlock:'end' },
-  { id:'upload',            target:'#uploadzoneBox',           emoji:'📂', tab:'new-check' },
+  { id:'upload',            target:'#uploadzoneBox',           emoji:'📂', tab:'new-check', scrollBlock:'start' },
   { id:'checktype',         target:'.seg',                     emoji:'⚙️', tab:'new-check' },
   { id:'submit',            target:'#submitBtn',               emoji:'🚀', tab:'new-check' },
   { id:'result',            target:'#ordersBody',              emoji:'📊', tab:'orders',    mockOrder:true },
@@ -8353,7 +8362,7 @@ skipBtn.addEventListener('click', endTour);
 prevBtn.addEventListener('click', ()=>{ if(currentStep>0) showStep(currentStep-1); });
 nextBtn.addEventListener('click', ()=>{
   const s = steps[currentStep];
-  if(s.isLast){ endTour(); return; }
+  if(s.isLast){ launchConfetti(); endTour(); return; }
   showStep(currentStep+1);
 });
 
