@@ -8037,5 +8037,390 @@ function maybeShowOnboarding(profileData){
 })();
 </script>
 
+<!-- ===================== ONBOARDING TOUR ===================== -->
+<style>
+#tourOverlay{position:fixed;inset:0;z-index:99999;pointer-events:none;}
+#tourOverlay.active{pointer-events:auto;}
+#tourBackdrop{position:absolute;inset:0;background:rgba(0,0,0,.55);transition:opacity .3s;}
+#tourSpotlight{position:absolute;border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,.55);transition:all .35s cubic-bezier(.4,0,.2,1);pointer-events:none;z-index:1;}
+#tourBox{position:absolute;z-index:2;background:var(--paper);border-radius:16px;padding:22px 22px 18px;width:310px;box-shadow:0 8px 40px rgba(0,0,0,.22);pointer-events:auto;transition:all .35s cubic-bezier(.4,0,.2,1);}
+#tourBox.center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);}
+.tour-step-badge{display:inline-block;font-size:11px;font-weight:700;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:10px;}
+.tour-emoji{font-size:28px;margin-bottom:8px;display:block;}
+#tourTitle{font-family:'Cairo',sans-serif;font-weight:800;font-size:16px;color:var(--navy);margin-bottom:8px;line-height:1.4;}
+#tourDesc{font-size:13px;color:var(--ink-soft);line-height:1.7;margin-bottom:18px;}
+.tour-progress{display:flex;gap:5px;margin-bottom:14px;}
+.tour-progress-dot{width:7px;height:7px;border-radius:50%;background:var(--paper-line);transition:background .2s;}
+.tour-progress-dot.active{background:var(--blue);}
+.tour-actions{display:flex;align-items:center;gap:8px;}
+.tour-actions .tour-skip{flex:none;font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0;font-family:'Cairo',sans-serif;}
+.tour-actions .tour-skip:hover{color:var(--ink);}
+.tour-actions .tour-next{flex:1;background:var(--navy);color:#fff;border:none;border-radius:9px;padding:10px 16px;font-weight:700;font-size:13px;font-family:'Cairo',sans-serif;cursor:pointer;}
+.tour-actions .tour-next:hover{opacity:.88;}
+.tour-actions .tour-prev{flex:none;background:var(--paper-soft);color:var(--ink);border:none;border-radius:9px;padding:10px 14px;font-weight:700;font-size:13px;font-family:'Cairo',sans-serif;cursor:pointer;}
+.tour-actions .tour-prev:hover{background:var(--paper-line);}
+.tour-arrow{position:absolute;width:14px;height:14px;background:var(--paper);transform:rotate(45deg);}
+.tour-arrow.bottom{bottom:-7px;left:50%;margin-left:-7px;}
+.tour-arrow.top{top:-7px;left:50%;margin-left:-7px;}
+.tour-arrow.left{left:-7px;top:50%;margin-top:-7px;}
+.tour-arrow.right{right:-7px;top:50%;margin-top:-7px;}
+/* Start tour button (floating, bottom-left) */
+#tourStartBtn{position:fixed;bottom:24px;left:24px;z-index:9998;background:var(--navy);color:#fff;border:none;border-radius:99px;padding:10px 18px;font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:7px;box-shadow:0 4px 18px rgba(0,0,0,.18);}
+html[dir="ltr"] #tourStartBtn{left:auto;right:24px;}
+#tourStartBtn:hover{opacity:.88;}
+/* Mock order highlight */
+.tour-mock-row{border:2px dashed var(--blue) !important;background:var(--blue-wash) !important;border-radius:10px;}
+</style>
+
+<!-- Tour HTML -->
+<div id="tourOverlay">
+  <div id="tourBackdrop"></div>
+  <div id="tourSpotlight"></div>
+  <div id="tourBox">
+    <div class="tour-arrow" id="tourArrow"></div>
+    <div class="tour-progress" id="tourProgress"></div>
+    <span class="tour-emoji" id="tourEmoji"></span>
+    <div class="tour-step-badge" id="tourStepBadge"></div>
+    <div id="tourTitle"></div>
+    <div id="tourDesc"></div>
+    <div class="tour-actions">
+      <button class="tour-skip" id="tourSkipBtn"></button>
+      <button class="tour-prev" id="tourPrevBtn" style="display:none;"></button>
+      <button class="tour-next" id="tourNextBtn"></button>
+    </div>
+  </div>
+</div>
+
+<!-- Start tour floating button -->
+<button id="tourStartBtn" onclick="startTour()" style="display:none;">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+  <span id="tourStartBtnLabel">جولة تعريفية</span>
+</button>
+
+<script>
+/* ===================== TOUR ENGINE ===================== */
+(function(){
+'use strict';
+
+const LS_KEY = 'prokeys-tour-seen-v1';
+const MOCK_ORDER_ID = '__tour_mock__';
+
+/* ---- i18n helper ---- */
+function isAr(){ return (typeof currentLang !== 'undefined' ? currentLang : 'ar') === 'ar'; }
+
+/* ---- Steps definition ---- */
+function getSteps(){
+  const ar = isAr();
+  return [
+    {
+      id:'welcome', center:true, emoji:'👋',
+      title: ar ? 'أهلاً بك في Pro Keys! 🎉' : 'Welcome to Pro Keys! 🎉',
+      desc:  ar
+        ? 'هنريك في خطوات بسيطة إزاي تشحن رصيدك، ترفع ملفك، وتاخد تقرير Turnitin رسمي في دقائق.'
+        : "Let's walk you through how to top up, upload your file, and receive an official Turnitin report in minutes.",
+    },
+    {
+      id:'balance', target:'#kpiBalanceNum', emoji:'💰',
+      title: ar ? 'رصيدك الحالي' : 'Your current balance',
+      desc:  ar
+        ? 'كل فحص بيتكلف عدد معين من الكريديت حسب الباقة. الرصيد ده بيتخصم تلقائياً لما ترسل ملف.'
+        : 'Each check costs a set number of credits based on the package. Credits are deducted automatically when you submit.',
+      tab: 'new-check',
+    },
+    {
+      id:'topup', target:'.pack-slider-wrap', emoji:'💳',
+      title: ar ? 'اشحن محفظتك' : 'Top up your wallet',
+      desc:  ar
+        ? 'اختار باقة تناسبك، ادفع بوسيلتك المفضلة، وبعد موافقة الأدمن على الدفعة هيتضاف الكريديت لرصيدك.'
+        : 'Choose a package, pay with your preferred method, and once the admin approves your payment your credits will be added.',
+      tab: 'wallet',
+    },
+    {
+      id:'upload', target:'#uploadzoneBox', emoji:'📂',
+      title: ar ? 'ارفع ملفك' : 'Upload your file',
+      desc:  ar
+        ? 'اسحب وأفلت ملفك هنا أو اضغط لتختاره. المنصة بتدعم PDF, Word, PowerPoint وأكثر.'
+        : 'Drag & drop your file here or click to browse. We support PDF, Word, PowerPoint and more.',
+      tab: 'new-check',
+    },
+    {
+      id:'checktype', target:'.seg', emoji:'⚙️',
+      title: ar ? 'اختار نوع الفحص' : 'Choose check type',
+      desc:  ar
+        ? '"اقتباس فقط" بيفحص التشابه مع المصادر. "اقتباس + AI" بيضيف كشف المحتوى المولّد بالذكاء الاصطناعي.'
+        : '"Similarity only" checks for matches with sources. "Similarity + AI" adds AI-generated content detection.',
+      tab: 'new-check',
+    },
+    {
+      id:'submit', target:'#submitBtn', emoji:'🚀',
+      title: ar ? 'أرسل للفحص' : 'Submit for checking',
+      desc:  ar
+        ? 'لما تكون الملف محمّل والخيارات محددة، اضغط هنا لترسل الطلب. هيظهر في تاب "ملفاتي" مباشرةً.'
+        : 'Once your file is uploaded and options selected, press here to submit. It will appear in "My Files" instantly.',
+      tab: 'new-check',
+    },
+    {
+      id:'result', target:'#ordersBody', emoji:'📊', mockOrder: true,
+      title: ar ? 'نتائجك هنا' : 'Your results are here',
+      desc:  ar
+        ? 'بعد ما الفحص يكتمل هتلاقي طلبك هنا بالحالة. الطلبات بتتحدث تلقائياً من غير ما تعيد تحميل الصفحة.'
+        : 'Once the check is complete you\'ll find your order here with its status. Orders update automatically without refreshing.',
+      tab: 'orders',
+    },
+    {
+      id:'download', target:'.tour-mock-row .dl-cell', emoji:'⬇️', mockOrder: true,
+      title: ar ? 'حمّل التقرير وقيّم تجربتك' : 'Download & rate your experience',
+      desc:  ar
+        ? 'زرار التحميل بيحملك التقرير مباشرةً. بعده هتظهر لك نجوم التقييم — رأيك بيساعدنا نتحسن!'
+        : 'The download button fetches your report directly. Afterwards the star rating appears — your feedback helps us improve!',
+      tab: 'orders',
+    },
+    {
+      id:'support', target:'[data-tab="support"]', emoji:'💬',
+      title: ar ? 'محتاج مساعدة؟' : 'Need help?',
+      desc:  ar
+        ? 'افتح تذكرة دعم أو كلمنا على اللايف شات من الفقاعة الزرقاء في أسفل الشاشة — فريقنا دايماً موجود.'
+        : 'Open a support ticket or chat with us via the blue bubble at the bottom of the screen — our team is always here.',
+      tab: 'support',
+    },
+    {
+      id:'done', center:true, emoji:'🎉',
+      title: ar ? 'كل حاجة واضحة؟' : 'All set!',
+      desc:  ar
+        ? 'الجولة التعريفية خلصت. تقدر تبدأ دلوقتي وترفع أول ملف بثقة. بالتوفيق! 🌟'
+        : 'The tour is complete. You\'re ready to upload your first file with confidence. Good luck! 🌟',
+      isLast: true,
+    },
+  ];
+}
+
+/* ---- Mock order HTML ---- */
+function buildMockOrderRow(){
+  const ar = isAr();
+  const simIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px;"><path d="M5 13l4 4L19 7"/></svg>`;
+  const downloadIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M12 15V3M7 10l5 5 5-5"/><path d="M3 20h18"/></svg>`;
+  const starSvg = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:1em;height:1em;display:block;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
+
+  return `<div class="order-row tour-mock-row" id="${MOCK_ORDER_ID}" style="position:relative;">
+    <div class="stat-ic done">${simIcon}</div>
+    <div class="ocell oid-cell"><b class="mono">${ar?'PK-DEMO-001':'PK-DEMO-001'}</b><span class="new-order-badge">${ar?'✦ نموذج توضيحي':'✦ Demo'}</span></div>
+    <div class="ofile">
+      <div class="oname-row">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;flex:none;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="ofile-text">
+          <b class="ofile-name">${ar?'بحث_نموذجي.pdf':'sample_research.pdf'}</b>
+          <div class="ofile-meta">PDF · 1.2 MB</div>
+        </div>
+      </div>
+      <div class="otags"><span class="otag">${ar?'اقتباس + AI':'Sim + AI'}</span></div>
+    </div>
+    <div class="ostatus-cell"><span class="badge badge-completed"><span class="dot"></span>${ar?'مكتمل':'Completed'}</span></div>
+    <div class="ocell" style="font-size:12px;color:var(--muted);">${ar?'منذ قليل':'Just now'}</div>
+    <div class="ocell" style="font-size:12px;font-weight:700;">2m 18s</div>
+    <div class="dl-cell">
+      <button class="dl-btn" title="${ar?'اقتباس':'Similarity'}" onclick="event.preventDefault()">${downloadIcon}</button>
+    </div>
+    <div class="dl-cell">
+      <button class="dl-btn" title="AI" onclick="event.preventDefault()">${downloadIcon}</button>
+    </div>
+    <div class="ocell" style="display:flex;justify-content:center;">
+      <div class="star-rate" style="pointer-events:none;">${[1,2,3,4,5].map(n=>`<i class="rate-star ${n<=4?'filled':''}">${starSvg}</i>`).join('')}</div>
+    </div>
+  </div>`;
+}
+
+function injectMockOrder(){
+  if(document.getElementById(MOCK_ORDER_ID)) return;
+  const body = document.getElementById('ordersBody');
+  if(!body) return;
+  const div = document.createElement('div');
+  div.innerHTML = buildMockOrderRow();
+  body.insertBefore(div.firstElementChild, body.firstChild);
+}
+
+function removeMockOrder(){
+  const el = document.getElementById(MOCK_ORDER_ID);
+  if(el) el.remove();
+}
+
+/* ---- Core tour state ---- */
+let steps = [], currentStep = 0, active = false;
+
+const overlay  = document.getElementById('tourOverlay');
+const backdrop = document.getElementById('tourBackdrop');
+const spotlight= document.getElementById('tourSpotlight');
+const box      = document.getElementById('tourBox');
+const arrow    = document.getElementById('tourArrow');
+const progress = document.getElementById('tourProgress');
+const emoji    = document.getElementById('tourEmoji');
+const stepBadge= document.getElementById('tourStepBadge');
+const titleEl  = document.getElementById('tourTitle');
+const descEl   = document.getElementById('tourDesc');
+const skipBtn  = document.getElementById('tourSkipBtn');
+const prevBtn  = document.getElementById('tourPrevBtn');
+const nextBtn  = document.getElementById('tourNextBtn');
+const startBtn = document.getElementById('tourStartBtn');
+
+skipBtn.addEventListener('click', endTour);
+prevBtn.addEventListener('click', ()=>{ if(currentStep>0) showStep(currentStep-1); });
+nextBtn.addEventListener('click', ()=>{
+  const s = steps[currentStep];
+  if(s.isLast){ endTour(); return; }
+  showStep(currentStep+1);
+});
+backdrop.addEventListener('click', endTour);
+
+function positionSpotlight(el){
+  const r = el.getBoundingClientRect();
+  const pad = 10;
+  spotlight.style.left   = (r.left - pad) + 'px';
+  spotlight.style.top    = (r.top  - pad) + 'px';
+  spotlight.style.width  = (r.width  + pad*2) + 'px';
+  spotlight.style.height = (r.height + pad*2) + 'px';
+}
+
+function positionBox(el){
+  const r = el.getBoundingClientRect();
+  const bw = 310, margin = 16;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  let left, top;
+  arrow.className = 'tour-arrow';
+  arrow.style.cssText = '';
+
+  // Prefer: below
+  if(r.bottom + 220 + margin < vh){
+    top  = r.bottom + 14;
+    left = Math.min(Math.max(r.left + r.width/2 - bw/2, margin), vw - bw - margin);
+    arrow.className = 'tour-arrow top';
+    arrow.style.left = (r.left + r.width/2 - left) + 'px';
+  // above
+  } else if(r.top - 220 - margin > 0){
+    top  = r.top - 220 - 14;
+    left = Math.min(Math.max(r.left + r.width/2 - bw/2, margin), vw - bw - margin);
+    arrow.className = 'tour-arrow bottom';
+    arrow.style.left = (r.left + r.width/2 - left) + 'px';
+  // right
+  } else if(r.right + bw + margin < vw){
+    left = r.right + 14;
+    top  = Math.min(Math.max(r.top + r.height/2 - 110, margin), vh - 240);
+    arrow.className = 'tour-arrow left';
+    arrow.style.top  = (r.top + r.height/2 - top) + 'px';
+  // left
+  } else {
+    left = r.left - bw - 14;
+    top  = Math.min(Math.max(r.top + r.height/2 - 110, margin), vh - 240);
+    arrow.className = 'tour-arrow right';
+    arrow.style.top  = (r.top + r.height/2 - top) + 'px';
+  }
+  box.style.left = left + 'px';
+  box.style.top  = top  + 'px';
+  box.classList.remove('center');
+}
+
+async function showStep(idx){
+  currentStep = idx;
+  const s = steps[idx];
+  const ar = isAr();
+
+  // Switch tab if needed
+  if(s.tab && typeof goTab === 'function'){
+    const activeTabEl = document.querySelector('.navtab[data-tab].on');
+    const currentTabName = activeTabEl ? activeTabEl.dataset.tab : '';
+    if(currentTabName !== s.tab){
+      goTab(s.tab);
+      await new Promise(r => setTimeout(r, 280));
+    }
+  }
+
+  // Mock order
+  if(s.mockOrder){ injectMockOrder(); }
+
+  // Progress dots
+  progress.innerHTML = steps.map((_, i) =>
+    `<div class="tour-progress-dot ${i===idx?'active':''}"></div>`
+  ).join('');
+
+  emoji.textContent = s.emoji || '';
+  stepBadge.textContent = ar ? `${idx+1} / ${steps.length}` : `${idx+1} / ${steps.length}`;
+  titleEl.textContent = s.title;
+  descEl.innerHTML = s.desc;
+
+  skipBtn.textContent = ar ? (s.isLast ? '' : 'تخطي الجولة') : (s.isLast ? '' : 'Skip tour');
+  skipBtn.style.display = s.isLast ? 'none' : '';
+  prevBtn.style.display  = idx > 0 ? '' : 'none';
+  prevBtn.textContent    = ar ? '← السابق' : '← Back';
+  nextBtn.textContent    = s.isLast ? (ar ? 'ابدأ الآن 🚀' : 'Start now 🚀') : (ar ? 'التالي ←' : 'Next →');
+
+  // Position
+  if(s.center || !s.target){
+    spotlight.style.cssText = 'display:none;';
+    box.classList.add('center');
+    box.style.left = '';
+    box.style.top  = '';
+    arrow.className = 'tour-arrow';
+    arrow.style.cssText = 'display:none;';
+  } else {
+    arrow.style.display = '';
+    spotlight.style.display = '';
+    // Resolve target — may need a tick after tab switch
+    let el = document.querySelector(s.target);
+    if(!el){
+      await new Promise(r => setTimeout(r, 100));
+      el = document.querySelector(s.target);
+    }
+    if(el){
+      el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+      await new Promise(r => setTimeout(r, 200));
+      positionSpotlight(el);
+      positionBox(el);
+    }
+  }
+}
+
+window.startTour = function(){
+  steps = getSteps();
+  active = true;
+  overlay.classList.add('active');
+  startBtn.style.display = 'none';
+  showStep(0);
+};
+
+function endTour(){
+  active = false;
+  overlay.classList.remove('active');
+  spotlight.style.cssText = '';
+  removeMockOrder();
+  localStorage.setItem(LS_KEY, '1');
+  // Show the start-tour button for future use
+  if(startBtn) startBtn.style.display = '';
+  const lbl = document.getElementById('tourStartBtnLabel');
+  if(lbl) lbl.textContent = isAr() ? 'جولة تعريفية' : 'Take a tour';
+}
+
+// Auto-start on first visit
+window.addEventListener('load', () => {
+  const seen = localStorage.getItem(LS_KEY);
+  if(startBtn){ startBtn.style.display = ''; }
+  const lbl = document.getElementById('tourStartBtnLabel');
+  if(lbl) lbl.textContent = isAr() ? 'جولة تعريفية' : 'Take a tour';
+  if(!seen){
+    setTimeout(startTour, 1200);
+  }
+});
+
+// Handle lang change while tour is active
+const _origTranslateDom = typeof PK !== 'undefined' && PK.translateDom;
+if(typeof PK !== 'undefined'){
+  const _origSetLang = PK.setLang;
+  if(_origSetLang){
+    PK.setLang = function(){
+      _origSetLang.apply(this, arguments);
+      if(active) showStep(currentStep);
+    };
+  }
+}
+
+})();
+</script>
 </body>
 </html>
