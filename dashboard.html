@@ -2493,6 +2493,21 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 // stays null and every Supabase-calling function below checks for it and
 // no-ops safely, so the UI remains interactive while the redirect happens.
 const PROKEYS_USER_ID = localStorage.getItem('prokeys-user-id');
+// Validate that the cached user_id matches the real Supabase session.
+// If they differ (e.g. admin tested the page and left their id in localStorage,
+// then a different user logged in), correct localStorage and reload.
+(async () => {
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session && session.user && session.user.id !== PROKEYS_USER_ID) {
+      localStorage.setItem('prokeys-user-id', session.user.id);
+      window.location.reload();
+    } else if (!session && PROKEYS_USER_ID) {
+      localStorage.removeItem('prokeys-user-id');
+      window.location.href = 'index.html';
+    }
+  } catch(e) { /* non-fatal */ }
+})();
 if (!PROKEYS_USER_ID) {
   // Google's redirectTo now points straight at dashboard.html (no more
   // intermediate auth-callback page). If we just came back from Google,
