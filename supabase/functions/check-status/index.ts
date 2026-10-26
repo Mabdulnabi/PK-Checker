@@ -67,6 +67,8 @@ Deno.serve(async (req: Request) => {
       return json({ success: false, polled: false, error: tsData.message || "TurniScan status check failed" });
     }
 
+    console.log("check-status: tsData keys=", Object.keys(tsData), "full=", JSON.stringify(tsData));
+
     const internalStatus = mapStatus(tsData.status as string);
     const updates: Record<string, unknown> = { status: internalStatus };
 
@@ -79,12 +81,14 @@ Deno.serve(async (req: Request) => {
         redirect: "manual",
       });
       const simCdnUrl = simRes.headers.get("location") || tsData.download_url;
+      console.log("check-status: simRes status=", simRes.status, "simCdnUrl=", simCdnUrl);
 
       const aiRes = await fetch(`${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(fileId)}&report_type=ai`, {
         headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` },
         redirect: "manual",
       });
       const aiCdnUrl = aiRes.headers.get("location");
+      console.log("check-status: aiRes status=", aiRes.status, "aiCdnUrl=", aiCdnUrl, "aiHeaders=", JSON.stringify(Object.fromEntries(aiRes.headers)));
 
       if (simCdnUrl) {
         updates.report_url = simCdnUrl;
