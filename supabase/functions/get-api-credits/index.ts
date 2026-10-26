@@ -28,12 +28,11 @@ Deno.serve(async (req: Request) => {
 
     return json({
       success: true,
-      available_credits: data.available_credits,
-      total_credits: data.total_credits,
-      used_credits: data.used_credits,
-      status: data.status,
-      expiry_date: data.expiry_date,
-      is_expired: data.is_expired,
+      creditsRemaining: data.available_credits,
+      creditsTotal: data.total_credits,
+      isActive: data.status === "Active" && !data.is_expired,
+      currentConcurrent: 0,
+      concurrencyLimit: 0,
     });
   } catch (err) {
     console.error("get-api-credits error:", err);
