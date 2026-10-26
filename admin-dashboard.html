@@ -1266,6 +1266,7 @@
 <script>
 const SUPABASE_URL = 'https://ixpgqhwausnfjphitsty.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4cGdxaHdhdXNuZmpwaGl0c3R5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNTk4NTgsImV4cCI6MjA5NzczNTg1OH0.m8ZLubDuxiSRIEXSa4pEgZiwDtXImUhEH_jI6GWP990';
+const FN_BASE = '/api/fn';
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const EGP_PER_CREDIT = 5; // 1 USD = 50 EGP = 10 credits -> 1 credit = 5 EGP
@@ -4372,7 +4373,7 @@ async function resendOrderToApi(orderId){
     fd.append('order_id', orderId);
     fd.append('file', fileBlob, order.file_name || 'document.pdf');
 
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/submit-check`, {
+    const res = await fetch(`${FN_BASE}/submit-check`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${sessionData.session.access_token}` },
       body: fd,
@@ -4904,7 +4905,7 @@ async function submitResetAdminPassword(){
   statusEl.style.color = 'var(--muted)'; statusEl.textContent = 'جاري التحديث...';
   try {
     const { data: sessionData } = await supabaseClient.auth.getSession();
-    const resp = await fetch(`${SUPABASE_URL}/functions/v1/manage-admin-account`, {
+    const resp = await fetch(`${FN_BASE}/manage-admin-account`, {
       method: 'POST',
       headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${sessionData.session.access_token}` },
       body: JSON.stringify({ action: 'reset_password', admin_id: editingAdminPermsId, password: pwd }),
@@ -4963,7 +4964,7 @@ async function submitNewAdmin(){
   if (password.length < 8) { await adminAlert('الباسورد لازم يكون 8 حروف على الأقل', {icon:'⚠️'}); return; }
   try {
     const { data: sessionData } = await supabaseClient.auth.getSession();
-    const resp = await fetch(`${SUPABASE_URL}/functions/v1/create-admin`, {
+    const resp = await fetch(`${FN_BASE}/create-admin`, {
       method: 'POST',
       headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${sessionData.session.access_token}` },
       body: JSON.stringify({ name, email, password, permissions: addAdminPermSelections }),
@@ -5263,7 +5264,7 @@ async function submitNewUser(){
   if (password.length < 8) { await adminAlert('الباسورد لازم يكون 8 حروف على الأقل', {icon:'⚠️'}); return; }
   try {
     const { data: sessionData } = await supabaseClient.auth.getSession();
-    const resp = await fetch(`${SUPABASE_URL}/functions/v1/create-customer`, {
+    const resp = await fetch(`${FN_BASE}/create-customer`, {
       method: 'POST',
       headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${sessionData.session.access_token}` },
       body: JSON.stringify({ email, password, full_name, whatsapp, phone, initial_credits }),

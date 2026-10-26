@@ -3412,7 +3412,7 @@ async function checkEasykashPayment(paymentId){
   try{
     const { data: { session } } = await supabaseClient.auth.getSession();
     if(!session) return;
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/verify-easykash`, {
+    const res = await fetch(`${FN_BASE}/verify-easykash`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
       body: JSON.stringify({ payment_id: paymentId }),
@@ -3502,7 +3502,7 @@ async function handleDynamicGatewayPurchase(gateway, cfg){
     if(insertErr) throw insertErr;
 
     const { data: { session } } = await supabaseClient.auth.getSession();
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/create-easykash-link`, {
+    const res = await fetch(`${FN_BASE}/create-easykash-link`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
       body: JSON.stringify({ payment_id: paymentRow.id, amount: amountForDb }),
@@ -3562,7 +3562,7 @@ async function callVerifyEdgeFunction(cfg, paymentRow, refValue){
   const { data: { session } } = await supabaseClient.auth.getSession();
   const payload = { payment_id: paymentRow.id, [cfg.payload_key]: refValue };
 
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/${cfg.edge_fn}`, {
+  const res = await fetch(`${FN_BASE}/${cfg.edge_fn}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
     body: JSON.stringify(payload),
@@ -5124,7 +5124,7 @@ async function deleteOwnAccount(){
     // Step 2: remove the actual login account itself (needs service_role,
     // handled server-side by this edge function).
     const { data: sessionData } = await supabaseClient.auth.getSession();
-    const resp = await fetch(`${SUPABASE_URL}/functions/v1/delete-own-account`, {
+    const resp = await fetch(`${FN_BASE}/delete-own-account`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${sessionData.session.access_token}` },
     });
@@ -6228,7 +6228,7 @@ async function submitCheckToApi(orderId, file){
   if (exSmallEl?.checked && exSmallWords > 0) fd.append('excludeSmallMatchesWordLimit', String(exSmallWords));
 
   try {
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/submit-check`, {
+    const res = await fetch(`${FN_BASE}/submit-check`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${accessToken}` },
       body: fd,
@@ -6263,7 +6263,7 @@ async function pollPendingApiOrders(){
 
   for (const o of pending) {
     try {
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/check-status?order_id=${encodeURIComponent(o.id)}`, {
+      const res = await fetch(`${FN_BASE}/check-status?order_id=${encodeURIComponent(o.id)}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       const json = await res.json();
@@ -6998,7 +6998,7 @@ async function loadUserProfile({ force = false } = {}){
   }
 }
 
-const FN_BASE = '/api/fn'; // proxied via Vercel rewrites → avoids ad-blocker false positives
+const FN_BASE = '/api/fn';
 function buildAiReportUrl(orderId, storedValue){
   return `${FN_BASE}/get-report?order_id=${encodeURIComponent(orderId)}&report_type=ai`;
 }
