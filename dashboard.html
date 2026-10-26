@@ -3127,8 +3127,12 @@ function currencyLabel(){
   return currentCurrency === 'USD' ? t('usd_unit_short') : t('egp_unit');
 }
 /* Price number to display for a pack, honoring the active currency */
+const EGP_TO_USD_RATE = 50;
 function packPriceNumber(p){
-  if(currentCurrency === 'USD' && p.price != null) return p.price;
+  if(currentCurrency === 'USD'){
+    if(p.price != null) return p.price;
+    return Math.ceil(p.priceEgp / EGP_TO_USD_RATE * 10) / 10; // round up to 1 decimal
+  }
   return p.priceEgp;
 }
 /* "Credit" / "Credits" in EN depending on count, always "كريديت" in AR */
