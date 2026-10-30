@@ -6165,7 +6165,10 @@ function updateSubmitState(needed){
   if (_orderSubmitting) return;
   const btn = document.getElementById('submitBtn');
   const warn = document.getElementById('balanceWarning');
-  const insufficient = _balanceLoaded && userBalance < needed;
+  // The warning is about the file waiting to be sent. With no file selected,
+  // the default price must not look like an error (e.g. right after a check
+  // was sent and the balance dropped below the default cost).
+  const insufficient = _balanceLoaded && !!currentFile && userBalance < needed;
   warn.style.display = insufficient ? 'flex' : 'none';
   if(insufficient){
     btn.classList.add('needs-topup');
@@ -6773,7 +6776,9 @@ async function submitOrder(){
   } finally {
     _orderSubmitting = false;
     btn.disabled = false;
-    btn.textContent = prevText;
+    // Recompute the button and warning from the current state instead of
+    // restoring the label captured before the submit.
+    updatePrice();
   }
 }
 
