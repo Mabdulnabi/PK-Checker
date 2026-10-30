@@ -3632,8 +3632,11 @@ async function handleDynamicGatewayPurchase(gateway, cfg){
 
   // Create pending payment row + generate per-order pay link
   const isEgp = cfg.currency === 'EGP';
-  const amountUsd = selectedPack.price;
-  const amountForDb = isEgp ? Math.round(amountUsd * exchangeRate) : amountUsd;
+  const amountForDb = packChargeAmount(selectedPack, isEgp);
+  if (!amountForDb) {
+    await appAlert(ar ? 'تعذر تحديد سعر الباقة، جرب تاني.' : 'Could not determine the pack price, please try again.', {icon:'error'});
+    return;
+  }
   const credits = selectedPack.credits + (selectedPack.bonus || 0);
 
   confirmBtn.disabled = true;
@@ -3759,6 +3762,17 @@ async function handleVerificationResult(json, credits){
   }
 }
 
+/* Amount to charge for a pack, in the gateway's currency. Current packs define
+   priceEgp only; older entries had a USD price field. Returns NaN-safe 0 when
+   no price can be resolved, so callers can refuse to insert a NULL amount. */
+function packChargeAmount(pack, isEgp){
+  const amount = isEgp
+    ? (pack.priceEgp ?? (pack.price != null ? pack.price * exchangeRate : undefined))
+    : (pack.price ?? (pack.priceEgp != null ? Math.ceil(pack.priceEgp / exchangeRate * 10) / 10 : undefined));
+  if (!Number.isFinite(amount) || amount <= 0) return 0;
+  return isEgp ? Math.round(amount) : amount;
+}
+
 async function confirmWalletPurchase(){
   if (!PROKEYS_USER_ID) { window.location.href = 'index.html'; return; }
   if(!selectedPack){ await appAlert(currentLang==='ar' ? 'من فضلك اختر باقة أولاً' : 'Please select a pack first', {icon:'warning'}); return; }
@@ -3773,9 +3787,12 @@ async function confirmWalletPurchase(){
   const refValue = document.getElementById('walletTxidInput').value.trim();
   if(!refValue){ await appAlert(currentLang==='ar' ? 'من فضلك ادخل رقم العملية أو الرقم المرجعي' : 'Please enter the transaction ID or reference number', {icon:'warning'}); return; }
   const isEgp = cfg?.currency === 'EGP';
-  // Amount: EGP gateways pay in EGP (price × exchange rate), USD gateways pay in USD
-  const amountUsd = selectedPack.price; // true USD price, independent of display currency
-  const amountForDb = isEgp ? Math.round(amountUsd * exchangeRate) : amountUsd;
+  // Amount: EGP gateways pay in EGP, USD gateways pay in USD
+  const amountForDb = packChargeAmount(selectedPack, isEgp);
+  if (!amountForDb) {
+    await appAlert(currentLang==='ar' ? 'تعذر تحديد سعر الباقة، جرب تاني.' : 'Could not determine the pack price, please try again.', {icon:'error'});
+    return;
+  }
   const credits = selectedPack.credits + (selectedPack.bonus || 0);
 
   const confirmBtn = document.querySelector('#walletPayBlock .btn-gold');
