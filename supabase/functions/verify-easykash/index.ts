@@ -7,6 +7,8 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
+// Credits are added by the confirm_topup() database function, which claims the
+// provider reference, credits the wallet and marks the payment completed in one transaction.
 async function confirmTopup(params: {
   adminClient: any;
   userId: string;
@@ -17,43 +19,15 @@ async function confirmTopup(params: {
 }): Promise<{ ok: boolean; alreadyProcessed?: boolean; newBalance?: number; error?: string }> {
   const { adminClient, userId, paymentId, credits, gateway, providerRef } = params;
 
-  const { error: refError } = await adminClient
-    .from('processed_payment_refs')
-    .insert({ gateway, provider_ref: providerRef, payment_id: paymentId });
-
-  if (refError) {
-    if (refError.code === '23505') {
-      return { ok: false, alreadyProcessed: true, error: 'This transaction was already processed' };
-    }
-    return { ok: false, error: `Failed to record provider reference: ${refError.message}` };
-  }
-
-  const { data: latestTxn, error: balanceError } = await adminClient
-    .from('wallet_transactions')
-    .select('balance_after')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-    .limit(1);
-
-  if (balanceError) return { ok: false, error: `Failed to read current balance: ${balanceError.message}` };
-
-  const balanceBefore = latestTxn && latestTxn.length > 0 ? Number(latestTxn[0].balance_after) : 0;
-  const balanceAfter = balanceBefore + credits;
-
-  const { error: insertError } = await adminClient
-    .from('wallet_transactions')
-    .insert({ user_id: userId, type: 'credit', amount: credits, balance_before: balanceBefore, balance_after: balanceAfter, description: `شحن رصيد — ${gateway}` });
-
-  if (insertError) return { ok: false, error: `Failed to credit wallet: ${insertError.message}` };
-
-  const { error: updateError } = await adminClient
-    .from('payments')
-    .update({ status: 'completed', verified_at: new Date().toISOString(), transaction_id: providerRef })
-    .eq('id', paymentId);
-
-  if (updateError) console.error('confirmTopup: wallet credited but payments row update failed:', updateError.message);
-
-  return { ok: true, newBalance: balanceAfter };
+  const { data, error } = await adminClient.rpc('confirm_topup', {
+    p_user_id: userId,
+    p_payment_id: paymentId,
+    p_credits: credits,
+    p_gateway: gateway,
+    p_provider_ref: providerRef,
+  });
+  if (error) return { ok: false, error: `Failed to confirm top-up: ${error.message}` };
+  return data;
 }
 
 interface EasykashInquiryResult {

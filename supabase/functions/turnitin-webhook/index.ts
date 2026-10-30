@@ -6,6 +6,10 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const TURNISCAN_API_KEY = Deno.env.get("TURNISCAN_API_KEY")!;
 const TURNISCAN_BASE = "https://turniscan.com/v1";
 
+// TurniScan does not sign webhooks, so the payload is never trusted on its own.
+// Every status change is re-read from GET /v1/scan/status with our API key,
+// and the order is only updated when its external_order_id matches the file.
+
 function extractFilename(contentDisposition: string | null, fallback: string): string {
   if (contentDisposition) {
     const m = contentDisposition.match(/filename\*?=(?:UTF-8'')?["']?([^"';\r\n]+)["']?/i);
@@ -39,6 +43,29 @@ async function fetchAndStore(
   return `/storage/${storagePath}`;
 }
 
+interface ScanStatus {
+  status?: string;
+  similarity_score?: number;
+  ai_score?: number;
+  error?: string;
+}
+
+// Returns null when TurniScan can't confirm the file, so the caller can ask for a retry.
+async function fetchScanStatus(fileId: string): Promise<ScanStatus | null> {
+  try {
+    const res = await fetch(`${TURNISCAN_BASE}/scan/status?file_id=${encodeURIComponent(fileId)}`, {
+      headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const body = (data && typeof data === "object" && data.data && typeof data.data === "object") ? data.data : data;
+    return body && typeof body.status === "string" ? (body as ScanStatus) : null;
+  } catch (e) {
+    console.error("webhook: status lookup failed", e);
+    return null;
+  }
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return new Response("Method Not Allowed", { status: 405 });
 
@@ -46,29 +73,42 @@ Deno.serve(async (req: Request) => {
   try { payload = await req.json(); }
   catch { return new Response("Bad Request", { status: 400 }); }
 
-  const fileId          = payload.file_id as string | undefined;
-  const customId        = payload.custom_id as string | undefined;
-  const status          = (payload.status as string) || "";
-  const similarityScore = payload.similarity_score as number | undefined;
-  const aiScore         = payload.ai_score as number | undefined;
-
-  if (!customId) {
-    console.error("webhook: missing custom_id", payload);
+  const fileId   = typeof payload.file_id === "string" ? payload.file_id : undefined;
+  const customId = typeof payload.custom_id === "string" ? payload.custom_id : undefined;
+  if (!customId || !fileId) {
+    console.error("webhook: missing custom_id or file_id");
     return new Response("OK", { status: 200 });
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-  const s = status.toLowerCase();
+
+  const { data: order } = await supabase
+    .from("orders")
+    .select("id, check_type, external_order_id")
+    .eq("id", customId)
+    .maybeSingle();
+  if (!order) return new Response("OK", { status: 200 });
+
+  // If we already stored a file id for this order, the webhook must refer to it.
+  if (order.external_order_id && order.external_order_id !== fileId) {
+    console.error("webhook: file_id does not match order", customId);
+    return new Response("Forbidden", { status: 403 });
+  }
+
+  // Ask TurniScan directly. Failing that, return 503 so TurniScan retries.
+  const scan = await fetchScanStatus(fileId);
+  if (!scan) return new Response("Service Unavailable", { status: 503 });
+
+  const s = scan.status!.toLowerCase();
   const internalStatus =
     s === "completed" ? "completed" :
     (s === "failed" || s === "rejected") ? "error" : "processing";
 
   const updates: Record<string, unknown> = { status: internalStatus };
-  if (fileId) updates.external_order_id = fileId;
+  if (!order.external_order_id) updates.external_order_id = fileId;
 
-  if (internalStatus === "completed" && fileId) {
-    const { data: orderRow } = await supabase.from("orders").select("check_type").eq("id", customId).single();
-    const checkType = (orderRow as { check_type: string } | null)?.check_type;
+  if (internalStatus === "completed") {
+    const checkType = order.check_type as string | null;
 
     const simUrl = await fetchAndStore(supabase, fileId, `sim-reports/${customId}`, "sim");
     if (simUrl) updates.report_url = simUrl;
@@ -79,11 +119,10 @@ Deno.serve(async (req: Request) => {
     }
 
     updates.completed_at = new Date().toISOString();
-    if (similarityScore !== undefined) updates.similarity_score = similarityScore;
-    if (aiScore !== undefined)         updates.ai_score = aiScore;
+    if (typeof scan.similarity_score === "number") updates.similarity_score = scan.similarity_score;
+    if (typeof scan.ai_score === "number")         updates.ai_score = scan.ai_score;
   } else if (internalStatus === "error") {
-    updates.error_reason =
-      (payload.error_message as string) || (payload.message as string) || `TurniScan: ${status}`;
+    updates.error_reason = scan.error || `TurniScan: ${scan.status}`;
   }
 
   const { error } = await supabase.from("orders").update(updates).eq("id", customId);

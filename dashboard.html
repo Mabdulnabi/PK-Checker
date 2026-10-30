@@ -2701,7 +2701,7 @@ const I18N = {
     redeem_btn:"كود خصم", redeem_modal_title:"كود خصم", redeem_modal_sub:"فعّل الكود اللي معاك",
     redeem_input_ph:"أدخل الكود هنا", redeem_submit:"تفعيل الكود", redeem_err_empty:"من فضلك أدخل الكود",
     redeem_err_used:"الكود ده اتستخدم قبل كده", redeem_err_invalid:"الكود غير صحيح، اتأكد من كتابته",
-    redeem_err_auth:"انتهت جلستك، سجّل الدخول من جديد", redeem_err_generic:"حصلت مشكلة، حاول تاني",
+    redeem_err_limit:"محاولات كتير غلط، استنى شوية وحاول تاني", redeem_err_auth:"انتهت جلستك، سجّل الدخول من جديد", redeem_err_generic:"حصلت مشكلة، حاول تاني",
     redeem_success:"اتضاف {n} كريديت لرصيدك ✅",
     kpi_topup:"شحن +", kpi_credits_unit:"كريديت", credit_unit_singular:"كريديت", kpi_balance:"رصيدك الحالي",
     kpi_processing:"قيد الفحص الآن", kpi_floating:"رصيد عائم (معلّق)",
@@ -2874,7 +2874,7 @@ const I18N = {
     redeem_btn:"Redeem Code", redeem_modal_title:"Redeem Code", redeem_modal_sub:"Activate your purchased code",
     redeem_input_ph:"ENTER CODE", redeem_submit:"REDEEM NOW", redeem_err_empty:"Please enter the code",
     redeem_err_used:"This code has already been used", redeem_err_invalid:"Invalid code, please check it and try again",
-    redeem_err_auth:"Your session expired, please sign in again", redeem_err_generic:"Something went wrong, please try again",
+    redeem_err_limit:"Too many failed attempts, please wait a bit and try again", redeem_err_auth:"Your session expired, please sign in again", redeem_err_generic:"Something went wrong, please try again",
     redeem_success:"{n} credits added to your balance ✅",
     kpi_topup:"Top up", kpi_credits_unit:"credits", credit_unit_singular:"credit", kpi_balance:"Current balance",
     kpi_processing:"Processing now", kpi_floating:"Floating (pending)",
@@ -7035,6 +7035,7 @@ function renderWalletCapacity(){
 const REDEEM_ERROR_KEYS = {
   CODE_ALREADY_USED: 'redeem_err_used',
   INVALID_CODE: 'redeem_err_invalid',
+  TOO_MANY_ATTEMPTS: 'redeem_err_limit',
   NOT_AUTHENTICATED: 'redeem_err_auth',
 };
 function openRedeemCodeModal(){
@@ -7068,9 +7069,11 @@ async function submitRedeemCode(e){
   setRedeemMsg('');
   try {
     const { data, error } = await supabaseClient.rpc('redeem_code', { p_code: code });
-    if (error) {
-      const errKey = Object.keys(REDEEM_ERROR_KEYS).find(k => (error.message || '').includes(k));
-      if (!errKey) console.error('redeem_code failed:', error);
+    // The database returns { error: 'CODE' } for expected failures, and raises only on unexpected ones.
+    if (error || (data && data.error)) {
+      const code_ = data?.error || error?.message || '';
+      const errKey = Object.keys(REDEEM_ERROR_KEYS).find(k => code_.includes(k));
+      if (!errKey) console.error('redeem_code failed:', error || data);
       setRedeemMsg(t(errKey ? REDEEM_ERROR_KEYS[errKey] : 'redeem_err_generic'), 'err');
       return;
     }
