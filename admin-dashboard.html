@@ -122,7 +122,7 @@
     table.tbl{font-size:12px;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
     .panel table.tbl td.file-col{white-space:nowrap;min-width:190px;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
     .order-filters{flex-wrap:wrap;}
-    .kpi-mini-grid,.chart-grid,.profile-stat-grid,.cr-form-row,.cs-msg-row,.uid-icons-grid,#adminPermsGrid,#newAdminPermsGrid,#payMethodsList{
+    .kpi-mini-grid,.chart-grid,.profile-stat-grid,.cr-form-row,.rc-form-row,.cs-msg-row,.uid-icons-grid,#adminPermsGrid,#newAdminPermsGrid,#payMethodsList{
       grid-template-columns:1fr !important;
     }
     .uid-row{grid-template-columns:1fr;gap:2px;}
@@ -479,6 +479,17 @@
   .cr-save-banner{display:none;padding:9px 14px;border-radius:8px;margin-bottom:14px;font-size:12.5px;font-weight:700;}
   .cr-save-banner.ok{background:var(--ok-wash);color:var(--ok);}
   .cr-save-banner.err{background:var(--danger-wash);color:var(--danger);}
+  .rc-form-row{display:grid;grid-template-columns:1.2fr 1fr 1fr auto;gap:10px;align-items:end;}
+  .rc-form-row .cr-form-group input,.rc-select{width:100%;padding:9px 12px;border:1.5px solid var(--paper-line);border-radius:9px;font-family:'Cairo',sans-serif;font-size:13px;background:var(--paper);color:inherit;}
+  .rc-preview{margin-top:10px;font-size:12px;font-weight:700;color:var(--blue);min-height:16px;}
+  .rc-new-box{margin-top:14px;padding:14px;border-radius:12px;background:var(--ok-wash);border:1px solid var(--ok);}
+  .rc-new-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:13px;color:var(--navy);}
+  .rc-code-list{display:flex;flex-wrap:wrap;gap:8px;}
+  .rc-code-list code,.rc-table-wrap code{background:var(--paper);border:1px solid var(--paper-line);border-radius:7px;padding:4px 8px;font-size:12px;letter-spacing:1px;direction:ltr;}
+  .rc-table-wrap{margin-top:16px;overflow-x:auto;}
+  .rc-status{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+  .rc-status.fresh{background:var(--ok-wash);color:var(--ok);}
+  .rc-status.used{background:var(--paper-line);color:var(--muted);}
 
   /* ===== FEATURE CSS: BELLS, CHARTS, BROADCAST, ACTIVITY, QUICK-ACTIONS, FILTERS ===== */
 
@@ -1136,6 +1147,43 @@
           </div>
         </div>
 
+        <!-- Redeem codes: single-use credit vouchers the customer enters on the Check tab -->
+        <div class="cr-form-card">
+          <h3 data-i18n="rc_title">🎟 أكواد الخصم (Redeem Codes)</h3>
+          <div class="rc-form-row">
+            <div class="cr-form-group">
+              <label data-i18n="rc_value_lbl">القيمة</label>
+              <input type="number" id="rcValue" min="0" step="0.01" placeholder="50" oninput="rcUpdatePreview()">
+            </div>
+            <div class="cr-form-group">
+              <label data-i18n="rc_unit_lbl">الوحدة</label>
+              <select id="rcUnit" class="rc-select" onchange="rcUpdatePreview()">
+                <option value="egp" data-i18n="rc_unit_egp">جنيه مصري</option>
+                <option value="usd" data-i18n="rc_unit_usd">دولار</option>
+                <option value="credits" data-i18n="rc_unit_credits">كريديت</option>
+              </select>
+            </div>
+            <div class="cr-form-group">
+              <label data-i18n="rc_count_lbl">عدد الأكواد</label>
+              <input type="number" id="rcCount" min="1" max="500" step="1" value="1">
+            </div>
+            <button class="btn btn-primary" id="rcGenBtn" onclick="rcGenerate()" data-i18n="rc_gen_btn">توليد الأكواد</button>
+          </div>
+          <div class="rc-preview" id="rcPreview"></div>
+          <div class="rc-new-box" id="rcNewBox" style="display:none;"></div>
+          <div class="rc-table-wrap">
+            <table class="data-tbl">
+              <thead><tr>
+                <th data-i18n="rc_col_code">الكود</th>
+                <th data-i18n="rc_col_credits">الكريديت</th>
+                <th data-i18n="rc_col_status">الحالة</th>
+                <th data-i18n="rc_col_created">تاريخ الإنشاء</th>
+              </tr></thead>
+              <tbody id="rcBody"></tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- Payment gateways -->
         <div class="sec-head" style="margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
           <h2 data-i18n="paygw_title">💰 بوابات الدفع</h2>
@@ -1351,6 +1399,13 @@ const I18N = {
     badge_topup:'شحن', badge_admin_add:'أدمن +', badge_admin_deduct:'أدمن −', badge_deduct:'خصم',
     nav_revenue:'الإيرادات', nav_broadcast:'رسائل جماعية', nav_activity:'سجل النشاط', nav_credits:'الكريديت', nav_users:'المستخدمون',
     nav_accounts:'إدارة الحسابات', accounts_title:'👤 إدارة الحسابات', accounts_subtitle:'حسابات الأدمن وعملاء المنصة',
+    rc_title:'🎟 أكواد الخصم (Redeem Codes)', rc_rate_note:'السعر: 1$ = 50 ج.م = 20 كريديت', rc_value_lbl:'القيمة', rc_unit_lbl:'الوحدة',
+    rc_unit_credits:'كريديت', rc_unit_egp:'جنيه مصري', rc_unit_usd:'دولار', rc_count_lbl:'عدد الأكواد', rc_gen_btn:'توليد الأكواد',
+    rc_preview:'= {c} كريديت لكل كود', rc_preview_empty:'أدخل قيمة لحساب الكريديت',
+    rc_err_credits:'القيمة لازم تعطي كريديت واحد على الأقل', rc_err_count:'عدد الأكواد لازم يكون بين 1 و 500',
+    rc_err_generic:'فشل توليد الأكواد', rc_err_load:'تعذر تحميل الأكواد', rc_new_title:'تم توليد {n} كود، كل كود بـ {c} كريديت',
+    rc_copy_all:'📋 نسخ الكل', rc_copied:'تم نسخ الأكواد ✅', rc_col_code:'الكود', rc_col_credits:'الكريديت',
+    rc_col_status:'الحالة', rc_col_created:'تاريخ الإنشاء', rc_status_unused:'متاح', rc_status_used:'مستخدم', rc_empty:'لا توجد أكواد بعد',
     nav_payments:'المدفوعات', pay_tab_title:'💳 المدفوعات', pay_tab_subtitle:'الكريديت، سجل العمليات، وبوابات الدفع',
     credback_title:'🔒 النسخ الاحتياطي للكريديت', credback_desc:'نسخة تلقائية كل يوم الساعة 5 الفجر، بالإضافة لإمكانية عمل نسخة يدوية في أي وقت وتصديرها/استيرادها منفصلة عن باك أب الإعدادات العام.',
     credback_manual_btn:'💾 نسخة يدوية الآن', credback_export_btn:'⬇ تصدير آخر نسخة كملف', credback_import_btn:'📂 استيراد من ملف',
@@ -1445,6 +1500,13 @@ const I18N = {
     badge_topup:'Top-up', badge_admin_add:'Admin +', badge_admin_deduct:'Admin −', badge_deduct:'Deduct',
     nav_revenue:'Revenue', nav_broadcast:'Broadcast', nav_activity:'Activity Log', nav_credits:'Credits', nav_users:'Users',
     nav_accounts:'Account Management', accounts_title:'👤 Account Management', accounts_subtitle:'Admin accounts and platform customers',
+    rc_title:'🎟 Redeem Codes', rc_rate_note:'Rate: $1 = 50 EGP = 20 credits', rc_value_lbl:'Value', rc_unit_lbl:'Unit',
+    rc_unit_credits:'Credits', rc_unit_egp:'EGP', rc_unit_usd:'USD', rc_count_lbl:'Number of codes', rc_gen_btn:'Generate codes',
+    rc_preview:'= {c} credits per code', rc_preview_empty:'Enter a value to calculate credits',
+    rc_err_credits:'The value must be at least 1 credit', rc_err_count:'Number of codes must be between 1 and 500',
+    rc_err_generic:'Failed to generate codes', rc_err_load:'Could not load codes', rc_new_title:'{n} codes generated, {c} credits each',
+    rc_copy_all:'📋 Copy all', rc_copied:'Codes copied ✅', rc_col_code:'Code', rc_col_credits:'Credits',
+    rc_col_status:'Status', rc_col_created:'Created', rc_status_unused:'Unused', rc_status_used:'Used', rc_empty:'No codes yet',
     nav_payments:'Payments', pay_tab_title:'💳 Payments', pay_tab_subtitle:'Credits, transaction log, and payment gateways',
     credback_title:'🔒 Credit Backups', credback_desc:'An automatic backup runs daily at 5 AM, plus you can make a manual backup any time and export/import it separately from the general settings backup.',
     credback_manual_btn:'💾 Backup now', credback_export_btn:'⬇ Export latest backup', credback_import_btn:'📂 Import from file',
@@ -4688,6 +4750,114 @@ async function restoreCreditBackupById(id){
 
 async function initCreditsTab(){
   await loadCreditsTab();
+  rcUpdatePreview();
+  loadRedeemCodes();
+}
+
+/* ================================================================
+   REDEEM CODES: 1 USD = 50 EGP = 20 credits, so 1 credit = 2.5 EGP
+   ================================================================ */
+const RC_CREDITS_PER_EGP = 20 / 50;
+const RC_CREDITS_PER_USD = 20;
+
+function rcCreditsFromInput(){
+  const value = Number(document.getElementById('rcValue').value);
+  const unit = document.getElementById('rcUnit').value;
+  if (!(value > 0)) return 0;
+  if (unit === 'credits') return Math.floor(value);
+  const rate = unit === 'egp' ? RC_CREDITS_PER_EGP : RC_CREDITS_PER_USD;
+  return Math.floor(value * rate + 1e-9);
+}
+
+function rcUpdatePreview(){
+  const credits = rcCreditsFromInput();
+  document.getElementById('rcPreview').textContent = credits > 0
+    ? t('rc_preview').replace('{c}', credits)
+    : t('rc_preview_empty');
+}
+
+async function rcGenerate(){
+  const credits = rcCreditsFromInput();
+  const count = Math.floor(Number(document.getElementById('rcCount').value));
+  if (!(credits >= 1)) { await adminAlert(t('rc_err_credits'), {icon:'❌', danger:true}); return; }
+  if (!(count >= 1 && count <= 500)) { await adminAlert(t('rc_err_count'), {icon:'❌', danger:true}); return; }
+
+  const btn = document.getElementById('rcGenBtn');
+  btn.disabled = true;
+  try {
+    const { data, error } = await supabaseClient.rpc('admin_create_redeem_codes', { p_credits: credits, p_count: count });
+    if (error) throw error;
+    const codes = (data || []).map(r => r.redeem_code);
+    rcShowNewCodes(codes, credits);
+    await logAdminActivity('redeem_codes_create', null, '', `توليد ${codes.length} كود خصم × ${credits} كريديت`);
+    loadRedeemCodes();
+  } catch (err) {
+    console.error('rcGenerate failed:', err);
+    await adminAlert(t('rc_err_generic') + ': ' + (err.message || ''), {icon:'❌', danger:true});
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function rcShowNewCodes(codes, credits){
+  const box = document.getElementById('rcNewBox');
+  box.dataset.codes = codes.join('\n');
+  box.innerHTML = `
+    <div class="rc-new-head">
+      <b>${escapeHtml(t('rc_new_title').replace('{n}', codes.length).replace('{c}', credits))}</b>
+      <button class="btn btn-primary" onclick="rcCopyCodes()">${escapeHtml(t('rc_copy_all'))}</button>
+    </div>
+    <div class="rc-code-list">${codes.map(c => `<code>${escapeHtml(c)}</code>`).join('')}</div>`;
+  box.style.display = 'block';
+}
+
+async function rcCopyCodes(){
+  const text = document.getElementById('rcNewBox').dataset.codes || '';
+  try {
+    await navigator.clipboard.writeText(text);
+    await adminAlert(t('rc_copied'), {icon:'✅'});
+  } catch (err) {
+    await adminAlert(text, {icon:'ℹ️'});
+  }
+}
+
+async function loadRedeemCodes(){
+  const tbody = document.getElementById('rcBody');
+  const { data, error } = await supabaseClient
+    .from('redeem_codes')
+    .select('code, credits, created_at, redeemed_at, redeemed_by')
+    .order('created_at', { ascending: false })
+    .limit(100);
+  if (error) {
+    console.error('loadRedeemCodes failed:', error);
+    tbody.innerHTML = `<tr><td colspan="4">${escapeHtml(t('rc_err_load'))}</td></tr>`;
+    return;
+  }
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--muted);">${escapeHtml(t('rc_empty'))}</td></tr>`;
+    return;
+  }
+
+  const userIds = [...new Set(data.filter(r => r.redeemed_by).map(r => r.redeemed_by))];
+  const names = {};
+  if (userIds.length) {
+    const { data: profiles } = await supabaseClient
+      .from('users_profile_numbered').select('user_id, full_name, pk_number').in('user_id', userIds);
+    (profiles || []).forEach(p => { names[p.user_id] = `${p.full_name || '—'} (PK ${p.pk_number})`; });
+  }
+
+  tbody.innerHTML = data.map(r => {
+    const status = r.redeemed_at
+      ? `<span class="rc-status used">${escapeHtml(t('rc_status_used'))}</span>
+         <small>${escapeHtml(names[r.redeemed_by] || '')} · ${escapeHtml(formatDate(r.redeemed_at))}</small>`
+      : `<span class="rc-status fresh">${escapeHtml(t('rc_status_unused'))}</span>`;
+    return `<tr>
+      <td><code>${escapeHtml(r.code)}</code></td>
+      <td class="latin">${Number(r.credits)}</td>
+      <td>${status}</td>
+      <td>${escapeHtml(formatDate(r.created_at))}</td>
+    </tr>`;
+  }).join('');
 }
 
 async function loadPendingPayments(){

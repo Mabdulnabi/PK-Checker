@@ -871,6 +871,30 @@
   input[type="text"],input[type="email"],input[type="tel"],input[type="password"],textarea,select{font-size:16px !important;}
 
   /* ===== GENERIC APP ALERT/CONFIRM MODAL ===== */
+  .redeem-code-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;margin:14px auto 0;background:var(--ok);color:#fff;border:none;border-radius:999px;padding:9px 18px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 6px 16px -6px rgba(14,159,110,0.6);transition:filter .2s,transform .2s;}
+  .redeem-code-btn:hover{filter:brightness(1.07);}
+  .redeem-code-btn:active{transform:scale(0.98);}
+  .redeem-code-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .redeem-overlay{z-index:10002;}
+  .redeem-modal{background:var(--paper);border-radius:18px;max-width:380px;width:100%;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.2);font-family:'Cairo',sans-serif;}
+  .redeem-head{background:var(--ok);color:#fff;text-align:center;padding:26px 24px 22px;position:relative;}
+  .redeem-close{position:absolute;top:10px;inset-inline-end:12px;background:none;border:none;color:#fff;font-size:18px;line-height:1;cursor:pointer;opacity:0.9;padding:6px;}
+  .redeem-head-icon{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;}
+  .redeem-head-icon svg{width:24px;height:24px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .redeem-head-title{font-weight:800;font-size:18px;}
+  .redeem-head-sub{font-size:13px;opacity:0.9;margin-top:3px;}
+  .redeem-body{padding:20px 22px 22px;}
+  .redeem-input{width:100%;box-sizing:border-box;text-align:center;text-transform:uppercase;letter-spacing:2px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;padding:13px 14px;border:1px solid var(--paper-line);border-radius:12px;background:var(--paper-soft);color:var(--navy);outline:none;}
+  .redeem-input::placeholder{color:var(--muted);letter-spacing:1.5px;}
+  .redeem-input:focus{border-color:var(--ok);box-shadow:0 0 0 3px rgba(14,159,110,0.18);}
+  .redeem-msg{font-size:12.5px;font-weight:600;margin-top:10px;text-align:center;min-height:0;}
+  .redeem-msg:empty{display:none;}
+  .redeem-msg.err{color:#E0445B;}
+  .redeem-msg.ok{color:var(--ok);}
+  .redeem-submit{width:100%;margin-top:12px;background:var(--ok);color:#fff;border:none;border-radius:12px;padding:13px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.5px;cursor:pointer;}
+  .redeem-submit:disabled{opacity:0.6;cursor:wait;}
+  [data-theme="dark"] .redeem-modal{background:rgba(12,17,28,0.96);}
+  [data-theme="dark"] .redeem-input{background:rgba(255,255,255,0.06);color:#fff;border-color:rgba(255,255,255,0.12);}
   .app-modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.55);z-index:10000;align-items:center;justify-content:center;padding:18px;}
   .app-modal-overlay.show{display:flex;}
   .app-modal{background:rgba(255,255,255,0.82);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.70);border-radius:16px;max-width:380px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.18);padding:28px 24px 22px;text-align:center;}
@@ -1729,6 +1753,10 @@
           <div class="icon-circle" style="background:rgba(0,186,247,0.16);"><svg class="ic" data-icon-key="nc_balance" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5c0-1.4 1.3-2.5 3-2.5s3 1 3 2.2c0 2.8-6 1.8-6 5 0 1.4 1.3 2.3 3 2.3s3-1 3-2.3"/></svg></div>
           <div class="num"><span class="latin" id="kpiBalanceNum">17</span> <small data-i18n="kpi_credits_unit">كريديت</small></div>
           <div class="lbl" data-i18n="kpi_balance">رصيدك الحالي</div>
+          <button class="redeem-code-btn" type="button" onclick="openRedeemCodeModal()">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2"/></svg>
+            <span data-i18n="redeem_btn">كود خصم</span>
+          </button>
         </div>
         <div class="kpi kpi-centered">
           <div class="icon-circle" style="background:var(--paper-soft);color:var(--muted);"><svg class="ic" data-icon-key="nc_floating" viewBox="0 0 24 24"><path d="M6 2h12M6 22h12M7 2c0 5 5 6 5 10s-5 5-5 10M17 2c0 5-5 6-5 10s5 5 5 10"/></svg></div>
@@ -2373,6 +2401,22 @@
 
 <!-- Generic app-styled alert/confirm popup — replaces native alert()/confirm()
      which render with the browser's own UI chrome instead of the site's look -->
+<div class="app-modal-overlay redeem-overlay" id="redeemModalOverlay" onclick="if(event.target===this)closeRedeemCodeModal()">
+  <div class="redeem-modal" role="dialog" aria-modal="true" aria-labelledby="redeemModalTitle">
+    <div class="redeem-head">
+      <button class="redeem-close" type="button" onclick="closeRedeemCodeModal()" aria-label="Close">✕</button>
+      <div class="redeem-head-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2"/></svg></div>
+      <div class="redeem-head-title" id="redeemModalTitle" data-i18n="redeem_modal_title">كود خصم</div>
+      <div class="redeem-head-sub" data-i18n="redeem_modal_sub">فعّل الكود اللي معاك</div>
+    </div>
+    <form class="redeem-body" id="redeemForm" onsubmit="submitRedeemCode(event)">
+      <input class="redeem-input" id="redeemCodeInput" type="text" dir="ltr" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="24">
+      <div class="redeem-msg" id="redeemMsg" role="alert"></div>
+      <button class="redeem-submit" id="redeemSubmitBtn" type="submit" data-i18n="redeem_submit">تفعيل الكود</button>
+    </form>
+  </div>
+</div>
+
 <div class="app-modal-overlay" id="appModalOverlay">
   <div class="app-modal">
     <div class="app-modal-icon" id="appModalIcon"></div>
@@ -2655,6 +2699,11 @@ const I18N = {
     tour_download_title:"حمّل التقرير وقيّم تجربتك", tour_download_desc:"زرار التحميل بيحملك التقرير مباشرةً. بعده هتظهر لك نجوم التقييم — رأيك بيساعدنا نتحسن!",
     tour_support_title:"محتاج مساعدة؟", tour_support_desc:"افتح تذكرة دعم أو كلمنا على اللايف شات من الفقاعة الزرقاء في أسفل الشاشة — فريقنا دايماً موجود.",
     tour_done_title:"كل حاجة واضحة؟", tour_done_desc:"الجولة التعريفية خلصت. تقدر تبدأ دلوقتي وترفع أول ملف بثقة. بالتوفيق! 🌟",
+    redeem_btn:"كود خصم", redeem_modal_title:"كود خصم", redeem_modal_sub:"فعّل الكود اللي معاك",
+    redeem_input_ph:"أدخل الكود هنا", redeem_submit:"تفعيل الكود", redeem_err_empty:"من فضلك أدخل الكود",
+    redeem_err_used:"الكود ده اتستخدم قبل كده", redeem_err_invalid:"الكود غير صحيح، اتأكد من كتابته",
+    redeem_err_auth:"انتهت جلستك، سجّل الدخول من جديد", redeem_err_generic:"حصلت مشكلة، حاول تاني",
+    redeem_success:"اتضاف {n} كريديت لرصيدك ✅",
     kpi_topup:"شحن +", kpi_credits_unit:"كريديت", credit_unit_singular:"كريديت", kpi_balance:"رصيدك الحالي",
     kpi_processing:"قيد الفحص الآن", kpi_floating:"رصيد عائم (معلّق)",
     kpi_completed_label:"مكتمل بالكامل", kpi_rejected_word:"مرفوض", kpi_cancelled_word:"ملغي",
@@ -2823,6 +2872,11 @@ const I18N = {
     tour_download_title:"Download & rate your experience", tour_download_desc:"The download button fetches your report directly. Afterwards the star rating appears — your feedback helps us improve!",
     tour_support_title:"Need help?", tour_support_desc:"Open a support ticket or chat with us via the blue bubble at the bottom of the screen — our team is always here.",
     tour_done_title:"All set!", tour_done_desc:"The tour is complete. You're ready to upload your first file with confidence. Good luck! 🌟",
+    redeem_btn:"Redeem Code", redeem_modal_title:"Redeem Code", redeem_modal_sub:"Activate your purchased code",
+    redeem_input_ph:"ENTER CODE", redeem_submit:"REDEEM NOW", redeem_err_empty:"Please enter the code",
+    redeem_err_used:"This code has already been used", redeem_err_invalid:"Invalid code, please check it and try again",
+    redeem_err_auth:"Your session expired, please sign in again", redeem_err_generic:"Something went wrong, please try again",
+    redeem_success:"{n} credits added to your balance ✅",
     kpi_topup:"Top up", kpi_credits_unit:"credits", credit_unit_singular:"credit", kpi_balance:"Current balance",
     kpi_processing:"Processing now", kpi_floating:"Floating (pending)",
     kpi_completed_label:"Total completed", kpi_rejected_word:"rejected", kpi_cancelled_word:"cancelled",
@@ -6949,6 +7003,63 @@ function renderWalletCapacity(){
     ? `يكفي لـ <b style="color:#fff;">${simCount}</b> فحص اقتباس فقط &nbsp;·&nbsp; أو <b style="color:#fff;">${bothCount}</b> فحص اقتباس + AI`
     : `Enough for <b style="color:#fff;">${simCount}</b> similarity checks &nbsp;·&nbsp; or <b style="color:#fff;">${bothCount}</b> similarity + AI checks`;
 }
+/* ---------- Redeem code: single-use voucher that adds credits to the wallet ---------- */
+const REDEEM_ERROR_KEYS = {
+  CODE_ALREADY_USED: 'redeem_err_used',
+  INVALID_CODE: 'redeem_err_invalid',
+  NOT_AUTHENTICATED: 'redeem_err_auth',
+};
+function openRedeemCodeModal(){
+  const input = document.getElementById('redeemCodeInput');
+  input.value = '';
+  input.placeholder = t('redeem_input_ph');
+  document.getElementById('redeemSubmitBtn').textContent = t('redeem_submit');
+  setRedeemMsg('');
+  document.getElementById('redeemModalOverlay').classList.add('show');
+  setTimeout(() => input.focus(), 50);
+}
+function closeRedeemCodeModal(){
+  document.getElementById('redeemModalOverlay').classList.remove('show');
+}
+function setRedeemMsg(text, kind = ''){
+  const el = document.getElementById('redeemMsg');
+  el.textContent = text;
+  el.className = 'redeem-msg' + (kind ? ' ' + kind : '');
+}
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.getElementById('redeemModalOverlay').classList.contains('show')) closeRedeemCodeModal();
+});
+async function submitRedeemCode(e){
+  e.preventDefault();
+  const input = document.getElementById('redeemCodeInput');
+  const btn = document.getElementById('redeemSubmitBtn');
+  const code = input.value.trim();
+  if (!code) { setRedeemMsg(t('redeem_err_empty'), 'err'); input.focus(); return; }
+
+  btn.disabled = true;
+  setRedeemMsg('');
+  try {
+    const { data, error } = await supabaseClient.rpc('redeem_code', { p_code: code });
+    if (error) {
+      const errKey = Object.keys(REDEEM_ERROR_KEYS).find(k => (error.message || '').includes(k));
+      if (!errKey) console.error('redeem_code failed:', error);
+      setRedeemMsg(t(errKey ? REDEEM_ERROR_KEYS[errKey] : 'redeem_err_generic'), 'err');
+      return;
+    }
+
+    await loadWallet();
+    renderKpis();
+    updatePrice();
+    input.value = '';
+    const msg = t('redeem_success').replace('{n}', data.credits);
+    setRedeemMsg(msg, 'ok');
+    toast(msg, 'success');
+    setTimeout(closeRedeemCodeModal, 1600);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
 function renderKpis(){
   document.getElementById('kpiBalanceNum').textContent = userBalance;
   document.getElementById('walletBalanceNum').textContent = Math.round(userBalance);
