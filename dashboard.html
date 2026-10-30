@@ -635,7 +635,6 @@
   .notif-panel{position:absolute;top:calc(100% + 10px);left:0;width:320px;max-width:88vw;background:rgba(255,255,255,0.96);backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);border:1px solid rgba(255,255,255,0.85);border-radius:14px;box-shadow:0 20px 48px rgba(0,0,0,0.16);z-index:60;overflow:hidden;}
   [data-theme="dark"] .notif-panel{background:rgba(12,17,28,0.96);border-color:rgba(255,255,255,0.10);box-shadow:0 20px 60px rgba(0,0,0,0.70);}
   html[dir="ltr"] .notif-panel{left:auto;right:0;}
-  html[dir="rtl"] .notif-panel{left:auto;right:0;}
   .notif-panel-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--paper-line);}
   .notif-panel-head b{font-family:'Cairo',sans-serif;font-size:13.5px;color:var(--navy);}
   .notif-panel-head span{font-size:11.5px;color:var(--blue-deep);font-weight:700;cursor:pointer;}
@@ -4443,10 +4442,22 @@ function updateNotifDot(){
   const hasUnread = notifications && notifications.some(n=>n.unread);
   dot.style.display = hasUnread ? 'block' : 'none';
 }
+/* Keep the panel inside the viewport: anchor it to the bell, then shift it
+   left/right if it would overflow either edge (RTL bell sits near the left edge). */
+function positionNotifPanel(){
+  const panel = document.getElementById('notifPanel');
+  const wrap = panel.parentElement.getBoundingClientRect();
+  const margin = 12;
+  const maxLeft = window.innerWidth - margin - panel.offsetWidth;
+  const left = Math.max(margin, Math.min(wrap.left, maxLeft));
+  panel.style.right = 'auto';
+  panel.style.left = (left - wrap.left) + 'px';
+}
 function toggleNotifPanel(){
   const panel = document.getElementById('notifPanel');
   const isOpen = panel.style.display === 'block';
   panel.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) positionNotifPanel();
 }
 document.getElementById('notifBtn').addEventListener('click', (e)=>{
   e.stopPropagation();
