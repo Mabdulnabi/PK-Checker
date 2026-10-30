@@ -1399,7 +1399,7 @@ const I18N = {
     badge_topup:'شحن', badge_admin_add:'أدمن +', badge_admin_deduct:'أدمن −', badge_deduct:'خصم',
     nav_revenue:'الإيرادات', nav_broadcast:'رسائل جماعية', nav_activity:'سجل النشاط', nav_credits:'الكريديت', nav_users:'المستخدمون',
     nav_accounts:'إدارة الحسابات', accounts_title:'👤 إدارة الحسابات', accounts_subtitle:'حسابات الأدمن وعملاء المنصة',
-    rc_title:'🎟 أكواد الخصم (Redeem Codes)', rc_rate_note:'السعر: 1$ = 50 ج.م = 20 كريديت', rc_value_lbl:'القيمة', rc_unit_lbl:'الوحدة',
+    rc_title:'🎟 أكواد الخصم (Redeem Codes)', rc_rate_note:'السعر: 1$ = 50 ج.م = 10 كريديت', rc_value_lbl:'القيمة', rc_unit_lbl:'الوحدة',
     rc_unit_credits:'كريديت', rc_unit_egp:'جنيه مصري', rc_unit_usd:'دولار', rc_count_lbl:'عدد الأكواد', rc_gen_btn:'توليد الأكواد',
     rc_preview:'= {c} كريديت لكل كود', rc_preview_empty:'أدخل قيمة لحساب الكريديت',
     rc_err_credits:'القيمة لازم تعطي كريديت واحد على الأقل', rc_err_count:'عدد الأكواد لازم يكون بين 1 و 500',
@@ -1500,7 +1500,7 @@ const I18N = {
     badge_topup:'Top-up', badge_admin_add:'Admin +', badge_admin_deduct:'Admin −', badge_deduct:'Deduct',
     nav_revenue:'Revenue', nav_broadcast:'Broadcast', nav_activity:'Activity Log', nav_credits:'Credits', nav_users:'Users',
     nav_accounts:'Account Management', accounts_title:'👤 Account Management', accounts_subtitle:'Admin accounts and platform customers',
-    rc_title:'🎟 Redeem Codes', rc_rate_note:'Rate: $1 = 50 EGP = 20 credits', rc_value_lbl:'Value', rc_unit_lbl:'Unit',
+    rc_title:'🎟 Redeem Codes', rc_rate_note:'Rate: $1 = 50 EGP = 10 credits', rc_value_lbl:'Value', rc_unit_lbl:'Unit',
     rc_unit_credits:'Credits', rc_unit_egp:'EGP', rc_unit_usd:'USD', rc_count_lbl:'Number of codes', rc_gen_btn:'Generate codes',
     rc_preview:'= {c} credits per code', rc_preview_empty:'Enter a value to calculate credits',
     rc_err_credits:'The value must be at least 1 credit', rc_err_count:'Number of codes must be between 1 and 500',
@@ -4755,10 +4755,10 @@ async function initCreditsTab(){
 }
 
 /* ================================================================
-   REDEEM CODES: 1 USD = 50 EGP = 20 credits, so 1 credit = 2.5 EGP
+   REDEEM CODES: 1 USD = 50 EGP = 10 credits, so 1 credit = 5 EGP
    ================================================================ */
-const RC_CREDITS_PER_EGP = 20 / 50;
-const RC_CREDITS_PER_USD = 20;
+const RC_CREDITS_PER_EGP = 10 / 50;
+const RC_CREDITS_PER_USD = 10;
 
 function rcCreditsFromInput(){
   const value = Number(document.getElementById('rcValue').value);
