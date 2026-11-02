@@ -1059,7 +1059,10 @@
   .sf-dd-item.bad{cursor:not-allowed;}
   .sf-dd-item.bad .sf-dd-item-status{color:var(--danger);}
   .sf-dd-item.sel{background:var(--ok-wash);}
-  .sec-head .submit-files-row{margin:0 0 0 auto;}
+  /* Submit Files button: pushed to the far left of the header, with space from the title */
+  .sec-head .sec-head-titles{flex:1 1 auto;min-width:0;}
+  #pane-new-check .sec-head .submit-files-row{margin:0 0 0 auto;flex:none;}
+  #pane-new-check .sec-head .submit-files-btn{white-space:nowrap;}
   .redeem-code-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;margin:14px auto 0;background:var(--ok);color:#fff;border:none;border-radius:999px;padding:9px 18px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 6px 16px -6px rgba(14,159,110,0.6);transition:filter .2s,transform .2s;}
   .redeem-code-btn:hover{filter:brightness(1.07);}
   .redeem-code-btn:active{transform:scale(0.98);}
