@@ -1027,6 +1027,15 @@
     .hist-grid-m{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;}
     .hist-grid-m > .full{grid-column:1 / -1;}
   }
+  /* Gradient cards for the Check and My History summary rows (light and dark) */
+  #pane-new-check .kpi-row > .kpi:not(.gold):nth-child(2), #pane-my-history .kpi-row > .kpi:nth-child(1) { background:linear-gradient(145deg,#FFFFFF 0%,#E0F6FE 100%); }
+  #pane-new-check .kpi-row > .kpi:nth-child(3), #pane-my-history .kpi-row > .kpi:nth-child(2) { background:linear-gradient(145deg,#FFFFFF 0%,#E3ECFF 100%); }
+  #pane-new-check .kpi-row > .kpi:nth-child(4), #pane-my-history .kpi-row > .kpi:nth-child(3) { background:linear-gradient(145deg,#FFFFFF 0%,#DDF8EE 100%); }
+  #pane-new-check .kpi-row > .kpi:nth-child(5), #pane-my-history .kpi-row > .kpi:nth-child(4) { background:linear-gradient(145deg,#FFFFFF 0%,#FFF1E0 100%); }
+  [data-theme="dark"] #pane-new-check .kpi-row > .kpi:not(.gold):nth-child(2), [data-theme="dark"] #pane-my-history .kpi-row > .kpi:nth-child(1) { background:linear-gradient(145deg,rgba(15,20,36,0.8) 0%,rgba(0,186,247,0.22) 100%); }
+  [data-theme="dark"] #pane-new-check .kpi-row > .kpi:nth-child(3), [data-theme="dark"] #pane-my-history .kpi-row > .kpi:nth-child(2) { background:linear-gradient(145deg,rgba(15,20,36,0.8) 0%,rgba(37,99,235,0.24) 100%); }
+  [data-theme="dark"] #pane-new-check .kpi-row > .kpi:nth-child(4), [data-theme="dark"] #pane-my-history .kpi-row > .kpi:nth-child(3) { background:linear-gradient(145deg,rgba(15,20,36,0.8) 0%,rgba(16,185,129,0.2) 100%); }
+  [data-theme="dark"] #pane-new-check .kpi-row > .kpi:nth-child(5), [data-theme="dark"] #pane-my-history .kpi-row > .kpi:nth-child(4) { background:linear-gradient(145deg,rgba(15,20,36,0.8) 0%,rgba(245,158,11,0.18) 100%); }
   .sf-dd{position:relative;}
   .sf-dd-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--ok-wash);border:1.5px solid var(--ok);border-radius:14px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13.5px;font-weight:800;color:#0F5132;cursor:pointer;text-align:start;}
   .sf-dd-btn:disabled{cursor:default;opacity:.7;}
