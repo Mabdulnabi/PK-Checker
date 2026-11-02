@@ -956,6 +956,9 @@
   .mf-del{width:32px;height:32px;border-radius:10px;background:#FFF1F3;border:1px solid #F5C2CB;color:var(--danger);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
   .mf-del svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
   .mf-del:disabled{opacity:.35;cursor:not-allowed;}
+  .mf-row.st-ok{border-color:#B7EBD5;border-inline-start:3px solid #0E9F6E;}
+  .mf-row.st-run{border-color:#BFD7FF;border-inline-start:3px solid #2563eb;}
+  .mf-row.st-bad{border-color:#F5C2CB;border-inline-start:3px solid #E11D48;}
   .mf-empty{text-align:center;color:var(--muted);font-size:13px;padding:28px 12px;font-family:'Cairo',sans-serif;}
   .my-files-note{margin-top:10px;font-size:11.5px;color:var(--muted);text-align:center;font-family:'Cairo',sans-serif;}
   @media (max-width:640px){
@@ -7960,6 +7963,13 @@ function mfScoreCell(f, kind){
     </button>`;
 }
 
+// Frame colour follows the check: green = done, blue = still checking, red = failed.
+function mfStateClass(f){
+  if (f.status === 'completed') return 'st-ok';
+  if (MF_FINAL.includes(f.status)) return 'st-bad';
+  return 'st-run';
+}
+
 function renderMyFiles(){
   const list = document.getElementById('myFilesList');
   if (!list) return;
@@ -7969,7 +7979,7 @@ function renderMyFiles(){
   }
   list.innerHTML = myFiles.map(f => {
     const deletable = MF_FINAL.includes(f.status);
-    return `<div class="mf-row">
+    return `<div class="mf-row ${mfStateClass(f)}">
       <div class="mf-cell mf-doc">
         <div class="mf-doc-main">
           <div class="mf-name">${escapeHtml(f.file_name || '')}</div>
