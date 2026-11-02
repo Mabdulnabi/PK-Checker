@@ -303,6 +303,7 @@
   .sidebar-item[data-tab="wallet"]    { --tab-color:#059669; }
   .sidebar-item[data-tab="support"]   { --tab-color:#ea580c; }
   .sidebar-item[data-tab="my-profile"]{ --tab-color:#475569; }
+  .sidebar-item[data-tab="my-history"]{ --tab-color:#2563eb; }
   /* Weight/size fixed — only color changes, never shifts layout */
   .sidebar-item > span{ font-family:'Cairo',sans-serif;font-weight:800;font-size:15px;transition:color 0.18s; }
   .sidebar-item.on > span{ color:var(--tab-color); }
@@ -6882,6 +6883,7 @@ function histActivity(e){
   if (e.kind === 'scan') return { name: hx('إرسال ملف', 'File Submission'), sub: e.order_number || '', icon: HIST_ICON_FILE, cls: 'blue' };
   if (e.kind === 'grant' && e.source === 'redeem') return { name: hx('كود خصم', 'Voucher Redeem'), sub: e.txn || '', icon: HIST_ICON_CART, cls: 'green' };
   if (e.kind === 'grant' && e.source === 'migration') return { name: hx('رصيد مُرحّل', 'Migrated balance'), sub: '', icon: HIST_ICON_CART, cls: 'green' };
+  if (e.kind === 'grant' && e.source === 'admin') return { name: hx('شحن من الإدارة', 'Admin credit'), sub: e.txn || '', icon: HIST_ICON_CART, cls: 'green' };
   return { name: hx('شراء أونلاين', 'Online Order Purchase'), sub: e.txn || '', icon: HIST_ICON_CART, cls: 'green' };
 }
 
