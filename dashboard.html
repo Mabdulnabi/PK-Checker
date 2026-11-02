@@ -6208,6 +6208,8 @@ function applyLang(){
   renderPaymentHistory();
   renderOrderTransactions();
   if (typeof refreshRatingModalLang === 'function') refreshRatingModalLang();
+  // My Files rows are built in JS, so they must be rebuilt to show the new language.
+  if (typeof renderMyFiles === 'function') renderMyFiles();
   if (typeof refreshPublicReviewCardLang === 'function') refreshPublicReviewCardLang();
   renderChat();
   const editLabel = document.getElementById('chatEditLabel');
