@@ -1021,8 +1021,21 @@
   .hist-empty{text-align:center;padding:26px;color:var(--muted);font-size:13px;font-family:'Cairo',sans-serif;}
   @media (max-width:760px){
     .hist-thead{display:none;}
-    .hist-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}
-    .hist-row > .hist-cell:nth-child(-n+2){grid-column:1 / -1;}
+    .hist-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 12px;align-items:start;
+      grid-template-areas:"act status" "item date" "change balance";}
+    .hist-row > .hist-cell:nth-child(1){grid-area:act;align-items:flex-start;text-align:start;}
+    .hist-row > .hist-cell:nth-child(2){grid-area:item;align-items:flex-start;text-align:start;min-width:0;}
+    .hist-row > .hist-cell:nth-child(3){grid-area:change;align-items:flex-start;text-align:start;}
+    .hist-row > .hist-cell:nth-child(4){grid-area:balance;align-items:flex-end;text-align:end;}
+    .hist-row > .hist-cell:nth-child(5){grid-area:status;align-items:flex-end;}
+    .hist-row > .hist-cell:nth-child(6){grid-area:date;align-items:flex-end;text-align:end;}
+    .hist-row > .hist-cell:nth-child(3),.hist-row > .hist-cell:nth-child(4){border-top:1px solid var(--paper-line);padding-top:12px;}
+    .hist-row > .hist-cell[data-label]::before{content:attr(data-label);font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+    .hist-row .hist-item-name{max-width:100%;}
+    .hist-row .hist-tag{margin-top:4px;}
+    .hist-row .hist-date{font-size:12px;}
+    .hist-row .hist-date small{display:inline;margin-inline-start:6px;}
+    .hist-bal{font-size:16px;}
     .hist-search{min-width:0;width:100%;}
     .hist-tools{width:100%;}
     .hist-grid-m{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;}
@@ -7062,8 +7075,8 @@ function renderMyHistory(){
     return `<div class="hist-row hist-entry ${isScan ? 'is-scan' : 'is-purchase'}">
       <div class="hist-cell start"><div class="hist-activity"><span class="hist-chip ${act.cls}">${act.icon}</span><div><div class="hist-act-name">${escapeHtml(act.name)}</div><div class="hist-act-sub">${escapeHtml(act.sub)}</div></div></div></div>
       <div class="hist-cell start"><div class="hist-item-name">${escapeHtml(itemName)}</div>${itemTag ? `<span class="hist-tag">${escapeHtml(itemTag)}</span>` : ''}${itemSub ? `<div class="hist-sub">${escapeHtml(itemSub)}</div>` : ''}</div>
-      <div class="hist-cell"><span class="hist-change ${chCls}">${escapeHtml(chText)}</span></div>
-      <div class="hist-cell"><span class="hist-bal ${balN <= 0 ? 'zero' : ''}">${balN} <small>${escapeHtml(hx('متبقي', 'Left'))}</small></span></div>
+      <div class="hist-cell" data-label="${escapeHtml(hx('التغيير', 'Change'))}"><span class="hist-change ${chCls}">${escapeHtml(chText)}</span></div>
+      <div class="hist-cell" data-label="${escapeHtml(hx('الرصيد المتبقي', 'Balance left'))}"><span class="hist-bal ${balN <= 0 ? 'zero' : ''}">${balN} <small>${escapeHtml(hx('فحص', balN === 1 ? 'Slot' : 'Slots'))}</small></span></div>
       <div class="hist-cell"><span class="hist-status ${stCls}">${escapeHtml(stText)}</span></div>
       <div class="hist-cell"><div class="hist-date">${escapeHtml(dt.d)}<small>${escapeHtml(dt.t)}</small></div></div>
     </div>`;
