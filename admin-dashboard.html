@@ -1170,21 +1170,13 @@
           </div>
         </div>
 
-        <!-- Redeem codes: single-use credit vouchers the customer enters on the Check tab -->
+        <!-- Redeem codes: single-use vouchers. Each code grants one slot package the customer enters on the Check tab. -->
         <div class="cr-form-card">
           <h3 data-i18n="rc_title">🎟 أكواد الخصم (Redeem Codes)</h3>
           <div class="rc-form-row">
             <div class="cr-form-group">
-              <label data-i18n="rc_value_lbl">القيمة</label>
-              <input type="number" id="rcValue" min="0" step="0.01" placeholder="50" oninput="rcUpdatePreview()">
-            </div>
-            <div class="cr-form-group">
-              <label data-i18n="rc_unit_lbl">الوحدة</label>
-              <select id="rcUnit" class="rc-select" onchange="rcUpdatePreview()">
-                <option value="egp" data-i18n="rc_unit_egp">جنيه مصري</option>
-                <option value="usd" data-i18n="rc_unit_usd">دولار</option>
-                <option value="credits" data-i18n="rc_unit_credits">كريديت</option>
-              </select>
+              <label data-i18n="rc_pkg_lbl">الباقة</label>
+              <select id="rcPackage" class="rc-select" onchange="rcUpdatePreview()"></select>
             </div>
             <div class="cr-form-group">
               <label data-i18n="rc_count_lbl">عدد الأكواد</label>
@@ -1198,7 +1190,7 @@
             <table class="data-tbl">
               <thead><tr>
                 <th data-i18n="rc_col_code">الكود</th>
-                <th data-i18n="rc_col_credits">الكريديت</th>
+                <th data-i18n="rc_col_package">الباقة</th>
                 <th data-i18n="rc_col_status">الحالة</th>
                 <th data-i18n="rc_col_created">تاريخ الإنشاء</th>
               </tr></thead>
@@ -1422,6 +1414,8 @@ const I18N = {
     badge_topup:'شحن', badge_admin_add:'أدمن +', badge_admin_deduct:'أدمن −', badge_deduct:'خصم',
     nav_revenue:'الإيرادات', nav_broadcast:'رسائل جماعية', nav_activity:'سجل النشاط', nav_credits:'الكريديت', nav_users:'المستخدمون',
     nav_accounts:'إدارة الحسابات', accounts_title:'👤 إدارة الحسابات', accounts_subtitle:'حسابات الأدمن وعملاء المنصة',
+    rc_pkg_lbl:'الباقة', rc_pkg_placeholder:'-- اختار باقة --', rc_col_package:'الباقة', rc_pkg_none:'باقة غير معروفة',
+    rc_preview_slots:'{s} slot ({t}) لكل كود', rc_err_pkg:'اختار باقة الأول',
     rc_title:'🎟 أكواد الخصم (Redeem Codes)', rc_rate_note:'السعر: 1$ = 50 ج.م = 10 كريديت', rc_value_lbl:'القيمة', rc_unit_lbl:'الوحدة',
     rc_unit_credits:'كريديت', rc_unit_egp:'جنيه مصري', rc_unit_usd:'دولار', rc_count_lbl:'عدد الأكواد', rc_gen_btn:'توليد الأكواد',
     rc_preview:'= {c} كريديت لكل كود', rc_preview_empty:'أدخل قيمة لحساب الكريديت',
@@ -1536,6 +1530,8 @@ const I18N = {
     badge_topup:'Top-up', badge_admin_add:'Admin +', badge_admin_deduct:'Admin −', badge_deduct:'Deduct',
     nav_revenue:'Revenue', nav_broadcast:'Broadcast', nav_activity:'Activity Log', nav_credits:'Credits', nav_users:'Users',
     nav_accounts:'Account Management', accounts_title:'👤 Account Management', accounts_subtitle:'Admin accounts and platform customers',
+    rc_pkg_lbl:'Package', rc_pkg_placeholder:'-- Choose a package --', rc_col_package:'Package', rc_pkg_none:'Unknown package',
+    rc_preview_slots:'{s} slot ({t}) per code', rc_err_pkg:'Choose a package first',
     rc_title:'🎟 Redeem Codes', rc_rate_note:'Rate: $1 = 50 EGP = 10 credits', rc_value_lbl:'Value', rc_unit_lbl:'Unit',
     rc_unit_credits:'Credits', rc_unit_egp:'EGP', rc_unit_usd:'USD', rc_count_lbl:'Number of codes', rc_gen_btn:'Generate codes',
     rc_preview:'= {c} credits per code', rc_preview_empty:'Enter a value to calculate credits',
@@ -4968,6 +4964,7 @@ async function deleteSlotPackage(id){
 
 async function initCreditsTab(){
   await loadCreditsTab();
+  await loadRcPackages();
   rcUpdatePreview();
   loadRedeemCodes();
 }
@@ -4975,39 +4972,61 @@ async function initCreditsTab(){
 /* ================================================================
    REDEEM CODES: 1 USD = 50 EGP = 10 credits, so 1 credit = 5 EGP
    ================================================================ */
-const RC_CREDITS_PER_EGP = 10 / 50;
-const RC_CREDITS_PER_USD = 10;
 
-function rcCreditsFromInput(){
-  const value = Number(document.getElementById('rcValue').value);
-  const unit = document.getElementById('rcUnit').value;
-  if (!(value > 0)) return 0;
-  if (unit === 'credits') return Math.floor(value);
-  const rate = unit === 'egp' ? RC_CREDITS_PER_EGP : RC_CREDITS_PER_USD;
-  return Math.floor(value * rate + 1e-9);
+// Redeem codes are sold per package. The package picked here decides the slots.
+let rcPackages = [];
+
+function rcPackageLabel(p){
+  return currentLang === 'ar' ? p.name_ar : p.name_en;
+}
+
+let rcAllPackages = []; // including inactive, so old codes still get a readable label
+
+async function loadRcPackages(){
+  const sel = document.getElementById('rcPackage');
+  const { data, error } = await supabaseClient
+    .from('slot_packages')
+    .select('id, name_ar, name_en, slots, slot_type, is_active, sort_order')
+    .order('sort_order', { ascending: true });
+  if (error) { console.error('loadRcPackages failed:', error); rcPackages = []; rcAllPackages = []; return; }
+  rcAllPackages = data || [];
+  rcPackages = rcAllPackages.filter(p => p.is_active);
+  sel.innerHTML = `<option value="">${escapeHtml(t('rc_pkg_placeholder'))}</option>` +
+    rcPackages.map(p => `<option value="${p.id}">${escapeHtml(rcPackageLabel(p))} (${p.slots} slots)</option>`).join('');
+}
+
+function pkgLabelById(id){
+  if (!id) return t('rc_pkg_none');
+  const p = rcAllPackages.find(x => x.id === id);
+  return p ? `${rcPackageLabel(p)} (${p.slots} slots)` : t('rc_pkg_none');
+}
+
+function rcSelectedPackage(){
+  const id = document.getElementById('rcPackage').value;
+  return rcPackages.find(p => p.id === id) || null;
 }
 
 function rcUpdatePreview(){
-  const credits = rcCreditsFromInput();
-  document.getElementById('rcPreview').textContent = credits > 0
-    ? t('rc_preview').replace('{c}', credits)
+  const pkg = rcSelectedPackage();
+  document.getElementById('rcPreview').textContent = pkg
+    ? t('rc_preview_slots').replace('{s}', pkg.slots).replace('{t}', pkg.slot_type === 'plag_ai' ? 'Plagiarism + AI' : 'Plagiarism Only')
     : t('rc_preview_empty');
 }
 
 async function rcGenerate(){
-  const credits = rcCreditsFromInput();
+  const pkg = rcSelectedPackage();
   const count = Math.floor(Number(document.getElementById('rcCount').value));
-  if (!(credits >= 1)) { await adminAlert(t('rc_err_credits'), {icon:'❌', danger:true}); return; }
+  if (!pkg) { await adminAlert(t('rc_err_pkg'), {icon:'❌', danger:true}); return; }
   if (!(count >= 1 && count <= 500)) { await adminAlert(t('rc_err_count'), {icon:'❌', danger:true}); return; }
 
   const btn = document.getElementById('rcGenBtn');
   btn.disabled = true;
   try {
-    const { data, error } = await supabaseClient.rpc('admin_create_redeem_codes', { p_credits: credits, p_count: count });
+    const { data, error } = await supabaseClient.rpc('admin_create_redeem_codes', { p_package_id: pkg.id, p_count: count });
     if (error) throw error;
     const codes = (data || []).map(r => r.redeem_code);
-    rcShowNewCodes(codes, credits);
-    await logAdminActivity('redeem_codes_create', null, '', `توليد ${codes.length} كود خصم × ${credits} كريديت`);
+    rcShowNewCodes(codes, `${rcPackageLabel(pkg)} (${pkg.slots} slots)`);
+    await logAdminActivity('redeem_codes_create', null, '', `توليد ${codes.length} كود خصم لباقة ${pkg.name_en} (${pkg.slots} slots)`);
     loadRedeemCodes();
   } catch (err) {
     console.error('rcGenerate failed:', err);
@@ -5017,12 +5036,12 @@ async function rcGenerate(){
   }
 }
 
-function rcShowNewCodes(codes, credits){
+function rcShowNewCodes(codes, label){
   const box = document.getElementById('rcNewBox');
   box.dataset.codes = codes.join('\n');
   box.innerHTML = `
     <div class="rc-new-head">
-      <b>${escapeHtml(t('rc_new_title').replace('{n}', codes.length).replace('{c}', credits))}</b>
+      <b>${escapeHtml(t('rc_new_title').replace('{n}', codes.length).replace('{c}', label))}</b>
       <button class="btn btn-primary" onclick="rcCopyCodes()">${escapeHtml(t('rc_copy_all'))}</button>
     </div>
     <div class="rc-code-list">${codes.map(c => `<code>${escapeHtml(c)}</code>`).join('')}</div>`;
@@ -5043,7 +5062,7 @@ async function loadRedeemCodes(){
   const tbody = document.getElementById('rcBody');
   const { data, error } = await supabaseClient
     .from('redeem_codes')
-    .select('code, credits, created_at, redeemed_at, redeemed_by')
+    .select('code, package_id, created_at, redeemed_at, redeemed_by')
     .order('created_at', { ascending: false })
     .limit(100);
   if (error) {
@@ -5071,7 +5090,7 @@ async function loadRedeemCodes(){
       : `<span class="rc-status fresh">${escapeHtml(t('rc_status_unused'))}</span>`;
     return `<tr>
       <td><code>${escapeHtml(r.code)}</code></td>
-      <td class="latin">${Number(r.credits)}</td>
+      <td>${escapeHtml(pkgLabelById(r.package_id))}</td>
       <td>${status}</td>
       <td>${escapeHtml(formatDate(r.created_at))}</td>
     </tr>`;

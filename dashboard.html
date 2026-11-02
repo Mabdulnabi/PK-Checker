@@ -2704,7 +2704,7 @@ const I18N = {
     redeem_input_ph:"أدخل الكود هنا", redeem_submit:"تفعيل الكود", redeem_err_empty:"من فضلك أدخل الكود",
     redeem_err_used:"الكود ده اتستخدم قبل كده", redeem_err_invalid:"الكود غير صحيح، اتأكد من كتابته",
     redeem_err_limit:"محاولات كتير غلط، استنى شوية وحاول تاني", redeem_err_auth:"انتهت جلستك، سجّل الدخول من جديد", redeem_err_generic:"حصلت مشكلة، حاول تاني",
-    redeem_success:"اتضاف {n} كريديت لرصيدك ✅",
+    redeem_success:"اتضافت لك باقة {p} ({n} slot) ✅",
     kpi_topup:"شحن +", kpi_credits_unit:"slot", credit_unit_singular:"كريديت", kpi_balance:"رصيدك الحالي",
     kpi_processing:"قيد الفحص الآن", kpi_floating:"رصيد عائم (معلّق)",
     kpi_completed_label:"مكتمل بالكامل", kpi_rejected_word:"مرفوض", kpi_cancelled_word:"ملغي",
@@ -2879,7 +2879,7 @@ const I18N = {
     redeem_input_ph:"ENTER CODE", redeem_submit:"REDEEM NOW", redeem_err_empty:"Please enter the code",
     redeem_err_used:"This code has already been used", redeem_err_invalid:"Invalid code, please check it and try again",
     redeem_err_limit:"Too many failed attempts, please wait a bit and try again", redeem_err_auth:"Your session expired, please sign in again", redeem_err_generic:"Something went wrong, please try again",
-    redeem_success:"{n} credits added to your balance ✅",
+    redeem_success:"{p} added to your account ({n} slot) ✅",
     kpi_topup:"Top up", kpi_credits_unit:"slots", credit_unit_singular:"credit", kpi_balance:"Current balance",
     kpi_processing:"Processing now", kpi_floating:"Floating (pending)",
     kpi_completed_label:"Total completed", kpi_rejected_word:"rejected", kpi_cancelled_word:"cancelled",
@@ -7165,11 +7165,12 @@ async function submitRedeemCode(e){
       return;
     }
 
-    await loadWallet();
+    await loadSlots();
     renderKpis();
     updatePrice();
     input.value = '';
-    const msg = t('redeem_success').replace('{n}', data.credits);
+    const pkgName = currentLang === 'ar' ? data.name_ar : data.name_en;
+    const msg = t('redeem_success').replace('{n}', data.slots).replace('{p}', pkgName);
     setRedeemMsg(msg, 'ok');
     toast(msg, 'success');
     setTimeout(closeRedeemCodeModal, 1600);
