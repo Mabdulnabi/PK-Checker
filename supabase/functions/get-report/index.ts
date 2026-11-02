@@ -58,6 +58,14 @@ Deno.serve(async (req: Request) => {
       downloadUrl = `${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(fileId)}`;
       needsAuth = true;
 
+    } else if (storedUrl && storedUrl.startsWith("/storage/")) {
+      // Paths saved by turnitin-webhook: /storage/<sim-reports|ai-reports>/<order>/<file>.pdf
+      // in the order-reports bucket.
+      const path = decodeURIComponent(storedUrl.replace("/storage/", ""));
+      const { data: signed } = await supabase.storage.from("order-reports").createSignedUrl(path, 3600);
+      if (signed?.signedUrl) downloadUrl = signed.signedUrl;
+      else return new Response(JSON.stringify({ error: "Could not generate signed URL" }), { status: 500, headers: { ...cors, "Content-Type": "application/json" } });
+
     } else if (storedUrl && storedUrl.includes("/storage/v1/object/")) {
       // Supabase Storage — generate signed URL and stream content
       const match = storedUrl.match(/\/storage\/v1\/object\/(?:public\/)?([^/]+)\/(.+)/);
@@ -77,7 +85,9 @@ Deno.serve(async (req: Request) => {
       // TurniScan API URLs need auth; CDN download.php is public for sim, needs auth for AI
       needsAuth = storedUrl.includes("/v1/") || (reportType === "ai" && storedUrl.includes("download.php"));
 
-    } else if (order.external_order_id) {
+    } else if (order.external_order_id && reportType === "sim") {
+      // Only the similarity report may fall back to TurniScan's default download.
+      // The AI report must never fall back here: that endpoint returns the similarity report.
       downloadUrl = `${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(order.external_order_id)}`;
       needsAuth = true;
     }
