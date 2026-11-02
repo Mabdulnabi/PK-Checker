@@ -935,6 +935,9 @@
   .mf-row .mf-doc{align-items:flex-start;text-align:right;}
   .mf-row .mf-doc-main{display:flex;flex-direction:column;align-items:flex-start;max-width:100%;min-width:0;}
   .mf-row .mf-act{align-items:center;}
+  /* English: the document column (header and cells) sits on the left. */
+  html[dir="ltr"] .mf-cols-head span:first-child{text-align:left;}
+  html[dir="ltr"] .mf-row .mf-doc{align-items:flex-start;text-align:left;}
   .mf-name{font-weight:800;color:var(--navy);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;text-align:start;}
   .mf-badge{display:inline-flex;align-items:center;margin-top:6px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:8px;background:var(--blue-wash);color:var(--blue-deep);border:1px solid #BFD7FF;font-family:'Cairo',sans-serif;}
   .mf-order{font-family:'Cairo',sans-serif;font-size:12px;font-weight:800;color:var(--navy);direction:ltr;text-align:start;white-space:nowrap;}
