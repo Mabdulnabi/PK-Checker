@@ -638,6 +638,7 @@
         <div class="side-item" data-tab="broadcast" onclick="switchTab('broadcast')"><span class="ic" data-icon-key="admin_nav_broadcast">📢</span><span data-i18n="nav_broadcast">رسائل جماعية</span></div>
         <div class="side-item" data-tab="activity" onclick="switchTab('activity')"><span class="ic" data-icon-key="admin_nav_activity">📋</span><span data-i18n="nav_activity">سجل النشاط</span></div>
         <div class="side-item" data-tab="payments" onclick="switchTab('payments')"><span class="ic" data-icon-key="admin_nav_payments">💳</span><span data-i18n="nav_payments">المدفوعات</span></div>
+        <div class="side-item" data-tab="slots" onclick="switchTab('slots')"><span class="ic">🎫</span><span data-i18n="nav_slots">الـ Slots</span></div>
         <div class="side-item" data-tab="accounts" onclick="switchTab('accounts')"><span class="ic" data-icon-key="admin_nav_accounts">👤</span><span data-i18n="nav_accounts">إدارة الحسابات</span></div>
         <div class="side-item" data-tab="backup" onclick="switchTab('backup')"><span class="ic" data-icon-key="admin_nav_backup">💾</span><span data-i18n="nav_backup">النسخ الاحتياطي</span></div>
         <div class="side-item" data-tab="chat" onclick="switchTab('chat')"><span class="ic" data-icon-key="admin_nav_chat">💬</span><span data-i18n="nav_chat">الشات المباشر</span><span class="side-badge" id="chatSideBadge" style="display:none;"></span></div>
@@ -1067,6 +1068,28 @@
 
       <!-- CREDITS TAB -->
 
+      <div class="tabpane" id="tab-slots">
+        <div class="main-head">
+          <div><h1 data-i18n="slt_title">🎫 باقات الـ Slots</h1><div class="sub" data-i18n="slt_subtitle">الباقات اللي بتظهر للعملاء في الموقع، وكل باقة بتتحدد بنوع الفحص وعدد الـ slots وصلاحيتها</div></div>
+          <button class="btn btn-primary" onclick="openSlotPackageForm()" data-i18n="slt_new_btn">+ باقة جديدة</button>
+        </div>
+        <div class="tab-card">
+          <div class="rc-table-wrap" style="margin-top:0;">
+            <table class="data-tbl">
+              <thead><tr>
+                <th data-i18n="slt_col_name">الاسم</th>
+                <th data-i18n="slt_col_type">النوع</th>
+                <th data-i18n="slt_col_slots">الـ slots</th>
+                <th data-i18n="slt_col_price">السعر</th>
+                <th data-i18n="slt_col_expiry">الصلاحية</th>
+                <th data-i18n="slt_col_status">الحالة</th>
+                <th data-i18n="slt_col_actions">إجراءات</th>
+              </tr></thead>
+              <tbody id="slotPackagesBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
       <div class="tabpane" id="tab-payments">
         <div class="main-head">
           <div><h1 data-i18n="pay_tab_title">💳 المدفوعات</h1><div class="sub" data-i18n="pay_tab_subtitle">الكريديت، سجل العمليات، وبوابات الدفع</div></div>
@@ -1406,6 +1429,19 @@ const I18N = {
     rc_err_generic:'فشل توليد الأكواد', rc_err_load:'تعذر تحميل الأكواد', rc_new_title:'تم توليد {n} كود، كل كود بـ {c} كريديت',
     rc_copy_all:'📋 نسخ الكل', rc_copied:'تم نسخ الأكواد ✅', rc_col_code:'الكود', rc_col_credits:'الكريديت',
     rc_col_status:'الحالة', rc_col_created:'تاريخ الإنشاء', rc_status_unused:'متاح', rc_status_used:'مستخدم', rc_empty:'لا توجد أكواد بعد',
+    nav_slots:'الـ Slots',
+    slt_title:'🎫 باقات الـ Slots', slt_subtitle:'الباقات اللي بتظهر للعملاء في الموقع، وكل باقة بتتحدد بنوع الفحص وعدد الـ slots وصلاحيتها',
+    slt_new_btn:'+ باقة جديدة', slt_empty:'مفيش باقات لسه', slt_err_load:'تعذر تحميل الباقات',
+    slt_col_name:'الاسم', slt_col_type:'النوع', slt_col_slots:'الـ slots', slt_col_price:'السعر', slt_col_expiry:'الصلاحية', slt_col_status:'الحالة', slt_col_actions:'إجراءات',
+    slt_type_plag_ai:'Plagiarism + AI', slt_type_plag_only:'Plagiarism Only', slt_no_expiry:'بدون انتهاء', slt_days:'يوم', slt_egp:'ج.م',
+    slt_active:'مفعّلة', slt_inactive:'موقوفة', slt_edit:'تعديل', slt_activate:'تفعيل', slt_deactivate:'إيقاف', slt_delete:'حذف',
+    slt_form_new:'باقة جديدة', slt_form_edit:'تعديل الباقة',
+    slt_lbl_name_ar:'الاسم بالعربي', slt_lbl_name_en:'الاسم بالإنجليزي', slt_lbl_type:'نوع الفحص', slt_lbl_slots:'عدد الـ slots',
+    slt_lbl_price:'السعر (ج.م)', slt_lbl_expiry:'مدة الصلاحية (أيام)', slt_lbl_no_expiry:'بدون انتهاء', slt_lbl_active:'مفعّلة (تظهر للعملاء)',
+    slt_save:'حفظ', slt_cancel:'إلغاء',
+    slt_err_names:'لازم تكتب الاسم بالعربي والإنجليزي', slt_err_slots:'عدد الـ slots لازم يكون 1 أو أكتر',
+    slt_err_price:'السعر لازم يكون صفر أو أكتر', slt_err_days:'مدة الصلاحية لازم تكون يوم أو أكتر',
+    slt_err_save:'فشل الحفظ', slt_confirm_delete:'هتحذف الباقة نهائياً. العملاء اللي اشتروها هيفضلوا عندهم الـ slots، بس اسم الباقة هيتشال. متأكد؟',
     nav_payments:'المدفوعات', pay_tab_title:'💳 المدفوعات', pay_tab_subtitle:'الكريديت، سجل العمليات، وبوابات الدفع',
     credback_title:'🔒 النسخ الاحتياطي للكريديت', credback_desc:'نسخة تلقائية كل يوم الساعة 5 الفجر، بالإضافة لإمكانية عمل نسخة يدوية في أي وقت وتصديرها/استيرادها منفصلة عن باك أب الإعدادات العام.',
     credback_manual_btn:'💾 نسخة يدوية الآن', credback_export_btn:'⬇ تصدير آخر نسخة كملف', credback_import_btn:'📂 استيراد من ملف',
@@ -1507,6 +1543,19 @@ const I18N = {
     rc_err_generic:'Failed to generate codes', rc_err_load:'Could not load codes', rc_new_title:'{n} codes generated, {c} credits each',
     rc_copy_all:'📋 Copy all', rc_copied:'Codes copied ✅', rc_col_code:'Code', rc_col_credits:'Credits',
     rc_col_status:'Status', rc_col_created:'Created', rc_status_unused:'Unused', rc_status_used:'Used', rc_empty:'No codes yet',
+    nav_slots:'Slots',
+    slt_title:'🎫 Slot packages', slt_subtitle:'Packages customers see on the site. Each one has a check type, a number of slots and a validity period.',
+    slt_new_btn:'+ New package', slt_empty:'No packages yet', slt_err_load:'Could not load packages',
+    slt_col_name:'Name', slt_col_type:'Type', slt_col_slots:'Slots', slt_col_price:'Price', slt_col_expiry:'Validity', slt_col_status:'Status', slt_col_actions:'Actions',
+    slt_type_plag_ai:'Plagiarism + AI', slt_type_plag_only:'Plagiarism Only', slt_no_expiry:'No expiry', slt_days:'days', slt_egp:'EGP',
+    slt_active:'Active', slt_inactive:'Inactive', slt_edit:'Edit', slt_activate:'Activate', slt_deactivate:'Deactivate', slt_delete:'Delete',
+    slt_form_new:'New package', slt_form_edit:'Edit package',
+    slt_lbl_name_ar:'Arabic name', slt_lbl_name_en:'English name', slt_lbl_type:'Check type', slt_lbl_slots:'Number of slots',
+    slt_lbl_price:'Price (EGP)', slt_lbl_expiry:'Validity (days)', slt_lbl_no_expiry:'No expiry', slt_lbl_active:'Active (shown to customers)',
+    slt_save:'Save', slt_cancel:'Cancel',
+    slt_err_names:'Enter both the Arabic and English names', slt_err_slots:'Number of slots must be 1 or more',
+    slt_err_price:'Price must be 0 or more', slt_err_days:'Validity must be 1 day or more',
+    slt_err_save:'Save failed', slt_confirm_delete:'This permanently deletes the package. Customers who bought it keep their slots, but the package name is removed. Are you sure?',
     nav_payments:'Payments', pay_tab_title:'💳 Payments', pay_tab_subtitle:'Credits, transaction log, and payment gateways',
     credback_title:'🔒 Credit Backups', credback_desc:'An automatic backup runs daily at 5 AM, plus you can make a manual backup any time and export/import it separately from the general settings backup.',
     credback_manual_btn:'💾 Backup now', credback_export_btn:'⬇ Export latest backup', credback_import_btn:'📂 Import from file',
@@ -1759,7 +1808,7 @@ function canUse(perm){
 // existing single-admin behavior so nobody's dashboard changes by default.
 const TAB_PERMISSION_MAP = {
   orders:'manage_orders', uidesign:'manage_ui_design', broadcast:'manage_broadcasts',
-  activity:'view_activity_log', payments:'manage_credits', accounts:'manage_users',
+  activity:'view_activity_log', payments:'manage_credits', slots:'manage_credits', accounts:'manage_users',
   chat:'manage_chat', tickets:'manage_tickets',
   backup:'manage_backup',
 };
@@ -2739,6 +2788,7 @@ function switchTab(tab){
   if (tab === 'orders' && allOrders.length === 0) loadOrders();
   if (tab === 'uidesign') initUIDesignTab();
   if (tab === 'payments') { initCreditsTab(); initPayGatewaysTab(); }
+  if (tab === 'slots') initSlotsTab();
   if (tab === 'broadcast') initBroadcastTab();
   if (tab === 'activity') initActivityTab();
   if (tab === 'accounts') { initUsersTab(); initAdminMgmtTab(); }
@@ -3639,6 +3689,39 @@ function formatDate(dateStr){
   </div>
 
   <!-- DIRECT MESSAGE TO CUSTOMER POPUP (sent via Live Chat) -->
+  <div class="adm-modal-overlay" id="slotFormOverlay">
+    <div class="adm-modal-box" style="max-width:520px;text-align:start;">
+      <h3 id="slotFormTitle" style="margin:0 0 14px;font-family:'Cairo',sans-serif;font-weight:800;color:var(--navy);" data-i18n="slt_form_new">باقة جديدة</h3>
+      <form id="slotForm" onsubmit="saveSlotPackage(event)">
+        <label style="font-size:12px;font-weight:700;color:var(--muted);" data-i18n="slt_lbl_name_ar">الاسم بالعربي</label>
+        <input class="adm-modal-input" id="slotNameAr" type="text" required>
+        <label style="font-size:12px;font-weight:700;color:var(--muted);" data-i18n="slt_lbl_name_en">الاسم بالإنجليزي</label>
+        <input class="adm-modal-input" id="slotNameEn" type="text" dir="ltr" required>
+        <label style="font-size:12px;font-weight:700;color:var(--muted);" data-i18n="slt_lbl_type">نوع الفحص</label>
+        <select class="adm-modal-input" id="slotType">
+          <option value="plag_ai" data-i18n="slt_type_plag_ai">Plagiarism + AI</option>
+          <option value="plag_only" data-i18n="slt_type_plag_only">Plagiarism Only</option>
+        </select>
+        <label style="font-size:12px;font-weight:700;color:var(--muted);" data-i18n="slt_lbl_slots">عدد الـ slots</label>
+        <input class="adm-modal-input" id="slotCount" type="number" min="1" step="1" required>
+        <label style="font-size:12px;font-weight:700;color:var(--muted);" data-i18n="slt_lbl_price">السعر (ج.م)</label>
+        <input class="adm-modal-input" id="slotPrice" type="number" min="0" step="0.01" required>
+        <label style="font-size:12px;font-weight:700;color:var(--muted);" data-i18n="slt_lbl_expiry">مدة الصلاحية (أيام)</label>
+        <input class="adm-modal-input" id="slotExpiryDays" type="number" min="1" step="1">
+        <label style="display:flex;gap:8px;align-items:center;margin-bottom:12px;font-size:13px;">
+          <input type="checkbox" id="slotNoExpiry" onchange="syncSlotExpiryInput()"> <span data-i18n="slt_lbl_no_expiry">بدون انتهاء</span>
+        </label>
+        <label style="display:flex;gap:8px;align-items:center;margin-bottom:12px;font-size:13px;">
+          <input type="checkbox" id="slotIsActive" checked> <span data-i18n="slt_lbl_active">مفعّلة (تظهر للعملاء)</span>
+        </label>
+        <div class="adm-modal-btns">
+          <button type="button" class="adm-modal-cancel" onclick="closeSlotPackageForm()" data-i18n="slt_cancel">إلغاء</button>
+          <button type="submit" class="adm-modal-ok" id="slotSaveBtn" data-i18n="slt_save">حفظ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div class="adm-modal-overlay" id="msgOverlay">
     <div class="adm-modal-box" style="max-width:400px;">
       <div class="adm-modal-icon">💬</div>
@@ -4746,6 +4829,141 @@ async function restoreCreditBackupById(id){
   await adminAlert(`✅ تم استرجاع ${count} عملية بنجاح`, {icon:'✅'});
   loadCreditBackupsList();
   if (typeof loadCreditsTab === 'function') loadCreditsTab();
+}
+
+/* ================================================================
+   SLOT PACKAGES: packages sold on the customer site (Plagiarism + AI / Plagiarism Only)
+   ================================================================ */
+let slotPackages = [];
+let editingSlotPackageId = null;
+
+async function initSlotsTab(){
+  await loadSlotPackages();
+}
+
+async function loadSlotPackages(){
+  const tbody = document.getElementById('slotPackagesBody');
+  const { data, error } = await supabaseClient
+    .from('slot_packages')
+    .select('*')
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: true });
+  if (error) {
+    console.error('loadSlotPackages failed:', error);
+    tbody.innerHTML = `<tr><td colspan="7">${escapeHtml(t('slt_err_load'))}</td></tr>`;
+    return;
+  }
+  slotPackages = data || [];
+  if (!slotPackages.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);">${escapeHtml(t('slt_empty'))}</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = slotPackages.map(p => {
+    const name = currentLang === 'ar' ? p.name_ar : p.name_en;
+    const typeLabel = p.slot_type === 'plag_ai' ? t('slt_type_plag_ai') : t('slt_type_plag_only');
+    const expiry = p.expiry_days == null ? t('slt_no_expiry') : `${p.expiry_days} ${t('slt_days')}`;
+    const status = p.is_active
+      ? `<span class="rc-status fresh">${escapeHtml(t('slt_active'))}</span>`
+      : `<span class="rc-status used">${escapeHtml(t('slt_inactive'))}</span>`;
+    return `<tr>
+      <td>${escapeHtml(name)}</td>
+      <td>${escapeHtml(typeLabel)}</td>
+      <td class="latin">${Number(p.slots)}</td>
+      <td class="latin">${Number(p.price_egp)} ${escapeHtml(t('slt_egp'))}</td>
+      <td>${escapeHtml(expiry)}</td>
+      <td>${status}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-outline" onclick="openSlotPackageForm('${p.id}')">${escapeHtml(t('slt_edit'))}</button>
+        <button class="btn btn-outline" onclick="toggleSlotPackage('${p.id}', ${!p.is_active})">${escapeHtml(p.is_active ? t('slt_deactivate') : t('slt_activate'))}</button>
+        <button class="btn btn-outline" onclick="deleteSlotPackage('${p.id}')">${escapeHtml(t('slt_delete'))}</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function syncSlotExpiryInput(){
+  document.getElementById('slotExpiryDays').disabled = document.getElementById('slotNoExpiry').checked;
+}
+
+function openSlotPackageForm(id = null){
+  editingSlotPackageId = id;
+  const p = id ? slotPackages.find(x => x.id === id) : null;
+  document.getElementById('slotFormTitle').textContent = t(p ? 'slt_form_edit' : 'slt_form_new');
+  document.getElementById('slotNameAr').value = p?.name_ar || '';
+  document.getElementById('slotNameEn').value = p?.name_en || '';
+  document.getElementById('slotType').value = p?.slot_type || 'plag_ai';
+  document.getElementById('slotCount').value = p ? p.slots : 1;
+  document.getElementById('slotPrice').value = p ? p.price_egp : '';
+  document.getElementById('slotNoExpiry').checked = p ? p.expiry_days == null : false;
+  document.getElementById('slotExpiryDays').value = p && p.expiry_days != null ? p.expiry_days : 15;
+  document.getElementById('slotIsActive').checked = p ? p.is_active : true;
+  syncSlotExpiryInput();
+  document.getElementById('slotFormOverlay').classList.add('open');
+}
+
+function closeSlotPackageForm(){
+  document.getElementById('slotFormOverlay').classList.remove('open');
+}
+
+async function saveSlotPackage(e){
+  e.preventDefault();
+  const expiryNone = document.getElementById('slotNoExpiry').checked;
+  const payload = {
+    name_ar: document.getElementById('slotNameAr').value.trim(),
+    name_en: document.getElementById('slotNameEn').value.trim(),
+    slot_type: document.getElementById('slotType').value,
+    slots: Math.floor(Number(document.getElementById('slotCount').value)),
+    price_egp: Number(document.getElementById('slotPrice').value),
+    expiry_days: expiryNone ? null : Math.floor(Number(document.getElementById('slotExpiryDays').value)),
+    is_active: document.getElementById('slotIsActive').checked,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (!payload.name_ar || !payload.name_en) { await adminAlert(t('slt_err_names'), {icon:'❌', danger:true}); return; }
+  if (!(payload.slots >= 1)) { await adminAlert(t('slt_err_slots'), {icon:'❌', danger:true}); return; }
+  if (!(payload.price_egp >= 0)) { await adminAlert(t('slt_err_price'), {icon:'❌', danger:true}); return; }
+  if (payload.expiry_days !== null && !(payload.expiry_days >= 1)) { await adminAlert(t('slt_err_days'), {icon:'❌', danger:true}); return; }
+
+  const btn = document.getElementById('slotSaveBtn');
+  btn.disabled = true;
+  try {
+    const query = editingSlotPackageId
+      ? supabaseClient.from('slot_packages').update(payload).eq('id', editingSlotPackageId)
+      : supabaseClient.from('slot_packages').insert({ ...payload, sort_order: slotPackages.length + 1 });
+    const { error } = await query;
+    if (error) throw error;
+    await logAdminActivity(editingSlotPackageId ? 'slot_package_update' : 'slot_package_create', null, '',
+      `${payload.name_en} (${payload.slots} slots, ${payload.slot_type})`);
+    closeSlotPackageForm();
+    loadSlotPackages();
+  } catch (err) {
+    console.error('saveSlotPackage failed:', err);
+    await adminAlert(t('slt_err_save') + ': ' + (err.message || ''), {icon:'❌', danger:true});
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function toggleSlotPackage(id, active){
+  const { error } = await supabaseClient
+    .from('slot_packages')
+    .update({ is_active: active, updated_at: new Date().toISOString() })
+    .eq('id', id);
+  if (error) { await adminAlert(t('slt_err_save') + ': ' + error.message, {icon:'❌', danger:true}); return; }
+  await logAdminActivity('slot_package_toggle', null, '', `${id} → ${active ? 'active' : 'inactive'}`);
+  loadSlotPackages();
+}
+
+async function deleteSlotPackage(id){
+  const p = slotPackages.find(x => x.id === id);
+  if (!p) return;
+  const ok = await adminConfirm(t('slt_confirm_delete'), {icon:'⚠️', danger:true, confirmLabel: t('slt_delete')});
+  if (!ok) return;
+  const { error } = await supabaseClient.from('slot_packages').delete().eq('id', id);
+  if (error) { await adminAlert(t('slt_err_save') + ': ' + error.message, {icon:'❌', danger:true}); return; }
+  await logAdminActivity('slot_package_delete', null, '', p.name_en);
+  loadSlotPackages();
 }
 
 async function initCreditsTab(){
