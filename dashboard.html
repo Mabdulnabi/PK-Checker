@@ -6928,7 +6928,7 @@ function histDate(iso){
   if (!iso) return { d: '—', t: '' };
   const d = new Date(iso);
   return {
-    d: d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+    d: fmtDayMonthYear(d),
     t: d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
   };
 }
@@ -7715,10 +7715,17 @@ let sfFile = null;
 const SF_MAX_BYTES = 100 * 1024 * 1024;
 
 const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+// Arabic: 4 نوفمبر 2026 (Latin digits). English: 4 Nov, 2026.
+function fmtDayMonthYear(d){
+  return currentLang === 'ar'
+    ? `${d.getDate()} ${MONTHS_AR[d.getMonth()]} ${d.getFullYear()}`
+    : `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}, ${d.getFullYear()}`;
+}
 // "16 Nov, 2026"
 function fmtExpiryDate(iso){
   const d = new Date(iso);
-  return `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}, ${d.getFullYear()}`;
+  return fmtDayMonthYear(d);
 }
 function daysLeft(iso){ return Math.max(0, Math.ceil((new Date(iso) - Date.now()) / 86400000)); }
 
@@ -7938,7 +7945,7 @@ function mfBadge(f){
   const name = currentLang === 'ar' ? (f.name_ar || f.name_en) : (f.name_en || f.name_ar);
   return name ? `${name} (${mfTypeLabel(f)})` : mfTypeLabel(f);
 }
-function mfDate(iso){ const d = new Date(iso); return `${MONTHS_SHORT[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`; }
+function mfDate(iso){ return fmtDayMonthYear(new Date(iso)); }
 function mfTime(iso){
   const d = new Date(iso);
   let h = d.getHours();
