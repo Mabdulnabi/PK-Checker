@@ -609,6 +609,15 @@
   .filter-label{font-size:11px;color:var(--muted);font-weight:700;}
   .btn-apply-filter{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;}
   .btn-reset-filter{background:var(--paper);border:1.5px solid var(--paper-line);color:var(--muted);border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;}
+.av-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line, #e5e7eb);font-size:14px;}
+.av-row:last-of-type{border-bottom:none;}
+.av-switch{position:relative;display:inline-block;width:44px;height:24px;flex:none;}
+.av-switch input{opacity:0;width:0;height:0;}
+.av-slider{position:absolute;inset:0;background:#cbd5e1;border-radius:999px;transition:.2s;cursor:pointer;}
+.av-slider::before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;}
+.av-switch input:checked + .av-slider{background:#0E9F6E;}
+.av-switch input:checked + .av-slider::before{transform:translateX(20px);}
+.av-num{width:90px;padding:6px 10px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;text-align:center;}
 </style>
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -1069,6 +1078,15 @@
       <!-- CREDITS TAB -->
 
       <div class="tabpane" id="tab-slots">
+        <div class="tab-card" id="availCard" style="margin-bottom:16px;padding:18px 20px;">
+          <div style="font-weight:800;font-size:15px;margin-bottom:4px;">🛰️ حالة خدمة الفحص</div>
+          <div class="sub" style="margin-bottom:12px;">التحكم في توفر الفحص للعملاء. الرسائل بتظهر للعميل تلقائياً حسب الحالة.</div>
+          <div class="av-row"><span>🛠️ الخدمة كلها (المفتاح الرئيسي)</span><label class="av-switch"><input type="checkbox" id="avMaster"><span class="av-slider"></span></label></div>
+          <div class="av-row"><span>🔍 فحص Plagiarism + AI</span><label class="av-switch"><input type="checkbox" id="avPlagAi"><span class="av-slider"></span></label></div>
+          <div class="av-row"><span>📄 فحص Plagiarism Only</span><label class="av-switch"><input type="checkbox" id="avPlagOnly"><span class="av-slider"></span></label></div>
+          <div class="av-row"><span>الحد الأدنى لقبول الفحص (Slots متاحة عند المزود)</span><input type="number" id="avMin" min="0" step="1" value="2" class="av-num"></div>
+          <div style="margin-top:12px;display:flex;justify-content:flex-end;"><button class="btn btn-primary" onclick="saveServiceAvailability()">حفظ حالة الخدمة</button></div>
+        </div>
         <div class="main-head">
           <div><h1 data-i18n="slt_title">🎫 باقات الفحوصات</h1><div class="sub" data-i18n="slt_subtitle">الباقات اللي بتظهر للعملاء في الموقع، وكل باقة بتتحدد بنوع الفحص وعدد الفحوصات وصلاحيتها</div></div>
           <button class="btn btn-primary" onclick="openSlotPackageForm()" data-i18n="slt_new_btn">+ باقة جديدة</button>
@@ -4834,7 +4852,33 @@ let slotPackages = [];
 let editingSlotPackageId = null;
 
 async function initSlotsTab(){
-  await loadSlotPackages();
+  await Promise.all([loadSlotPackages(), loadServiceAvailability()]);
+}
+
+// Service availability: read the current switches and save them through one RPC.
+async function loadServiceAvailability(){
+  const { data, error } = await supabaseClient.from('service_availability').select('service, enabled, min_provider_credits');
+  if (error) { console.error('loadServiceAvailability:', error); return; }
+  const by = Object.fromEntries((data || []).map(r => [r.service, r]));
+  document.getElementById('avMaster').checked = by.master ? !!by.master.enabled : true;
+  document.getElementById('avPlagAi').checked = by.plag_ai ? !!by.plag_ai.enabled : true;
+  document.getElementById('avPlagOnly').checked = by.plag_only ? !!by.plag_only.enabled : false;
+  document.getElementById('avMin').value = by.plag_ai ? by.plag_ai.min_provider_credits : 2;
+}
+
+async function saveServiceAvailability(){
+  const master = document.getElementById('avMaster').checked;
+  const plagAi = document.getElementById('avPlagAi').checked;
+  const plagOnly = document.getElementById('avPlagOnly').checked;
+  const min = parseInt(document.getElementById('avMin').value, 10);
+  if (!Number.isInteger(min) || min < 0) { await adminAlert('الحد الأدنى لازم يكون رقم صحيح 0 أو أكتر', {icon:'⚠️'}); return; }
+  const { error } = await supabaseClient.rpc('admin_set_service_availability', {
+    p_master: master, p_plag_ai: plagAi, p_plag_only: plagOnly, p_min: min,
+  });
+  if (error) { await adminAlert('فشل الحفظ: ' + error.message, {icon:'❌', danger:true}); return; }
+  await logAdminActivity('service_availability', null, null,
+    `الخدمة: ${master ? 'مفعّلة' : 'متوقفة'} | Plagiarism + AI: ${plagAi ? 'on' : 'off'} | Plagiarism Only: ${plagOnly ? 'on' : 'off'} | الحد الأدنى: ${min}`);
+  await adminAlert('تم حفظ حالة الخدمة', {icon:'✅'});
 }
 
 async function loadSlotPackages(){

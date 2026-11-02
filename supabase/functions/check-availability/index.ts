@@ -47,18 +47,35 @@ Deno.serve(async (req: Request) => {
       console.error("check-availability: provider unreachable", e);
     }
 
+    // 'master' switches the whole API off; 'capacity' is shown when the provider has too few slots.
+    const byKey: Record<string, { enabled: boolean; min_provider_credits: number; message_ar: string; message_en: string }> = {};
+    for (const row of rows ?? []) byKey[row.service] = row;
+    const master = byKey["master"];
+    const capacity = byKey["capacity"];
+    const masterOff = !!master && !master.enabled;
+
+    type Reason = "ok" | "disabled" | "maintenance" | "provider_unavailable" | "no_provider_slots";
     const services: Record<string, unknown> = {};
-    for (const row of rows ?? []) {
-      let reason: "ok" | "disabled" | "provider_unavailable" | "no_provider_slots" = "ok";
-      if (!row.enabled) reason = "disabled";
-      else if (!providerActive) reason = "provider_unavailable";
+    for (const key of ["plag_ai", "plag_only"]) {
+      const row = byKey[key];
+      if (!row) continue;
+      let reason: Reason = "ok";
+      if (masterOff) reason = "maintenance";
+      else if (!row.enabled) reason = "disabled";
+      else if (!providerActive) reason = "maintenance";
       else if (providerSlots < Number(row.min_provider_credits)) reason = "no_provider_slots";
 
-      services[row.service] = {
+      let msgAr: string | null = null;
+      let msgEn: string | null = null;
+      if (reason === "maintenance" && master) { msgAr = master.message_ar; msgEn = master.message_en; }
+      else if (reason === "no_provider_slots" && capacity) { msgAr = capacity.message_ar; msgEn = capacity.message_en; }
+      else if (reason === "disabled" || reason === "maintenance") { msgAr = row.message_ar; msgEn = row.message_en; }
+
+      services[key] = {
         available: reason === "ok",
         reason,
-        message_ar: reason === "ok" ? null : row.message_ar,
-        message_en: reason === "ok" ? null : row.message_en,
+        message_ar: reason === "ok" ? null : msgAr,
+        message_en: reason === "ok" ? null : msgEn,
       };
     }
 

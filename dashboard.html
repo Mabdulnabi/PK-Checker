@@ -6859,7 +6859,7 @@ async function submitCheckToApi(orderId, file){
     if (!res.ok || !json.success) {
       // MAINTENANCE / NO_SLOTS come back with a message the customer can read.
       const userMessage = json.code === 'MAINTENANCE'
-        ? ((currentLang === 'ar' ? json.message_ar : json.message_en) || t('slot_maint_default'))
+        ? withAvailIcon(json.reason, (currentLang === 'ar' ? json.message_ar : json.message_en) || t('slot_maint_default'))
         : (json.code === 'NO_SLOTS' ? t('slot_none_msg') : null);
       return { ok: false, code: json.code, userMessage,
         error: json.error || json.code || (currentLang==='ar' ? 'رفض المزوّد الطلب' : 'Provider rejected the submission') };
@@ -7344,11 +7344,18 @@ async function refreshServiceAvailability(){
   renderApiStatusCard();
 }
 
+// Icon in front of the customer message, by the reason it is shown.
+const AVAIL_ICON = { maintenance: '🛠️', disabled: '⏸️', no_provider_slots: '⏳' };
+function withAvailIcon(reason, text){
+  const icon = AVAIL_ICON[reason];
+  return icon && text ? `${icon} ${text}` : text;
+}
+
 function serviceMessage(service){
   const a = serviceAvailability[service];
   const fallback = t('slot_maint_default');
   if (!a) return fallback;
-  return (currentLang === 'ar' ? a.message_ar : a.message_en) || fallback;
+  return withAvailIcon(a.reason, (currentLang === 'ar' ? a.message_ar : a.message_en) || fallback);
 }
 
 // Every check needs one slot of its type and a provider that is available right now.

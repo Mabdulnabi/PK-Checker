@@ -25,11 +25,15 @@ async function providerAvailability(
   admin: ReturnType<typeof createClient>,
   service: ServiceKey,
 ): Promise<{ available: boolean; reason: string; message_ar: string | null; message_en: string | null }> {
-  const { data: row } = await admin
+  const { data: rowsData } = await admin
     .from("service_availability")
-    .select("enabled, min_provider_credits, message_ar, message_en")
-    .eq("service", service)
-    .maybeSingle();
+    .select("service, enabled, min_provider_credits, message_ar, message_en")
+    .in("service", ["master", "capacity", service]);
+  const byKey: Record<string, { enabled: boolean; min_provider_credits: number; message_ar: string; message_en: string }> = {};
+  for (const r of rowsData ?? []) byKey[r.service] = r;
+  const row = byKey[service];
+  const master = byKey["master"];
+  const capacity = byKey["capacity"];
 
   let providerActive = false;
   let providerSlots = 0;
@@ -46,15 +50,26 @@ async function providerAvailability(
   }
 
   let reason = "ok";
-  if (!row || !row.enabled) reason = "disabled";
-  else if (!providerActive) reason = "provider_unavailable";
-  else if (providerSlots < Number(row.min_provider_credits)) reason = "no_provider_slots";
+  let msg: { message_ar: string | null; message_en: string | null } = { message_ar: null, message_en: null };
+  if (master && !master.enabled) {
+    reason = "maintenance";
+    msg = { message_ar: master.message_ar, message_en: master.message_en };
+  } else if (!row || !row.enabled) {
+    reason = "disabled";
+    msg = { message_ar: row?.message_ar ?? null, message_en: row?.message_en ?? null };
+  } else if (!providerActive) {
+    reason = "maintenance";
+    msg = { message_ar: master?.message_ar ?? row.message_ar, message_en: master?.message_en ?? row.message_en };
+  } else if (providerSlots < Number(row.min_provider_credits)) {
+    reason = "no_provider_slots";
+    msg = { message_ar: capacity?.message_ar ?? row.message_ar, message_en: capacity?.message_en ?? row.message_en };
+  }
 
   return {
     available: reason === "ok",
     reason,
-    message_ar: reason === "ok" ? null : (row?.message_ar ?? null),
-    message_en: reason === "ok" ? null : (row?.message_en ?? null),
+    message_ar: reason === "ok" ? null : msg.message_ar,
+    message_en: reason === "ok" ? null : msg.message_en,
   };
 }
 
