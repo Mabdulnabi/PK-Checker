@@ -6742,6 +6742,8 @@ async function pollPendingApiOrders(){
   renderKpis();
 }
 setInterval(pollPendingApiOrders, 5000);
+// My Files: while a file is still checking, reload it every 5s (same cadence as the status poll).
+setInterval(()=>{ if (myFiles.some(f => !MF_FINAL.includes(f.status))) loadMyFiles(); }, 5000);
 
 // ── Check-settings: applied after loadUIConfig() + applyLang() ───────────────
 function applyCheckSettings(){

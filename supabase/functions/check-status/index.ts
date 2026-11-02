@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { getDocumentProxy, extractText } from "npm:unpdf@1";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -19,39 +20,56 @@ function mapStatus(s: string): string {
   return "run";
 }
 
-function extractFilename(contentDisposition: string | null, fallback: string): string {
-  if (contentDisposition) {
-    const m = contentDisposition.match(/filename\*?=(?:UTF-8'')?["']?([^"';\r\n]+)["']?/i);
-    if (m) return decodeURIComponent(m[1].trim());
-  }
-  return fallback;
-}
-
-async function fetchAndStore(
-  supabase: ReturnType<typeof createClient>,
-  fileId: string,
-  folder: string,
-  reportType: "sim" | "ai",
-): Promise<string | null> {
+async function downloadReport(fileId: string, reportType: "sim" | "ai"): Promise<ArrayBuffer | null> {
   const apiUrl = reportType === "ai"
     ? `${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(fileId)}&report_type=ai`
     : `${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(fileId)}`;
-
   const res = await fetch(apiUrl, { headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` } });
-  console.log(`check-status: ${reportType} fetch status=`, res.status);
   if (!res.ok) {
     console.error(`check-status: ${reportType} fetch failed`, res.status, await res.text());
     return null;
   }
-  const filename = extractFilename(res.headers.get("Content-Disposition"), `${reportType}_report.pdf`);
-  const storagePath = `${folder}/${filename}`;
-  const pdf = await res.arrayBuffer();
+  return await res.arrayBuffer();
+}
+
+// Fixed file name, and never overwrite: a stored report is kept as it is.
+async function storeFixed(
+  supabase: ReturnType<typeof createClient>,
+  folder: string,
+  name: string,
+  bytes: ArrayBuffer,
+): Promise<string | null> {
+  const storagePath = `${folder}/${name}`;
   const { error } = await supabase.storage
     .from("order-reports")
-    .upload(storagePath, pdf, { contentType: "application/pdf", upsert: true });
-  if (error) { console.error(`check-status: ${reportType} upload failed`, error.message); return null; }
-  console.log(`check-status: ${reportType} uploaded to`, storagePath);
+    .upload(storagePath, bytes, { contentType: "application/pdf", upsert: false });
+  if (error && !/already exists|duplicate/i.test(error.message)) {
+    console.error("check-status: upload failed", storagePath, error.message);
+    return null;
+  }
   return `/storage/${storagePath}`;
+}
+
+// What the AI download actually contains: "NN% detected as AI" on the AI page,
+// "*%" when the score is under 20%. A similarity-only file is not an AI report.
+type AiScore = { kind: "value"; value: number } | { kind: "hidden" } | { kind: "unknown" };
+type AiRead = { hasAi: boolean; score: AiScore };
+
+async function readAiPdf(bytes: ArrayBuffer): Promise<AiRead> {
+  try {
+    const pdf = await getDocumentProxy(new Uint8Array(bytes.slice(0)));
+    const { text } = await extractText(pdf, { mergePages: false });
+    const pages = text as string[];
+    const hasAi = pages.some((pg) => /detected as AI/i.test(pg));
+    const page2 = String(pages[1] ?? "");
+    const m = page2.match(/(\d{1,3}(?:\.\d+)?)\s*%\s*detected as AI/i);
+    if (m) return { hasAi, score: { kind: "value", value: Number(m[1]) } };
+    if (/\*\s*%\s*detected as AI/i.test(page2)) return { hasAi, score: { kind: "hidden" } };
+    return { hasAi, score: { kind: "unknown" } };
+  } catch (e) {
+    console.error("check-status: AI pdf read failed", String(e));
+    return { hasAi: false, score: { kind: "unknown" } };
+  }
 }
 
 Deno.serve(async (req: Request) => {
@@ -75,7 +93,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: order, error: orderErr } = await supabase
       .from("orders")
-      .select("id, external_order_id, status, user_id, check_type")
+      .select("id, external_order_id, status, user_id, check_type, completed_at")
       .eq("id", orderId).eq("user_id", user.id).single();
     if (orderErr || !order) return json({ success: false, error: "Order not found" }, 404);
 
@@ -96,17 +114,30 @@ Deno.serve(async (req: Request) => {
 
     const checkType = (order as { check_type: string }).check_type;
     if (internalStatus === "completed") {
-      const simUrl = await fetchAndStore(supabase, fileId, `sim-reports/${orderId}`, "sim");
-      if (simUrl) { updates.report_url = simUrl; reports.similarity = { downloadUrl: simUrl }; }
-
-      if (checkType !== "sim_only") {
-        const aiUrl = await fetchAndStore(supabase, fileId, `ai-reports/${orderId}`, "ai");
-        if (aiUrl) { updates.ai_report_url = aiUrl; reports.ai = { downloadUrl: aiUrl }; }
+      const simBytes = await downloadReport(fileId, "sim");
+      if (simBytes) {
+        const simUrl = await storeFixed(supabase, `sim-reports/${orderId}`, "sim_report.pdf", simBytes);
+        if (simUrl) { updates.report_url = simUrl; reports.similarity = { downloadUrl: simUrl }; }
       }
 
-      updates.completed_at = new Date().toISOString();
-      if (tsData.similarity_score !== undefined) updates.similarity_score = tsData.similarity_score;
-      if (tsData.ai_score !== undefined)         updates.ai_score = tsData.ai_score;
+      if (checkType !== "sim_only") {
+        const aiBytes = await downloadReport(fileId, "ai");
+        if (aiBytes) {
+          const aiRead = await readAiPdf(aiBytes);
+          if (aiRead.hasAi) {
+            const aiUrl = await storeFixed(supabase, `ai-reports/${orderId}`, "ai_report.pdf", aiBytes);
+            if (aiUrl) { updates.ai_report_url = aiUrl; reports.ai = { downloadUrl: aiUrl }; }
+            if (aiRead.score.kind === "value")  updates.ai_score = aiRead.score.value;
+            if (aiRead.score.kind === "hidden") updates.ai_score = null;
+          }
+        }
+      }
+
+      // Keep the first completion time.
+      if (!(order as { completed_at: string | null }).completed_at) {
+        updates.completed_at = new Date().toISOString();
+      }
+      if (typeof tsData.similarity_score === "number") updates.similarity_score = tsData.similarity_score;
 
     } else if (internalStatus === "error") {
       updates.error_reason =
