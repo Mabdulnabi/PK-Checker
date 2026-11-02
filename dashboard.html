@@ -1856,8 +1856,8 @@
           <div class="field-block">
             <span class="glabel" data-i18n="check_type_label">نوع الفحص</span>
             <div class="seg">
-              <button class="on" id="ctSim" data-i18n="ct_sim">اقتباس فقط</button>
-              <button id="ctBoth" data-i18n="ct_both">اقتباس + ذكاء اصطناعي</button>
+              <button id="ctSim" data-i18n="ct_sim" style="display:none;">اقتباس فقط</button>
+              <button class="on" id="ctBoth" data-i18n="ct_both">اقتباس + ذكاء اصطناعي</button>
             </div>
           </div>
           <div class="field-block">
@@ -6053,7 +6053,7 @@ function updateAllPrices(){
 }
 
 let currentFile = null; // the actual File object picked/dropped by the user
-let checkType = 'sim'; // moved up from below — FILE_RULES lookup needs this defined first
+let checkType = 'both'; // Plagiarism Only is hidden for now, so Plagiarism + AI is the default
 let simOnlyViaApi = true; // loaded from api_settings; default matches the table's default until loaded
 const uploadzoneBox = document.getElementById('uploadzoneBox');
 const fileInput = document.getElementById('fileInput');
