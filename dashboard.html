@@ -7297,8 +7297,10 @@ function renderWalletSlotCards(){
   const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   set('walletSlotsAI', String(slotsByType.plag_ai || 0));
   set('walletSlotsSim', String(slotsByType.plag_only || 0));
-  set('walletLblAI', ar ? 'Slot(s) متبقي' : 'Slot(s) left');
-  set('walletLblSim', ar ? 'Slot(s) متبقي' : 'Slot(s) left');
+  // English: "slot left" for 1, "slots left" otherwise. Arabic: فحص متبقي.
+  const slotLeft = (n) => ar ? 'فحص متبقي' : (n === 1 ? 'Slot left' : 'Slots left');
+  set('walletLblAI', slotLeft(slotsByType.plag_ai || 0));
+  set('walletLblSim', slotLeft(slotsByType.plag_only || 0));
   const expText = (iso) => {
     if (!iso) return ar ? 'لا توجد صلاحية نشطة' : 'No active expiry';
     const dl = daysLeft(iso);
