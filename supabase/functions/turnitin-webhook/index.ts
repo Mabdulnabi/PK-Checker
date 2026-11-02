@@ -84,10 +84,12 @@ Deno.serve(async (req: Request) => {
 
   const { data: order } = await supabase
     .from("orders")
-    .select("id, check_type, external_order_id")
+    .select("id, check_type, external_order_id, purged_at")
     .eq("id", customId)
     .maybeSingle();
   if (!order) return new Response("OK", { status: 200 });
+  // Files were purged after the 48-hour retention window. Don't store them again.
+  if (order.purged_at) return new Response("OK", { status: 200 });
 
   // If we already stored a file id for this order, the webhook must refer to it.
   if (order.external_order_id && order.external_order_id !== fileId) {

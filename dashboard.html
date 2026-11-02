@@ -921,6 +921,39 @@
   .sf-terms-cards{display:flex;flex-direction:column;gap:12px;margin-top:18px;}
   .sf-terms-cards .plan-limits-box,.sf-terms-cards .req-card{margin-bottom:0;}
   #lastOrderCard{display:none !important;}
+  .my-files{background:var(--paper);border:1px solid var(--paper-line);border-radius:16px;padding:16px;margin-top:20px;}
+  .my-files-title{display:flex;align-items:center;gap:10px;font-family:'Cairo',sans-serif;font-size:15px;color:var(--navy);margin-bottom:12px;}
+  .my-files-title svg{width:20px;height:20px;fill:none;stroke:var(--blue);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .mf-cols-head,.mf-row{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(0,1.7fr) minmax(0,1.3fr) minmax(0,1.3fr) 44px;gap:12px;align-items:center;}
+  .mf-cols-head{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.4px;padding:0 16px 8px;text-transform:uppercase;}
+  .mf-row{background:var(--paper);border:1px solid var(--paper-line);border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.03);}
+  .mf-name{font-weight:800;color:var(--navy);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;text-align:start;}
+  .mf-badge{display:inline-flex;align-items:center;margin-top:6px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:8px;background:var(--blue-wash);color:var(--blue-deep);border:1px solid #BFD7FF;font-family:'Cairo',sans-serif;}
+  .mf-time{font-size:12.5px;color:var(--navy);}
+  .mf-time small{color:var(--muted);}
+  .mf-status{display:inline-flex;align-items:center;gap:5px;margin-top:6px;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:'Cairo',sans-serif;}
+  .mf-status.ok{background:var(--ok-wash);color:#0F7A55;border:1px solid #B7EBD5;}
+  .mf-status.run{background:var(--blue-wash);color:var(--blue-deep);border:1px solid #BFD7FF;}
+  .mf-status.bad{background:var(--danger-wash);color:var(--danger);border:1px solid #F5C2CB;}
+  .mf-dl{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:6px;background:#0E9F6E;color:#fff;border:none;border-radius:10px;padding:9px 12px;font-family:'Cairo',sans-serif;font-weight:800;font-size:13px;cursor:pointer;}
+  .mf-dl svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+  .mf-dl:disabled{opacity:.55;cursor:not-allowed;}
+  .mf-muted{font-size:12px;color:var(--muted);font-family:'Cairo',sans-serif;}
+  .mf-del{width:36px;height:36px;border-radius:10px;background:#FFF1F3;border:1px solid #F5C2CB;color:var(--danger);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+  .mf-del svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .mf-del:disabled{opacity:.35;cursor:not-allowed;}
+  .mf-empty{text-align:center;color:var(--muted);font-size:13px;padding:28px 12px;font-family:'Cairo',sans-serif;}
+  .my-files-note{margin-top:10px;font-size:11.5px;color:var(--muted);text-align:center;font-family:'Cairo',sans-serif;}
+  @media (max-width:640px){
+    .my-files{padding:12px;}
+    .mf-cols-head{display:none;}
+    .mf-row{grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:14px;}
+    .mf-doc{grid-column:1;grid-row:1;min-width:0;}
+    .mf-act{grid-column:2;grid-row:1;justify-self:end;}
+    .mf-time{grid-column:1 / span 2;grid-row:2;}
+    .mf-ai{grid-column:1;grid-row:3;min-width:0;}
+    .mf-sim{grid-column:2;grid-row:3;min-width:0;}
+  }
   .sf-dd{position:relative;}
   .sf-dd-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--ok-wash);border:1.5px solid var(--ok);border-radius:14px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13.5px;font-weight:800;color:#0F5132;cursor:pointer;text-align:start;}
   .sf-dd-btn:disabled{cursor:default;opacity:.7;}
@@ -1929,6 +1962,22 @@
         </div>
       </div>
 
+      <section class="my-files" id="myFilesSection">
+        <div class="my-files-title">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          <b data-i18n="mf_title">ملفاتي</b>
+        </div>
+        <div class="mf-cols-head">
+          <span data-i18n="mf_col_doc">الملف</span>
+          <span data-i18n="mf_col_time">تاريخ الإرسال / التسليم</span>
+          <span data-i18n="mf_col_ai">كشف الذكاء الاصطناعي</span>
+          <span data-i18n="mf_col_sim">التشابه</span>
+          <span data-i18n="mf_col_action">إجراء</span>
+        </div>
+        <div id="myFilesList" class="mf-list"></div>
+        <div class="my-files-note" data-i18n="mf_retention_note">حمّل ملفاتك واحفظها، بتتمسح تلقائياً بعد 48 ساعة من انتهاء الفحص.</div>
+      </section>
+
       <div class="last-order-card panel-block" id="lastOrderCard" style="display:none;margin-top:20px;">
         <div class="panel-block-head" style="cursor:default;">
           <span class="phicon"><svg class="ic" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
@@ -2818,6 +2867,12 @@ const I18N = {
     tour_done_title:"كل حاجة واضحة؟", tour_done_desc:"الجولة التعريفية خلصت. تقدر تبدأ دلوقتي وترفع أول ملف بثقة. بالتوفيق! 🌟",
     kpi_slots_label:"فحوصات متبقية", kpi_expiry_label:"تاريخ انتهاء الفحوصات", kpi_api_status:"حالة الـ API",
     api_active:"نشط", api_inactive:"متوقف", expiry_days_left:"باقي {d} يوم", sf_no_expiry:"بدون انتهاء", sf_no_slots_short:"لا توجد فحوصات",
+    mf_title:"ملفاتي", mf_col_doc:"الملف", mf_col_time:"تاريخ الإرسال / التسليم", mf_col_ai:"كشف الذكاء الاصطناعي", mf_col_sim:"التشابه", mf_col_action:"إجراء",
+    mf_empty:"لسه مفيش ملفات. ابعت ملف عشان تشوف النتايج هنا.", mf_checking:"جاري الفحص", mf_delivered:"تم التسليم في", mf_delivered_plain:"تم التسليم",
+    mf_failed:"فشل الفحص", mf_not_included:"غير مضمّن", mf_result_unavailable:"النتيجة غير متاحة", mf_download:"تحميل",
+    mf_delete:"حذف الملف", mf_confirm_title:"حذف الملف؟", mf_confirm_body:"هيتمسح الملف {f} والتقارير بتاعته نهائياً. متأكد؟",
+    mf_delete_yes:"حذف", mf_delete_no:"إلغاء", mf_err_delete:"تعذر حذف الملف، حاول تاني.",
+    mf_retention_note:"حمّل ملفاتك واحفظها، بتتمسح تلقائياً بعد 48 ساعة من انتهاء الفحص.",
     sf_open_btn:"إرسال الملفات", sf_opt_left:"{n} فحص متبقي", sf_opt_none:"خلصت", sf_opt_expired:"منتهية", sf_opt_until:"تنتهي: {d}", sf_slot_pick:"اختار الباقة", sf_pick_slot_err:"اختار باقة متاحة الأول", sf_title:"Pro Keys · رفع الملفات", sf_slot_label:"نوع الفحص", sf_no_slots:"مفيش فحوصات متاحة",
     sf_opt_label:"Plagiarism + AI ({n} فحص متبقي - تنتهي: {d})", sf_pick:"ارفع ورقتك البحثية أو رسالتك هنا", sf_formats:"PDF أو DOCX فقط، حتى 100MB", sf_browse:"تصفح الملف",
     sf_err_format:"الصيغة دي مش مدعومة. ارفع ملف DOCX أو PDF بس.", sf_err_size:"الملف أكبر من 100MB", sf_terms_title:"شروط الاستخدام",
@@ -3001,6 +3056,12 @@ const I18N = {
     tour_done_title:"All set!", tour_done_desc:"The tour is complete. You're ready to upload your first file with confidence. Good luck! 🌟",
     kpi_slots_label:"Slots remaining", kpi_expiry_label:"Slots expiry date", kpi_api_status:"API status",
     api_active:"Active", api_inactive:"Inactive", expiry_days_left:"{d} days left", sf_no_expiry:"No expiry", sf_no_slots_short:"No slots",
+    mf_title:"My Files", mf_col_doc:"Document", mf_col_time:"Submitted / Delivery time", mf_col_ai:"AI detection", mf_col_sim:"Similarity", mf_col_action:"Action",
+    mf_empty:"No files yet. Submit a file to see your results here.", mf_checking:"Checking", mf_delivered:"Delivered in", mf_delivered_plain:"Delivered",
+    mf_failed:"Failed", mf_not_included:"Not included", mf_result_unavailable:"Result unavailable", mf_download:"Download",
+    mf_delete:"Delete file", mf_confirm_title:"Delete this file?", mf_confirm_body:"File {f} and its reports will be permanently deleted. Are you sure?",
+    mf_delete_yes:"Delete", mf_delete_no:"Cancel", mf_err_delete:"Could not delete the file, please try again.",
+    mf_retention_note:"Please download and save your checked files. They are automatically deleted 48 hours after the check finishes.",
     sf_open_btn:"Submit Files", sf_opt_left:"{n} checks left", sf_opt_none:"Used up", sf_opt_expired:"Expired", sf_opt_until:"Expires: {d}", sf_slot_pick:"Choose a package", sf_pick_slot_err:"Choose an available package first", sf_title:"Pro Keys · Submit Files", sf_slot_label:"Slot type", sf_no_slots:"No slots available",
     sf_opt_label:"Plagiarism + AI ({n} Slots Remaining - Next Expiry: {d})", sf_pick:"Drag & drop your research paper or thesis here", sf_formats:"PDF or DOCX only, up to 100MB", sf_browse:"Browse Local File",
     sf_err_format:"This file type isn't supported. Upload a DOCX or PDF file.", sf_err_size:"The file is larger than 100MB", sf_terms_title:"Terms & Conditions",
@@ -7393,7 +7454,10 @@ let allGrants = [];
 let sfSelectedGrant = null;
 let pendingGrantId = null; // set only while the popup is uploading
 
-function grantLabel(g){ return currentLang === 'ar' ? g.name_ar : g.name_en; }
+function grantLabel(g){
+  const name = currentLang === 'ar' ? g.name_ar : g.name_en;
+  return `${name} (Plagiarism + AI)`;
+}
 function grantExpiryText(g){
   return g.expires_at ? t('sf_opt_until').replace('{d}', fmtExpiryDate(g.expires_at)) : t('sf_no_expiry');
 }
@@ -7554,6 +7618,156 @@ async function sfUploadFile(){
   document.getElementById('balanceWarning')?.closest('.panel-block')?.style.setProperty('display', 'none');
   document.querySelectorAll('[data-tab="orders"]').forEach(el => { el.style.display = 'none'; });
 })();
+
+/* ---------- My Files: checks sent from this page ---------- */
+let myFiles = [];
+const MF_FINAL = ['completed', 'error', 'rejected', 'failed_invalid', 'cancelled'];
+
+function mfTypeLabel(f){ return f.check_type === 'sim_only' ? 'Plagiarism Only' : 'Plagiarism + AI'; }
+function mfBadge(f){
+  const name = currentLang === 'ar' ? (f.name_ar || f.name_en) : (f.name_en || f.name_ar);
+  return name ? `${name} (${mfTypeLabel(f)})` : mfTypeLabel(f);
+}
+function mfDate(iso){ const d = new Date(iso); return `${MONTHS_SHORT[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`; }
+function mfTime(iso){
+  const d = new Date(iso);
+  let h = d.getHours();
+  const ap = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return `${h}:${String(d.getMinutes()).padStart(2, '0')} ${ap}`;
+}
+function mfDuration(sec){
+  if (sec < 60) return `${sec}s`;
+  if (sec < 3600) return `${Math.floor(sec / 60)}m ${sec % 60}s`;
+  return `${Math.floor(sec / 3600)}h ${Math.floor((sec % 3600) / 60)}m`;
+}
+
+async function loadMyFiles(){
+  const { data, error } = await supabaseClient.rpc('my_checked_files');
+  if (error) { console.error('loadMyFiles failed:', error); return; }
+  myFiles = Array.isArray(data) ? data : [];
+  renderMyFiles();
+}
+
+function mfStatusCell(f){
+  if (f.status === 'completed') {
+    if (f.completed_at && f.submitted_at) {
+      const sec = Math.max(0, Math.round((new Date(f.completed_at) - new Date(f.submitted_at)) / 1000));
+      return `<span class="mf-status ok">⚡ ${escapeHtml(t('mf_delivered'))} ${mfDuration(sec)}</span>`;
+    }
+    return `<span class="mf-status ok">⚡ ${escapeHtml(t('mf_delivered_plain'))}</span>`;
+  }
+  if (MF_FINAL.includes(f.status)) {
+    return `<span class="mf-status bad">${escapeHtml(t('mf_failed'))}</span>`;
+  }
+  const elapsed = f.submitted_at ? mfDuration(Math.max(0, Math.round((Date.now() - new Date(f.submitted_at)) / 1000))) : '';
+  return `<span class="mf-status run">${escapeHtml(t('mf_checking'))}${elapsed ? ' (' + elapsed + ')' : ''}</span>`;
+}
+
+// One score cell (AI or similarity). Shows the real provider score, or a status.
+function mfScoreCell(f, kind){
+  if (kind === 'ai' && f.check_type === 'sim_only') return `<span class="mf-muted">${escapeHtml(t('mf_not_included'))}</span>`;
+  if (!MF_FINAL.includes(f.status)) return `<span class="mf-muted">${escapeHtml(t('mf_checking'))}</span>`;
+  if (f.status !== 'completed') return `<span class="mf-muted">${escapeHtml(t('mf_failed'))}</span>`;
+  const score = kind === 'ai' ? f.ai_score : f.similarity_score;
+  if (score === null || score === undefined) return `<span class="mf-muted">${escapeHtml(t('mf_result_unavailable'))}</span>`;
+  const hasReport = kind === 'ai' ? f.has_ai_report : f.has_sim_report;
+  const pct = Math.round(Number(score));
+  return `<button class="mf-dl" type="button" ${hasReport ? '' : 'disabled'} onclick="downloadOrderReport('${f.id}', '${kind}')">
+      ${pct}% <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/></svg> ${escapeHtml(t('mf_download'))}
+    </button>`;
+}
+
+function renderMyFiles(){
+  const list = document.getElementById('myFilesList');
+  if (!list) return;
+  if (!myFiles.length) {
+    list.innerHTML = `<div class="mf-empty">${escapeHtml(t('mf_empty'))}</div>`;
+    return;
+  }
+  list.innerHTML = myFiles.map(f => {
+    const deletable = MF_FINAL.includes(f.status);
+    return `<div class="mf-row">
+      <div class="mf-cell mf-doc">
+        <div class="mf-doc-main">
+          <div class="mf-name">${escapeHtml(f.file_name || '')}</div>
+          <span class="mf-badge">${escapeHtml(mfBadge(f))}</span>
+        </div>
+      </div>
+      <div class="mf-cell mf-time">
+        <div>${escapeHtml(mfDate(f.submitted_at))} <small>${escapeHtml(mfTime(f.submitted_at))}</small></div>
+        ${mfStatusCell(f)}
+      </div>
+      <div class="mf-cell mf-ai">${mfScoreCell(f, 'ai')}</div>
+      <div class="mf-cell mf-sim">${mfScoreCell(f, 'sim')}</div>
+      <div class="mf-cell mf-act">
+        <button class="mf-del" type="button" ${deletable ? '' : 'disabled'} onclick="deleteMyFile('${f.id}')" aria-label="${escapeHtml(t('mf_delete'))}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+let _reportDownloading = false;
+async function downloadOrderReport(orderId, kind){
+  if (_reportDownloading) return;
+  _reportDownloading = true;
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const res = await fetch(`${FN_BASE}/get-report`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token || ''}` },
+      body: JSON.stringify({ order_id: orderId, report_type: kind }),
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      await appAlert((currentLang === 'ar' ? 'خطأ في تحميل التقرير: ' : 'Error downloading report: ') + err, {icon:'error'});
+      return;
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const file = myFiles.find(x => x.id === orderId);
+    const base = (file?.file_name || orderId).replace(/\.[^.]+$/, '');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${kind === 'ai' ? 'AI' : 'Similarity'}_${base}.pdf`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  } catch (e) {
+    console.error('downloadOrderReport error:', e);
+    await appAlert(currentLang === 'ar' ? 'حصلت مشكلة في التحميل، حاول تاني.' : 'Download failed, please try again.', {icon:'error'});
+  } finally {
+    _reportDownloading = false;
+  }
+}
+
+async function deleteMyFile(orderId){
+  const f = myFiles.find(x => x.id === orderId);
+  if (!f) return;
+  const yes = await showAppModal({
+    icon: 'warning',
+    title: t('mf_confirm_title'),
+    body: t('mf_confirm_body').replace('{f}', f.file_name || ''),
+    buttons: [
+      { label: t('mf_delete_yes'), value: true, style: 'danger' },
+      { label: t('mf_delete_no'), value: false, style: 'secondary' },
+    ],
+  });
+  if (!yes) return;
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  const res = await fetch(`${FN_BASE}/manage-files`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token || ''}` },
+    body: JSON.stringify({ action: 'delete', order_id: orderId }),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok || !json.success) {
+    await appAlert(t('mf_err_delete'), {icon:'error'});
+    return;
+  }
+  await loadMyFiles();
+}
 
 function renderKpis(){
   document.getElementById('kpiBalanceNum').textContent = totalSlots();
@@ -7848,7 +8062,7 @@ async function loadDashboardData(){
   }
 
   // loadUserProfile skips itself after first success (_profileLoaded flag)
-  await Promise.all([ loadUserProfile(), loadOrders(), loadWallet(), loadSlots(), refreshServiceAvailability(), loadTickets(), loadApiSettings(), loadNotifications() ]);
+  await Promise.all([ loadUserProfile(), loadOrders(), loadWallet(), loadSlots(), refreshServiceAvailability(), loadMyFiles(), loadTickets(), loadApiSettings(), loadNotifications() ]);
   updatePrice();
   renderOrders();
   renderKpis();

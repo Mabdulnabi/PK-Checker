@@ -1,0 +1,86 @@
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "jsr:@supabase/supabase-js@2";
+
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const BUCKET = "order-reports";
+const FINAL_STATUSES = ["completed", "error", "rejected", "failed_invalid", "cancelled"];
+
+const cors = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+// Removes an order's report files from storage, then marks the order purged.
+// The order row stays, for billing history.
+async function purgeOrder(admin: ReturnType<typeof createClient>, orderId: string): Promise<number> {
+  const paths: string[] = [];
+  for (const folder of ["sim-reports", "ai-reports"]) {
+    const { data, error } = await admin.storage.from(BUCKET).list(`${folder}/${orderId}`, { limit: 100 });
+    if (error) throw error;
+    for (const f of data ?? []) {
+      if (f.name) paths.push(`${folder}/${orderId}/${f.name}`);
+    }
+  }
+  if (paths.length) {
+    const { error } = await admin.storage.from(BUCKET).remove(paths);
+    if (error) throw error;
+  }
+  const { error: markErr } = await admin.rpc("mark_order_purged", { p_order_id: orderId });
+  if (markErr) throw markErr;
+  return paths.length;
+}
+
+Deno.serve(async (req: Request) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+
+  const json = (body: unknown, status = 200) =>
+    new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
+
+  try {
+    const body = await req.json();
+    const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    // Scheduled purge: only touches orders already past 48 hours, so it is safe to call.
+    if (body.action === "purge_due") {
+      const { data: due, error } = await admin.rpc("orders_due_for_purge");
+      if (error) throw error;
+      let purgedFiles = 0;
+      for (const row of due ?? []) {
+        purgedFiles += await purgeOrder(admin, row.id);
+      }
+      return json({ success: true, orders: (due ?? []).length, files: purgedFiles });
+    }
+
+    // Customer delete: only their own order, and only once the check has finished.
+    if (body.action === "delete") {
+      const authHeader = req.headers.get("Authorization");
+      if (!authHeader) return json({ success: false, error: "Unauthorized" }, 401);
+      const caller = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: userData, error: userErr } = await caller.auth.getUser();
+      if (userErr || !userData?.user) return json({ success: false, error: "Unauthorized" }, 401);
+
+      const { data: order } = await admin
+        .from("orders")
+        .select("id, user_id, status, purged_at")
+        .eq("id", body.order_id)
+        .maybeSingle();
+      if (!order || order.user_id !== userData.user.id) return json({ success: false, error: "Not found" }, 404);
+      if (order.purged_at) return json({ success: true, alreadyDeleted: true });
+      if (!FINAL_STATUSES.includes(order.status)) {
+        return json({ success: false, code: "STILL_PROCESSING" }, 409);
+      }
+
+      await purgeOrder(admin, order.id);
+      return json({ success: true });
+    }
+
+    return json({ success: false, error: "Unknown action" }, 400);
+  } catch (err) {
+    console.error("manage-files error:", err);
+    return json({ success: false, error: "Internal server error" }, 500);
+  }
+});
