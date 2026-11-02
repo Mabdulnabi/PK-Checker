@@ -6951,8 +6951,15 @@ function renderMyHistory(){
   }
 
   // Filters
-  const counts = { all: events.length, added: 0, scan: 0, orders: 0 };
-  events.forEach(e => { const k = histKind(e); if (k === 'added') counts.added++; else if (k === 'scan') counts.scan++; else counts.orders++; });
+  // The ledger starts today: older rows are kept in the data but not shown.
+  const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+  const isToday = e => e.at && new Date(e.at) >= todayStart;
+  const counts = { all: 0, added: 0, scan: 0, orders: 0 };
+  events.filter(isToday).forEach(e => {
+    counts.all++;
+    const k = histKind(e);
+    if (k === 'added') counts.added++; else if (k === 'scan') counts.scan++; else counts.orders++;
+  });
   const filters = [
     ['all',    hx('الكل', 'All'),           counts.all],
     ['added',  hx('مضاف (+)', 'Added (+)'), counts.added],
@@ -6978,6 +6985,7 @@ function renderMyHistory(){
 
   const q = (document.getElementById('histSearch')?.value || '').trim().toLowerCase();
   const rows = events.filter(e => {
+    if (!isToday(e)) return false;
     if (histFilter !== 'all' && histKind(e) !== histFilter && !(histFilter === 'scan' && e.kind === 'scan')) return false;
     if (!q) return true;
     const act = histActivity(e);
