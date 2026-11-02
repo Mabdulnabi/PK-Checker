@@ -25,7 +25,7 @@ Deno.serve(async (req: Request) => {
     const { data: { user }, error: authErr } = await admin.auth.getUser(authHeader.replace("Bearer ", ""));
     if (authErr || !user) return json({ success: false, error: "Unauthorized" }, 401);
 
-    const { order_id } = await req.json();
+    const { order_id, grant_id } = await req.json();
     if (!order_id) return json({ success: false, error: "order_id is required" }, 400);
 
     const { data: order } = await admin
@@ -42,6 +42,7 @@ Deno.serve(async (req: Request) => {
       p_slot_type: service,
       p_idempotency_key: `order:${order_id}`,
       p_order_id: order_id,
+      p_grant_id: grant_id || null,
     });
     if (reserveErr) {
       if (String(reserveErr.message).includes("NO_SLOT_AVAILABLE")) {

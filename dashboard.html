@@ -918,9 +918,25 @@
   .sf-slotbadge{flex:none;font-size:11px;font-weight:800;padding:3px 9px;border-radius:8px;background:var(--ok);color:#fff;font-family:'Cairo',sans-serif;}
   .sf-slotchev{flex:none;width:16px;height:16px;fill:none;stroke:#0F5132;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
   .sf-browse{margin-top:8px;background:var(--blue);color:#fff;border:none;border-radius:9px;padding:8px 18px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;}
-  .sf-terms-cards{display:flex;flex-direction:column;gap:12px;}
+  .sf-terms-cards{display:flex;flex-direction:column;gap:12px;margin-top:18px;}
   .sf-terms-cards .plan-limits-box,.sf-terms-cards .req-card{margin-bottom:0;}
   #lastOrderCard{display:none !important;}
+  .sf-dd{position:relative;}
+  .sf-dd-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--ok-wash);border:1.5px solid var(--ok);border-radius:14px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13.5px;font-weight:800;color:#0F5132;cursor:pointer;text-align:start;}
+  .sf-dd-btn:disabled{cursor:default;opacity:.7;}
+  .sf-dd-btn svg{flex:none;width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .sf-dd-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .sf-dd-list{margin-top:6px;border:1.5px solid var(--paper-line);border-radius:14px;background:var(--paper);overflow:hidden;}
+  .sf-dd-item{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;border:none;border-bottom:1px solid var(--paper-line);padding:11px 14px;background:transparent;font-family:'Cairo',sans-serif;text-align:start;cursor:pointer;color:var(--navy);}
+  .sf-dd-item:last-child{border-bottom:none;}
+  .sf-dd-item b{display:block;font-size:13px;}
+  .sf-dd-item small{font-size:11.5px;color:var(--muted);}
+  .sf-dd-item-status{font-size:12px;font-weight:800;white-space:nowrap;}
+  .sf-dd-item.ok .sf-dd-item-status{color:var(--ok);}
+  .sf-dd-item.bad{cursor:not-allowed;}
+  .sf-dd-item.bad .sf-dd-item-status{color:var(--danger);}
+  .sf-dd-item.sel{background:var(--ok-wash);}
+  .sec-head .submit-files-row{margin:0 0 0 auto;}
   .redeem-code-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;margin:14px auto 0;background:var(--ok);color:#fff;border:none;border-radius:999px;padding:9px 18px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 6px 16px -6px rgba(14,159,110,0.6);transition:filter .2s,transform .2s;}
   .redeem-code-btn:hover{filter:brightness(1.07);}
   .redeem-code-btn:active{transform:scale(0.98);}
@@ -1833,14 +1849,14 @@
        <h2 data-i18n="newcheck_title">طلب فحص جديد</h2>
           <span class="hint" data-i18n="newcheck_hint">ملف واحد في الطلب الواحد</span>
         </div>
+      <div class="submit-files-row">
+        <button class="btn btn-primary submit-files-btn" type="button" onclick="openSubmitFilesModal()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg> <span data-i18n="sf_open_btn">إرسال الملفات</span></button>
+      </div>
       </div>
 
       <!-- Service-off banner: shown when service_enabled=false -->
       <div id="serviceOffBanner" style="display:none;background:var(--danger-wash);color:var(--danger);border-radius:10px;padding:12px 16px;margin-bottom:14px;font-size:13px;font-weight:700;text-align:center;"></div>
 
-      <div class="submit-files-row">
-        <button class="btn btn-primary submit-files-btn" type="button" onclick="openSubmitFilesModal()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg> <span data-i18n="sf_open_btn">إرسال الملفات</span></button>
-      </div>
 
       <div class="uploadzone" id="uploadzoneBox">
         <input type="file" id="fileInput" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;">
@@ -2436,10 +2452,12 @@
       <button class="sf-close" type="button" onclick="closeSubmitFilesModal()" aria-label="Close">✕</button>
     </div>
     <div class="sf-body">
-      <div class="sf-slotbar">
-        <select class="sf-slotselect" id="sfSlotType" aria-label="Slot type"></select>
-        <span class="sf-slotbadge">S1</span>
-        <svg class="sf-slotchev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      <div class="sf-dd" id="sfDD">
+        <button class="sf-dd-btn" id="sfDDBtn" type="button" onclick="sfToggleDD()" aria-haspopup="listbox" aria-expanded="false">
+          <span class="sf-dd-label" id="sfDDLabel"></span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="sf-dd-list" id="sfDDList" role="listbox" style="display:none;"></div>
       </div>
 
       <div id="sfStepFile">
@@ -2800,7 +2818,7 @@ const I18N = {
     tour_done_title:"كل حاجة واضحة؟", tour_done_desc:"الجولة التعريفية خلصت. تقدر تبدأ دلوقتي وترفع أول ملف بثقة. بالتوفيق! 🌟",
     kpi_slots_label:"فحوصات متبقية", kpi_expiry_label:"تاريخ انتهاء الفحوصات", kpi_api_status:"حالة الـ API",
     api_active:"نشط", api_inactive:"متوقف", expiry_days_left:"باقي {d} يوم", sf_no_expiry:"بدون انتهاء", sf_no_slots_short:"لا توجد فحوصات",
-    sf_open_btn:"إرسال الملفات", sf_title:"Pro Keys · رفع الملفات", sf_slot_label:"نوع الفحص", sf_no_slots:"مفيش فحوصات متاحة",
+    sf_open_btn:"إرسال الملفات", sf_opt_left:"{n} فحص متبقي", sf_opt_none:"خلصت", sf_opt_expired:"منتهية", sf_opt_until:"تنتهي: {d}", sf_slot_pick:"اختار الباقة", sf_pick_slot_err:"اختار باقة متاحة الأول", sf_title:"Pro Keys · رفع الملفات", sf_slot_label:"نوع الفحص", sf_no_slots:"مفيش فحوصات متاحة",
     sf_opt_label:"Plagiarism + AI ({n} فحص متبقي - تنتهي: {d})", sf_pick:"ارفع ورقتك البحثية أو رسالتك هنا", sf_formats:"PDF أو DOCX فقط، حتى 100MB", sf_browse:"تصفح الملف",
     sf_err_format:"الصيغة دي مش مدعومة. ارفع ملف DOCX أو PDF بس.", sf_err_size:"الملف أكبر من 100MB", sf_terms_title:"شروط الاستخدام",
     sf_filters_title:"فلاتر التحليل", sf_f_bib:"استبعاد المراجع", sf_f_quo:"استبعاد الاقتباسات", sf_f_cit:"استبعاد الاستشهادات داخل النص",
@@ -2983,7 +3001,7 @@ const I18N = {
     tour_done_title:"All set!", tour_done_desc:"The tour is complete. You're ready to upload your first file with confidence. Good luck! 🌟",
     kpi_slots_label:"Slots remaining", kpi_expiry_label:"Slots expiry date", kpi_api_status:"API status",
     api_active:"Active", api_inactive:"Inactive", expiry_days_left:"{d} days left", sf_no_expiry:"No expiry", sf_no_slots_short:"No slots",
-    sf_open_btn:"Submit Files", sf_title:"Pro Keys · Submit Files", sf_slot_label:"Slot type", sf_no_slots:"No slots available",
+    sf_open_btn:"Submit Files", sf_opt_left:"{n} checks left", sf_opt_none:"Used up", sf_opt_expired:"Expired", sf_opt_until:"Expires: {d}", sf_slot_pick:"Choose a package", sf_pick_slot_err:"Choose an available package first", sf_title:"Pro Keys · Submit Files", sf_slot_label:"Slot type", sf_no_slots:"No slots available",
     sf_opt_label:"Plagiarism + AI ({n} Slots Remaining - Next Expiry: {d})", sf_pick:"Drag & drop your research paper or thesis here", sf_formats:"PDF or DOCX only, up to 100MB", sf_browse:"Browse Local File",
     sf_err_format:"This file type isn't supported. Upload a DOCX or PDF file.", sf_err_size:"The file is larger than 100MB", sf_terms_title:"Terms & Conditions",
     sf_filters_title:"Analysis filters", sf_f_bib:"Exclude bibliography", sf_f_quo:"Exclude quotes", sf_f_cit:"Exclude citations",
@@ -6565,6 +6583,7 @@ async function submitCheckToApi(orderId, file){
 
   const fd = new FormData();
   fd.append('order_id', orderId);
+  if (pendingGrantId) fd.append('grant_id', pendingGrantId);
   fd.append('file', file);
   // Filters come from the Submit Files popup, each one independent.
   if (document.getElementById('sfQuo')?.checked) fd.append('excludeQuotes', 'true');
@@ -6859,6 +6878,7 @@ async function loadSlots(){
       slotExpiryInfo.next = r.next_expires_at;
     }
   });
+  allGrants = data?.all_grants || [];
   _slotsLoaded = true;
   renderExpiryCard();
   buildSlotDropdown();
@@ -6912,7 +6932,7 @@ async function reserveOrderSlot(orderRow){
   const res = await fetch(`${FN_BASE}/reserve-order-slot`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
-    body: JSON.stringify({ order_id: orderRow.id }),
+    body: JSON.stringify({ order_id: orderRow.id, grant_id: pendingGrantId }),
   });
   const json = await res.json();
   if (!res.ok || !json.success) {
@@ -7367,20 +7387,63 @@ function renderTerms(){
 }
 
 // Only the slot types the customer has. Plagiarism Only is hidden for now.
+// Every package the customer has (from slot_summary.all_grants). Available ones are green,
+// used-up or expired ones are red and can't be picked.
+let allGrants = [];
+let sfSelectedGrant = null;
+let pendingGrantId = null; // set only while the popup is uploading
+
+function grantLabel(g){ return currentLang === 'ar' ? g.name_ar : g.name_en; }
+function grantExpiryText(g){
+  return g.expires_at ? t('sf_opt_until').replace('{d}', fmtExpiryDate(g.expires_at)) : t('sf_no_expiry');
+}
+function grantStatusText(g){
+  if (g.available) return t('sf_opt_left').replace('{n}', g.remaining);
+  const expired = g.expires_at && new Date(g.expires_at) <= new Date();
+  return expired ? t('sf_opt_expired') : t('sf_opt_none');
+}
+
 function buildSlotDropdown(){
-  const sel = document.getElementById('sfSlotType');
-  if (!sel) return;
-  const n = slotsByType.plag_ai || 0;
-  if (n < 1) {
-    sel.innerHTML = `<option value="">${escapeHtml(t('sf_no_slots'))}</option>`;
-    sel.disabled = true;
+  const list = document.getElementById('sfDDList');
+  if (!list) return;
+  const rows = allGrants
+    .filter(g => g.slot_type === 'plag_ai')
+    .sort((a, b) => (b.available - a.available) || (new Date(a.expires_at || 8640000000000000) - new Date(b.expires_at || 8640000000000000)));
+  if (!rows.length) {
+    list.innerHTML = '';
+    sfSelectedGrant = null;
+    document.getElementById('sfDDLabel').textContent = t('sf_no_slots');
+    document.getElementById('sfDDBtn').disabled = true;
     return;
   }
-  sel.disabled = false;
-  const expiry = slotExpiryInfo.unlimited || !slotExpiryInfo.next
-    ? t('sf_no_expiry')
-    : fmtExpiryDate(slotExpiryInfo.next);
-  sel.innerHTML = `<option value="plag_ai">${escapeHtml(t('sf_opt_label').replace('{n}', n).replace('{d}', expiry))}</option>`;
+  document.getElementById('sfDDBtn').disabled = false;
+  list.innerHTML = rows.map(g => `<button type="button" class="sf-dd-item ${g.available ? 'ok' : 'bad'}" data-grant="${g.grant_id}" ${g.available ? '' : 'disabled'} onclick="sfSelectGrant('${g.grant_id}')">
+      <span><b>${escapeHtml(grantLabel(g))}</b> <small>${escapeHtml(grantExpiryText(g))}</small></span>
+      <span class="sf-dd-item-status">${escapeHtml(grantStatusText(g))}</span>
+    </button>`).join('');
+  // Keep the current pick if it is still available, otherwise take the first available one.
+  const keep = rows.find(g => g.grant_id === (sfSelectedGrant && sfSelectedGrant.grant_id) && g.available);
+  const first = rows.find(g => g.available);
+  sfSelectGrant(keep ? keep.grant_id : (first ? first.grant_id : null), true);
+}
+
+function sfSelectGrant(id, silent){
+  const g = allGrants.find(x => x.grant_id === id);
+  sfSelectedGrant = g && g.available ? g : null;
+  document.getElementById('sfDDLabel').textContent = g
+    ? `${grantLabel(g)} — ${grantStatusText(g)}`
+    : t('sf_slot_pick');
+  document.querySelectorAll('.sf-dd-item').forEach(b =>
+    b.classList.toggle('sel', !!sfSelectedGrant && b.dataset.grant === sfSelectedGrant.grant_id));
+  if (!silent) sfToggleDD(false);
+}
+
+function sfToggleDD(force){
+  const list = document.getElementById('sfDDList');
+  const btn = document.getElementById('sfDDBtn');
+  const open = typeof force === 'boolean' ? force : list.style.display === 'none';
+  list.style.display = open ? 'block' : 'none';
+  btn.setAttribute('aria-expanded', String(open));
 }
 
 function sfSetStep(step){
@@ -7440,16 +7503,21 @@ async function sfUploadFile(){
     sfSetStep('file');
     return;
   }
-  // Only Plagiarism + AI is offered for now.
-  if (document.getElementById('sfSlotType').value !== 'plag_ai' || (slotsByType.plag_ai || 0) < 1) return;
+  if (!sfSelectedGrant || !sfSelectedGrant.available) {
+    document.getElementById('sfError').textContent = t('sf_pick_slot_err');
+    return;
+  }
 
+  // Only Plagiarism + AI is offered for now.
   checkType = 'both';
   currentFile = sfFile;
+  pendingGrantId = sfSelectedGrant.grant_id;
   btn.disabled = true;
   try {
     await submitOrder();
   } finally {
     btn.disabled = false;
+    pendingGrantId = null;
     if (!currentFile) {
       sfFile = null;
       _uploadAreaDone = true;

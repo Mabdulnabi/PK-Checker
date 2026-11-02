@@ -79,6 +79,7 @@ Deno.serve(async (req: Request) => {
     const exBiblio = fd.get("excludeBibliography") === "true";
     const exCit = fd.get("excludeCitations") === "true";
     const exSmallLim = fd.get("excludeSmallMatchesWordLimit") as string | null;
+    const grantId = (fd.get("grant_id") as string | null) || null; // the package the customer picked
 
     if (!orderId || !file) return cors_json({ success: false, error: "Missing order_id or file" }, 400);
 
@@ -110,6 +111,7 @@ Deno.serve(async (req: Request) => {
       p_slot_type: service,
       p_idempotency_key: slotKey,
       p_order_id: orderId,
+      p_grant_id: grantId,
     });
     if (reserveErr) {
       if (String(reserveErr.message).includes("NO_SLOT_AVAILABLE")) {
