@@ -2698,12 +2698,14 @@ const I18N = {
     tour_download_title:"حمّل التقرير وقيّم تجربتك", tour_download_desc:"زرار التحميل بيحملك التقرير مباشرةً. بعده هتظهر لك نجوم التقييم — رأيك بيساعدنا نتحسن!",
     tour_support_title:"محتاج مساعدة؟", tour_support_desc:"افتح تذكرة دعم أو كلمنا على اللايف شات من الفقاعة الزرقاء في أسفل الشاشة — فريقنا دايماً موجود.",
     tour_done_title:"كل حاجة واضحة؟", tour_done_desc:"الجولة التعريفية خلصت. تقدر تبدأ دلوقتي وترفع أول ملف بثقة. بالتوفيق! 🌟",
+    slot_unit:"slot", slot_none_msg:"ماعندكش slots من النوع ده. اشتري باقة وهتظهر هنا.", slot_buy_btn:"اشتري باقة",
+    slot_maint_btn:"الموقع تحت الصيانة", slot_maint_default:"النظام تحت الصيانة حالياً، حاول بعد قليل.",
     redeem_btn:"كود خصم", redeem_modal_title:"كود خصم", redeem_modal_sub:"فعّل الكود اللي معاك",
     redeem_input_ph:"أدخل الكود هنا", redeem_submit:"تفعيل الكود", redeem_err_empty:"من فضلك أدخل الكود",
     redeem_err_used:"الكود ده اتستخدم قبل كده", redeem_err_invalid:"الكود غير صحيح، اتأكد من كتابته",
     redeem_err_limit:"محاولات كتير غلط، استنى شوية وحاول تاني", redeem_err_auth:"انتهت جلستك، سجّل الدخول من جديد", redeem_err_generic:"حصلت مشكلة، حاول تاني",
     redeem_success:"اتضاف {n} كريديت لرصيدك ✅",
-    kpi_topup:"شحن +", kpi_credits_unit:"كريديت", credit_unit_singular:"كريديت", kpi_balance:"رصيدك الحالي",
+    kpi_topup:"شحن +", kpi_credits_unit:"slot", credit_unit_singular:"كريديت", kpi_balance:"رصيدك الحالي",
     kpi_processing:"قيد الفحص الآن", kpi_floating:"رصيد عائم (معلّق)",
     kpi_completed_label:"مكتمل بالكامل", kpi_rejected_word:"مرفوض", kpi_cancelled_word:"ملغي",
     balance_check_title:"الدفع من رصيدك", balance_current_label:"رصيدك الحالي",
@@ -2871,12 +2873,14 @@ const I18N = {
     tour_download_title:"Download & rate your experience", tour_download_desc:"The download button fetches your report directly. Afterwards the star rating appears — your feedback helps us improve!",
     tour_support_title:"Need help?", tour_support_desc:"Open a support ticket or chat with us via the blue bubble at the bottom of the screen — our team is always here.",
     tour_done_title:"All set!", tour_done_desc:"The tour is complete. You're ready to upload your first file with confidence. Good luck! 🌟",
+    slot_unit:"slot", slot_none_msg:"You have no slots of this type. Buy a package and it will show here.", slot_buy_btn:"Buy a package",
+    slot_maint_btn:"System under maintenance", slot_maint_default:"The system is under maintenance right now. Please try again shortly.",
     redeem_btn:"Redeem Code", redeem_modal_title:"Redeem Code", redeem_modal_sub:"Activate your purchased code",
     redeem_input_ph:"ENTER CODE", redeem_submit:"REDEEM NOW", redeem_err_empty:"Please enter the code",
     redeem_err_used:"This code has already been used", redeem_err_invalid:"Invalid code, please check it and try again",
     redeem_err_limit:"Too many failed attempts, please wait a bit and try again", redeem_err_auth:"Your session expired, please sign in again", redeem_err_generic:"Something went wrong, please try again",
     redeem_success:"{n} credits added to your balance ✅",
-    kpi_topup:"Top up", kpi_credits_unit:"credits", credit_unit_singular:"credit", kpi_balance:"Current balance",
+    kpi_topup:"Top up", kpi_credits_unit:"slots", credit_unit_singular:"credit", kpi_balance:"Current balance",
     kpi_processing:"Processing now", kpi_floating:"Floating (pending)",
     kpi_completed_label:"Total completed", kpi_rejected_word:"rejected", kpi_cancelled_word:"cancelled",
     balance_check_title:"Pay from your balance", balance_current_label:"Your current balance",
@@ -6150,31 +6154,48 @@ fileChipRemove.addEventListener('click', (e)=>{
 let userBalance = 0; // loaded from Supabase wallet_transactions (latest balance_after)
 let _balanceLoaded = false; // guard: don't show insufficient-balance warning before first load
 
+/* ---------- Slots and service availability ---------- */
+let slotsByType = { plag_ai: 0, plag_only: 0 }; // remaining slots per check type (slot_summary)
+let _slotsLoaded = false;
+let serviceAvailability = {};                   // per check type (check-availability)
+let _availabilityLoaded = false;
+
+function checkTypeService(){ return checkType==='sim' ? 'plag_only' : 'plag_ai'; }
+function totalSlots(){ return (slotsByType.plag_ai || 0) + (slotsByType.plag_only || 0); }
+
 function updatePrice(){
-  const fileCount = currentFile && currentFile.name ? 1 : 0;
-  const perFile = checkType==='sim' ? 10 : 20;
-  const total = fileCount * perFile || perFile;
-  document.getElementById('priceOut').innerHTML = total+' <small>'+t('credits_deducted')+'</small>';
-  document.getElementById('balanceCheckNeed').textContent = total;
-  document.getElementById('balanceCheckNum').textContent = userBalance;
-  updateSubmitState(total);
+  const service = checkTypeService();
+  document.getElementById('priceOut').innerHTML = '1 <small>'+t('slot_unit')+'</small>';
+  document.getElementById('balanceCheckNeed').textContent = 1;
+  document.getElementById('balanceCheckNum').textContent = slotsByType[service] || 0;
+  updateSubmitState(service);
 }
 
 let _orderSubmitting = false;
-function updateSubmitState(needed){
+function updateSubmitState(service){
   if (_orderSubmitting) return;
   const btn = document.getElementById('submitBtn');
   const warn = document.getElementById('balanceWarning');
-  // The warning is about the file waiting to be sent. With no file selected,
-  // the default price must not look like an error (e.g. right after a check
-  // was sent and the balance dropped below the default cost).
-  const insufficient = _balanceLoaded && !!currentFile && userBalance < needed;
-  warn.style.display = insufficient ? 'flex' : 'none';
-  if(insufficient){
+  const avail = serviceAvailability[service];
+  const maintenance = _availabilityLoaded && (!avail || !avail.available);
+  // "No slots" is only shown once a file is selected. Maintenance is shown to everyone.
+  const noSlots = _slotsLoaded && (slotsByType[service] || 0) < 1;
+  const showWarn = maintenance || (noSlots && !!currentFile);
+  warn.style.display = showWarn ? 'flex' : 'none';
+  if (maintenance) {
+    warn.querySelector('span').textContent = serviceMessage(service);
+    btn.classList.remove('needs-topup');
+    btn.setAttribute('onclick', 'return false;');
+    btn.disabled = true;
+    btn.textContent = t('slot_maint_btn');
+  } else if (noSlots) {
+    warn.querySelector('span').textContent = t('slot_none_msg');
+    btn.disabled = false;
     btn.classList.add('needs-topup');
     btn.setAttribute('onclick', "goTab('wallet')");
-    btn.textContent = t('topup_now');
+    btn.textContent = t('slot_buy_btn');
   } else {
+    btn.disabled = false;
     btn.classList.remove('needs-topup');
     btn.setAttribute('onclick', 'submitOrder()');
     btn.textContent = t('submit_to_queue');
@@ -6436,7 +6457,12 @@ async function submitCheckToApi(orderId, file){
     });
     const json = await res.json();
     if (!res.ok || !json.success) {
-      return { ok: false, error: json.error || (currentLang==='ar' ? 'رفض المزوّد الطلب' : 'Provider rejected the submission') };
+      // MAINTENANCE / NO_SLOTS come back with a message the customer can read.
+      const userMessage = json.code === 'MAINTENANCE'
+        ? ((currentLang === 'ar' ? json.message_ar : json.message_en) || t('slot_maint_default'))
+        : (json.code === 'NO_SLOTS' ? t('slot_none_msg') : null);
+      return { ok: false, code: json.code, userMessage,
+        error: json.error || json.code || (currentLang==='ar' ? 'رفض المزوّد الطلب' : 'Provider rejected the submission') };
     }
     // submit-check returns externalOrderId on success — the dashboard MUST
     // store this locally right away (not just wait for a future page
@@ -6595,17 +6621,6 @@ async function backupOrderSourceFile(orderRow, fileToSubmit, fileName){
   }
 }
 
-// Step 2: deducts credits server-side — cost and current balance are both
-// computed authoritatively inside this RPC, never trusting client-supplied
-// numbers (see deduct_credits_for_order() migration for the full security
-// rationale). Throws on failure, same as before extraction.
-async function deductOrderCredits(orderRow, checkTypeDb){
-  const { data: newBalance, error: walletError } = await supabaseClient
-    .rpc('deduct_credits_for_order', { p_order_id: orderRow.id, p_check_type: checkTypeDb });
-  if (walletError) throw walletError;
-  return newBalance;
-}
-
 // Step 3: optimistic local UI state for the new order — unchanged from the
 // original inline code, just named.
 function addOrderToLocalState(orderRow, fileName, fileToSubmit, checkTypeDb, willUseApi){
@@ -6678,7 +6693,11 @@ async function submitOrderViaApi(orderRow, fileToSubmit){
     const localOrderFailed = orders.find(o => o.id === orderRow.id);
     if (localOrderFailed) localOrderFailed.phase = 'error';
     renderOrders();
-    await appAlert((currentLang==='ar' ? 'تم إنشاء الطلب لكن حدث خطأ أثناء إرساله لخدمة الفحص: ' : 'Order created, but something went wrong submitting it to the check service: ') + apiResult.error, {icon:'error'});
+    if (apiResult.userMessage) {
+      await appAlert(apiResult.userMessage, {icon:'warning'});
+    } else {
+      await appAlert((currentLang==='ar' ? 'تم إنشاء الطلب لكن حدث خطأ أثناء إرساله لخدمة الفحص: ' : 'Order created, but something went wrong submitting it to the check service: ') + apiResult.error, {icon:'error'});
+    }
   }
 }
 
@@ -6700,6 +6719,71 @@ async function finalizeManualOrder(orderRow){
   await appAlert(currentLang==='ar' ? 'تم إرسال ملفك لخدمة الفحص بنجاح.' : 'Your file was submitted to the check service successfully.', {icon:'success'});
 }
 
+async function loadSlots(){
+  const { data, error } = await supabaseClient.rpc('slot_summary');
+  if (error) { console.error('loadSlots failed:', error); return; }
+  slotsByType = { plag_ai: 0, plag_only: 0 };
+  (data?.by_type || []).forEach(r => { slotsByType[r.slot_type] = Number(r.remaining) || 0; });
+  _slotsLoaded = true;
+}
+
+// A failed or missing response counts as "unavailable", so a customer is never sent into a dead provider.
+async function refreshServiceAvailability(){
+  try {
+    const res = await fetch(`${FN_BASE}/check-availability`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+      body: '{}',
+    });
+    const json = await res.json();
+    serviceAvailability = json.services || {};
+  } catch (e) {
+    console.error('refreshServiceAvailability failed:', e);
+    serviceAvailability = {};
+  }
+  _availabilityLoaded = true;
+}
+
+function serviceMessage(service){
+  const a = serviceAvailability[service];
+  const fallback = t('slot_maint_default');
+  if (!a) return fallback;
+  return (currentLang === 'ar' ? a.message_ar : a.message_en) || fallback;
+}
+
+// Every check needs one slot of its type and a provider that is available right now.
+async function canSubmitService(service){
+  await refreshServiceAvailability();
+  const a = serviceAvailability[service];
+  if (!a || !a.available) {
+    await appAlert(serviceMessage(service), {icon:'warning'});
+    return false;
+  }
+  await loadSlots();
+  if ((slotsByType[service] || 0) < 1) {
+    await appAlert(t('slot_none_msg'), {icon:'warning'});
+    return false;
+  }
+  return true;
+}
+
+// Manual-review orders skip the provider but still use one slot, once per order.
+async function reserveOrderSlot(orderRow){
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  const accessToken = sessionData?.session?.access_token;
+  const res = await fetch(`${FN_BASE}/reserve-order-slot`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+    body: JSON.stringify({ order_id: orderRow.id }),
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) {
+    const code = json.code || json.error || 'RESERVE_FAILED';
+    await supabaseClient.from('orders').update({ status: 'error', error_reason: code }).eq('id', orderRow.id);
+    throw new Error(code);
+  }
+}
+
 async function submitOrder(){
   if (_orderSubmitting) return;
   if (!PROKEYS_USER_ID) { window.location.href = 'index.html'; return; }
@@ -6707,10 +6791,14 @@ async function submitOrder(){
     showUploadError(currentLang==='ar' ? 'من فضلك اختر ملفًا أولاً' : 'Please choose a file first');
     return;
   }
-  const perFile = checkType==='sim' ? 10 : 20;
-  const cost = perFile;
-  if(userBalance < cost) return;
   _orderSubmitting = true; // safety guard — button should already be disabled/redirecting
+  // Availability and slots are checked before the order row exists, so a
+  // maintenance or no-slot case never creates a half-finished order.
+  if (!(await canSubmitService(checkTypeService()))) {
+    _orderSubmitting = false;
+    updatePrice();
+    return;
+  }
 
   const fileToSubmit = currentFile; // hold a reference: currentFile gets reset before the API call returns
   const fileName = fileToSubmit.name;
@@ -6720,8 +6808,6 @@ async function submitOrder(){
   // report files too — so once the admin turns the global API toggle off,
   // EVERY check type must go manual, not just sim-only.
   const willUseApi = checkSettings.api_mode_enabled && (checkType === 'both' ? true : simOnlyViaApi);
-  const balanceBefore = userBalance;
-  const balanceAfter = userBalance - cost;
 
   const btn = document.getElementById('submitBtn');
   const prevText = btn.textContent;
@@ -6735,18 +6821,8 @@ async function submitOrder(){
     // Best-effort temp copy of the original file — never blocks the check submission.
     await backupOrderSourceFile(orderRow, fileToSubmit, fileName);
 
-    // 2) Deduct credits server-side.
-    let newBalance;
-    try {
-      newBalance = await deductOrderCredits(orderRow, checkTypeDb);
-    } catch (deductErr) {
-      // Clean up the orphaned order row so it doesn't appear in customer history
-      await supabaseClient.from('orders').delete().eq('id', orderRow.id);
-      throw deductErr;
-    }
-
-    // 3) Update local state to reflect the new order immediately (optimistic UI)
-    userBalance = newBalance ?? userBalance;
+    // 2) Update local state to reflect the new order immediately (optimistic UI).
+    // The slot is reserved by submit-check (API) or reserve-order-slot (manual).
     addOrderToLocalState(orderRow, fileName, fileToSubmit, checkTypeDb, willUseApi);
 
     currentFile = null;
@@ -6759,13 +6835,19 @@ async function submitOrder(){
     if (willUseApi) {
       await submitOrderViaApi(orderRow, fileToSubmit);
     } else {
+      await reserveOrderSlot(orderRow);
       await finalizeManualOrder(orderRow);
     }
+    await loadSlots();
+    renderKpis();
+    updatePrice();
   } catch (err) {
     console.error('submitOrder failed:', err);
     const errMsg = err?.message || err?.toString() || '';
     let userMsg;
-    if (errMsg.includes('Insufficient balance') || errMsg.includes('insufficient')) {
+    if (errMsg.includes('NO_SLOTS')) {
+      userMsg = t('slot_none_msg');
+    } else if (errMsg.includes('Insufficient balance') || errMsg.includes('insufficient')) {
       userMsg = currentLang==='ar' ? 'رصيدك غير كافٍ. اشحن محفظتك أولاً.' : 'Insufficient balance. Please top up your wallet first.';
     } else if (errMsg.includes('Not authenticated') || errMsg.includes('session')) {
       userMsg = currentLang==='ar' ? 'انتهت جلستك. أعد تسجيل الدخول.' : 'Session expired. Please sign in again.';
@@ -7097,8 +7179,8 @@ async function submitRedeemCode(e){
 }
 
 function renderKpis(){
-  document.getElementById('kpiBalanceNum').textContent = userBalance;
-  document.getElementById('walletBalanceNum').textContent = Math.round(userBalance);
+  document.getElementById('kpiBalanceNum').textContent = totalSlots();
+  document.getElementById('walletBalanceNum').textContent = totalSlots();
   renderWalletCapacity();
   document.getElementById('kpiFloatingNum').textContent = orders.filter(o=>o.phase==='floating' || o.phase==='uploading' || o.phase==='pending').length;
   document.getElementById('kpiProcessingNum').textContent = orders.filter(o=>o.phase==='pending' || o.phase==='processing').length;
@@ -7389,7 +7471,7 @@ async function loadDashboardData(){
   }
 
   // loadUserProfile skips itself after first success (_profileLoaded flag)
-  await Promise.all([ loadUserProfile(), loadOrders(), loadWallet(), loadTickets(), loadApiSettings(), loadNotifications() ]);
+  await Promise.all([ loadUserProfile(), loadOrders(), loadWallet(), loadSlots(), refreshServiceAvailability(), loadTickets(), loadApiSettings(), loadNotifications() ]);
   updatePrice();
   renderOrders();
   renderKpis();
@@ -7564,6 +7646,7 @@ async function refreshCheckSettings(){
       .channel('wallet-realtime')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'wallet_transactions', filter: `user_id=eq.${PROKEYS_USER_ID}` }, async () => {
         await loadWallet();
+        await loadSlots();
         if (typeof renderKpis === 'function') renderKpis();
         if (typeof updatePrice === 'function') updatePrice();
         if (typeof loadOrderTransactions === 'function') loadOrderTransactions();
