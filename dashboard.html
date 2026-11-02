@@ -2184,7 +2184,7 @@
           <div class="wsc-exp" id="walletExpAI"></div>
         </div>
         <div class="credit-card credit-card-full wsc wsc-sim">
-          <div class="ctag">Similarity only</div>
+          <div class="ctag">Plagiarism Only</div>
           <div class="cbal latin" id="walletSlotsSim">0</div>
           <div class="csub" id="walletLblSim"></div>
           <div class="wsc-exp" id="walletExpSim"></div>
@@ -7297,8 +7297,8 @@ function renderWalletSlotCards(){
   const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   set('walletSlotsAI', String(slotsByType.plag_ai || 0));
   set('walletSlotsSim', String(slotsByType.plag_only || 0));
-  set('walletLblAI', ar ? 'فحص Sim + AI متاح' : 'Sim + AI checks left');
-  set('walletLblSim', ar ? 'فحص Sim only متاح' : 'Sim only checks left');
+  set('walletLblAI', ar ? 'Slot(s) متبقي' : 'Slot(s) left');
+  set('walletLblSim', ar ? 'Slot(s) متبقي' : 'Slot(s) left');
   const expText = (iso) => {
     if (!iso) return ar ? 'لا توجد صلاحية نشطة' : 'No active expiry';
     const dl = daysLeft(iso);
