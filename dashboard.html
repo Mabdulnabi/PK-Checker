@@ -1020,7 +1020,7 @@
   .hist-date small{display:block;color:var(--muted);font-weight:600;font-size:11px;margin-top:2px;}
   .hist-empty{text-align:center;padding:26px;color:var(--muted);font-size:13px;font-family:'Cairo',sans-serif;}
   @media (max-width:760px){
-    .hist-thead{display:none;}
+    .hist-thead,#histHead{display:none !important;}
     .hist-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 12px;align-items:start;
       grid-template-areas:"act status" "item date" "change balance";}
     .hist-row > .hist-cell:nth-child(1){grid-area:act;align-items:flex-start;text-align:start;}
