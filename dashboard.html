@@ -870,6 +870,48 @@
   input[type="text"],input[type="email"],input[type="tel"],input[type="password"],textarea,select{font-size:16px !important;}
 
   /* ===== GENERIC APP ALERT/CONFIRM MODAL ===== */
+  .submit-files-row{display:flex;justify-content:flex-end;margin-top:12px;}
+  .submit-files-btn{display:inline-flex;align-items:center;gap:8px;}
+  .submit-files-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .sf-overlay{z-index:9998;}
+  .sf-modal{background:var(--paper);border-radius:18px;max-width:520px;width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.2);font-family:'Cairo',sans-serif;}
+  [data-theme="dark"] .sf-modal{background:rgba(12,17,28,0.96);}
+  .sf-head{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--paper-line);}
+  .sf-head-icon{width:38px;height:38px;border-radius:12px;background:var(--blue-wash);color:var(--blue-deep);display:flex;align-items:center;justify-content:center;flex:none;}
+  .sf-head-icon svg,.sf-dropzone svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .sf-title{font-weight:800;font-size:15px;color:var(--navy);flex:1;}
+  .sf-close{background:none;border:none;font-size:18px;color:var(--muted);cursor:pointer;padding:6px;}
+  .sf-body{padding:16px 18px 18px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;-webkit-overflow-scrolling:touch;}
+  .sf-label{font-size:12px;font-weight:700;color:var(--muted);}
+  .sf-select{width:100%;padding:11px 12px;border:1.5px solid var(--paper-line);border-radius:10px;background:var(--paper-soft);color:var(--navy);font-family:'Cairo',sans-serif;font-size:13.5px;}
+  .sf-dropzone{border:2px dashed var(--paper-line);border-radius:14px;padding:26px 16px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;color:var(--muted);background:var(--paper-soft);}
+  .sf-dropzone:hover,.sf-dropzone:focus-visible,.sf-dropzone.drag{border-color:var(--blue);outline:none;}
+  .sf-dropzone b{color:var(--navy);font-size:14px;}
+  .sf-dropzone span{font-size:12px;}
+  .sf-error{color:#E0445B;font-size:12.5px;font-weight:600;}
+  .sf-error:empty{display:none;}
+  .sf-terms{border:1px solid var(--paper-line);border-radius:12px;padding:12px 14px;background:var(--paper-soft);margin-top:12px;}
+  .sf-terms-title{font-weight:800;font-size:13px;color:var(--navy);margin-bottom:6px;}
+  .sf-terms-body{font-size:12px;line-height:1.7;color:var(--muted);white-space:pre-line;}
+  .sf-chip{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--blue-wash);border-radius:10px;padding:10px 12px;}
+  .sf-chip-name{font-size:13px;font-weight:700;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;min-width:0;}
+  .sf-chip-remove{background:none;border:none;font-size:18px;color:var(--muted);cursor:pointer;padding:0 4px;flex:none;}
+  .sf-filters-title{font-weight:800;font-size:13.5px;color:var(--navy);margin:12px 0 4px;}
+  .sf-check{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--navy);min-height:40px;cursor:pointer;flex-wrap:wrap;}
+  .sf-check input[type=checkbox]{width:18px;height:18px;accent-color:var(--blue);flex:none;}
+  .sf-num{width:64px;padding:5px 8px;border:1.5px solid var(--paper-line);border-radius:8px;font-family:'Cairo',sans-serif;background:var(--paper);color:var(--navy);}
+  .sf-notice{background:var(--ok-wash);border:1px solid var(--ok);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;margin-top:10px;}
+  .sf-notice b{color:var(--ok);font-size:13px;}
+  .sf-notice span{font-size:12px;color:var(--navy);line-height:1.6;}
+  .sf-upload-btn{width:100%;margin-top:12px;background:var(--blue);color:#fff;border:none;border-radius:12px;padding:13px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:800;cursor:pointer;}
+  .sf-upload-btn:disabled{opacity:.6;cursor:wait;}
+  @media (max-width:600px){
+    .sf-modal{max-height:92vh;border-radius:16px;}
+    .sf-body{padding:14px;}
+    .sf-title{font-size:14px;}
+    .submit-files-row{justify-content:stretch;}
+    .submit-files-btn{width:100%;justify-content:center;}
+  }
   .redeem-code-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;margin:14px auto 0;background:var(--ok);color:#fff;border:none;border-radius:999px;padding:9px 18px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 6px 16px -6px rgba(14,159,110,0.6);transition:filter .2s,transform .2s;}
   .redeem-code-btn:hover{filter:brightness(1.07);}
   .redeem-code-btn:active{transform:scale(0.98);}
@@ -1751,7 +1793,7 @@
           <button class="topup-btn" onclick="goTab('wallet')" data-i18n="kpi_topup">شحن +</button>
           <div class="icon-circle" style="background:rgba(0,186,247,0.16);"><svg class="ic" data-icon-key="nc_balance" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5c0-1.4 1.3-2.5 3-2.5s3 1 3 2.2c0 2.8-6 1.8-6 5 0 1.4 1.3 2.3 3 2.3s3-1 3-2.3"/></svg></div>
           <div class="num"><span class="latin" id="kpiBalanceNum">17</span> <small data-i18n="kpi_credits_unit">كريديت</small></div>
-          <div class="lbl" data-i18n="kpi_balance">رصيدك الحالي</div>
+          <div class="lbl" data-i18n="kpi_slots_label">فحوصات متبقية</div>
           <button class="redeem-code-btn" type="button" onclick="openRedeemCodeModal()">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2"/></svg>
             <span data-i18n="redeem_btn">كود خصم</span>
@@ -1759,13 +1801,14 @@
         </div>
         <div class="kpi kpi-centered">
           <div class="icon-circle" style="background:var(--paper-soft);color:var(--muted);"><svg class="ic" data-icon-key="nc_floating" viewBox="0 0 24 24"><path d="M6 2h12M6 22h12M7 2c0 5 5 6 5 10s-5 5-5 10M17 2c0 5-5 6-5 10s5 5 5 10"/></svg></div>
-          <div class="num latin" id="kpiFloatingNum">0</div>
-          <div class="lbl" data-i18n="kpi_floating">رصيد عائم (معلّق)</div>
+          <div class="num" id="kpiExpiryText">—</div>
+          <div class="kpi-subcaption" id="kpiExpiryDays"></div>
+          <div class="lbl" data-i18n="kpi_expiry_label">تاريخ انتهاء الفحوصات</div>
         </div>
         <div class="kpi kpi-centered">
           <div class="icon-circle" style="background:var(--blue-wash);color:var(--blue-deep);"><svg class="ic" data-icon-key="nc_processing" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div>
-          <div class="num latin" id="kpiProcessingNum">2</div>
-          <div class="lbl" data-i18n="kpi_processing">قيد الفحص الآن</div>
+          <div class="num" id="kpiApiStatus">—</div>
+          <div class="lbl" data-i18n="kpi_api_status">حالة الـ API</div>
         </div>
         <div class="kpi kpi-centered">
           <div class="icon-circle"><svg class="ic" data-icon-key="nc_completed" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></div>
@@ -1800,6 +1843,9 @@
       </div>
 
       <div class="upload-error" id="uploadError" style="display:none;color:#E0445B;font-size:12px;margin-top:8px;"></div>
+      <div class="submit-files-row">
+        <button class="btn btn-primary submit-files-btn" type="button" onclick="openSubmitFilesModal()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg> <span data-i18n="sf_open_btn">إرسال الملفات</span></button>
+      </div>
 
       <!-- Plan Limits banner -->
       <div class="plan-limits-box">
@@ -1906,7 +1952,7 @@
         <div class="panel-block-head" style="cursor:default;">
           <span class="phicon"><svg class="ic" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
           <b data-i18n="last_order_title">آخر طلب لك</b>
-          <button class="btn btn-primary" style="padding:5px 14px;font-size:12px;margin-right:auto;" onclick="goTab('orders')" data-i18n="view_all_orders">عرض كل الطلبات</button>
+          <button class="btn btn-primary" style="display:none;padding:5px 14px;font-size:12px;margin-right:auto;" data-i18n="view_all_orders">عرض كل الطلبات</button>
         </div>
         <div class="panel-block-body" style="padding:0;gap:0;">
           <div class="orders-scroll" style="padding:14px 18px 18px;">
@@ -2416,6 +2462,50 @@
   </div>
 </div>
 
+<!-- Submit Files popup: slot type, file, terms, then analysis filters and Upload File -->
+<div class="app-modal-overlay sf-overlay" id="submitFilesOverlay" onclick="if(event.target===this)closeSubmitFilesModal()">
+  <div class="sf-modal" role="dialog" aria-modal="true" aria-labelledby="sfTitle">
+    <div class="sf-head">
+      <div class="sf-head-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg></div>
+      <div class="sf-title" id="sfTitle" data-i18n="sf_title">Pro Keys · رفع الملفات</div>
+      <button class="sf-close" type="button" onclick="closeSubmitFilesModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="sf-body">
+      <label class="sf-label" for="sfSlotType" data-i18n="sf_slot_label">نوع الفحص</label>
+      <select class="sf-select" id="sfSlotType"></select>
+
+      <div id="sfStepFile">
+        <input type="file" id="sfFileInput" accept=".pdf,.docx" style="display:none">
+        <div class="sf-dropzone" id="sfDropzone" role="button" tabindex="0">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+          <b data-i18n="sf_pick">اختر الملف أو اسحبه هنا</b>
+          <span data-i18n="sf_formats">DOCX أو PDF فقط، حتى 100MB</span>
+        </div>
+        <div class="sf-error" id="sfError" role="alert"></div>
+        <div class="sf-terms">
+          <div class="sf-terms-title" data-i18n="sf_terms_title">شروط الاستخدام</div>
+          <div class="sf-terms-body" id="sfTerms"></div>
+        </div>
+      </div>
+
+      <div id="sfStepFilters" style="display:none;">
+        <div class="sf-chip"><span class="sf-chip-name" id="sfChipName"></span><button class="sf-chip-remove" type="button" onclick="sfClearFile()" aria-label="Remove">×</button></div>
+        <div class="sf-filters-title" data-i18n="sf_filters_title">فلاتر التحليل</div>
+        <label class="sf-check"><input type="checkbox" id="sfBib"><span data-i18n="sf_f_bib">استبعاد المراجع</span></label>
+        <label class="sf-check"><input type="checkbox" id="sfQuo"><span data-i18n="sf_f_quo">استبعاد الاقتباسات</span></label>
+        <label class="sf-check"><input type="checkbox" id="sfCit"><span data-i18n="sf_f_cit">استبعاد الاستشهادات داخل النص</span></label>
+        <label class="sf-check"><input type="checkbox" id="sfSmall" checked><span data-i18n="sf_f_small">استبعاد التطابقات الصغيرة أقل من</span>
+          <input type="number" id="sfSmallWords" class="sf-num" min="8" max="250" value="8"> <span data-i18n="sf_f_words">كلمة</span></label>
+        <div class="sf-notice">
+          <b data-i18n="sf_notice_title">لا يتم حفظ الملف في أي مستودع</b>
+          <span data-i18n="sf_notice_body">ملفك آمن 100%، ولن يُحفظ في أي قاعدة بيانات للطلاب أو مستودع مؤسسي.</span>
+        </div>
+        <button class="sf-upload-btn" id="sfUploadBtn" type="button" onclick="sfUploadFile()" data-i18n="sf_upload_btn">رفع الملف</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="app-modal-overlay" id="appModalOverlay">
   <div class="app-modal">
     <div class="app-modal-icon" id="appModalIcon"></div>
@@ -2698,14 +2788,22 @@ const I18N = {
     tour_download_title:"حمّل التقرير وقيّم تجربتك", tour_download_desc:"زرار التحميل بيحملك التقرير مباشرةً. بعده هتظهر لك نجوم التقييم — رأيك بيساعدنا نتحسن!",
     tour_support_title:"محتاج مساعدة؟", tour_support_desc:"افتح تذكرة دعم أو كلمنا على اللايف شات من الفقاعة الزرقاء في أسفل الشاشة — فريقنا دايماً موجود.",
     tour_done_title:"كل حاجة واضحة؟", tour_done_desc:"الجولة التعريفية خلصت. تقدر تبدأ دلوقتي وترفع أول ملف بثقة. بالتوفيق! 🌟",
-    slot_unit:"slot", slot_none_msg:"ماعندكش slots من النوع ده. اشتري باقة وهتظهر هنا.", slot_buy_btn:"اشتري باقة",
+    kpi_slots_label:"فحوصات متبقية", kpi_expiry_label:"تاريخ انتهاء الفحوصات", kpi_api_status:"حالة الـ API",
+    api_active:"نشط", api_inactive:"متوقف", expiry_days_left:"باقي {d} يوم", sf_no_expiry:"بدون انتهاء", sf_no_slots_short:"لا توجد فحوصات",
+    sf_open_btn:"إرسال الملفات", sf_title:"Pro Keys · رفع الملفات", sf_slot_label:"نوع الفحص", sf_no_slots:"مفيش فحوصات متاحة",
+    sf_opt_label:"Plagiarism + AI ({n} فحص متبقي - تنتهي: {d})", sf_pick:"اختر الملف أو اسحبه هنا", sf_formats:"DOCX أو PDF فقط، حتى 100MB",
+    sf_err_format:"الصيغة دي مش مدعومة. ارفع ملف DOCX أو PDF بس.", sf_err_size:"الملف أكبر من 100MB", sf_terms_title:"شروط الاستخدام",
+    sf_filters_title:"فلاتر التحليل", sf_f_bib:"استبعاد المراجع", sf_f_quo:"استبعاد الاقتباسات", sf_f_cit:"استبعاد الاستشهادات داخل النص",
+    sf_f_small:"استبعاد التطابقات الصغيرة أقل من", sf_f_words:"كلمة", sf_notice_title:"لا يتم حفظ الملف في أي مستودع",
+    sf_notice_body:"ملفك آمن 100%، ولن يُحفظ في أي قاعدة بيانات للطلاب أو مستودع مؤسسي.", sf_upload_btn:"رفع الملف",
+    slot_unit:"فحص", slot_none_msg:"ماعندكش فحوصات من النوع ده. اشتري باقة وهتظهر هنا.", slot_buy_btn:"اشتري باقة",
     slot_maint_btn:"الموقع تحت الصيانة", slot_maint_default:"النظام تحت الصيانة حالياً، حاول بعد قليل.",
     redeem_btn:"كود خصم", redeem_modal_title:"كود خصم", redeem_modal_sub:"فعّل الكود اللي معاك",
     redeem_input_ph:"أدخل الكود هنا", redeem_submit:"تفعيل الكود", redeem_err_empty:"من فضلك أدخل الكود",
     redeem_err_used:"الكود ده اتستخدم قبل كده", redeem_err_invalid:"الكود غير صحيح، اتأكد من كتابته",
     redeem_err_limit:"محاولات كتير غلط، استنى شوية وحاول تاني", redeem_err_auth:"انتهت جلستك، سجّل الدخول من جديد", redeem_err_generic:"حصلت مشكلة، حاول تاني",
-    redeem_success:"اتضافت لك باقة {p} ({n} slot) ✅",
-    kpi_topup:"شحن +", kpi_credits_unit:"slot", credit_unit_singular:"كريديت", kpi_balance:"رصيدك الحالي",
+    redeem_success:"اتضافت لك باقة {p} ({n} فحص) ✅",
+    kpi_topup:"شحن +", kpi_credits_unit:"فحص", credit_unit_singular:"كريديت", kpi_balance:"رصيدك الحالي",
     kpi_processing:"قيد الفحص الآن", kpi_floating:"رصيد عائم (معلّق)",
     kpi_completed_label:"مكتمل بالكامل", kpi_rejected_word:"مرفوض", kpi_cancelled_word:"ملغي",
     balance_check_title:"الدفع من رصيدك", balance_current_label:"رصيدك الحالي",
@@ -2873,6 +2971,14 @@ const I18N = {
     tour_download_title:"Download & rate your experience", tour_download_desc:"The download button fetches your report directly. Afterwards the star rating appears — your feedback helps us improve!",
     tour_support_title:"Need help?", tour_support_desc:"Open a support ticket or chat with us via the blue bubble at the bottom of the screen — our team is always here.",
     tour_done_title:"All set!", tour_done_desc:"The tour is complete. You're ready to upload your first file with confidence. Good luck! 🌟",
+    kpi_slots_label:"Slots remaining", kpi_expiry_label:"Slots expiry date", kpi_api_status:"API status",
+    api_active:"Active", api_inactive:"Inactive", expiry_days_left:"{d} days left", sf_no_expiry:"No expiry", sf_no_slots_short:"No slots",
+    sf_open_btn:"Submit Files", sf_title:"Pro Keys · Submit Files", sf_slot_label:"Slot type", sf_no_slots:"No slots available",
+    sf_opt_label:"Plagiarism + AI ({n} Slots Remaining - Next Expiry: {d})", sf_pick:"Choose a file or drop it here", sf_formats:"DOCX or PDF only, up to 100MB",
+    sf_err_format:"This file type isn't supported. Upload a DOCX or PDF file.", sf_err_size:"The file is larger than 100MB", sf_terms_title:"Terms & Conditions",
+    sf_filters_title:"Analysis filters", sf_f_bib:"Exclude bibliography", sf_f_quo:"Exclude quotes", sf_f_cit:"Exclude citations",
+    sf_f_small:"Exclude small matches under", sf_f_words:"words", sf_notice_title:"Your file is not saved in any repository",
+    sf_notice_body:"Your file is 100% safe. It will NOT be saved in any student database or institutional repository.", sf_upload_btn:"Upload File",
     slot_unit:"slot", slot_none_msg:"You have no slots of this type. Buy a package and it will show here.", slot_buy_btn:"Buy a package",
     slot_maint_btn:"System under maintenance", slot_maint_default:"The system is under maintenance right now. Please try again shortly.",
     redeem_btn:"Redeem Code", redeem_modal_title:"Redeem Code", redeem_modal_sub:"Activate your purchased code",
@@ -6441,13 +6547,13 @@ async function submitCheckToApi(orderId, file){
   const fd = new FormData();
   fd.append('order_id', orderId);
   fd.append('file', file);
-  if (document.getElementById('exQuo')?.checked)       fd.append('excludeQuotes', 'true');
-  if (document.getElementById('exBib')?.checked)       fd.append('excludeBibliography', 'true');
-  if (document.getElementById('exAbstract')?.checked)  fd.append('excludeAbstract', 'true');
-  if (document.getElementById('exCitations')?.checked) fd.append('excludeCitations', 'true');
-  const exSmallEl = document.getElementById('exSmall');
-  const exSmallWords = parseInt(document.getElementById('exSmallWords')?.value) || 8;
-  if (exSmallEl?.checked && exSmallWords > 0) fd.append('excludeSmallMatchesWordLimit', String(exSmallWords));
+  // Filters come from the Submit Files popup, each one independent.
+  if (document.getElementById('sfQuo')?.checked) fd.append('excludeQuotes', 'true');
+  if (document.getElementById('sfBib')?.checked) fd.append('excludeBibliography', 'true');
+  if (document.getElementById('sfCit')?.checked) fd.append('excludeCitations', 'true');
+  const sfSmallOn = document.getElementById('sfSmall')?.checked;
+  const sfSmallWords = Math.min(250, Math.max(8, parseInt(document.getElementById('sfSmallWords')?.value) || 8));
+  if (sfSmallOn) fd.append('excludeSmallMatchesWordLimit', String(sfSmallWords));
 
   try {
     const res = await fetch(`${FN_BASE}/submit-check`, {
@@ -6588,10 +6694,10 @@ async function insertOrderRow(fileName, fileToSubmit, checkTypeDb, willUseApi){
       check_type: checkTypeDb,
       status: 'floating',
       processing_mode: willUseApi ? 'api' : 'manual',
-      exclude_bibliography: document.getElementById('exBib')?.checked || false,
-      exclude_quotes:       document.getElementById('exQuo')?.checked || false,
-      exclude_abstract:     document.getElementById('exAbstract')?.checked || false,
-      exclude_small_matches_word_limit: (document.getElementById('exSmall')?.checked ? (parseInt(document.getElementById('exSmallWords')?.value)||8) : null),
+      exclude_bibliography: document.getElementById('sfBib')?.checked || false,
+      exclude_quotes:       document.getElementById('sfQuo')?.checked || false,
+      exclude_abstract:     false,
+      exclude_small_matches_word_limit: (document.getElementById('sfSmall')?.checked ? (parseInt(document.getElementById('sfSmallWords')?.value)||8) : null),
     })
     .select()
     .single();
@@ -6723,8 +6829,20 @@ async function loadSlots(){
   const { data, error } = await supabaseClient.rpc('slot_summary');
   if (error) { console.error('loadSlots failed:', error); return; }
   slotsByType = { plag_ai: 0, plag_only: 0 };
-  (data?.by_type || []).forEach(r => { slotsByType[r.slot_type] = Number(r.remaining) || 0; });
+  slotExpiryInfo = { next: null, unlimited: false, hasAny: false };
+  (data?.by_type || []).forEach(r => {
+    const remaining = Number(r.remaining) || 0;
+    slotsByType[r.slot_type] = remaining;
+    if (remaining <= 0) return;
+    slotExpiryInfo.hasAny = true;
+    if (r.unlimited) slotExpiryInfo.unlimited = true;
+    if (r.next_expires_at && (!slotExpiryInfo.next || new Date(r.next_expires_at) < new Date(slotExpiryInfo.next))) {
+      slotExpiryInfo.next = r.next_expires_at;
+    }
+  });
   _slotsLoaded = true;
+  renderExpiryCard();
+  buildSlotDropdown();
 }
 
 // A failed or missing response counts as "unavailable", so a customer is never sent into a dead provider.
@@ -6742,6 +6860,7 @@ async function refreshServiceAvailability(){
     serviceAvailability = {};
   }
   _availabilityLoaded = true;
+  renderApiStatusCard();
 }
 
 function serviceMessage(service){
@@ -7179,12 +7298,174 @@ async function submitRedeemCode(e){
   }
 }
 
+/* ---------- Check page: slot cards, terms, Submit Files popup ---------- */
+let slotExpiryInfo = { next: null, unlimited: false, hasAny: false };
+let siteTexts = {};
+let sfFile = null;
+const SF_MAX_BYTES = 100 * 1024 * 1024;
+
+function fmtExpiryDate(iso){ return new Date(iso).toLocaleDateString('en-GB'); } // dd/mm/yyyy
+function daysLeft(iso){ return Math.max(0, Math.ceil((new Date(iso) - Date.now()) / 86400000)); }
+
+function renderExpiryCard(){
+  const txt = document.getElementById('kpiExpiryText');
+  const sub = document.getElementById('kpiExpiryDays');
+  if (!txt) return;
+  sub.textContent = '';
+  if (!_slotsLoaded || !slotExpiryInfo.hasAny) { txt.textContent = '—'; sub.textContent = t('sf_no_slots_short'); return; }
+  if (slotExpiryInfo.unlimited || !slotExpiryInfo.next) { txt.textContent = t('sf_no_expiry'); return; }
+  txt.textContent = fmtExpiryDate(slotExpiryInfo.next);
+  sub.textContent = t('expiry_days_left').replace('{d}', daysLeft(slotExpiryInfo.next));
+}
+
+function renderApiStatusCard(){
+  const el = document.getElementById('kpiApiStatus');
+  if (!el) return;
+  if (!_availabilityLoaded) { el.textContent = '—'; el.style.color = ''; return; }
+  const ok = !!(serviceAvailability.plag_ai && serviceAvailability.plag_ai.available);
+  el.textContent = ok ? t('api_active') : t('api_inactive');
+  el.style.color = ok ? 'var(--ok)' : 'var(--danger)';
+}
+
+async function loadSiteTexts(){
+  const { data, error } = await supabaseClient.from('site_texts').select('key, value_ar, value_en');
+  if (error) { console.error('loadSiteTexts failed:', error); return; }
+  siteTexts = {};
+  (data || []).forEach(r => { siteTexts[r.key] = { ar: r.value_ar, en: r.value_en }; });
+  renderTerms();
+}
+
+function renderTerms(){
+  const el = document.getElementById('sfTerms');
+  const v = siteTexts.check_terms;
+  if (el) el.textContent = v ? (currentLang === 'ar' ? v.ar : v.en) : '';
+}
+
+// Only the slot types the customer has. Plagiarism Only is hidden for now.
+function buildSlotDropdown(){
+  const sel = document.getElementById('sfSlotType');
+  if (!sel) return;
+  const n = slotsByType.plag_ai || 0;
+  if (n < 1) {
+    sel.innerHTML = `<option value="">${escapeHtml(t('sf_no_slots'))}</option>`;
+    sel.disabled = true;
+    return;
+  }
+  sel.disabled = false;
+  const expiry = slotExpiryInfo.unlimited || !slotExpiryInfo.next
+    ? t('sf_no_expiry')
+    : fmtExpiryDate(slotExpiryInfo.next);
+  sel.innerHTML = `<option value="plag_ai">${escapeHtml(t('sf_opt_label').replace('{n}', n).replace('{d}', expiry))}</option>`;
+}
+
+function sfSetStep(step){
+  const showFilters = step === 'filters' && !!sfFile;
+  document.getElementById('sfStepFile').style.display = showFilters ? 'none' : '';
+  document.getElementById('sfStepFilters').style.display = showFilters ? '' : 'none';
+  document.getElementById('sfChipName').textContent = sfFile ? sfFile.name : '';
+}
+
+function openSubmitFilesModal(){
+  if (!PROKEYS_USER_ID) return;
+  if (currentFile) sfFile = currentFile;
+  buildSlotDropdown();
+  renderTerms();
+  document.getElementById('sfError').textContent = '';
+  sfSetStep(sfFile ? 'filters' : 'file');
+  document.getElementById('submitFilesOverlay').classList.add('show');
+}
+
+function closeSubmitFilesModal(){
+  document.getElementById('submitFilesOverlay').classList.remove('show');
+}
+
+function sfClearFile(){
+  sfFile = null;
+  document.getElementById('sfFileInput').value = '';
+  document.getElementById('sfError').textContent = '';
+  sfSetStep('file');
+}
+
+function sfValidateFile(file){
+  if (!file) return t('sf_err_format');
+  if (!/\.(pdf|docx)$/i.test(file.name)) return t('sf_err_format');
+  if (file.size > SF_MAX_BYTES) return t('sf_err_size');
+  return null;
+}
+
+function sfPickFile(file){
+  const err = sfValidateFile(file);
+  const el = document.getElementById('sfError');
+  if (err) {
+    el.textContent = err;
+    sfFile = null;
+    sfSetStep('file');
+    return;
+  }
+  el.textContent = '';
+  sfFile = file;
+  sfSetStep('filters');
+}
+
+async function sfUploadFile(){
+  const btn = document.getElementById('sfUploadBtn');
+  const err = sfValidateFile(sfFile);
+  if (err) {
+    document.getElementById('sfError').textContent = err;
+    sfSetStep('file');
+    return;
+  }
+  // Only Plagiarism + AI is offered for now.
+  if (document.getElementById('sfSlotType').value !== 'plag_ai' || (slotsByType.plag_ai || 0) < 1) return;
+
+  checkType = 'both';
+  currentFile = sfFile;
+  btn.disabled = true;
+  try {
+    await submitOrder();
+  } finally {
+    btn.disabled = false;
+    if (!currentFile) {
+      sfFile = null;
+      closeSubmitFilesModal();
+    }
+  }
+}
+
+(function wireSubmitFiles(){
+  const input = document.getElementById('sfFileInput');
+  const dz = document.getElementById('sfDropzone');
+  input.addEventListener('change', e => sfPickFile(e.target.files[0]));
+  dz.addEventListener('click', () => input.click());
+  dz.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
+  });
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    dz.classList.remove('drag');
+    sfPickFile(e.dataTransfer.files[0]);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && document.getElementById('submitFilesOverlay').classList.contains('show')) closeSubmitFilesModal();
+  });
+})();
+
+// The Check page now works through the popup. The old inline options and
+// balance panels are hidden, and the Orders tab is removed from navigation.
+(function applyCheckPageLayout(){
+  document.getElementById('ctBoth')?.closest('.panel-block')?.style.setProperty('display', 'none');
+  document.getElementById('balanceWarning')?.closest('.panel-block')?.style.setProperty('display', 'none');
+  document.querySelectorAll('[data-tab="orders"]').forEach(el => { el.style.display = 'none'; });
+})();
+
 function renderKpis(){
   document.getElementById('kpiBalanceNum').textContent = totalSlots();
   document.getElementById('walletBalanceNum').textContent = totalSlots();
   renderWalletCapacity();
-  document.getElementById('kpiFloatingNum').textContent = orders.filter(o=>o.phase==='floating' || o.phase==='uploading' || o.phase==='pending').length;
-  document.getElementById('kpiProcessingNum').textContent = orders.filter(o=>o.phase==='pending' || o.phase==='processing').length;
+  renderExpiryCard();
+  renderApiStatusCard();
   document.getElementById('kpiCompletedNum').textContent = orders.filter(o=>o.phase==='completed').length;
   document.getElementById('kpiRejectedNum').textContent = orders.filter(o=>o.phase==='error' || o.phase==='failed_invalid' || o.phase==='rejected').length;
   document.getElementById('kpiCancelledNum').textContent = orders.filter(o=>o.phase==='cancelled').length;
@@ -7472,7 +7753,7 @@ async function loadDashboardData(){
   }
 
   // loadUserProfile skips itself after first success (_profileLoaded flag)
-  await Promise.all([ loadUserProfile(), loadOrders(), loadWallet(), loadSlots(), refreshServiceAvailability(), loadTickets(), loadApiSettings(), loadNotifications() ]);
+  await Promise.all([ loadUserProfile(), loadOrders(), loadWallet(), loadSlots(), refreshServiceAvailability(), loadSiteTexts(), loadTickets(), loadApiSettings(), loadNotifications() ]);
   updatePrice();
   renderOrders();
   renderKpis();

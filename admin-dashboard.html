@@ -638,7 +638,7 @@
         <div class="side-item" data-tab="broadcast" onclick="switchTab('broadcast')"><span class="ic" data-icon-key="admin_nav_broadcast">📢</span><span data-i18n="nav_broadcast">رسائل جماعية</span></div>
         <div class="side-item" data-tab="activity" onclick="switchTab('activity')"><span class="ic" data-icon-key="admin_nav_activity">📋</span><span data-i18n="nav_activity">سجل النشاط</span></div>
         <div class="side-item" data-tab="payments" onclick="switchTab('payments')"><span class="ic" data-icon-key="admin_nav_payments">💳</span><span data-i18n="nav_payments">المدفوعات</span></div>
-        <div class="side-item" data-tab="slots" onclick="switchTab('slots')"><span class="ic">🎫</span><span data-i18n="nav_slots">الـ Slots</span></div>
+        <div class="side-item" data-tab="slots" onclick="switchTab('slots')"><span class="ic">🎫</span><span data-i18n="nav_slots">الفحوصات</span></div>
         <div class="side-item" data-tab="accounts" onclick="switchTab('accounts')"><span class="ic" data-icon-key="admin_nav_accounts">👤</span><span data-i18n="nav_accounts">إدارة الحسابات</span></div>
         <div class="side-item" data-tab="backup" onclick="switchTab('backup')"><span class="ic" data-icon-key="admin_nav_backup">💾</span><span data-i18n="nav_backup">النسخ الاحتياطي</span></div>
         <div class="side-item" data-tab="chat" onclick="switchTab('chat')"><span class="ic" data-icon-key="admin_nav_chat">💬</span><span data-i18n="nav_chat">الشات المباشر</span><span class="side-badge" id="chatSideBadge" style="display:none;"></span></div>
@@ -1070,7 +1070,7 @@
 
       <div class="tabpane" id="tab-slots">
         <div class="main-head">
-          <div><h1 data-i18n="slt_title">🎫 باقات الـ Slots</h1><div class="sub" data-i18n="slt_subtitle">الباقات اللي بتظهر للعملاء في الموقع، وكل باقة بتتحدد بنوع الفحص وعدد الـ slots وصلاحيتها</div></div>
+          <div><h1 data-i18n="slt_title">🎫 باقات الفحوصات</h1><div class="sub" data-i18n="slt_subtitle">الباقات اللي بتظهر للعملاء في الموقع، وكل باقة بتتحدد بنوع الفحص وعدد الفحوصات وصلاحيتها</div></div>
           <button class="btn btn-primary" onclick="openSlotPackageForm()" data-i18n="slt_new_btn">+ باقة جديدة</button>
         </div>
         <div class="tab-card">
@@ -1079,7 +1079,7 @@
               <thead><tr>
                 <th data-i18n="slt_col_name">الاسم</th>
                 <th data-i18n="slt_col_type">النوع</th>
-                <th data-i18n="slt_col_slots">الـ slots</th>
+                <th data-i18n="slt_col_slots">الفحوصات</th>
                 <th data-i18n="slt_col_price">السعر</th>
                 <th data-i18n="slt_col_expiry">الصلاحية</th>
                 <th data-i18n="slt_col_status">الحالة</th>
@@ -1088,6 +1088,15 @@
               <tbody id="slotPackagesBody"></tbody>
             </table>
           </div>
+        </div>
+        <div class="tab-card" style="margin-top:16px;">
+          <h3 style="margin:0 0 6px;font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;color:var(--navy);" data-i18n="terms_admin_title">شروط الاستخدام (تظهر في تاب الفحص)</h3>
+          <div class="sub" style="margin-bottom:12px;" data-i18n="terms_admin_sub">كل سطر جديد بيتعرض كسطر جديد للعميل. التعديل بيظهر فوراً بعد الحفظ.</div>
+          <label style="font-size:12px;font-weight:700;color:var(--muted);" data-i18n="terms_admin_ar">النص بالعربي</label>
+          <textarea class="adm-modal-input" id="termsArInput" rows="6" style="resize:vertical;"></textarea>
+          <label style="font-size:12px;font-weight:700;color:var(--muted);" data-i18n="terms_admin_en">النص بالإنجليزي</label>
+          <textarea class="adm-modal-input" id="termsEnInput" rows="6" dir="ltr" style="resize:vertical;"></textarea>
+          <button class="btn btn-primary" id="termsSaveBtn" onclick="saveCheckTerms()" data-i18n="terms_admin_save">حفظ الشروط</button>
         </div>
       </div>
       <div class="tabpane" id="tab-payments">
@@ -1415,7 +1424,7 @@ const I18N = {
     nav_revenue:'الإيرادات', nav_broadcast:'رسائل جماعية', nav_activity:'سجل النشاط', nav_credits:'الكريديت', nav_users:'المستخدمون',
     nav_accounts:'إدارة الحسابات', accounts_title:'👤 إدارة الحسابات', accounts_subtitle:'حسابات الأدمن وعملاء المنصة',
     rc_pkg_lbl:'الباقة', rc_pkg_placeholder:'-- اختار باقة --', rc_col_package:'الباقة', rc_pkg_none:'باقة غير معروفة',
-    rc_preview_slots:'{s} slot ({t}) لكل كود', rc_err_pkg:'اختار باقة الأول',
+    rc_preview_slots:'{s} فحص ({t}) لكل كود', rc_err_pkg:'اختار باقة الأول',
     rc_title:'🎟 أكواد الخصم (Redeem Codes)', rc_rate_note:'السعر: 1$ = 50 ج.م = 10 كريديت', rc_value_lbl:'القيمة', rc_unit_lbl:'الوحدة',
     rc_unit_credits:'كريديت', rc_unit_egp:'جنيه مصري', rc_unit_usd:'دولار', rc_count_lbl:'عدد الأكواد', rc_gen_btn:'توليد الأكواد',
     rc_preview:'= {c} كريديت لكل كود', rc_preview_empty:'أدخل قيمة لحساب الكريديت',
@@ -1423,19 +1432,21 @@ const I18N = {
     rc_err_generic:'فشل توليد الأكواد', rc_err_load:'تعذر تحميل الأكواد', rc_new_title:'تم توليد {n} كود، كل كود بـ {c} كريديت',
     rc_copy_all:'📋 نسخ الكل', rc_copied:'تم نسخ الأكواد ✅', rc_col_code:'الكود', rc_col_credits:'الكريديت',
     rc_col_status:'الحالة', rc_col_created:'تاريخ الإنشاء', rc_status_unused:'متاح', rc_status_used:'مستخدم', rc_empty:'لا توجد أكواد بعد',
-    nav_slots:'الـ Slots',
-    slt_title:'🎫 باقات الـ Slots', slt_subtitle:'الباقات اللي بتظهر للعملاء في الموقع، وكل باقة بتتحدد بنوع الفحص وعدد الـ slots وصلاحيتها',
+    nav_slots:'الفحوصات',
+    slt_title:'🎫 باقات الفحوصات', slt_subtitle:'الباقات اللي بتظهر للعملاء في الموقع، وكل باقة بتتحدد بنوع الفحص وعدد الفحوصات وصلاحيتها',
     slt_new_btn:'+ باقة جديدة', slt_empty:'مفيش باقات لسه', slt_err_load:'تعذر تحميل الباقات',
-    slt_col_name:'الاسم', slt_col_type:'النوع', slt_col_slots:'الـ slots', slt_col_price:'السعر', slt_col_expiry:'الصلاحية', slt_col_status:'الحالة', slt_col_actions:'إجراءات',
+    slt_col_name:'الاسم', slt_col_type:'النوع', slt_col_slots:'الفحوصات', slt_col_price:'السعر', slt_col_expiry:'الصلاحية', slt_col_status:'الحالة', slt_col_actions:'إجراءات',
     slt_type_plag_ai:'Plagiarism + AI', slt_type_plag_only:'Plagiarism Only', slt_no_expiry:'بدون انتهاء', slt_days:'يوم', slt_egp:'ج.م',
     slt_active:'مفعّلة', slt_inactive:'موقوفة', slt_edit:'تعديل', slt_activate:'تفعيل', slt_deactivate:'إيقاف', slt_delete:'حذف',
     slt_form_new:'باقة جديدة', slt_form_edit:'تعديل الباقة',
-    slt_lbl_name_ar:'الاسم بالعربي', slt_lbl_name_en:'الاسم بالإنجليزي', slt_lbl_type:'نوع الفحص', slt_lbl_slots:'عدد الـ slots',
+    slt_lbl_name_ar:'الاسم بالعربي', slt_lbl_name_en:'الاسم بالإنجليزي', slt_lbl_type:'نوع الفحص', slt_lbl_slots:'عدد الفحوصات',
     slt_lbl_price:'السعر (ج.م)', slt_lbl_expiry:'مدة الصلاحية (أيام)', slt_lbl_no_expiry:'بدون انتهاء', slt_lbl_active:'مفعّلة (تظهر للعملاء)',
     slt_save:'حفظ', slt_cancel:'إلغاء',
-    slt_err_names:'لازم تكتب الاسم بالعربي والإنجليزي', slt_err_slots:'عدد الـ slots لازم يكون 1 أو أكتر',
+    terms_admin_title:'شروط الاستخدام (تظهر في تاب الفحص)', terms_admin_sub:'كل سطر جديد بيتعرض كسطر جديد للعميل. التعديل بيظهر فوراً بعد الحفظ.',
+    terms_admin_ar:'النص بالعربي', terms_admin_en:'النص بالإنجليزي', terms_admin_save:'حفظ الشروط', terms_admin_saved:'تم حفظ الشروط ✅',
+    slt_err_names:'لازم تكتب الاسم بالعربي والإنجليزي', slt_err_slots:'عدد الفحوصات لازم يكون 1 أو أكتر',
     slt_err_price:'السعر لازم يكون صفر أو أكتر', slt_err_days:'مدة الصلاحية لازم تكون يوم أو أكتر',
-    slt_err_save:'فشل الحفظ', slt_confirm_delete:'هتحذف الباقة نهائياً. العملاء اللي اشتروها هيفضلوا عندهم الـ slots، بس اسم الباقة هيتشال. متأكد؟',
+    slt_err_save:'فشل الحفظ', slt_confirm_delete:'هتحذف الباقة نهائياً. العملاء اللي اشتروها هيفضلوا عندهم الفحوصات، بس اسم الباقة هيتشال. متأكد؟',
     nav_payments:'المدفوعات', pay_tab_title:'💳 المدفوعات', pay_tab_subtitle:'الكريديت، سجل العمليات، وبوابات الدفع',
     credback_title:'🔒 النسخ الاحتياطي للكريديت', credback_desc:'نسخة تلقائية كل يوم الساعة 5 الفجر، بالإضافة لإمكانية عمل نسخة يدوية في أي وقت وتصديرها/استيرادها منفصلة عن باك أب الإعدادات العام.',
     credback_manual_btn:'💾 نسخة يدوية الآن', credback_export_btn:'⬇ تصدير آخر نسخة كملف', credback_import_btn:'📂 استيراد من ملف',
@@ -1549,6 +1560,8 @@ const I18N = {
     slt_lbl_name_ar:'Arabic name', slt_lbl_name_en:'English name', slt_lbl_type:'Check type', slt_lbl_slots:'Number of slots',
     slt_lbl_price:'Price (EGP)', slt_lbl_expiry:'Validity (days)', slt_lbl_no_expiry:'No expiry', slt_lbl_active:'Active (shown to customers)',
     slt_save:'Save', slt_cancel:'Cancel',
+    terms_admin_title:'Terms & Conditions (shown on the Check tab)', terms_admin_sub:'Each new line is shown as a new line to the customer. Changes appear right after saving.',
+    terms_admin_ar:'Arabic text', terms_admin_en:'English text', terms_admin_save:'Save terms', terms_admin_saved:'Terms saved ✅',
     slt_err_names:'Enter both the Arabic and English names', slt_err_slots:'Number of slots must be 1 or more',
     slt_err_price:'Price must be 0 or more', slt_err_days:'Validity must be 1 day or more',
     slt_err_save:'Save failed', slt_confirm_delete:'This permanently deletes the package. Customers who bought it keep their slots, but the package name is removed. Are you sure?',
@@ -3698,7 +3711,7 @@ function formatDate(dateStr){
           <option value="plag_ai" data-i18n="slt_type_plag_ai">Plagiarism + AI</option>
           <option value="plag_only" data-i18n="slt_type_plag_only">Plagiarism Only</option>
         </select>
-        <label style="font-size:12px;font-weight:700;color:var(--muted);" data-i18n="slt_lbl_slots">عدد الـ slots</label>
+        <label style="font-size:12px;font-weight:700;color:var(--muted);" data-i18n="slt_lbl_slots">عدد الفحوصات</label>
         <input class="adm-modal-input" id="slotCount" type="number" min="1" step="1" required>
         <label style="font-size:12px;font-weight:700;color:var(--muted);" data-i18n="slt_lbl_price">السعر (ج.م)</label>
         <input class="adm-modal-input" id="slotPrice" type="number" min="0" step="0.01" required>
@@ -4835,6 +4848,36 @@ let editingSlotPackageId = null;
 
 async function initSlotsTab(){
   await loadSlotPackages();
+  await loadCheckTerms();
+}
+
+async function loadCheckTerms(){
+  const { data, error } = await supabaseClient
+    .from('site_texts').select('value_ar, value_en').eq('key', 'check_terms').maybeSingle();
+  if (error) { console.error('loadCheckTerms failed:', error); return; }
+  document.getElementById('termsArInput').value = data?.value_ar || '';
+  document.getElementById('termsEnInput').value = data?.value_en || '';
+}
+
+async function saveCheckTerms(){
+  const btn = document.getElementById('termsSaveBtn');
+  btn.disabled = true;
+  try {
+    const { error } = await supabaseClient.from('site_texts').upsert({
+      key: 'check_terms',
+      value_ar: document.getElementById('termsArInput').value,
+      value_en: document.getElementById('termsEnInput').value,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'key' });
+    if (error) throw error;
+    await logAdminActivity('check_terms_update', null, '', 'تحديث شروط الاستخدام');
+    await adminAlert(t('terms_admin_saved'), {icon:'✅'});
+  } catch (err) {
+    console.error('saveCheckTerms failed:', err);
+    await adminAlert(t('slt_err_save') + ': ' + (err.message || ''), {icon:'❌', danger:true});
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 async function loadSlotPackages(){
@@ -5026,7 +5069,7 @@ async function rcGenerate(){
     if (error) throw error;
     const codes = (data || []).map(r => r.redeem_code);
     rcShowNewCodes(codes, `${rcPackageLabel(pkg)} (${pkg.slots} slots)`);
-    await logAdminActivity('redeem_codes_create', null, '', `توليد ${codes.length} كود خصم لباقة ${pkg.name_en} (${pkg.slots} slots)`);
+    await logAdminActivity('redeem_codes_create', null, '', `توليد ${codes.length} كود خصم لباقة ${pkg.name_en} (${pkg.slots} فحص)`);
     loadRedeemCodes();
   } catch (err) {
     console.error('rcGenerate failed:', err);
