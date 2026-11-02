@@ -927,6 +927,14 @@
   .mf-cols-head,.mf-row{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(0,1fr) minmax(0,1.5fr) minmax(0,1.2fr) minmax(0,1.2fr) 40px;gap:10px;align-items:center;}
   .mf-cols-head{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.4px;padding:0 16px 8px;text-transform:uppercase;}
   .mf-row{background:var(--paper);border:1px solid var(--paper-line);border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.03);}
+  /* Every column is centred, except the file name, which stays on the right. */
+  .mf-cols-head span{text-align:center;}
+  .mf-cols-head span:first-child{text-align:right;}
+  .mf-row .mf-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-width:0;}
+  .mf-row .mf-cell > *{max-width:100%;}
+  .mf-row .mf-doc{align-items:flex-start;text-align:right;}
+  .mf-row .mf-doc-main{display:flex;flex-direction:column;align-items:flex-start;max-width:100%;min-width:0;}
+  .mf-row .mf-act{align-items:center;}
   .mf-name{font-weight:800;color:var(--navy);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;text-align:start;}
   .mf-badge{display:inline-flex;align-items:center;margin-top:6px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:8px;background:var(--blue-wash);color:var(--blue-deep);border:1px solid #BFD7FF;font-family:'Cairo',sans-serif;}
   .mf-order{font-family:'Cairo',sans-serif;font-size:12px;font-weight:800;color:var(--navy);direction:ltr;text-align:start;white-space:nowrap;}
