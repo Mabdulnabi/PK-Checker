@@ -3071,7 +3071,7 @@ const I18N = {
     txid_label:"رقم العملية (TXID)", txid_placeholder:"الصق TXID هنا بعد التحويل",
     credits_deducted:"كريديت ستُخصم",
     orders_count_suffix:"طلب", f_all:"الكل", f_wait:"معلّق", f_run:"قيد الفحص", f_ok:"مكتمل", f_no:"مرفوض",
-    wallet_available:"كريديت عام متاح للاستخدام", wallet_sim_credits:"كريديت اقتباس (من الإحالات)",
+    wallet_available:"فحص متاح للاستخدام", wallet_sim_credits:"كريديت اقتباس (من الإحالات)",
     wallet_daily_credits:"كريديت يومي", wallet_total_done:"طلب مكتمل كليًا",
     ref_program:"برنامج الإحالة — +1 كريديت لكل دعوة ناجحة", copy:"نسخ",
     pg_rows_per_page:"عدد الصفوف",
@@ -3119,7 +3119,7 @@ const I18N = {
     feature_ai_plag:"تقرير Similarity + AI", usd_unit_short:"دولار", egp_unit:"جنيه مصري",
     best_seller_badge:"الأكثر مبيعاً", high_value_badge:"أفضل قيمة",
     packs_topup_tab:"باقات الشحن", packs_daily_tab:"الباقات اليومية",
-    packs_topup_desc:"كريديت لا تنتهي صلاحيتها — مثالية للأساتذة والباحثين", packs_daily_desc:"لعمليات الفحص الكثيفة — صلاحية 24 ساعة فقط",
+    packs_topup_desc:"اختار الباقة اللي تناسبك — كل فحص بيخصم فحص واحد من رصيدك", packs_daily_desc:"لعمليات الفحص الكثيفة — صلاحية 24 ساعة فقط",
     pack_pack_1:"فحص واحد", pack_pack_5:"5 ملفات", pack_pack_10:"10 ملفات", pack_pack_25:"25 ملف",
     pack_single:"فحص واحد — Single Check", pack_starter:"Starter — البداية", pack_student:"Student — الطالب", pack_college:"College — الكلية",
     pack_professor:"Professor — الدكتور", pack_scholar:"Scholar — الباحث",
@@ -3260,7 +3260,7 @@ const I18N = {
     txid_label:"Transaction ID (TXID)", txid_placeholder:"Paste TXID here after transfer",
     credits_deducted:"credits will be deducted",
     orders_count_suffix:"orders", f_all:"All", f_wait:"Pending", f_run:"Processing", f_ok:"Completed", f_no:"Rejected",
-    wallet_available:"general credits available", wallet_sim_credits:"Similarity credits (from referrals)",
+    wallet_available:"checks available", wallet_sim_credits:"Similarity credits (from referrals)",
     wallet_daily_credits:"Daily credits", wallet_total_done:"fully completed orders",
     ref_program:"Referral program — +1 credit per successful invite", copy:"Copy",
     pg_rows_per_page:"Rows per page",
@@ -3308,7 +3308,7 @@ const I18N = {
     feature_ai_plag:"Similarity + AI Report", usd_unit_short:"USD", egp_unit:"EGP",
     best_seller_badge:"Best Seller", high_value_badge:"High Value",
     packs_topup_tab:"Top-up packs", packs_daily_tab:"Daily packs",
-    packs_topup_desc:"Credits that never expire — ideal for professors and researchers", packs_daily_desc:"For heavy-checking days — valid for 24 hours only",
+    packs_topup_desc:"Choose the package that fits you — each check uses one slot", packs_daily_desc:"For heavy-checking days — valid for 24 hours only",
     pack_pack_1:"1 File", pack_pack_5:"5 Files", pack_pack_10:"10 Files", pack_pack_25:"25 Files",
     pack_single:"Single Check", pack_starter:"Starter", pack_student:"Student", pack_college:"College",
     pack_professor:"Professor", pack_scholar:"Scholar",
@@ -3462,12 +3462,27 @@ const _OLD_DAILY_PACKS = [
 ];
 
 // ── Active packs (all include Similarity + AI, with expiry) ──
-const TOPUP_PACKS = [
-  {id:"pack_1",  icon:'<circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/>',                                                                     credits:20,  priceEgp:100,  files:1,  expiryDays:2,  simChecks:1,  aiChecks:1},
-  {id:"pack_5",  icon:'<path d="M12 2c-3 4-5 7-5 10a5 5 0 0 0 10 0c0-3-2-6-5-10z"/>',                                                                credits:110, priceEgp:480,  files:5,  expiryDays:5,  simChecks:5,  aiChecks:5},
-  {id:"pack_10", icon:'<path d="M4 19.5V6a2 2 0 0 1 2-2h13v15"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H19v2.5"/>',                                   credits:230, priceEgp:950,  files:10, expiryDays:10, simChecks:10, aiChecks:10},
-  {id:"pack_25", icon:'<path d="M12 3l9 4-9 4-9-4z"/><path d="M5 9v6c0 1.5 3 3 7 3s7-1.5 7-3V9"/>',                                                  credits:600, priceEgp:2300, files:25, expiryDays:15, simChecks:25, aiChecks:25, popular:true},
-];
+// Top-up packages come from slot_packages (see loadTopupPacks).
+let TOPUP_PACKS = [];
+let SLOT_PACK_NAMES = {};
+async function loadTopupPacks(){
+  const { data, error } = await supabaseClient.rpc('list_slot_packages');
+  if (error || !Array.isArray(data)) { console.error('loadTopupPacks failed:', error); return; }
+  SLOT_PACK_NAMES = {};
+  TOPUP_PACKS = data.map(r => {
+    SLOT_PACK_NAMES[r.legacy_pack_id] = { ar: r.name_ar, en: r.name_en };
+    return {
+      id: r.legacy_pack_id,
+      credits: Number(r.slots),
+      priceEgp: Number(r.price_egp),
+      files: Number(r.slots),
+      expiryDays: r.expiry_days,
+      simChecks: Number(r.slots),
+      aiChecks: Number(r.slots),
+    };
+  });
+  renderPacks();
+}
 const DAILY_PACKS = [];
 let selectedPack = null;
 
@@ -3565,7 +3580,11 @@ const PAYMENT_DETAILS = {
   },
 };
 
-function packName(id){ return t('pack_'+id); }
+function packName(id){
+  const n = SLOT_PACK_NAMES[id];
+  if (n) return currentLang === 'ar' ? n.ar : n.en;
+  return t('pack_'+id);
+}
 
 // Loads admin-managed payment method config: hides built-in cards the
 // admin turned off, and appends any custom (non-built-in) methods after
@@ -3656,7 +3675,7 @@ function packPriceNumber(p){
 /* "Credit" / "Credits" in EN depending on count, always "كريديت" in AR */
 function creditsWord(n){
   if(currentLang === 'ar') return t('kpi_credits_unit');
-  return n === 1 ? t('credit_unit_singular') : t('kpi_credits_unit');
+  return n === 1 ? 'slot' : 'slots';
 }
 /* Format price: AR puts currency on LEFT, EN puts it on RIGHT */
 function formatPrice(num){
@@ -8390,7 +8409,7 @@ async function loadDashboardData(){
   }
 
   // loadUserProfile skips itself after first success (_profileLoaded flag)
-  await Promise.all([ loadUserProfile(), loadOrders(), loadWallet(), loadSlots(), refreshServiceAvailability(), loadMyFiles(), loadMyHistory(), loadTickets(), loadApiSettings(), loadNotifications() ]);
+  await Promise.all([ loadUserProfile(), loadOrders(), loadWallet(), loadSlots(), refreshServiceAvailability(), loadMyFiles(), loadMyHistory(), loadTopupPacks(), loadTickets(), loadApiSettings(), loadNotifications() ]);
   updatePrice();
   renderOrders();
   renderKpis();
