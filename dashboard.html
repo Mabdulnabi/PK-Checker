@@ -1044,6 +1044,12 @@
   #pane-my-history .kpi-row > .kpi:nth-child(2) { border-top:3px solid #2563EB; }
   #pane-my-history .kpi-row > .kpi:nth-child(3) { border-top:3px solid #0E9F6E; }
   #pane-my-history .kpi-row > .kpi:nth-child(4) { border-top:3px solid #F59E0B; }
+  /* Wallet slot cards: Sim + AI and Sim only */
+  .wallet-slot-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+  .wallet-slot-cards .credit-card-full{margin-bottom:0;padding:24px 26px;}
+  .wallet-slot-cards .wsc-sim{background:linear-gradient(150deg,#0B5FC9 0%,#1E3A8A 100%);}
+  .wsc-exp{position:relative;margin-top:14px;font-size:12.5px;color:rgba(255,255,255,0.85);font-family:'Cairo',sans-serif;line-height:1.6;}
+  @media (max-width:640px){ .wallet-slot-cards{grid-template-columns:1fr;} }
   .sf-dd{position:relative;}
   .sf-dd-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--ok-wash);border:1.5px solid var(--ok);border-radius:14px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13.5px;font-weight:800;color:#0F5132;cursor:pointer;text-align:start;}
   .sf-dd-btn:disabled{cursor:default;opacity:.7;}
@@ -2169,16 +2175,19 @@
 
     <!-- ============ WALLET ============ -->
     <div class="tabpane" id="pane-wallet" style="display:none;">
-      <!-- Full-width credit card -->
-      <div class="credit-card credit-card-full">
-        <div class="ctag">Pro Keys · Wallet</div>
-        <div class="cbal latin" id="walletBalanceNum">17</div>
-        <div class="csub" data-i18n="wallet_available">كريديت عام متاح للاستخدام</div>
-        <!-- Checks capacity hint -->
-        <div id="walletCapacityHint" style="margin-top:10px;font-size:12px;color:rgba(169,180,214,0.9);line-height:1.6;position:relative;"></div>
-        <div class="crow">
-          <div><b class="latin" id="walletDailyNum">0</b><span data-i18n="wallet_daily_credits">كريديت يومي</span></div>
-          <div style="display:none;"><b class="latin" id="walletRefSimNum">4</b><span data-i18n="wallet_sim_credits">كريديت اقتباس (من الإحالات)</span></div>
+      <!-- Two slot cards: Sim + AI and Sim only -->
+      <div class="wallet-slot-cards">
+        <div class="credit-card credit-card-full wsc wsc-ai">
+          <div class="ctag">Plagiarism + AI</div>
+          <div class="cbal latin" id="walletSlotsAI">0</div>
+          <div class="csub" id="walletLblAI"></div>
+          <div class="wsc-exp" id="walletExpAI"></div>
+        </div>
+        <div class="credit-card credit-card-full wsc wsc-sim">
+          <div class="ctag">Similarity only</div>
+          <div class="cbal latin" id="walletSlotsSim">0</div>
+          <div class="csub" id="walletLblSim"></div>
+          <div class="wsc-exp" id="walletExpSim"></div>
         </div>
       </div>
 
@@ -6363,6 +6372,7 @@ function applyLang(){
   // My Files rows are built in JS, so they must be rebuilt to show the new language.
   if (typeof renderMyFiles === 'function') renderMyFiles();
   if (typeof renderMyHistory === 'function') renderMyHistory();
+  if (typeof renderWalletSlotCards === 'function') renderWalletSlotCards();
   if (typeof refreshPublicReviewCardLang === 'function') refreshPublicReviewCardLang();
   renderChat();
   const editLabel = document.getElementById('chatEditLabel');
@@ -6530,6 +6540,7 @@ let _balanceLoaded = false; // guard: don't show insufficient-balance warning be
 
 /* ---------- Slots and service availability ---------- */
 let slotsByType = { plag_ai: 0, plag_only: 0 }; // remaining slots per check type (slot_summary)
+let slotExpiryByType = { plag_ai: null, plag_only: null }; // next expiry per check type
 let _slotsLoaded = false;
 let serviceAvailability = {};                   // per check type (check-availability)
 let _availabilityLoaded = false;
@@ -7260,10 +7271,12 @@ async function loadSlots(){
   const { data, error } = await supabaseClient.rpc('slot_summary');
   if (error) { console.error('loadSlots failed:', error); return; }
   slotsByType = { plag_ai: 0, plag_only: 0 };
+  slotExpiryByType = { plag_ai: null, plag_only: null };
   slotExpiryInfo = { next: null, unlimited: false, hasAny: false };
   (data?.by_type || []).forEach(r => {
     const remaining = Number(r.remaining) || 0;
     slotsByType[r.slot_type] = remaining;
+    if (remaining > 0) slotExpiryByType[r.slot_type] = r.next_expires_at || null;
     if (remaining <= 0) return;
     slotExpiryInfo.hasAny = true;
     if (r.unlimited) slotExpiryInfo.unlimited = true;
@@ -7274,7 +7287,27 @@ async function loadSlots(){
   allGrants = data?.all_grants || [];
   _slotsLoaded = true;
   renderExpiryCard();
+  renderWalletSlotCards();
   buildSlotDropdown();
+}
+
+// Wallet: how many checks of each type are left, and when they expire.
+function renderWalletSlotCards(){
+  const ar = currentLang === 'ar';
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('walletSlotsAI', String(slotsByType.plag_ai || 0));
+  set('walletSlotsSim', String(slotsByType.plag_only || 0));
+  set('walletLblAI', ar ? 'فحص Sim + AI متاح' : 'Sim + AI checks left');
+  set('walletLblSim', ar ? 'فحص Sim only متاح' : 'Sim only checks left');
+  const expText = (iso) => {
+    if (!iso) return ar ? 'لا توجد صلاحية نشطة' : 'No active expiry';
+    const dl = daysLeft(iso);
+    return ar
+      ? `تاريخ الصلاحية: ${fmtExpiryDate(iso)} · باقي ${dl} يوم`
+      : `Valid until: ${fmtExpiryDate(iso)} · ${dl} days left`;
+  };
+  set('walletExpAI', expText(slotExpiryByType.plag_ai));
+  set('walletExpSim', expText(slotExpiryByType.plag_only));
 }
 
 // A failed or missing response counts as "unavailable", so a customer is never sent into a dead provider.
@@ -8118,8 +8151,7 @@ async function deleteMyFile(orderId){
 
 function renderKpis(){
   document.getElementById('kpiBalanceNum').textContent = totalSlots();
-  document.getElementById('walletBalanceNum').textContent = totalSlots();
-  renderWalletCapacity();
+  renderWalletSlotCards();
   renderExpiryCard();
   renderApiStatusCard();
   document.getElementById('kpiCompletedNum').textContent = orders.filter(o=>o.phase==='completed').length;
