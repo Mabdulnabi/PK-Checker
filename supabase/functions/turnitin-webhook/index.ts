@@ -106,7 +106,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: order } = await supabase
     .from("orders")
-    .select("id, check_type, external_order_id, purged_at")
+    .select("id, check_type, external_order_id, purged_at, completed_at")
     .eq("id", customId)
     .maybeSingle();
   if (!order) return new Response("OK", { status: 200 });
@@ -157,7 +157,8 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    updates.completed_at = new Date().toISOString();
+    // Keep the first completion time: a re-run must not move the delivery time.
+    if (!order.completed_at) updates.completed_at = new Date().toISOString();
     if (typeof scan.similarity_score === "number") updates.similarity_score = scan.similarity_score;
   } else if (internalStatus === "error") {
     updates.error_reason = scan.error || `TurniScan: ${scan.status}`;
