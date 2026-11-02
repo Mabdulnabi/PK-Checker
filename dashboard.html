@@ -968,6 +968,61 @@
     .mf-ai{grid-column:1;grid-row:4;min-width:0;}
     .mf-sim{grid-column:2;grid-row:4;min-width:0;}
   }
+  /* My History */
+  .hist-card{background:var(--paper);border:1px solid var(--paper-line);border-radius:16px;padding:18px;}
+  .hist-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px;}
+  .hist-title{display:flex;align-items:center;gap:12px;}
+  .hist-title-ic{width:40px;height:40px;border-radius:12px;background:var(--blue-wash);display:flex;align-items:center;justify-content:center;color:var(--blue-deep);flex:none;}
+  .hist-title-ic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .hist-title h3{margin:0;font-family:'Cairo',sans-serif;font-size:15px;font-weight:800;color:var(--navy);}
+  .hist-title p{margin:2px 0 0;font-size:12px;color:var(--muted);font-family:'Cairo',sans-serif;}
+  .hist-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .hist-filters{display:flex;background:var(--paper-soft);border:1px solid var(--paper-line);border-radius:12px;padding:3px;}
+  .hist-filters button{border:none;background:transparent;padding:7px 12px;border-radius:9px;font-family:'Cairo',sans-serif;font-size:12.5px;font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;}
+  .hist-filters button.on{background:var(--paper);color:var(--navy);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+  .hist-search{min-width:220px;border:1px solid var(--paper-line);border-radius:12px;padding:8px 12px;font-family:'Cairo',sans-serif;font-size:13px;background:var(--paper);color:var(--navy);}
+  .hist-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1.8fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.1fr);gap:12px;align-items:center;}
+  .hist-thead{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;padding:0 14px 8px;font-family:'Cairo',sans-serif;background:none;border:none;margin:0;}
+  .hist-thead > span{text-align:center;}
+  .hist-thead > span:nth-child(-n+2){text-align:start;}
+  .hist-entry{background:var(--paper);border:1px solid var(--paper-line);border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.03);}
+  .hist-entry.is-purchase{border-inline-start:3px solid #10B981;}
+  .hist-entry.is-scan{border-inline-start:3px solid var(--blue);}
+  .hist-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-width:0;font-family:'Cairo',sans-serif;}
+  .hist-cell.start{align-items:flex-start;text-align:start;}
+  .hist-activity{display:flex;align-items:center;gap:10px;}
+  .hist-chip{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none;}
+  .hist-chip svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .hist-chip.green{background:#E6F7EF;color:#0F7A55;}
+  .hist-chip.blue{background:var(--blue-wash);color:var(--blue-deep);}
+  .hist-act-name{font-weight:800;font-size:13px;color:var(--navy);}
+  .hist-act-sub{font-size:11px;color:var(--muted);direction:ltr;text-align:start;}
+  .hist-item-name{font-weight:800;font-size:13px;color:var(--navy);direction:ltr;text-align:start;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;}
+  .hist-tag{display:inline-block;font-size:10.5px;font-weight:700;background:var(--paper-soft);border:1px solid var(--paper-line);border-radius:6px;padding:2px 7px;color:var(--muted);margin-top:5px;}
+  .hist-sub{font-size:11px;color:var(--muted);margin-top:4px;direction:ltr;}
+  .hist-change{display:inline-flex;align-items:center;font-size:12.5px;font-weight:800;padding:5px 12px;border-radius:9px;border:1px solid;white-space:nowrap;}
+  .hist-change.plus{background:#E6F7EF;color:#0F7A55;border-color:#B7EBD5;}
+  .hist-change.minus{background:#F3F4F6;color:#374151;border-color:#E5E7EB;}
+  .hist-change.zero{background:var(--paper-soft);color:var(--muted);border-color:var(--paper-line);}
+  .hist-bal{font-weight:800;font-size:13px;color:var(--navy);}
+  .hist-bal small{font-weight:600;color:var(--muted);font-size:11px;}
+  .hist-bal.zero{color:var(--danger);}
+  .hist-status{font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:20px;border:1px solid;white-space:nowrap;}
+  .hist-status.ok{background:var(--ok-wash);color:#0F7A55;border-color:#B7EBD5;}
+  .hist-status.pend{background:#FFF7E0;color:#8A5A00;border-color:#F5D98B;}
+  .hist-status.bad{background:var(--danger-wash);color:var(--danger);border-color:#F5C2CB;}
+  .hist-status.run{background:var(--blue-wash);color:var(--blue-deep);border-color:#BFD7FF;}
+  .hist-date{font-size:12.5px;font-weight:700;color:var(--navy);}
+  .hist-date small{display:block;color:var(--muted);font-weight:600;font-size:11px;margin-top:2px;}
+  .hist-empty{text-align:center;padding:26px;color:var(--muted);font-size:13px;font-family:'Cairo',sans-serif;}
+  @media (max-width:760px){
+    .hist-thead{display:none;}
+    .hist-row{display:none;}
+    .hist-search{min-width:0;width:100%;}
+    .hist-tools{width:100%;}
+    .hist-grid-m{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;}
+    .hist-grid-m > .full{grid-column:1 / -1;}
+  }
   .sf-dd{position:relative;}
   .sf-dd-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--ok-wash);border:1.5px solid var(--ok);border-radius:14px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13.5px;font-weight:800;color:#0F5132;cursor:pointer;text-align:start;}
   .sf-dd-btn:disabled{cursor:default;opacity:.7;}
@@ -1709,6 +1764,12 @@
         </div>
         <span data-i18n="nav_wallet">المحفظة</span>
       </div>
+      <div class="navtab sidebar-item" data-tab="my-history">
+        <div class="sid-chip sid-blue">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="24" height="24"><path d="M128,40a88,88,0,1,0,88,88A88.1,88.1,0,0,0,128,40Zm0,160a72,72,0,1,1,72-72A72.08,72.08,0,0,1,128,200Z" opacity="0.2"/><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm-8-48A95.44,95.44,0,0,0,61.57,58.32L45.5,42.24a8,8,0,0,0-11.31,11.32l16.07,16.07A96,96,0,1,0,128,32Z"/></svg>
+        </div>
+        <span data-i18n="nav_my_history">السجل</span>
+      </div>
       <div class="navtab sidebar-item" data-tab="support">
         <div class="sid-chip sid-orange">
           <!-- ph-headset duotone -->
@@ -1845,6 +1906,10 @@
       <div class="navtab" data-tab="wallet">
         <svg class="ic" data-icon-key="tab_wallet" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="16" cy="14.5" r="1.4"/></svg>
         <span data-i18n="nav_wallet">المحفظة</span>
+      </div>
+      <div class="navtab" data-tab="my-history">
+        <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <span data-i18n="nav_my_history">السجل</span>
       </div>
       <div class="navtab" data-tab="support">
         <svg class="ic" data-icon-key="tab_support" viewBox="0 0 24 24"><path d="M12 18v3M9 21h6"/><rect x="4" y="3" width="16" height="13" rx="2"/><path d="M9 9h.01M12 9h.01M15 9h.01"/></svg>
@@ -2236,6 +2301,48 @@
     </div>
 
     <!-- ============ SUPPORT (formal ticket) ============ -->
+    <!-- ============ MY HISTORY (summary cards + account ledger) ============ -->
+    <div class="tabpane" id="pane-my-history" style="display:none;">
+      <div class="kpi-row">
+        <div class="kpi kpi-centered">
+          <div class="icon-circle" style="background:rgba(0,186,247,0.16);"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5c0-1.4 1.3-2.5 3-2.5s3 1 3 2.2c0 2.8-6 1.8-6 5 0 1.4 1.3 2.3 3 2.3s3-1 3-2.3"/></svg></div>
+          <div class="num latin" id="histAvail">0</div>
+          <div class="lbl" id="histAvailLbl"></div>
+        </div>
+        <div class="kpi kpi-centered">
+          <div class="icon-circle" style="background:var(--blue-wash);color:var(--blue-deep);"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+          <div class="num latin" id="histAdded">0</div>
+          <div class="lbl" id="histAddedLbl"></div>
+        </div>
+        <div class="kpi kpi-centered">
+          <div class="icon-circle"><svg class="ic" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></div>
+          <div class="num latin" id="histChecked">0</div>
+          <div class="lbl" id="histCheckedLbl"></div>
+        </div>
+        <div class="kpi kpi-centered">
+          <div class="icon-circle" style="background:var(--paper-soft);color:var(--muted);"><svg class="ic" viewBox="0 0 24 24"><path d="M6 2h12M6 22h12M7 2c0 5 5 6 5 10s-5 5-5 10M17 2c0 5-5 6-5 10s5 5 5 10"/></svg></div>
+          <div class="num" id="histExpiry">—</div>
+          <div class="kpi-subcaption" id="histExpiryDays"></div>
+          <div class="lbl" id="histExpiryLbl"></div>
+        </div>
+      </div>
+
+      <div class="hist-card">
+        <div class="hist-head">
+          <div class="hist-title">
+            <div class="hist-title-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+            <div><h3 id="histTitle"></h3><p id="histSub"></p></div>
+          </div>
+          <div class="hist-tools">
+            <div class="hist-filters" id="histFilters"></div>
+            <input class="hist-search" id="histSearch" type="search" oninput="renderMyHistory()">
+          </div>
+        </div>
+        <div class="hist-thead hist-row" id="histHead"></div>
+        <div id="histRows"></div>
+      </div>
+    </div>
+
     <div class="tabpane" id="pane-support" style="display:none;">
       <div class="sec-head"><h2 data-i18n="support_title">الدعم الفني</h2></div>
       <p style="color:var(--muted);font-size:12.5px;margin-top:-8px;margin-bottom:18px;" data-i18n="support_hint">افتح تذكرة وسيردّ عليك فريق الدعم في أقرب وقت</p>
@@ -2854,7 +2961,7 @@ function applyCustomIcons(){
 
 const I18N = {
   ar: {
-    nav_home:"الرئيسية", nav_new_check:"فحص جديد", nav_orders:"ملفاتي", nav_wallet:"المحفظة", nav_support:"الدعم", nav_my_profile:"حسابي",
+    nav_home:"الرئيسية", nav_new_check:"فحص جديد", nav_orders:"ملفاتي", nav_wallet:"المحفظة", nav_my_history:"السجل", nav_support:"الدعم", nav_my_profile:"حسابي",
     sup_lang:"اللغة", sup_currency:"العملة", sup_settings:"الإعدادات",
     profile_modal_title:"الملف الشخصي", profile_save_btn:"حفظ", profile_cancel_btn:"إلغاء",
     profile_name:"الاسم الكامل", profile_email:"البريد الإلكتروني", profile_whatsapp:"واتساب", profile_new_pass:"كلمة المرور الجديدة", profile_save:"حفظ التغييرات",
@@ -3043,7 +3150,7 @@ const I18N = {
     faq_title:"الأسئلة الشائعة",
   },
   en: {
-    nav_home:"Home", nav_new_check:"New Check", nav_orders:"My orders", nav_wallet:"Wallet", nav_support:"Support", nav_my_profile:"My Account",
+    nav_home:"Home", nav_new_check:"New Check", nav_orders:"My orders", nav_wallet:"Wallet", nav_my_history:"History", nav_support:"Support", nav_my_profile:"My Account",
     sup_lang:"Language", sup_currency:"Currency", sup_settings:"Settings",
     profile_modal_title:"Account Settings", profile_save_btn:"Save", profile_cancel_btn:"Cancel",
     profile_name:"Full Name", profile_email:"Email Address", profile_whatsapp:"WhatsApp", profile_new_pass:"New Password", profile_save:"Save Changes",
@@ -4735,6 +4842,7 @@ function goTab(tab, persist = true){
     nextPane.addEventListener('animationend', () => nextPane.classList.remove('pane-entering'), {once:true});
     (document.querySelector('.main-wrap')||window).scrollTo({top:0,behavior:'smooth'});
     if(tab === 'wallet'){ loadPaymentHistory(); loadOrderTransactions(); }
+    if(tab === 'my-history'){ loadMyHistory(); }
     if(tab === 'my-profile'){ openMyProfileTab(); }
     return;
   }
@@ -4757,6 +4865,7 @@ function goTab(tab, persist = true){
 
     (document.querySelector('.main-wrap')||window).scrollTo({top:0,behavior:'smooth'});
     if(tab === 'wallet'){ loadPaymentHistory(); loadOrderTransactions(); }
+    if(tab === 'my-history'){ loadMyHistory(); }
     if(tab === 'my-profile'){ openMyProfileTab(); }
   }, {once:true});
 }
@@ -6210,6 +6319,7 @@ function applyLang(){
   if (typeof refreshRatingModalLang === 'function') refreshRatingModalLang();
   // My Files rows are built in JS, so they must be rebuilt to show the new language.
   if (typeof renderMyFiles === 'function') renderMyFiles();
+  if (typeof renderMyHistory === 'function') renderMyHistory();
   if (typeof refreshPublicReviewCardLang === 'function') refreshPublicReviewCardLang();
   renderChat();
   const editLabel = document.getElementById('chatEditLabel');
@@ -6744,6 +6854,157 @@ async function pollPendingApiOrders(){
 setInterval(pollPendingApiOrders, 5000);
 // My Files: while a file is still checking, reload it every 5s (same cadence as the status poll).
 setInterval(()=>{ if (myFiles.some(f => !MF_FINAL.includes(f.status))) loadMyFiles(); }, 5000);
+
+
+// ── My History: summary cards + account ledger ─────────────────────────────
+let histData = null;
+let histFilter = 'all';
+const hx = (ar, en) => (currentLang === 'ar' ? ar : en);
+const HIST_ICON_CART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h9.9a1 1 0 0 0 1-.8L21 8H7"/><circle cx="10" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg>';
+const HIST_ICON_FILE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>';
+
+async function loadMyHistory(){
+  const { data, error } = await supabaseClient.rpc('my_history');
+  if (error) { console.error('loadMyHistory failed:', error); return; }
+  histData = data || { summary: {}, events: [] };
+  renderMyHistory();
+}
+
+function histSlotLabel(t){ return t === 'plag_only' ? hx('تشابه فقط', 'Plagiarism Only') : hx('تشابه + AI', 'Plagiarism + AI'); }
+
+function histKind(e){
+  if (e.kind === 'scan') return 'scan';
+  if (e.kind === 'grant') return 'added';
+  return 'orders';
+}
+
+function histActivity(e){
+  if (e.kind === 'scan') return { name: hx('إرسال ملف', 'File Submission'), sub: e.order_number || '', icon: HIST_ICON_FILE, cls: 'blue' };
+  if (e.kind === 'grant' && e.source === 'redeem') return { name: hx('كود خصم', 'Voucher Redeem'), sub: e.txn || '', icon: HIST_ICON_CART, cls: 'green' };
+  if (e.kind === 'grant' && e.source === 'migration') return { name: hx('رصيد مُرحّل', 'Migrated balance'), sub: '', icon: HIST_ICON_CART, cls: 'green' };
+  return { name: hx('شراء أونلاين', 'Online Order Purchase'), sub: e.txn || '', icon: HIST_ICON_CART, cls: 'green' };
+}
+
+function histStatus(e){
+  const map = {
+    success:   ['ok',   hx('ناجح', 'SUCCESS')],
+    completed: ['ok',   hx('مكتمل', 'Completed')],
+    pending:   ['pend', hx('معلّق', 'PENDING')],
+    failed:    ['bad',  hx('فشل', 'Failed')],
+    checking:  ['run',  hx('جاري الفحص', 'Checking')],
+  };
+  return map[e.status] || ['run', e.status || ''];
+}
+
+function histChange(n){
+  if (n > 0) return ['plus', '+' + n + ' ' + hx('فحص', 'Slots')];
+  if (n < 0) return ['minus', n + ' ' + hx('فحص', 'Slot')];
+  return ['zero', '0 ' + hx('فحص', 'Slots')];
+}
+
+function histDate(iso){
+  if (!iso) return { d: '—', t: '' };
+  const d = new Date(iso);
+  return {
+    d: d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+    t: d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+  };
+}
+
+function setHistFilter(f){ histFilter = f; renderMyHistory(); }
+
+function renderMyHistory(){
+  if (!histData) return;
+  const pane = document.getElementById('pane-my-history');
+  if (!pane) return;
+  const s = histData.summary || {};
+  const events = histData.events || [];
+
+  // Static labels, so they follow the language
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('histAvailLbl', hx('فحص متبقي', 'Checks left'));
+  set('histAddedLbl', hx('فحوصات تم شحنها', 'Checks added'));
+  set('histCheckedLbl', hx('ملفات اتفحصت بنجاح', 'Files checked successfully'));
+  set('histExpiryLbl', hx('أقرب انتهاء', 'Next expiry'));
+  set('histTitle', hx('سجل الحساب والفحوصات', 'Account & Slot Activity'));
+  set('histSub', hx('سجل واضح لكل عمليات الشحن والفحص', 'Clear record of every top-up and file check'));
+  set('histSearch', '');
+  const searchEl = document.getElementById('histSearch');
+  if (searchEl) searchEl.placeholder = hx('ابحث عن ملف أو كود أو طلب...', 'Search file, voucher, order...');
+
+  // Cards
+  set('histAvail', String(s.available ?? 0));
+  set('histAdded', '+' + String(s.total_added ?? 0));
+  set('histChecked', String(s.checked_ok ?? 0));
+  if (s.next_expiry) {
+    set('histExpiry', fmtExpiryDate(s.next_expiry));
+    const dl = daysLeft(s.next_expiry);
+    set('histExpiryDays', hx(dl + ' يوم متبقي', dl + ' days left'));
+  } else {
+    set('histExpiry', '—');
+    set('histExpiryDays', '');
+  }
+
+  // Filters
+  const counts = { all: events.length, added: 0, scan: 0, orders: 0 };
+  events.forEach(e => { const k = histKind(e); if (k === 'added') counts.added++; else if (k === 'scan') counts.scan++; else counts.orders++; });
+  const filters = [
+    ['all',    hx('الكل', 'All'),           counts.all],
+    ['added',  hx('مضاف (+)', 'Added (+)'), counts.added],
+    ['scan',   hx('فحوصات (-)', 'Scans (-)'), counts.scan],
+    ['orders', hx('الطلبات', 'Orders'),     counts.orders],
+  ];
+  document.getElementById('histFilters').innerHTML = filters.map(([k, label, n]) =>
+    `<button type="button" class="${histFilter === k ? 'on' : ''}" onclick="setHistFilter('${k}')">${escapeHtml(label)} (${n})</button>`
+  ).join('');
+
+  // Head
+  document.getElementById('histHead').innerHTML =
+    `<span>${escapeHtml(hx('النشاط', 'Activity'))}</span>` +
+    `<span>${escapeHtml(hx('الملف / البند', 'Item / File name'))}</span>` +
+    `<span>${escapeHtml(hx('التغيير', 'Change'))}</span>` +
+    `<span>${escapeHtml(hx('الرصيد بعد', 'Available balance'))}</span>` +
+    `<span>${escapeHtml(hx('الحالة', 'Status'))}</span>` +
+    `<span>${escapeHtml(hx('التاريخ والوقت', 'Date & time'))}</span>`;
+
+  // Running balance: walk back from the current balance
+  let bal = s.available ?? 0;
+  events.forEach(e => { e._after = bal; bal -= (e.change || 0); });
+
+  const q = (document.getElementById('histSearch')?.value || '').trim().toLowerCase();
+  const rows = events.filter(e => {
+    if (histFilter !== 'all' && histKind(e) !== histFilter && !(histFilter === 'scan' && e.kind === 'scan')) return false;
+    if (!q) return true;
+    const act = histActivity(e);
+    return [e.txn, e.order_number, e.file_name, act.name, act.sub].some(v => v && String(v).toLowerCase().includes(q));
+  });
+
+  const host = document.getElementById('histRows');
+  if (!rows.length) {
+    host.innerHTML = `<div class="hist-empty">${escapeHtml(hx('لا توجد عمليات', 'No activity yet'))}</div>`;
+    return;
+  }
+
+  host.innerHTML = rows.map(e => {
+    const act = histActivity(e);
+    const isScan = e.kind === 'scan';
+    const [chCls, chText] = histChange(e.change || 0);
+    const [stCls, stText] = histStatus(e);
+    const dt = histDate(e.at);
+    const itemName = isScan ? (e.file_name || '') : hx('باقة فحص', 'Check package');
+    const itemTag = e.slot_type ? histSlotLabel(e.slot_type) : '';
+    const itemSub = (!isScan && e.amount) ? `${e.amount} ${e.currency || ''}${e.gateway ? ' • ' + e.gateway : ''}` : '';
+    const balN = e._after ?? 0;
+    return `<div class="hist-row hist-entry ${isScan ? 'is-scan' : 'is-purchase'}">
+      <div class="hist-cell start"><div class="hist-activity"><span class="hist-chip ${act.cls}">${act.icon}</span><div><div class="hist-act-name">${escapeHtml(act.name)}</div><div class="hist-act-sub">${escapeHtml(act.sub)}</div></div></div></div>
+      <div class="hist-cell start"><div class="hist-item-name">${escapeHtml(itemName)}</div>${itemTag ? `<span class="hist-tag">${escapeHtml(itemTag)}</span>` : ''}${itemSub ? `<div class="hist-sub">${escapeHtml(itemSub)}</div>` : ''}</div>
+      <div class="hist-cell"><span class="hist-change ${chCls}">${escapeHtml(chText)}</span></div>
+      <div class="hist-cell"><span class="hist-bal ${balN <= 0 ? 'zero' : ''}">${balN} <small>${escapeHtml(hx('متبقي', 'Left'))}</small></span></div>
+      <div class="hist-cell"><span class="hist-status ${stCls}">${escapeHtml(stText)}</span></div>
+      <div class="hist-cell"><div class="hist-date">${escapeHtml(dt.d)}<small>${escapeHtml(dt.t)}</small></div></div>
+    </div>`;
+  }).join('');
+}
 
 // ── Check-settings: applied after loadUIConfig() + applyLang() ───────────────
 function applyCheckSettings(){
@@ -8082,7 +8343,7 @@ async function loadDashboardData(){
   }
 
   // loadUserProfile skips itself after first success (_profileLoaded flag)
-  await Promise.all([ loadUserProfile(), loadOrders(), loadWallet(), loadSlots(), refreshServiceAvailability(), loadMyFiles(), loadTickets(), loadApiSettings(), loadNotifications() ]);
+  await Promise.all([ loadUserProfile(), loadOrders(), loadWallet(), loadSlots(), refreshServiceAvailability(), loadMyFiles(), loadMyHistory(), loadTickets(), loadApiSettings(), loadNotifications() ]);
   updatePrice();
   renderOrders();
   renderKpis();
@@ -9054,6 +9315,10 @@ function maybeShowOnboarding(profileData){
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="22" height="22"><path d="M224,80V192a8,8,0,0,1-8,8H56a16,16,0,0,1-16-16V56A16,16,0,0,0,56,72H216A8,8,0,0,1,224,80Z" opacity="0.2"/><path d="M216,64H56a8,8,0,0,1,0-16H192a8,8,0,0,0,0-16H56A24,24,0,0,0,32,56V184a24,24,0,0,0,24,24H216a16,16,0,0,0,16-16V80A16,16,0,0,0,216,64Zm0,128H56a8,8,0,0,1-8-8V78.63A23.84,23.84,0,0,0,56,80H216Zm-48-60a12,12,0,1,1,12,12A12,12,0,0,1,168,132Z"/></svg>
     </div>
     <span class="mob-label" data-i18n="nav_wallet">المحفظة</span>
+  </div>
+  <div class="mob-nav-item" data-tab="my-history" onclick="goTab('my-history')">
+    <div class="mob-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="24" height="24"><path d="M128,40a88,88,0,1,0,88,88A88.1,88.1,0,0,0,128,40Zm0,160a72,72,0,1,1,72-72A72.08,72.08,0,0,1,128,200Z" opacity="0.2"/><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm-8-48A95.44,95.44,0,0,0,61.57,58.32L45.5,42.24a8,8,0,0,0-11.31,11.32l16.07,16.07A96,96,0,1,0,128,32Z"/></svg></div>
+    <span class="mob-label" data-i18n="nav_my_history">السجل</span>
   </div>
   <div class="mob-nav-item" data-tab="support" onclick="goTab('support')">
     <div class="mob-icon" data-icon-key="tab_support">
