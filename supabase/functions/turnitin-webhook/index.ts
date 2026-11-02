@@ -58,6 +58,8 @@ async function fetchScanStatus(fileId: string): Promise<ScanStatus | null> {
     });
     if (!res.ok) return null;
     const data = await res.json();
+    // Raw provider response, so score fields can be checked against what TurniScan sends.
+    console.log("webhook: scan status raw", fileId, JSON.stringify(data));
     const body = (data && typeof data === "object" && data.data && typeof data.data === "object") ? data.data : data;
     return body && typeof body.status === "string" ? (body as ScanStatus) : null;
   } catch (e) {
