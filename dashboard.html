@@ -964,11 +964,11 @@
   @media (max-width:640px){
     .my-files{padding:12px;}
     .mf-cols-head{display:none;}
-    .mf-row{grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:14px;}
+    .mf-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;padding:14px;}
     .mf-doc{grid-column:1;grid-row:1;min-width:0;}
     .mf-act{grid-column:2;grid-row:1;justify-self:end;}
     .mf-order{grid-column:1 / span 2;grid-row:2;}
-    .mf-time{grid-column:1 / span 2;grid-row:3;}
+    .mf-time{grid-column:1 / span 2;grid-row:3;display:flex;justify-content:space-between;align-items:center;gap:8px;}
     .mf-ai{grid-column:1;grid-row:4;min-width:0;}
     .mf-sim{grid-column:2;grid-row:4;min-width:0;}
   }
@@ -1021,7 +1021,8 @@
   .hist-empty{text-align:center;padding:26px;color:var(--muted);font-size:13px;font-family:'Cairo',sans-serif;}
   @media (max-width:760px){
     .hist-thead{display:none;}
-    .hist-row{display:none;}
+    .hist-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}
+    .hist-row > .hist-cell:nth-child(-n+2){grid-column:1 / -1;}
     .hist-search{min-width:0;width:100%;}
     .hist-tools{width:100%;}
     .hist-grid-m{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;}
@@ -9403,12 +9404,6 @@ function maybeShowOnboarding(profileData){
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="22" height="22"><circle cx="112" cy="112" r="72" opacity="0.2"/><path d="M229.66,218.34l-50.07-50.07a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.31ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></svg>
     </div>
     <span class="mob-label" data-i18n="nav_new_check">فحص جديد</span>
-  </div>
-  <div class="mob-nav-item" data-tab="orders" onclick="goTab('orders')">
-    <div class="mob-icon" data-icon-key="tab_orders">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="22" height="22"><path d="M208,88v24H69.77a8,8,0,0,0-7.59,5.47L32,208V64a8,8,0,0,1,8-8H93.33a8,8,0,0,1,4.8,1.6L128,80h72A8,8,0,0,1,208,88Z" opacity="0.2"/><path d="M245,110.64A16,16,0,0,0,232,104H216V88a16,16,0,0,0-16-16H130.67L102.94,51.2a16.14,16.14,0,0,0-9.6-3.2H40A16,16,0,0,0,24,64V208a8,8,0,0,0,8,8H211.1a8,8,0,0,0,7.59-5.47l28.49-85.47A16.05,16.05,0,0,0,245,110.64ZM93.34,64,123.2,86.4A8,8,0,0,0,128,88h72v16H69.77a16,16,0,0,0-15.18,10.94L40,158.7V64Zm112,136H43.1l26.67-80H232Z"/></svg>
-    </div>
-    <span class="mob-label" data-i18n="nav_orders">ملفاتي</span>
   </div>
   <div class="mob-nav-item" data-tab="wallet" onclick="goTab('wallet')">
     <div class="mob-icon" data-icon-key="tab_wallet">
