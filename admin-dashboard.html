@@ -1089,15 +1089,6 @@
             </table>
           </div>
         </div>
-        <div class="tab-card" style="margin-top:16px;">
-          <h3 style="margin:0 0 6px;font-family:'Cairo',sans-serif;font-weight:800;font-size:14px;color:var(--navy);" data-i18n="terms_admin_title">شروط الاستخدام (تظهر في تاب الفحص)</h3>
-          <div class="sub" style="margin-bottom:12px;" data-i18n="terms_admin_sub">كل سطر جديد بيتعرض كسطر جديد للعميل. التعديل بيظهر فوراً بعد الحفظ.</div>
-          <label style="font-size:12px;font-weight:700;color:var(--muted);" data-i18n="terms_admin_ar">النص بالعربي</label>
-          <textarea class="adm-modal-input" id="termsArInput" rows="6" style="resize:vertical;"></textarea>
-          <label style="font-size:12px;font-weight:700;color:var(--muted);" data-i18n="terms_admin_en">النص بالإنجليزي</label>
-          <textarea class="adm-modal-input" id="termsEnInput" rows="6" dir="ltr" style="resize:vertical;"></textarea>
-          <button class="btn btn-primary" id="termsSaveBtn" onclick="saveCheckTerms()" data-i18n="terms_admin_save">حفظ الشروط</button>
-        </div>
       </div>
       <div class="tabpane" id="tab-payments">
         <div class="main-head">
@@ -1442,8 +1433,6 @@ const I18N = {
     slt_lbl_name_ar:'الاسم بالعربي', slt_lbl_name_en:'الاسم بالإنجليزي', slt_lbl_type:'نوع الفحص', slt_lbl_slots:'عدد الفحوصات',
     slt_lbl_price:'السعر (ج.م)', slt_lbl_expiry:'مدة الصلاحية (أيام)', slt_lbl_no_expiry:'بدون انتهاء', slt_lbl_active:'مفعّلة (تظهر للعملاء)',
     slt_save:'حفظ', slt_cancel:'إلغاء',
-    terms_admin_title:'شروط الاستخدام (تظهر في تاب الفحص)', terms_admin_sub:'كل سطر جديد بيتعرض كسطر جديد للعميل. التعديل بيظهر فوراً بعد الحفظ.',
-    terms_admin_ar:'النص بالعربي', terms_admin_en:'النص بالإنجليزي', terms_admin_save:'حفظ الشروط', terms_admin_saved:'تم حفظ الشروط ✅',
     slt_err_names:'لازم تكتب الاسم بالعربي والإنجليزي', slt_err_slots:'عدد الفحوصات لازم يكون 1 أو أكتر',
     slt_err_price:'السعر لازم يكون صفر أو أكتر', slt_err_days:'مدة الصلاحية لازم تكون يوم أو أكتر',
     slt_err_save:'فشل الحفظ', slt_confirm_delete:'هتحذف الباقة نهائياً. العملاء اللي اشتروها هيفضلوا عندهم الفحوصات، بس اسم الباقة هيتشال. متأكد؟',
@@ -1560,8 +1549,6 @@ const I18N = {
     slt_lbl_name_ar:'Arabic name', slt_lbl_name_en:'English name', slt_lbl_type:'Check type', slt_lbl_slots:'Number of slots',
     slt_lbl_price:'Price (EGP)', slt_lbl_expiry:'Validity (days)', slt_lbl_no_expiry:'No expiry', slt_lbl_active:'Active (shown to customers)',
     slt_save:'Save', slt_cancel:'Cancel',
-    terms_admin_title:'Terms & Conditions (shown on the Check tab)', terms_admin_sub:'Each new line is shown as a new line to the customer. Changes appear right after saving.',
-    terms_admin_ar:'Arabic text', terms_admin_en:'English text', terms_admin_save:'Save terms', terms_admin_saved:'Terms saved ✅',
     slt_err_names:'Enter both the Arabic and English names', slt_err_slots:'Number of slots must be 1 or more',
     slt_err_price:'Price must be 0 or more', slt_err_days:'Validity must be 1 day or more',
     slt_err_save:'Save failed', slt_confirm_delete:'This permanently deletes the package. Customers who bought it keep their slots, but the package name is removed. Are you sure?',
@@ -4848,36 +4835,6 @@ let editingSlotPackageId = null;
 
 async function initSlotsTab(){
   await loadSlotPackages();
-  await loadCheckTerms();
-}
-
-async function loadCheckTerms(){
-  const { data, error } = await supabaseClient
-    .from('site_texts').select('value_ar, value_en').eq('key', 'check_terms').maybeSingle();
-  if (error) { console.error('loadCheckTerms failed:', error); return; }
-  document.getElementById('termsArInput').value = data?.value_ar || '';
-  document.getElementById('termsEnInput').value = data?.value_en || '';
-}
-
-async function saveCheckTerms(){
-  const btn = document.getElementById('termsSaveBtn');
-  btn.disabled = true;
-  try {
-    const { error } = await supabaseClient.from('site_texts').upsert({
-      key: 'check_terms',
-      value_ar: document.getElementById('termsArInput').value,
-      value_en: document.getElementById('termsEnInput').value,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: 'key' });
-    if (error) throw error;
-    await logAdminActivity('check_terms_update', null, '', 'تحديث شروط الاستخدام');
-    await adminAlert(t('terms_admin_saved'), {icon:'✅'});
-  } catch (err) {
-    console.error('saveCheckTerms failed:', err);
-    await adminAlert(t('slt_err_save') + ': ' + (err.message || ''), {icon:'❌', danger:true});
-  } finally {
-    btn.disabled = false;
-  }
 }
 
 async function loadSlotPackages(){

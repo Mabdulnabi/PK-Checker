@@ -912,6 +912,15 @@
     .submit-files-row{justify-content:stretch;}
     .submit-files-btn{width:100%;justify-content:center;}
   }
+  .sf-slotbar{display:flex;align-items:center;gap:10px;background:var(--ok-wash);border:1.5px solid var(--ok);border-radius:14px;padding:11px 14px;}
+  .sf-slotselect{flex:1;min-width:0;border:none;background:transparent;font-family:'Cairo',sans-serif;font-size:14px;font-weight:800;color:#0F5132;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer;}
+  .sf-slotselect:disabled{cursor:default;}
+  .sf-slotbadge{flex:none;font-size:11px;font-weight:800;padding:3px 9px;border-radius:8px;background:var(--ok);color:#fff;font-family:'Cairo',sans-serif;}
+  .sf-slotchev{flex:none;width:16px;height:16px;fill:none;stroke:#0F5132;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .sf-browse{margin-top:8px;background:var(--blue);color:#fff;border:none;border-radius:9px;padding:8px 18px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;}
+  .sf-terms-cards{display:flex;flex-direction:column;gap:12px;}
+  .sf-terms-cards .plan-limits-box,.sf-terms-cards .req-card{margin-bottom:0;}
+  #lastOrderCard{display:none !important;}
   .redeem-code-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;margin:14px auto 0;background:var(--ok);color:#fff;border:none;border-radius:999px;padding:9px 18px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 6px 16px -6px rgba(14,159,110,0.6);transition:filter .2s,transform .2s;}
   .redeem-code-btn:hover{filter:brightness(1.07);}
   .redeem-code-btn:active{transform:scale(0.98);}
@@ -1829,6 +1838,10 @@
       <!-- Service-off banner: shown when service_enabled=false -->
       <div id="serviceOffBanner" style="display:none;background:var(--danger-wash);color:var(--danger);border-radius:10px;padding:12px 16px;margin-bottom:14px;font-size:13px;font-weight:700;text-align:center;"></div>
 
+      <div class="submit-files-row">
+        <button class="btn btn-primary submit-files-btn" type="button" onclick="openSubmitFilesModal()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg> <span data-i18n="sf_open_btn">إرسال الملفات</span></button>
+      </div>
+
       <div class="uploadzone" id="uploadzoneBox">
         <input type="file" id="fileInput" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;">
         <div class="uicon"><svg class="ic" data-icon-key="nc_upload" viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg></div>
@@ -1843,54 +1856,6 @@
       </div>
 
       <div class="upload-error" id="uploadError" style="display:none;color:#E0445B;font-size:12px;margin-top:8px;"></div>
-      <div class="submit-files-row">
-        <button class="btn btn-primary submit-files-btn" type="button" onclick="openSubmitFilesModal()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg> <span data-i18n="sf_open_btn">إرسال الملفات</span></button>
-      </div>
-
-      <!-- Plan Limits banner -->
-      <div class="plan-limits-box">
-        <svg class="plb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <div class="plb-body">
-          <span class="plb-title" data-i18n="plan_limits_label">Turnitin Plan Limits:</span>
-          <span data-i18n="plan_limits_sim_pre"> Plagiarism up to </span><b>50,000</b><span data-i18n="plan_limits_words"> words.</span>
-          <span data-i18n="plan_limits_ai_pre"> AI Detection valid up to </span><b>30,000</b><span data-i18n="plan_limits_words_end"> words</span>
-          <span class="plb-muted" data-i18n="plan_limits_note"> (Turnitin's official AI engine rule, not our platform limit).</span>
-        </div>
-        <span class="plan-limits-badge" data-i18n="plan_limits_badge">Turnitin Rule</span>
-      </div>
-
-      <!-- Requirements for AI Detection card -->
-      <div class="req-card">
-        <div class="req-card-head">
-          <div class="req-card-head-left">
-            <span>✨</span>
-            <span data-i18n="req_card_title">Requirements for AI Detection</span>
-          </div>
-          <span class="req-card-badge" data-i18n="req_card_badge">Turnitin Standard</span>
-        </div>
-        <div class="req-grid">
-          <div class="req-cell">
-            <div class="rc-icon blue">🗂</div>
-            <span><b data-i18n="req_size_label">Size:</b> <span data-i18n="req_size_val">Below 100 MB</span></span>
-          </div>
-          <div class="req-cell">
-            <div class="rc-icon blue">🔡</div>
-            <span><b data-i18n="req_lang_label">Lang:</b> <span data-i18n="req_lang_val">EN, ES, JA</span></span>
-          </div>
-          <div class="req-cell">
-            <div class="rc-icon muted">≡</div>
-            <span><b data-i18n="req_min_label">Min:</b> <span data-i18n="req_min_val">300 words (para)</span></span>
-          </div>
-          <div class="req-cell">
-            <div class="rc-icon green">🟩</div>
-            <span><b data-i18n="req_max_label">AI Max:</b> <span data-i18n="req_max_val">30,000 words</span></span>
-          </div>
-        </div>
-        <div class="req-privacy">
-          <div class="rc-icon">🔒</div>
-          <span><b data-i18n="req_privacy_label">Privacy:</b> <span data-i18n="req_privacy_pre">Files are </span><b data-i18n="req_privacy_not_saved">not saved</b><span data-i18n="req_privacy_post"> in any repository (100% safe).</span></span>
-        </div>
-      </div>
 
       <div class="panel-block">
         <div class="panel-block-head">
@@ -2471,21 +2436,66 @@
       <button class="sf-close" type="button" onclick="closeSubmitFilesModal()" aria-label="Close">✕</button>
     </div>
     <div class="sf-body">
-      <label class="sf-label" for="sfSlotType" data-i18n="sf_slot_label">نوع الفحص</label>
-      <select class="sf-select" id="sfSlotType"></select>
+      <div class="sf-slotbar">
+        <select class="sf-slotselect" id="sfSlotType" aria-label="Slot type"></select>
+        <span class="sf-slotbadge">S1</span>
+        <svg class="sf-slotchev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
 
       <div id="sfStepFile">
         <input type="file" id="sfFileInput" accept=".pdf,.docx" style="display:none">
         <div class="sf-dropzone" id="sfDropzone" role="button" tabindex="0">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
-          <b data-i18n="sf_pick">اختر الملف أو اسحبه هنا</b>
-          <span data-i18n="sf_formats">DOCX أو PDF فقط، حتى 100MB</span>
+          <b data-i18n="sf_pick">ارفع ورقتك البحثية أو رسالتك هنا</b>
+          <span data-i18n="sf_formats">PDF أو DOCX فقط، حتى 100MB</span>
+          <button class="sf-browse" type="button" data-i18n="sf_browse">تصفح الملف</button>
         </div>
         <div class="sf-error" id="sfError" role="alert"></div>
-        <div class="sf-terms">
-          <div class="sf-terms-title" data-i18n="sf_terms_title">شروط الاستخدام</div>
-          <div class="sf-terms-body" id="sfTerms"></div>
+        <div class="sf-terms-cards">
+        <!-- Plan Limits banner -->
+        <div class="plan-limits-box">
+          <svg class="plb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div class="plb-body">
+            <span class="plb-title" data-i18n="plan_limits_label">Turnitin Plan Limits:</span>
+            <span data-i18n="plan_limits_sim_pre"> Plagiarism up to </span><b>50,000</b><span data-i18n="plan_limits_words"> words.</span>
+            <span data-i18n="plan_limits_ai_pre"> AI Detection valid up to </span><b>30,000</b><span data-i18n="plan_limits_words_end"> words</span>
+            <span class="plb-muted" data-i18n="plan_limits_note"> (Turnitin's official AI engine rule, not our platform limit).</span>
+          </div>
+          <span class="plan-limits-badge" data-i18n="plan_limits_badge">Turnitin Rule</span>
         </div>
+        <!-- Requirements for AI Detection card -->
+        <div class="req-card">
+          <div class="req-card-head">
+            <div class="req-card-head-left">
+              <span>✨</span>
+              <span data-i18n="req_card_title">Requirements for AI Detection</span>
+            </div>
+            <span class="req-card-badge" data-i18n="req_card_badge">Turnitin Standard</span>
+          </div>
+          <div class="req-grid">
+            <div class="req-cell">
+              <div class="rc-icon blue">🗂</div>
+              <span><b data-i18n="req_size_label">Size:</b> <span data-i18n="req_size_val">Below 100 MB</span></span>
+            </div>
+            <div class="req-cell">
+              <div class="rc-icon blue">🔡</div>
+              <span><b data-i18n="req_lang_label">Lang:</b> <span data-i18n="req_lang_val">EN, ES, JA</span></span>
+            </div>
+            <div class="req-cell">
+              <div class="rc-icon muted">≡</div>
+              <span><b data-i18n="req_min_label">Min:</b> <span data-i18n="req_min_val">300 words (para)</span></span>
+            </div>
+            <div class="req-cell">
+              <div class="rc-icon green">🟩</div>
+              <span><b data-i18n="req_max_label">AI Max:</b> <span data-i18n="req_max_val">30,000 words</span></span>
+            </div>
+          </div>
+          <div class="req-privacy">
+            <div class="rc-icon">🔒</div>
+            <span><b data-i18n="req_privacy_label">Privacy:</b> <span data-i18n="req_privacy_pre">Files are </span><b data-i18n="req_privacy_not_saved">not saved</b><span data-i18n="req_privacy_post"> in any repository (100% safe).</span></span>
+          </div>
+        </div>
+          </div>
       </div>
 
       <div id="sfStepFilters" style="display:none;">
@@ -2494,7 +2504,7 @@
         <label class="sf-check"><input type="checkbox" id="sfBib"><span data-i18n="sf_f_bib">استبعاد المراجع</span></label>
         <label class="sf-check"><input type="checkbox" id="sfQuo"><span data-i18n="sf_f_quo">استبعاد الاقتباسات</span></label>
         <label class="sf-check"><input type="checkbox" id="sfCit"><span data-i18n="sf_f_cit">استبعاد الاستشهادات داخل النص</span></label>
-        <label class="sf-check"><input type="checkbox" id="sfSmall" checked><span data-i18n="sf_f_small">استبعاد التطابقات الصغيرة أقل من</span>
+        <label class="sf-check"><input type="checkbox" id="sfSmall"><span data-i18n="sf_f_small">استبعاد التطابقات الصغيرة أقل من</span>
           <input type="number" id="sfSmallWords" class="sf-num" min="8" max="250" value="8"> <span data-i18n="sf_f_words">كلمة</span></label>
         <div class="sf-notice">
           <b data-i18n="sf_notice_title">لا يتم حفظ الملف في أي مستودع</b>
@@ -2791,7 +2801,7 @@ const I18N = {
     kpi_slots_label:"فحوصات متبقية", kpi_expiry_label:"تاريخ انتهاء الفحوصات", kpi_api_status:"حالة الـ API",
     api_active:"نشط", api_inactive:"متوقف", expiry_days_left:"باقي {d} يوم", sf_no_expiry:"بدون انتهاء", sf_no_slots_short:"لا توجد فحوصات",
     sf_open_btn:"إرسال الملفات", sf_title:"Pro Keys · رفع الملفات", sf_slot_label:"نوع الفحص", sf_no_slots:"مفيش فحوصات متاحة",
-    sf_opt_label:"Plagiarism + AI ({n} فحص متبقي - تنتهي: {d})", sf_pick:"اختر الملف أو اسحبه هنا", sf_formats:"DOCX أو PDF فقط، حتى 100MB",
+    sf_opt_label:"Plagiarism + AI ({n} فحص متبقي - تنتهي: {d})", sf_pick:"ارفع ورقتك البحثية أو رسالتك هنا", sf_formats:"PDF أو DOCX فقط، حتى 100MB", sf_browse:"تصفح الملف",
     sf_err_format:"الصيغة دي مش مدعومة. ارفع ملف DOCX أو PDF بس.", sf_err_size:"الملف أكبر من 100MB", sf_terms_title:"شروط الاستخدام",
     sf_filters_title:"فلاتر التحليل", sf_f_bib:"استبعاد المراجع", sf_f_quo:"استبعاد الاقتباسات", sf_f_cit:"استبعاد الاستشهادات داخل النص",
     sf_f_small:"استبعاد التطابقات الصغيرة أقل من", sf_f_words:"كلمة", sf_notice_title:"لا يتم حفظ الملف في أي مستودع",
@@ -2974,7 +2984,7 @@ const I18N = {
     kpi_slots_label:"Slots remaining", kpi_expiry_label:"Slots expiry date", kpi_api_status:"API status",
     api_active:"Active", api_inactive:"Inactive", expiry_days_left:"{d} days left", sf_no_expiry:"No expiry", sf_no_slots_short:"No slots",
     sf_open_btn:"Submit Files", sf_title:"Pro Keys · Submit Files", sf_slot_label:"Slot type", sf_no_slots:"No slots available",
-    sf_opt_label:"Plagiarism + AI ({n} Slots Remaining - Next Expiry: {d})", sf_pick:"Choose a file or drop it here", sf_formats:"DOCX or PDF only, up to 100MB",
+    sf_opt_label:"Plagiarism + AI ({n} Slots Remaining - Next Expiry: {d})", sf_pick:"Drag & drop your research paper or thesis here", sf_formats:"PDF or DOCX only, up to 100MB", sf_browse:"Browse Local File",
     sf_err_format:"This file type isn't supported. Upload a DOCX or PDF file.", sf_err_size:"The file is larger than 100MB", sf_terms_title:"Terms & Conditions",
     sf_filters_title:"Analysis filters", sf_f_bib:"Exclude bibliography", sf_f_quo:"Exclude quotes", sf_f_cit:"Exclude citations",
     sf_f_small:"Exclude small matches under", sf_f_words:"words", sf_notice_title:"Your file is not saved in any repository",
@@ -6185,14 +6195,19 @@ const FILE_RULES = {
   }
 };
 
+// Set once a file has been sent. The upload area stays hidden until the
+// next layout is in place.
+let _uploadAreaDone = false;
 function renderFileChip(){
+  const submitRow = document.querySelector('.submit-files-row');
+  if(submitRow) submitRow.style.display = _uploadAreaDone ? 'none' : '';
   if(currentFile && currentFile.name){
     fileChip.style.display = 'flex';
     fileChipName.textContent = currentFile.name;
     uploadzoneBox.style.display = 'none';
   } else {
     fileChip.style.display = 'none';
-    uploadzoneBox.style.display = 'block';
+    uploadzoneBox.style.display = _uploadAreaDone ? 'none' : 'block';
   }
 }
 renderFileChip();
@@ -6225,8 +6240,9 @@ function validateAndSetFile(file){
 }
 
 // Click the dropzone -> open the real file picker (unchanged, not handed to Dropzone)
+// The upload area now opens the Submit Files popup.
 uploadzoneBox.addEventListener('click', () => {
-  fileInput.click();
+  openSubmitFilesModal();
 });
 fileInput.addEventListener('change', (e) => {
   if(e.target.files && e.target.files[0]) validateAndSetFile(e.target.files[0]);
@@ -6247,7 +6263,10 @@ uploadzoneBox.addEventListener('dragleave', () => {
 uploadzoneBox.addEventListener('drop', (e) => {
   e.preventDefault();
   uploadzoneBox.classList.remove('dragover');
-  if(e.dataTransfer.files && e.dataTransfer.files[0]) validateAndSetFile(e.dataTransfer.files[0]);
+  if(e.dataTransfer.files && e.dataTransfer.files[0]) {
+    openSubmitFilesModal();
+    sfPickFile(e.dataTransfer.files[0]);
+  }
 });
 
 fileChipRemove.addEventListener('click', (e)=>{
@@ -7304,7 +7323,12 @@ let siteTexts = {};
 let sfFile = null;
 const SF_MAX_BYTES = 100 * 1024 * 1024;
 
-function fmtExpiryDate(iso){ return new Date(iso).toLocaleDateString('en-GB'); } // dd/mm/yyyy
+const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+// "16 Nov, 2026"
+function fmtExpiryDate(iso){
+  const d = new Date(iso);
+  return `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}, ${d.getFullYear()}`;
+}
 function daysLeft(iso){ return Math.max(0, Math.ceil((new Date(iso) - Date.now()) / 86400000)); }
 
 function renderExpiryCard(){
@@ -7316,6 +7340,7 @@ function renderExpiryCard(){
   if (slotExpiryInfo.unlimited || !slotExpiryInfo.next) { txt.textContent = t('sf_no_expiry'); return; }
   txt.textContent = fmtExpiryDate(slotExpiryInfo.next);
   sub.textContent = t('expiry_days_left').replace('{d}', daysLeft(slotExpiryInfo.next));
+  sub.style.color = 'var(--danger)';
 }
 
 function renderApiStatusCard(){
@@ -7427,6 +7452,8 @@ async function sfUploadFile(){
     btn.disabled = false;
     if (!currentFile) {
       sfFile = null;
+      _uploadAreaDone = true;
+      renderFileChip();
       closeSubmitFilesModal();
     }
   }
@@ -7753,7 +7780,7 @@ async function loadDashboardData(){
   }
 
   // loadUserProfile skips itself after first success (_profileLoaded flag)
-  await Promise.all([ loadUserProfile(), loadOrders(), loadWallet(), loadSlots(), refreshServiceAvailability(), loadSiteTexts(), loadTickets(), loadApiSettings(), loadNotifications() ]);
+  await Promise.all([ loadUserProfile(), loadOrders(), loadWallet(), loadSlots(), refreshServiceAvailability(), loadTickets(), loadApiSettings(), loadNotifications() ]);
   updatePrice();
   renderOrders();
   renderKpis();
