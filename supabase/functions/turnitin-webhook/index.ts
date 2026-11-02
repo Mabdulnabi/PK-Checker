@@ -11,72 +11,56 @@ const TURNISCAN_BASE = "https://turniscan.com/v1";
 // Every status change is re-read from GET /v1/scan/status with our API key,
 // and the order is only updated when its external_order_id matches the file.
 
-function extractFilename(contentDisposition: string | null, fallback: string): string {
-  if (contentDisposition) {
-    const m = contentDisposition.match(/filename\*?=(?:UTF-8'')?["']?([^"';\r\n]+)["']?/i);
-    if (m) return decodeURIComponent(m[1].trim());
-  }
-  return fallback;
-}
-
-async function fetchAndStore(
-  supabase: ReturnType<typeof createClient>,
-  fileId: string,
-  folder: string,
-  reportType: "sim" | "ai",
-): Promise<string | null> {
+async function downloadReport(fileId: string, reportType: "sim" | "ai"): Promise<ArrayBuffer | null> {
   const apiUrl = reportType === "ai"
     ? `${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(fileId)}&report_type=ai`
     : `${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(fileId)}`;
-
   const res = await fetch(apiUrl, { headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` } });
   if (!res.ok) {
     console.error(`webhook: ${reportType} fetch failed`, res.status, await res.text());
     return null;
   }
-  const filename = extractFilename(res.headers.get("Content-Disposition"), `${reportType}_report.pdf`);
-  const storagePath = `${folder}/${filename}`;
-  const pdf = await res.arrayBuffer();
-  // upsert: false, so a re-run never overwrites a report that is already stored.
+  return await res.arrayBuffer();
+}
+
+// Fixed file name, and never overwrite: a stored report is kept as it is.
+async function storeFixed(
+  supabase: ReturnType<typeof createClient>,
+  folder: string,
+  name: string,
+  bytes: ArrayBuffer,
+): Promise<string | null> {
+  const storagePath = `${folder}/${name}`;
   const { error } = await supabase.storage
     .from("order-reports")
-    .upload(storagePath, pdf, { contentType: "application/pdf", upsert: false });
+    .upload(storagePath, bytes, { contentType: "application/pdf", upsert: false });
   if (error && !/already exists|duplicate/i.test(error.message)) {
-    console.error(`webhook: ${reportType} upload failed`, error.message);
+    console.error("webhook: upload failed", storagePath, error.message);
     return null;
   }
   return `/storage/${storagePath}`;
 }
 
-// The AI report's page 2 shows "NN% detected as AI". Turnitin shows "*%" when the
-// score is under 20%, so the number is hidden. Returns what the page actually says.
-type PdfAiScore = { kind: "value"; value: number } | { kind: "hidden" } | { kind: "unknown" };
+// What the AI download actually contains. The AI page says "NN% detected as AI";
+// Turnitin shows "*%" when the score is under 20%. A file with only the similarity
+// pages is not an AI report.
+type AiScore = { kind: "value"; value: number } | { kind: "hidden" } | { kind: "unknown" };
+type AiRead = { hasAi: boolean; score: AiScore };
 
-async function aiScoreFromStoredPdf(
-  supabase: ReturnType<typeof createClient>,
-  storagePath: string,
-): Promise<PdfAiScore> {
+async function readAiPdf(bytes: ArrayBuffer): Promise<AiRead> {
   try {
-    const { data, error } = await supabase.storage.from("order-reports").download(storagePath);
-    if (error || !data) return { kind: "unknown" };
-    const pdf = await getDocumentProxy(new Uint8Array(await data.arrayBuffer()));
+    const pdf = await getDocumentProxy(new Uint8Array(bytes.slice(0)));
     const { text } = await extractText(pdf, { mergePages: false });
-    // Diagnostic: where do the AI and similarity markers appear in the whole file?
-    const marks = (text as string[]).map((pg, i) => ({
-      page: i + 1,
-      ai: /detected as AI/i.test(pg),
-      sim: /Overall Similarity/i.test(pg),
-    })).filter((x) => x.ai || x.sim);
-    console.log("webhook: AI pdf markers", storagePath, "pages", (text as string[]).length, JSON.stringify(marks));
-    const page2 = String(text[1] ?? "");
+    const pages = text as string[];
+    const hasAi = pages.some((pg) => /detected as AI/i.test(pg));
+    const page2 = String(pages[1] ?? "");
     const m = page2.match(/(\d{1,3}(?:\.\d+)?)\s*%\s*detected as AI/i);
-    if (m) return { kind: "value", value: Number(m[1]) };
-    if (/\*\s*%\s*detected as AI/i.test(page2)) return { kind: "hidden" };
-    console.log("webhook: AI page 2 text not matched", storagePath, JSON.stringify(page2.slice(0, 300)));
-    return { kind: "unknown" };
+    if (m) return { hasAi, score: { kind: "value", value: Number(m[1]) } };
+    if (/\*\s*%\s*detected as AI/i.test(page2)) return { hasAi, score: { kind: "hidden" } };
+    return { hasAi, score: { kind: "unknown" } };
   } catch (e) {
-    console.error("webhook: AI page read failed", storagePath, String(e));
-    return { kind: "unknown" };
+    console.error("webhook: AI pdf read failed", String(e));
+    return { hasAi: false, score: { kind: "unknown" } };
   }
 }
 
@@ -95,7 +79,6 @@ async function fetchScanStatus(fileId: string): Promise<ScanStatus | null> {
     });
     if (!res.ok) return null;
     const data = await res.json();
-    // Raw provider response, so score fields can be checked against what TurniScan sends.
     console.log("webhook: scan status raw", fileId, JSON.stringify(data));
     const body = (data && typeof data === "object" && data.data && typeof data.data === "object") ? data.data : data;
     return body && typeof body.status === "string" ? (body as ScanStatus) : null;
@@ -151,33 +134,38 @@ Deno.serve(async (req: Request) => {
   if (internalStatus === "completed") {
     const checkType = order.check_type as string | null;
 
-    const simUrl = await fetchAndStore(supabase, fileId, `sim-reports/${customId}`, "sim");
-    if (simUrl) updates.report_url = simUrl;
+    const simBytes = await downloadReport(fileId, "sim");
+    if (simBytes) {
+      const simUrl = await storeFixed(supabase, `sim-reports/${customId}`, "sim_report.pdf", simBytes);
+      if (simUrl) updates.report_url = simUrl;
+    }
 
-    let aiPage: PdfAiScore = { kind: "unknown" };
     if (checkType !== "sim_only") {
-      const aiUrl = await fetchAndStore(supabase, fileId, `ai-reports/${customId}`, "ai");
-      if (aiUrl) {
-        updates.ai_report_url = aiUrl;
-        aiPage = await aiScoreFromStoredPdf(supabase, aiUrl.replace("/storage/", ""));
+      const aiBytes = await downloadReport(fileId, "ai");
+      if (aiBytes) {
+        const aiRead = await readAiPdf(aiBytes);
+        console.log("webhook: AI download", customId, JSON.stringify(aiRead));
+        if (aiRead.hasAi) {
+          const aiUrl = await storeFixed(supabase, `ai-reports/${customId}`, "ai_report.pdf", aiBytes);
+          if (aiUrl) updates.ai_report_url = aiUrl;
+          if (aiRead.score.kind === "value")  updates.ai_score = aiRead.score.value;
+          if (aiRead.score.kind === "hidden") updates.ai_score = null;
+        } else {
+          // Not an AI report: keep the existing AI links and score untouched.
+          console.log("webhook: AI download has no AI page, links unchanged", customId);
+        }
       }
     }
 
     updates.completed_at = new Date().toISOString();
     if (typeof scan.similarity_score === "number") updates.similarity_score = scan.similarity_score;
-    if (typeof scan.ai_score === "number")         updates.ai_score = scan.ai_score;
-    // The report page is the source of truth when it can be read.
-    // A hidden score (under 20%) is stored as null, not as 0.
-    if (aiPage.kind === "value")  updates.ai_score = aiPage.value;
-    if (aiPage.kind === "hidden") updates.ai_score = null;
-    console.log("webhook: AI from report page", customId, JSON.stringify(aiPage));
   } else if (internalStatus === "error") {
     updates.error_reason = scan.error || `TurniScan: ${scan.status}`;
   }
 
   const { error } = await supabase.from("orders").update(updates).eq("id", customId);
   if (error) console.error("webhook: DB update failed", error, customId);
-  else       console.log("webhook: order", customId, "→", internalStatus);
+  else       console.log("webhook: order", customId, "->", internalStatus);
 
   return new Response("OK", { status: 200 });
 });
