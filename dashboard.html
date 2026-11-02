@@ -924,22 +924,24 @@
   .my-files{background:var(--paper);border:1px solid var(--paper-line);border-radius:16px;padding:16px;margin-top:20px;}
   .my-files-title{display:flex;align-items:center;gap:10px;font-family:'Cairo',sans-serif;font-size:15px;color:var(--navy);margin-bottom:12px;}
   .my-files-title svg{width:20px;height:20px;fill:none;stroke:var(--blue);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
-  .mf-cols-head,.mf-row{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(0,1.7fr) minmax(0,1.3fr) minmax(0,1.3fr) 44px;gap:12px;align-items:center;}
+  .mf-cols-head,.mf-row{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(0,1fr) minmax(0,1.5fr) minmax(0,1.2fr) minmax(0,1.2fr) 40px;gap:10px;align-items:center;}
   .mf-cols-head{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.4px;padding:0 16px 8px;text-transform:uppercase;}
   .mf-row{background:var(--paper);border:1px solid var(--paper-line);border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.03);}
   .mf-name{font-weight:800;color:var(--navy);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;text-align:start;}
   .mf-badge{display:inline-flex;align-items:center;margin-top:6px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:8px;background:var(--blue-wash);color:var(--blue-deep);border:1px solid #BFD7FF;font-family:'Cairo',sans-serif;}
+  .mf-order{font-family:'Cairo',sans-serif;font-size:12px;font-weight:800;color:var(--navy);direction:ltr;text-align:start;white-space:nowrap;}
+  .mf-order small{display:block;font-size:10.5px;font-weight:700;color:var(--muted);}
   .mf-time{font-size:12.5px;color:var(--navy);}
   .mf-time small{color:var(--muted);}
   .mf-status{display:inline-flex;align-items:center;gap:5px;margin-top:6px;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:'Cairo',sans-serif;}
   .mf-status.ok{background:var(--ok-wash);color:#0F7A55;border:1px solid #B7EBD5;}
   .mf-status.run{background:var(--blue-wash);color:var(--blue-deep);border:1px solid #BFD7FF;}
   .mf-status.bad{background:var(--danger-wash);color:var(--danger);border:1px solid #F5C2CB;}
-  .mf-dl{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:6px;background:#0E9F6E;color:#fff;border:none;border-radius:10px;padding:9px 12px;font-family:'Cairo',sans-serif;font-weight:800;font-size:13px;cursor:pointer;}
-  .mf-dl svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+  .mf-dl{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:5px;background:#0E9F6E;color:#fff;border:none;border-radius:9px;padding:7px 8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:12px;cursor:pointer;white-space:nowrap;}
+  .mf-dl svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
   .mf-dl:disabled{opacity:.55;cursor:not-allowed;}
   .mf-muted{font-size:12px;color:var(--muted);font-family:'Cairo',sans-serif;}
-  .mf-del{width:36px;height:36px;border-radius:10px;background:#FFF1F3;border:1px solid #F5C2CB;color:var(--danger);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+  .mf-del{width:32px;height:32px;border-radius:10px;background:#FFF1F3;border:1px solid #F5C2CB;color:var(--danger);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
   .mf-del svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
   .mf-del:disabled{opacity:.35;cursor:not-allowed;}
   .mf-empty{text-align:center;color:var(--muted);font-size:13px;padding:28px 12px;font-family:'Cairo',sans-serif;}
@@ -950,9 +952,10 @@
     .mf-row{grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:14px;}
     .mf-doc{grid-column:1;grid-row:1;min-width:0;}
     .mf-act{grid-column:2;grid-row:1;justify-self:end;}
-    .mf-time{grid-column:1 / span 2;grid-row:2;}
-    .mf-ai{grid-column:1;grid-row:3;min-width:0;}
-    .mf-sim{grid-column:2;grid-row:3;min-width:0;}
+    .mf-order{grid-column:1 / span 2;grid-row:2;}
+    .mf-time{grid-column:1 / span 2;grid-row:3;}
+    .mf-ai{grid-column:1;grid-row:4;min-width:0;}
+    .mf-sim{grid-column:2;grid-row:4;min-width:0;}
   }
   .sf-dd{position:relative;}
   .sf-dd-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--ok-wash);border:1.5px solid var(--ok);border-radius:14px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13.5px;font-weight:800;color:#0F5132;cursor:pointer;text-align:start;}
@@ -1969,6 +1972,7 @@
         </div>
         <div class="mf-cols-head">
           <span data-i18n="mf_col_doc">الملف</span>
+          <span data-i18n="mf_col_order">رقم الطلب</span>
           <span data-i18n="mf_col_time">تاريخ الإرسال / التسليم</span>
           <span data-i18n="mf_col_ai">كشف الذكاء الاصطناعي</span>
           <span data-i18n="mf_col_sim">التشابه</span>
@@ -2867,7 +2871,7 @@ const I18N = {
     tour_done_title:"كل حاجة واضحة؟", tour_done_desc:"الجولة التعريفية خلصت. تقدر تبدأ دلوقتي وترفع أول ملف بثقة. بالتوفيق! 🌟",
     kpi_slots_label:"فحوصات متبقية", kpi_expiry_label:"تاريخ انتهاء الفحوصات", kpi_api_status:"حالة الـ API",
     api_active:"نشط", api_inactive:"متوقف", expiry_days_left:"باقي {d} يوم", sf_no_expiry:"بدون انتهاء", sf_no_slots_short:"لا توجد فحوصات",
-    mf_title:"ملفاتي", mf_col_doc:"الملف", mf_col_time:"تاريخ الإرسال / التسليم", mf_col_ai:"كشف الذكاء الاصطناعي", mf_col_sim:"التشابه", mf_col_action:"إجراء",
+    mf_title:"ملفاتي", mf_col_doc:"الملف", mf_col_order:"رقم الطلب", mf_col_time:"تاريخ الإرسال / التسليم", mf_col_ai:"كشف الذكاء الاصطناعي", mf_col_sim:"التشابه", mf_col_action:"إجراء",
     mf_empty:"لسه مفيش ملفات. ابعت ملف عشان تشوف النتايج هنا.", mf_checking:"جاري الفحص", mf_delivered:"تم التسليم في", mf_delivered_plain:"تم التسليم",
     mf_failed:"فشل الفحص", mf_not_included:"غير مضمّن", mf_result_unavailable:"النتيجة غير متاحة", mf_download:"تحميل",
     mf_delete:"حذف الملف", mf_confirm_title:"حذف الملف؟", mf_confirm_body:"هيتمسح الملف {f} والتقارير بتاعته نهائياً. متأكد؟",
@@ -3056,7 +3060,7 @@ const I18N = {
     tour_done_title:"All set!", tour_done_desc:"The tour is complete. You're ready to upload your first file with confidence. Good luck! 🌟",
     kpi_slots_label:"Slots remaining", kpi_expiry_label:"Slots expiry date", kpi_api_status:"API status",
     api_active:"Active", api_inactive:"Inactive", expiry_days_left:"{d} days left", sf_no_expiry:"No expiry", sf_no_slots_short:"No slots",
-    mf_title:"My Files", mf_col_doc:"Document", mf_col_time:"Submitted / Delivery time", mf_col_ai:"AI detection", mf_col_sim:"Similarity", mf_col_action:"Action",
+    mf_title:"My Files", mf_col_doc:"Document", mf_col_order:"Order #", mf_col_time:"Submitted / Delivery time", mf_col_ai:"AI detection", mf_col_sim:"Similarity", mf_col_action:"Action",
     mf_empty:"No files yet. Submit a file to see your results here.", mf_checking:"Checking", mf_delivered:"Delivered in", mf_delivered_plain:"Delivered",
     mf_failed:"Failed", mf_not_included:"Not included", mf_result_unavailable:"Result unavailable", mf_download:"Download",
     mf_delete:"Delete file", mf_confirm_title:"Delete this file?", mf_confirm_body:"File {f} and its reports will be permanently deleted. Are you sure?",
@@ -7694,6 +7698,7 @@ function renderMyFiles(){
           <span class="mf-badge">${escapeHtml(mfBadge(f))}</span>
         </div>
       </div>
+      <div class="mf-cell mf-order">${escapeHtml(f.display_id || '')}</div>
       <div class="mf-cell mf-time">
         <div>${escapeHtml(mfDate(f.submitted_at))} <small>${escapeHtml(mfTime(f.submitted_at))}</small></div>
         ${mfStatusCell(f)}
