@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { getDocumentProxy, extractText } from "npm:unpdf@1";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -41,6 +42,31 @@ async function fetchAndStore(
     .upload(storagePath, pdf, { contentType: "application/pdf", upsert: true });
   if (error) { console.error(`webhook: ${reportType} upload failed`, error.message); return null; }
   return `/storage/${storagePath}`;
+}
+
+// The AI report's page 2 shows "NN% detected as AI". Turnitin shows "*%" when the
+// score is under 20%, so the number is hidden. Returns what the page actually says.
+type PdfAiScore = { kind: "value"; value: number } | { kind: "hidden" } | { kind: "unknown" };
+
+async function aiScoreFromStoredPdf(
+  supabase: ReturnType<typeof createClient>,
+  storagePath: string,
+): Promise<PdfAiScore> {
+  try {
+    const { data, error } = await supabase.storage.from("order-reports").download(storagePath);
+    if (error || !data) return { kind: "unknown" };
+    const pdf = await getDocumentProxy(new Uint8Array(await data.arrayBuffer()));
+    const { text } = await extractText(pdf, { mergePages: false });
+    const page2 = String(text[1] ?? "");
+    const m = page2.match(/(\d{1,3}(?:\.\d+)?)\s*%\s*detected as AI/i);
+    if (m) return { kind: "value", value: Number(m[1]) };
+    if (/\*\s*%\s*detected as AI/i.test(page2)) return { kind: "hidden" };
+    console.log("webhook: AI page 2 text not matched", storagePath, JSON.stringify(page2.slice(0, 300)));
+    return { kind: "unknown" };
+  } catch (e) {
+    console.error("webhook: AI page read failed", storagePath, String(e));
+    return { kind: "unknown" };
+  }
 }
 
 interface ScanStatus {
@@ -117,14 +143,23 @@ Deno.serve(async (req: Request) => {
     const simUrl = await fetchAndStore(supabase, fileId, `sim-reports/${customId}`, "sim");
     if (simUrl) updates.report_url = simUrl;
 
+    let aiPage: PdfAiScore = { kind: "unknown" };
     if (checkType !== "sim_only") {
       const aiUrl = await fetchAndStore(supabase, fileId, `ai-reports/${customId}`, "ai");
-      if (aiUrl) updates.ai_report_url = aiUrl;
+      if (aiUrl) {
+        updates.ai_report_url = aiUrl;
+        aiPage = await aiScoreFromStoredPdf(supabase, aiUrl.replace("/storage/", ""));
+      }
     }
 
     updates.completed_at = new Date().toISOString();
     if (typeof scan.similarity_score === "number") updates.similarity_score = scan.similarity_score;
     if (typeof scan.ai_score === "number")         updates.ai_score = scan.ai_score;
+    // The report page is the source of truth when it can be read.
+    // A hidden score (under 20%) is stored as null, not as 0.
+    if (aiPage.kind === "value")  updates.ai_score = aiPage.value;
+    if (aiPage.kind === "hidden") updates.ai_score = null;
+    console.log("webhook: AI from report page", customId, JSON.stringify(aiPage));
   } else if (internalStatus === "error") {
     updates.error_reason = scan.error || `TurniScan: ${scan.status}`;
   }
