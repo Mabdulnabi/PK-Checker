@@ -37,10 +37,14 @@ async function fetchAndStore(
   const filename = extractFilename(res.headers.get("Content-Disposition"), `${reportType}_report.pdf`);
   const storagePath = `${folder}/${filename}`;
   const pdf = await res.arrayBuffer();
+  // upsert: false, so a re-run never overwrites a report that is already stored.
   const { error } = await supabase.storage
     .from("order-reports")
-    .upload(storagePath, pdf, { contentType: "application/pdf", upsert: true });
-  if (error) { console.error(`webhook: ${reportType} upload failed`, error.message); return null; }
+    .upload(storagePath, pdf, { contentType: "application/pdf", upsert: false });
+  if (error && !/already exists|duplicate/i.test(error.message)) {
+    console.error(`webhook: ${reportType} upload failed`, error.message);
+    return null;
+  }
   return `/storage/${storagePath}`;
 }
 
@@ -57,6 +61,13 @@ async function aiScoreFromStoredPdf(
     if (error || !data) return { kind: "unknown" };
     const pdf = await getDocumentProxy(new Uint8Array(await data.arrayBuffer()));
     const { text } = await extractText(pdf, { mergePages: false });
+    // Diagnostic: where do the AI and similarity markers appear in the whole file?
+    const marks = (text as string[]).map((pg, i) => ({
+      page: i + 1,
+      ai: /detected as AI/i.test(pg),
+      sim: /Overall Similarity/i.test(pg),
+    })).filter((x) => x.ai || x.sim);
+    console.log("webhook: AI pdf markers", storagePath, "pages", (text as string[]).length, JSON.stringify(marks));
     const page2 = String(text[1] ?? "");
     const m = page2.match(/(\d{1,3}(?:\.\d+)?)\s*%\s*detected as AI/i);
     if (m) return { kind: "value", value: Number(m[1]) };
