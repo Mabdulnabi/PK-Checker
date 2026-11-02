@@ -161,7 +161,8 @@ Deno.serve(async (req: Request) => {
     if (!order.completed_at) updates.completed_at = new Date().toISOString();
     if (typeof scan.similarity_score === "number") updates.similarity_score = scan.similarity_score;
   } else if (internalStatus === "error") {
-    updates.error_reason = scan.error || `TurniScan: ${scan.status}`;
+    console.error("webhook: provider reported failure", JSON.stringify(scan));
+    updates.error_reason = "The check could not be completed.";
   }
 
   const { error } = await supabase.from("orders").update(updates).eq("id", customId);

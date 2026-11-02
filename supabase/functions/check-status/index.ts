@@ -105,7 +105,8 @@ Deno.serve(async (req: Request) => {
     });
     const tsData = await tsRes.json();
     if (!tsRes.ok || !tsData.success) {
-      return json({ success: false, polled: false, error: tsData.message || "TurniScan status check failed" });
+      console.error("check-status: provider status error", JSON.stringify(tsData));
+      return json({ success: false, polled: false, error: "The check status is not available right now. Please try again later." });
     }
 
     const internalStatus = mapStatus(tsData.status as string);
@@ -140,8 +141,8 @@ Deno.serve(async (req: Request) => {
       if (typeof tsData.similarity_score === "number") updates.similarity_score = tsData.similarity_score;
 
     } else if (internalStatus === "error") {
-      updates.error_reason =
-        (tsData.error_message as string) || (tsData.message as string) || `TurniScan: ${tsData.status}`;
+      console.error("check-status: provider reported failure", JSON.stringify(tsData));
+      updates.error_reason = "The check could not be completed.";
     }
 
     await supabase.from("orders").update(updates).eq("id", orderId);

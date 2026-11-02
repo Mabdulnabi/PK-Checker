@@ -145,13 +145,15 @@ Deno.serve(async (req: Request) => {
       tsData = await tsRes.json();
       tsOk = tsRes.ok && tsData.success === true && typeof tsData.file_id === "string";
     } catch (e) {
-      console.error("submit-check: TurniScan request failed", e);
+      console.error("submit-check: provider request failed", e);
     }
 
     if (!tsOk) {
       // Not accepted for processing, so the slot goes back.
       await admin.rpc("release_slot", { p_idempotency_key: slotKey });
-      const errMsg = (tsData.message as string) || "TurniScan submission failed";
+      // Provider details stay in the logs only; the customer sees a neutral message.
+      console.error("submit-check: provider refused", JSON.stringify(tsData));
+      const errMsg = "The file could not be submitted for checking. Please try again later.";
       await admin.from("orders").update({ status: "error", error_reason: errMsg }).eq("id", orderId);
       return cors_json({ success: false, error: errMsg }, 422);
     }
