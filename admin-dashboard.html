@@ -5178,6 +5178,10 @@ async function loadRedeemCodes(){
 }
 
 async function loadPendingPayments(){
+  // Top-up approvals are retired: every payment is verified automatically, so this card stays hidden.
+  const hiddenCard = document.getElementById('pendingPaymentsCard');
+  if (hiddenCard) hiddenCard.style.display = 'none';
+  return;
   const { data, error } = await supabaseClient
     .from('payments')
     .select('id, user_id, pack_id, gateway, amount, currency, credits, created_at')
