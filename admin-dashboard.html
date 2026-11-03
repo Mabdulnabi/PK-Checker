@@ -807,7 +807,7 @@
         <!-- MANUAL REVIEW QUEUE — shown only when there are manual-mode orders
              awaiting accept/reject or awaiting report upload. Same row detail
              as the main orders table below, plus an action column. -->
-        <div class="panel" id="manualQueuePanel" style="display:none;">
+        <div class="panel" id="manualQueuePanel" style="display:none !important;">
           <div class="panel-head"><h3 data-i18n="manual_queue_title">🖐 فحص يدوي</h3></div>
           <div style="overflow-x:auto;">
             <table class="tbl">
@@ -1952,7 +1952,10 @@ async function loadConversations(){
   const { data, error } = await supabaseClient
     .from('chat_conversations').select('*').order('last_message_at', { ascending: false });
   if (error) { console.error('loadConversations failed:', error); return; }
-  conversations = data || [];
+  // A conversation opened without any message is not shown: it appears once the customer sends one.
+  const { data: msgRows } = await supabaseClient.from('chat_messages').select('conversation_id');
+  const withMessages = new Set((msgRows || []).map(m => m.conversation_id));
+  conversations = (data || []).filter(c => withMessages.has(c.id) || c.id === openConversationId);
   renderChatSidebar();
   if (openConversationId) {
     const stillThere = conversations.find(c => c.id === openConversationId);
@@ -2910,7 +2913,7 @@ async function loadOverview(){
   const [ordersRes, profilesRes, walletRes] = await Promise.all([
     supabaseClient.from('orders').select('id, status, submitted_at, check_type'),
     supabaseClient.from('users_profile_numbered').select('user_id', { count: 'exact', head: true }),
-    supabaseClient.from('payments').select('amount, currency, status, created_at, verified_at, pack_id').eq('status', 'completed'),
+    supabaseClient.from('payments').select('amount, currency, status, created_at, verified_at, pack_id, transaction_id').eq('status', 'completed'),
   ]);
 
   if (ordersRes.error) { console.error(ordersRes.error); document.getElementById('overviewSub').textContent = 'تعذر التحميل'; return; }
@@ -4561,7 +4564,9 @@ const API_COST_BOTH_EGP = 32.5;   // sim_ai / both: $0.65 = 32.5 EGP
 
 // EGP value of completed top-ups since a date (USD payments converted at 50 EGP per USD).
 function sumPaymentsEgp(list, since){
+  // Rows imported from the old sheet carry the import time, not the sale time, so they are left out of the periods.
   return list
+    .filter(p => !String(p.transaction_id || '').startsWith('sheet-row-'))
     .filter(p => new Date(p.verified_at || p.created_at) >= since)
     .reduce((s, p) => s + (p.currency === 'USD' ? Number(p.amount) * 50 : Number(p.amount)), 0);
 }
@@ -5352,40 +5357,34 @@ async function crLookupUser(){
 
 // ── Admin adjust credit ──
 async function adminAdjustCredit(action){
+  // Balance adjustments are in slots: "add" grants packages of the chosen package,
+  // "deduct" removes plag + AI slots. Every change is logged in admin_slot_adjustments.
   if (!crUserFound) { await adminAlert('ابحث أولاً عن مستخدم بكود PK', {icon:'⚠️'}); return; }
-  const amount = parseInt(document.getElementById('crAmountInput').value);
-  if (!amount || amount < 1) { await adminAlert('أدخل عدد كريديت صحيح (أكبر من 0)', {icon:'⚠️'}); return; }
+  const count = parseInt(document.getElementById('crAmountInput').value);
+  if (!count || count < 1) { await adminAlert('أدخل عدد صحيح (أكبر من 0)', {icon:'⚠️'}); return; }
   const note = document.getElementById('crNoteInput').value.trim();
-
-  // Get current balance
-  const { data: bal } = await supabaseClient
-    .from('wallet_transactions').select('balance_after')
-    .eq('user_id', crUserFound.user_id).order('created_at',{ascending:false}).limit(1);
-  const balBefore = Number(bal?.[0]?.balance_after ?? 0);
-  const balAfter  = action === 'add' ? balBefore + amount : Math.max(0, balBefore - amount);
-  const txType    = action === 'add' ? 'admin_credit' : 'admin_debit';
-
-  const { error } = await supabaseClient.from('wallet_transactions').insert({
-    user_id:       crUserFound.user_id,
-    type:          txType,
-    amount:        amount,
-    balance_before: balBefore,
-    balance_after:  balAfter,
-    admin_note:    note || (action==='add' ? 'إضافة رصيد يدوي' : 'خصم رصيد يدوي'),
-    description:   note || (action==='add' ? `إضافة ${amount} كريديت من الأدمن` : `خصم ${amount} كريديت من الأدمن`),
-    admin_id:      currentAdmin?.id || null,
-    admin_name:    currentAdmin?.name || 'أدمن',
-  });
-
   const banner = document.getElementById('crAdjBanner');
-  if (error) {
+  const pkgId = document.getElementById('qcPackageSelect')?.value || '';
+
+  let res;
+  if (action === 'add') {
+    if (!pkgId) { await adminAlert('اختار الباقة الأول', {icon:'⚠️'}); return; }
+    res = await supabaseClient.rpc('admin_grant_package', {
+      p_user_id: crUserFound.user_id, p_package_id: pkgId, p_count: count, p_note: note || null,
+    });
+  } else {
+    res = await supabaseClient.rpc('admin_deduct_slots', {
+      p_user_id: crUserFound.user_id, p_slot_type: 'plag_ai', p_count: count, p_note: note || null,
+    });
+  }
+
+  if (res.error) {
     banner.className = 'cr-save-banner err';
-    banner.textContent = '❌ فشل: ' + error.message;
+    banner.textContent = '❌ فشل: ' + res.error.message;
     banner.style.display = 'block';
     return;
   }
 
-  // Clear form
   const adjustedUserName = crUserFound?.full_name || 'المستخدم';
   document.getElementById('crPkInput').value = '';
   document.getElementById('crAmountInput').value = '';
@@ -5393,10 +5392,13 @@ async function adminAdjustCredit(action){
   document.getElementById('crUserPreview').innerHTML = '';
   crUserFound = null;
 
+  const slots = res.data?.slots ?? count;
   banner.className = 'cr-save-banner ok';
-  banner.textContent = `✅ تم ${action==='add'?'إضافة':'خصم'} ${amount} كريديت ${action==='add'?'لـ':'من'} ${adjustedUserName} بنجاح.`;
+  banner.textContent = action === 'add'
+    ? `✅ تمت إضافة ${slots} فحص لـ ${adjustedUserName}.`
+    : `✅ تم خصم ${slots} فحص من ${adjustedUserName}.`;
   banner.style.display = 'block';
-  toast(`تم ${action==='add'?'إضافة':'خصم'} ${amount} كريديت بنجاح`, 'success');
+  toast(banner.textContent, 'success');
   setTimeout(()=>{ banner.style.display='none'; }, 5000);
   loadCreditsTab();
 }
@@ -6892,7 +6894,7 @@ async function qcChargeSelectedPackage(){
   if (!pack) return;
   const name = currentLang === 'ar' ? pack.name_ar : pack.name_en;
 
-  document.getElementById('crAmountInput').value = pack.credits;
+  document.getElementById('crAmountInput').value = 1;
   document.getElementById('crNoteInput').value = (currentLang === 'ar' ? 'شحن باقة: ' : 'Package charge: ') + name;
 
   const wasUser = crUserFound;

@@ -7581,7 +7581,8 @@ async function submitOrder(){
   // AI"), but the admin panel now has full manual-upload support for AI
   // report files too — so once the admin turns the global API toggle off,
   // EVERY check type must go manual, not just sim-only.
-  const willUseApi = checkSettings.api_mode_enabled && (checkType === 'both' ? true : simOnlyViaApi);
+  // Every order is accepted automatically once the payment is confirmed (manual review retired).
+  const willUseApi = true;
 
   const btn = document.getElementById('submitBtn');
   const prevText = btn.textContent;
