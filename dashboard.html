@@ -3773,6 +3773,12 @@ function renderPacks(){
   applyDarkPackIcons();
 }
 
+// Validity text for a pack: its own days, or the daily / never-expires wording.
+function packValidityNote(p, tab){
+  if (p.expiryDays) return `${t('validity_prefix')} ${p.expiryDays} ${t('validity_days_unit')}`;
+  return tab === 'daily' ? t('daily_expiry_note') : t('credits_no_expiry');
+}
+
 function selectPack(tab, id){
   const packs = tab === 'topup' ? TOPUP_PACKS : DAILY_PACKS;
   selectedPack = packs.find(p => p.id === id);
@@ -3780,9 +3786,7 @@ function selectPack(tab, id){
   renderPacks();
   document.getElementById('walletPayBlock').style.display = 'block';
   document.getElementById('walletPackSummary').textContent = `${packName(id)} — ${selectedPack.credits} ${creditsWord(selectedPack.credits)} (${formatPrice(packPriceNumber(selectedPack))})`;
-  const expiryNote = selectedPack.expiryDays
-    ? `${t('validity_prefix')} ${selectedPack.expiryDays} ${t('validity_days_unit')}`
-    : (tab==='daily' ? t('daily_expiry_note') : t('credits_no_expiry'));
+  const expiryNote = packValidityNote(selectedPack, tab);
   document.getElementById('walletPriceOut').innerHTML = `${formatPrice(packPriceNumber(selectedPack))} <small>${expiryNote}</small>`;
   document.getElementById('walletPayBlock').scrollIntoView({behavior:'smooth', block:'nearest'});
   // Render details for the currently selected gateway
@@ -6434,7 +6438,7 @@ function updateAllPrices(){
   // If a pack is already selected, refresh the summary/total with the new currency
   if(selectedPack){
     document.getElementById('walletPackSummary').textContent = `${packName(selectedPack.id)} — ${selectedPack.credits} ${creditsWord(selectedPack.credits)} (${formatPrice(packPriceNumber(selectedPack))})`;
-    document.getElementById('walletPriceOut').innerHTML = `${formatPrice(packPriceNumber(selectedPack))} <small>${selectedPack.tab==='daily' ? t('daily_expiry_note') : t('credits_no_expiry')}</small>`;
+    document.getElementById('walletPriceOut').innerHTML = `${formatPrice(packPriceNumber(selectedPack))} <small>${packValidityNote(selectedPack, selectedPack.tab)}</small>`;
   }
 
   // Update current check price
