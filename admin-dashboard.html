@@ -1098,7 +1098,7 @@
                 <th data-i18n="slt_col_type">النوع</th>
                 <th data-i18n="slt_col_slots">الفحوصات</th>
                 <th data-i18n="slt_col_price">السعر</th>
-                <th>ربح 25% (USD)</th>
+                <th>الربح الحقيقي (USD)</th>
                 <th data-i18n="slt_col_expiry">الصلاحية</th>
                 <th data-i18n="slt_col_status">الحالة</th>
                 <th data-i18n="slt_col_actions">إجراءات</th>
@@ -4963,10 +4963,12 @@ async function refreshLiveRate(){
   } catch (e) { console.error('live rate failed:', e); }
   return liveUsdEgp || 50;
 }
-// 25% of the package price, in USD at the live rate.
-function profitUsd(priceEgp){
+// Real profit of a package: price in EGP minus the API cost of its checks
+// (every package is plag + AI, so each check costs API_COST_BOTH_EGP), in USD at the live rate.
+function profitUsd(priceEgp, slots){
   const rate = liveUsdEgp || 50;
-  return (Number(priceEgp) * 0.25 / rate).toFixed(2);
+  const profitEgp = Number(priceEgp) - Number(slots) * API_COST_BOTH_EGP;
+  return (profitEgp / rate).toFixed(2);
 }
 function liveRateNote(){
   const rate = liveUsdEgp || 50;
@@ -5004,7 +5006,7 @@ async function loadSlotPackages(){
       <td>${escapeHtml(typeLabel)}</td>
       <td class="latin">${Number(p.slots)}</td>
       <td class="latin">${Number(p.price_egp)} ${escapeHtml(t('slt_egp'))}</td>
-      <td class="latin" title="${escapeHtml(liveRateNote())}">$${profitUsd(p.price_egp)}</td>
+      <td class="latin" title="${escapeHtml(liveRateNote())}">$${profitUsd(p.price_egp, p.slots)}</td>
       <td>${escapeHtml(expiry)}</td>
       <td>${status}</td>
       <td style="white-space:nowrap;">
