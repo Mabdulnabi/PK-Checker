@@ -3060,6 +3060,7 @@ function applyCustomIcons(){
 
 const I18N = {
   ar: {
+    loading_ellipsis:"جاري التحميل...", profile_save_ok:"تم حفظ التغييرات", profile_pass_short:"كلمة المرور قصيرة (6 أحرف على الأقل)", profile_pass_error:"تعذر تغيير كلمة المرور",
     nav_home:"الرئيسية", nav_new_check:"فحص جديد", nav_orders:"ملفاتي", nav_wallet:"المحفظة", nav_my_history:"السجل", plan_ai_tab:"فحص إقتباس + AI", plan_only_tab:"فحص إقتباس فقط", plan_soon:"قريباً", plan_title:"فحص Turnitin Plag + AI", plan_pill:"تقرير Plag + AI", plan_auto:"تفعيل فوري تلقائي", nav_support:"الدعم", nav_my_profile:"حسابي",
     sup_lang:"اللغة", sup_currency:"العملة", sup_settings:"الإعدادات",
     profile_modal_title:"الملف الشخصي", profile_save_btn:"حفظ", profile_cancel_btn:"إلغاء",
@@ -3249,6 +3250,7 @@ const I18N = {
     faq_title:"الأسئلة الشائعة",
   },
   en: {
+    loading_ellipsis:"Loading...", profile_save_ok:"Changes saved", profile_pass_short:"Password too short (at least 6 characters)", profile_pass_error:"Could not change the password",
     nav_home:"Home", nav_new_check:"New Check", nav_orders:"My orders", nav_wallet:"Wallet", nav_my_history:"History", plan_ai_tab:"Plag + AI Report", plan_only_tab:"Only Plag Report", plan_soon:"Soon", plan_title:"Turnitin Plag + AI Check", plan_pill:"PLAG + AI REPORT", plan_auto:"Automated Instant Activation", nav_support:"Support", nav_my_profile:"My Account",
     sup_lang:"Language", sup_currency:"Currency", sup_settings:"Settings",
     profile_modal_title:"Account Settings", profile_save_btn:"Save", profile_cancel_btn:"Cancel",
@@ -5928,6 +5930,7 @@ async function initChat(){
 
     if (error) throw error;
 
+    if (!convo) return;
     chatConversationId = convo.id;
     chatUnread = convo.unread_by_user || 0;
     updateChatBadge();

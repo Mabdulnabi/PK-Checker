@@ -11,7 +11,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <link href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@7/dist/fuse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/photoswipe@5/dist/photoswipe.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/photoswipe@5/dist/umd/photoswipe.umd.min.js"></script>
@@ -4441,7 +4441,7 @@ async function loadCsStateBackground(){
 async function initCheckSettings(){
   if (!csLoaded) {
     const { data, error } = await supabaseClient.from('check_settings').select('*').single();
-    if (error){ console.error('check_settings load failed:', error); return; }
+    if (error || !data){ console.error('check_settings load failed:', error); return; }
     csState = {
       service_enabled:   data.service_enabled,
       api_mode_enabled:  data.api_mode_enabled,
@@ -5018,7 +5018,7 @@ async function loadSlotPackages(){
       <td>${escapeHtml(typeLabel)}</td>
       <td class="latin">${Number(p.slots)}</td>
       <td class="latin">${Number(p.price_egp)} ${escapeHtml(t('slt_egp'))}</td>
-      <td class="latin" title="${escapeHtml(liveRateNote())}">$${profitUsd(p.price_egp, p.slots, p.provider_cost_usd)}</td>
+      <td class="latin" title="${escapeHtml(liveRateNote())}">${(() => { const v = Number(profitUsd(p.price_egp, p.slots, p.provider_cost_usd)); return (v < 0 ? '-' : '') + '$' + Math.abs(v).toFixed(2); })()}</td>
       <td>${escapeHtml(expiry)}</td>
       <td>${status}</td>
       <td style="white-space:nowrap;">
