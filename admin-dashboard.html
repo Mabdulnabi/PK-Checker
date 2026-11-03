@@ -1042,7 +1042,7 @@
               <thead><tr>
                 <th data-i18n="bc_col_title">العنوان</th><th>الموضوع</th><th data-i18n="bc_col_target">الفئة المستهدفة</th><th data-i18n="bc_col_recipients">عدد المستلمين</th><th data-i18n="bc_col_sent_at">وقت الإرسال</th><th data-i18n="bc_col_admin">الإدمن</th><th style="min-width:110px;">Actions</th>
               </tr></thead>
-              <tbody id="bcHistoryBody"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px;" data-i18n="loading_ellipsis">جاري التحميل...</td></tr></tbody>
+              <tbody id="bcHistoryBody"><tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px;" data-i18n="loading_ellipsis">جاري التحميل...</td></tr></tbody>
             </table>
             <div id="bcHistoryPagination"></div>
           </div>
@@ -1098,6 +1098,7 @@
                 <th data-i18n="slt_col_type">النوع</th>
                 <th data-i18n="slt_col_slots">الفحوصات</th>
                 <th data-i18n="slt_col_price">السعر</th>
+                <th>ربح 25% (USD)</th>
                 <th data-i18n="slt_col_expiry">الصلاحية</th>
                 <th data-i18n="slt_col_status">الحالة</th>
                 <th data-i18n="slt_col_actions">إجراءات</th>
@@ -4950,7 +4951,30 @@ async function saveServiceAvailability(){
   await adminAlert('تم حفظ حالة الخدمة', {icon:'✅'});
 }
 
+// Live USD to EGP rate (daily feed from open.er-api.com). Fallback 50 if the feed is unreachable.
+let liveUsdEgp = null;
+let liveRateAt = null;
+async function refreshLiveRate(){
+  try {
+    const res = await fetch('https://open.er-api.com/v6/latest/USD');
+    const d = await res.json();
+    const egp = Number(d?.rates?.EGP);
+    if (d?.result === 'success' && egp > 0) { liveUsdEgp = egp; liveRateAt = new Date(); }
+  } catch (e) { console.error('live rate failed:', e); }
+  return liveUsdEgp || 50;
+}
+// 25% of the package price, in USD at the live rate.
+function profitUsd(priceEgp){
+  const rate = liveUsdEgp || 50;
+  return (Number(priceEgp) * 0.25 / rate).toFixed(2);
+}
+function liveRateNote(){
+  const rate = liveUsdEgp || 50;
+  return '1 USD = ' + rate.toFixed(2) + ' EGP' + (liveRateAt ? ' - ' + liveRateAt.toLocaleTimeString('en-US') : ' (fallback)');
+}
+
 async function loadSlotPackages(){
+  await refreshLiveRate();
   const tbody = document.getElementById('slotPackagesBody');
   const { data, error } = await supabaseClient
     .from('slot_packages')
@@ -4959,12 +4983,12 @@ async function loadSlotPackages(){
     .order('created_at', { ascending: true });
   if (error) {
     console.error('loadSlotPackages failed:', error);
-    tbody.innerHTML = `<tr><td colspan="7">${escapeHtml(t('slt_err_load'))}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8">${escapeHtml(t('slt_err_load'))}</td></tr>`;
     return;
   }
   slotPackages = data || [];
   if (!slotPackages.length) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);">${escapeHtml(t('slt_empty'))}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);">${escapeHtml(t('slt_empty'))}</td></tr>`;
     return;
   }
 
@@ -4980,6 +5004,7 @@ async function loadSlotPackages(){
       <td>${escapeHtml(typeLabel)}</td>
       <td class="latin">${Number(p.slots)}</td>
       <td class="latin">${Number(p.price_egp)} ${escapeHtml(t('slt_egp'))}</td>
+      <td class="latin" title="${escapeHtml(liveRateNote())}">$${profitUsd(p.price_egp)}</td>
       <td>${escapeHtml(expiry)}</td>
       <td>${status}</td>
       <td style="white-space:nowrap;">
