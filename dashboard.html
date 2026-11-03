@@ -2037,7 +2037,7 @@
           <div class="num"><span class="latin" id="kpiBalanceNum">17</span> <small data-i18n="kpi_credits_unit">فحص</small></div>
           <div class="lbl" data-i18n="kpi_slots_label">فحوصات متبقية</div>
           <button class="redeem-code-btn" type="button" onclick="openRedeemCodeModal()">
-            <svg data-icon-key="dash_kpi_slots_label" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2"/></svg>
+            <svg data-icon-key="redeem_code_icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2"/></svg>
             <span data-i18n="redeem_btn">كود خصم</span>
           </button>
         </div>
@@ -2048,7 +2048,7 @@
           <div class="lbl" data-i18n="kpi_expiry_label">تاريخ انتهاء الفحوصات</div>
         </div>
         <div class="kpi kpi-centered">
-          <div class="icon-circle" id="kpiApiIcon" style="background:var(--blue-wash);color:var(--blue-deep);"><svg class="ic" data-icon-key="nc_processing" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div>
+          <div class="icon-circle" style="background:var(--blue-wash);color:var(--blue-deep);"><span id="kpiApiIconActive" style="display:flex;align-items:center;justify-content:center;"><svg class="ic" data-icon-key="nc_api_active" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span><span id="kpiApiIconMaint" style="display:none;align-items:center;justify-content:center;"><svg class="ic" data-icon-key="nc_api_maintenance" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/></svg></span></div>
           <div class="num" id="kpiApiStatus">—</div>
           <div class="lbl" data-i18n="kpi_api_status">حالة الـ API</div>
         </div>
@@ -3024,7 +3024,7 @@ const ICON_SIZE_MAP = {
   header_notif:'18px', header_notif_dark:'18px', header_lightmode:'18px', header_darkmode:'18px', header_tour:'18px', header_tour_dark:'18px', header_profile:'16px', header_signout:'16px',
   tab_home:'18px', tab_new_check:'18px', tab_orders:'18px', tab_wallet:'18px', tab_support:'18px',
   home_watch:'15px', home_g1:'20px', home_g2:'20px', home_g3:'20px',
-  nc_balance:'18px', nc_floating:'18px', nc_processing:'18px', nc_completed:'18px',
+  nc_balance:'18px', nc_floating:'18px', nc_api_active:'18px', nc_api_maintenance:'18px', nc_completed:'18px', redeem_code_icon:'18px',
   nc_upload:'20px', nc_options:'16px', nc_payment:'16px',
   ord_completed:'18px', ord_pending:'18px', ord_rejected:'18px',
   wal_referral:'14px', wal_slider_prev:'18px', wal_slider_next:'18px', wal_slider_prev_dark:'18px', wal_slider_next_dark:'18px', wal_pay_head:'16px',
@@ -7845,22 +7845,21 @@ function renderExpiryCard(){
   sub.style.color = 'var(--danger)';
 }
 
-let _kpiApiIconDefault = null;
 function renderApiStatusCard(){
   const el = document.getElementById('kpiApiStatus');
-  const iconEl = document.getElementById('kpiApiIcon');
   if (!el) return;
-  if (iconEl && _kpiApiIconDefault === null) _kpiApiIconDefault = iconEl.innerHTML;
-  // Service switched off by the admin = maintenance, with its own icon.
+  // Service switched off by the admin = maintenance. Both icons stay in the page; only one shows.
   const maintenance = checkSettings && checkSettings.service_enabled === false;
-  if (iconEl) iconEl.innerHTML = maintenance ? MAINT_ICON_SVG : _kpiApiIconDefault;
+  const activeIcon = document.getElementById('kpiApiIconActive');
+  const maintIcon = document.getElementById('kpiApiIconMaint');
+  if (activeIcon) activeIcon.style.display = maintenance ? 'none' : 'flex';
+  if (maintIcon) maintIcon.style.display = maintenance ? 'flex' : 'none';
   if (maintenance) { el.textContent = t('api_maintenance'); el.style.color = 'var(--warn, #D97706)'; return; }
   if (!_availabilityLoaded) { el.textContent = '—'; el.style.color = ''; return; }
   const ok = !!(serviceAvailability.plag_ai && serviceAvailability.plag_ai.available);
   el.textContent = ok ? t('api_active') : t('api_inactive');
   el.style.color = ok ? 'var(--ok)' : 'var(--danger)';
 }
-const MAINT_ICON_SVG = '<svg class="ic" data-icon-key="nc_api_maintenance" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/></svg>';
 
 async function loadSiteTexts(){
   const { data, error } = await supabaseClient.from('site_texts').select('key, value_ar, value_en');
