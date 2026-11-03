@@ -3772,6 +3772,8 @@ function formatDate(dateStr){
         <input class="adm-modal-input" id="slotCount" type="number" min="1" step="1" required>
         <label style="font-size:12px;font-weight:700;color:var(--muted);" data-i18n="slt_lbl_price">السعر (ج.م)</label>
         <input class="adm-modal-input" id="slotPrice" type="number" min="0" step="0.01" required>
+        <label style="font-size:12px;font-weight:700;color:var(--muted);">تكلفة الفحص عند المزوّد (USD)</label>
+        <input class="adm-modal-input" id="slotProviderCost" type="number" min="0" step="0.001" required>
         <label style="font-size:12px;font-weight:700;color:var(--muted);" data-i18n="slt_lbl_expiry">مدة الصلاحية (أيام)</label>
         <input class="adm-modal-input" id="slotExpiryDays" type="number" min="1" step="1">
         <label style="display:flex;gap:8px;align-items:center;margin-bottom:12px;font-size:13px;">
@@ -4965,17 +4967,18 @@ async function refreshLiveRate(){
 }
 // Provider cost of one check, in USD, by the size of the package bought from the provider:
 // 1 file 0.85$, 5 files 0.82$, 10 files and up 0.80$.
-function providerCostUsdPerCheck(slots){
+function providerCostUsdPerCheck(slots, providerCost){
+  if (providerCost != null && providerCost !== '') return Number(providerCost);
   const n = Number(slots);
   if (n >= 10) return 0.80;
   if (n >= 5) return 0.82;
   return 0.85;
 }
 // Real profit of a package in USD: price in USD at the live rate minus the provider cost of its checks.
-function profitUsd(priceEgp, slots){
+function profitUsd(priceEgp, slots, providerCost){
   const rate = liveUsdEgp || 50;
   const priceUsd = Number(priceEgp) / rate;
-  const costUsd = Number(slots) * providerCostUsdPerCheck(slots);
+  const costUsd = Number(slots) * providerCostUsdPerCheck(slots, providerCost);
   return (priceUsd - costUsd).toFixed(2);
 }
 function liveRateNote(){
@@ -5014,7 +5017,7 @@ async function loadSlotPackages(){
       <td>${escapeHtml(typeLabel)}</td>
       <td class="latin">${Number(p.slots)}</td>
       <td class="latin">${Number(p.price_egp)} ${escapeHtml(t('slt_egp'))}</td>
-      <td class="latin" title="${escapeHtml(liveRateNote())}">$${profitUsd(p.price_egp, p.slots)}</td>
+      <td class="latin" title="${escapeHtml(liveRateNote())}">$${profitUsd(p.price_egp, p.slots, p.provider_cost_usd)}</td>
       <td>${escapeHtml(expiry)}</td>
       <td>${status}</td>
       <td style="white-space:nowrap;">
@@ -5039,6 +5042,7 @@ function openSlotPackageForm(id = null){
   document.getElementById('slotType').value = p?.slot_type || 'plag_ai';
   document.getElementById('slotCount').value = p ? p.slots : 1;
   document.getElementById('slotPrice').value = p ? p.price_egp : '';
+  document.getElementById('slotProviderCost').value = p && p.provider_cost_usd != null ? p.provider_cost_usd : '';
   document.getElementById('slotNoExpiry').checked = p ? p.expiry_days == null : false;
   document.getElementById('slotExpiryDays').value = p && p.expiry_days != null ? p.expiry_days : 15;
   document.getElementById('slotIsActive').checked = p ? p.is_active : true;
@@ -5059,6 +5063,7 @@ async function saveSlotPackage(e){
     slot_type: document.getElementById('slotType').value,
     slots: Math.floor(Number(document.getElementById('slotCount').value)),
     price_egp: Number(document.getElementById('slotPrice').value),
+    provider_cost_usd: Number(document.getElementById('slotProviderCost').value),
     expiry_days: expiryNone ? null : Math.floor(Number(document.getElementById('slotExpiryDays').value)),
     is_active: document.getElementById('slotIsActive').checked,
     updated_at: new Date().toISOString(),
@@ -5067,6 +5072,7 @@ async function saveSlotPackage(e){
   if (!payload.name_ar || !payload.name_en) { await adminAlert(t('slt_err_names'), {icon:'❌', danger:true}); return; }
   if (!(payload.slots >= 1)) { await adminAlert(t('slt_err_slots'), {icon:'❌', danger:true}); return; }
   if (!(payload.price_egp >= 0)) { await adminAlert(t('slt_err_price'), {icon:'❌', danger:true}); return; }
+  if (!(payload.provider_cost_usd >= 0)) { await adminAlert('ادخل تكلفة الفحص عند المزوّد', {icon:'❌', danger:true}); return; }
   if (payload.expiry_days !== null && !(payload.expiry_days >= 1)) { await adminAlert(t('slt_err_days'), {icon:'❌', danger:true}); return; }
 
   const btn = document.getElementById('slotSaveBtn');
