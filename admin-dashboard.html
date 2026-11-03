@@ -821,10 +821,6 @@
 
         <!-- ORDER ADVANCED FILTERS -->
         <div class="order-filters" id="orderAdvFilters">
-          <span class="filter-label" data-i18n="filter_period_lbl">الفترة:</span>
-          <input type="date" id="ordFilterFrom" oninput="applyOrderFilters()">
-          <span class="filter-label">—</span>
-          <input type="date" id="ordFilterTo" oninput="applyOrderFilters()">
           <span class="filter-label" data-i18n="filter_checktype_lbl">نوع الفحص:</span>
           <select id="ordFilterType" onchange="applyOrderFilters()">
             <option value="" data-i18n="f_all">الكل</option>
@@ -1127,7 +1123,7 @@
               <div id="crUserPreview"></div>
             </div>
             <div class="cr-form-group">
-              <label data-i18n="qc_amount_ph">عدد الكريديت</label>
+              <label data-i18n="qc_amount_ph">عدد الـ Slots</label>
               <input type="number" id="crAmountInput" data-i18n-ph="cr_amount_ph" placeholder="مثال: 10" min="1">
             </div>
             <div class="cr-form-group">
@@ -1154,7 +1150,7 @@
                 <th>PK</th>
                 <th>الاسم</th>
                 <th>الباقة</th>
-                <th>الكريديت</th>
+                <th>الـ Slots</th>
                 <th>المبلغ</th>
                 <th>وسيلة الدفع</th>
                 <th>التاريخ</th>
@@ -2055,7 +2051,31 @@ function subscribeUsersChannel(){
     }).subscribe();
 }
 
+// Slot tables change together: grants, usages, admin adjustments and payments.
+// Any change refreshes the admin tables that show them, without a page reload.
+let _slotRefreshTimer = null;
+function scheduleSlotRefresh(){
+  clearTimeout(_slotRefreshTimer);
+  _slotRefreshTimer = setTimeout(async () => {
+    try {
+      if (typeof loadUsersTab === 'function' && document.getElementById('tab-accounts')?.classList.contains('on')) await loadUsersTab();
+      if (typeof loadCreditsTab === 'function' && document.getElementById('tab-payments')?.classList.contains('on')) await loadCreditsTab();
+      if (typeof _renderOnlineUsers === 'function') { await loadSlotData(); _renderOnlineUsers(); }
+      if (typeof loadOverview === 'function' && document.getElementById('tab-overview')?.classList.contains('on')) loadOverview();
+    } catch (e) { console.error('slot refresh failed:', e); }
+  }, 400);
+}
+function subscribeSlotChannel(){
+  supabaseClient.channel('admin-slot-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'customer_slot_grants' }, scheduleSlotRefresh)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'slot_usages' }, scheduleSlotRefresh)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'admin_slot_adjustments' }, scheduleSlotRefresh)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, scheduleSlotRefresh)
+    .subscribe();
+}
+
 function subscribeRealtime(){
+  subscribeSlotChannel();
   subscribeConversationsChannel();
   subscribeMessagesChannel();
   subscribeTicketsChannel();
@@ -3057,7 +3077,8 @@ async function loadOrders(){
   ]);
   if (ordersRes.error) { console.error('loadOrders (orders) failed:', ordersRes.error); return; }
   if (profilesRes.error) { console.error('loadOrders (profiles) failed:', profilesRes.error); }
-  allOrders = ordersRes.data || [];
+  // Orders whose files were removed after 48 hours (purged_at) are not listed, as on the customer side.
+  allOrders = (ordersRes.data || []).filter(o => !o.purged_at);
   profilesByUserId = {};
   (profilesRes.data || []).forEach(p => { profilesByUserId[p.user_id] = p; });
   renderOrdersTable();
@@ -3322,7 +3343,7 @@ async function manualAccept(orderId){
 // is idempotent server-side, and works regardless of what admin-dashboard
 // build happens to be deployed, since the logic lives in the DB, not here.
 async function refundOrderCredits(orderId, _userId){
-  const { error } = await supabaseClient.rpc('refund_order_credits', { p_order_id: orderId });
+  const { error } = await supabaseClient.rpc('admin_refund_order_slot', { p_order_id: orderId });
   if (error) throw error;
 }
 
@@ -3951,7 +3972,7 @@ function formatDate(dateStr){
       </div>
 
       <div id="qcValuePane">
-        <input class="adm-modal-input" id="qcAmountInput" type="number" min="1" data-i18n-ph="qc_amount_ph" placeholder="عدد الكريديت" dir="rtl">
+        <input class="adm-modal-input" id="qcAmountInput" type="number" min="1" data-i18n-ph="qc_amount_ph" placeholder="عدد الـ Slots" dir="rtl">
         <input class="adm-modal-input" id="qcNoteInput" type="text" data-i18n-ph="qc_note_ph" placeholder="ملاحظة (اختياري)" dir="rtl" style="margin-top:-6px;">
         <div class="adm-modal-btns">
           <button class="adm-modal-ok qc-btn-add" style="background:var(--ok);" onclick="qcSubmitValue('add')" data-i18n="qc_add_btn">➕ إضافة</button>
