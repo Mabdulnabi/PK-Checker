@@ -78,6 +78,11 @@
   .hero-cta-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:28px;}
   .hero-visual{width:100%;min-height:320px;display:flex;align-items:center;justify-content:center;}
   .hero-visual-img{max-width:100%;height:auto;display:block;}
+  .hero-visual{flex-wrap:wrap;}
+  .hero-sample-pdf{width:100%;display:flex;justify-content:center;margin-top:20px;}
+  .sample-pdf-btn{display:inline-flex;align-items:center;gap:10px;background:#111827;color:#fff;text-decoration:none;font-family:'Cairo','Manrope',sans-serif;font-weight:700;font-size:14px;padding:12px 20px;border-radius:10px;box-shadow:0 8px 22px -10px rgba(17,24,39,.5);transition:transform .15s ease,background .15s ease;}
+  .sample-pdf-btn:hover{background:#1f2937;transform:translateY(-1px);}
+  .sample-pdf-btn svg{flex:none;}
   /* Stacked report cards */
   .hero-cards-stack{position:relative;width:100%;min-height:220px;height:320px;}
   .hero-report-card{position:absolute;width:72%;background:#fff;border-radius:10px;border:1px solid #E5E9F2;box-shadow:0 8px 32px -8px rgba(27,37,86,.18);padding:0;overflow:hidden;cursor:pointer;transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .35s,z-index 0s .18s;min-height:180px;}
@@ -543,6 +548,9 @@
           </div>
         </div>
       </div>
+      <div class="hero-sample-pdf" data-aos="fade-up" data-aos-delay="250">
+        <a class="sample-pdf-btn" id="samplePdfBtn" href="https://drive.google.com/drive/u/1/folders/12VnVEEP_1hv-zQX21k2GGRrGeFwJqIow" target="_blank" rel="noopener"><svg data-icon-key="idx_sample_pdf_drive_icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#0066DA" d="M8.3 2h7.4l6.3 11h-7.4z"/><path fill="#00AC47" d="M8.3 2L2 13l3.7 6.5L12 9.5z"/><path fill="#EA4335" d="M5.7 19.5h12.6l3.7-6.5H9.4z"/></svg><span data-i18n="sample_pdf_text">اطّلع على نموذج من تقاريرنا (PDF)</span><svg data-icon-key="idx_sample_pdf_ext_icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;" aria-hidden="true"><path d="M14 3h7v7M10 14L21 3M21 14v7H3V3h7"/></svg></a>
+      </div>
     </div>
   </div>
 </section>
@@ -663,7 +671,7 @@ const LANG_DICT = {
     hero_badge:"تكامل رسمي مع Turnitin Instructor API",
     hero_title_1:"تقارير الاقتباس و AI", hero_title_2:"في دقائق",
     hero_sub:"فحوصات آلية رسمية 100% عبر Turnitin Instructor API · بدون أي تدخل بشري · تقارير دقيقة ومفصلة",
-    hero_cta:"ابدأ فحص جديد الآن", hero_cta_secondary:"شاهد كيف يعمل", hero_video_url:"",
+    hero_cta:"ابدأ فحص جديد الآن", hero_cta_secondary:"شاهد كيف يعمل", hero_video_url:"", sample_pdf_text:"اطّلع على نموذج من تقاريرنا (PDF)", sample_pdf_url:"https://drive.google.com/drive/u/1/folders/12VnVEEP_1hv-zQX21k2GGRrGeFwJqIow",
     services_title:"الخدمات المتاحة", srv_title_1:"اختار", srv_title_2:"الباقة المناسبة",
     why_badge:"ليه تختارنا", why_title_1:"شريكك الموثوق في", why_title_2:"فحص الاقتباس",
     g1_title:"No Repository", g1_sub:"فحص آلي بالكامل دون تخزين ملفك في مستودع Turnitin",
@@ -701,7 +709,7 @@ const LANG_DICT = {
     hero_badge:"Official Turnitin Instructor API Integration",
     hero_title_1:"Plagiarism & AI Reports", hero_title_2:"in minutes",
     hero_sub:"Fully automated official Similarity and AI checks.",
-    hero_cta:"Start a new check now", hero_cta_secondary:"See how it works", hero_video_url:"",
+    hero_cta:"Start a new check now", hero_cta_secondary:"See how it works", hero_video_url:"", sample_pdf_text:"Explore a Sample PDF Report", sample_pdf_url:"https://drive.google.com/drive/u/1/folders/12VnVEEP_1hv-zQX21k2GGRrGeFwJqIow",
     services_title:"Available services", srv_title_1:"Choose", srv_title_2:"Your Plan",
     why_badge:"WHY CHOOSE US", why_title_1:"Your Trusted Partner for", why_title_2:"Plagiarism Checking",
     g1_title:"No Repository", g1_sub:"Fully automated checks without storing your file in the Turnitin repository",
@@ -793,6 +801,8 @@ function applyLang(){
   const langBtnMobile = document.getElementById('langBtnMobile');
   if (langBtnMobile) langBtnMobile.textContent = currentLang === 'ar' ? '🇬🇧 EN' : '🇪🇬 AR';
   renderFaq();
+  const samplePdfBtn = document.getElementById('samplePdfBtn');
+  if (samplePdfBtn) samplePdfBtn.href = t('sample_pdf_url') || 'https://drive.google.com/drive/u/1/folders/12VnVEEP_1hv-zQX21k2GGRrGeFwJqIow';
 }
 
 const HAMBURGER_ICON = '<svg data-icon-key="idx_mobile_menu_icon" viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
