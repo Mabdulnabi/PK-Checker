@@ -4318,7 +4318,15 @@ function packChargeAmount(pack, isEgp){
   return isEgp ? Math.round(amount) : amount;
 }
 
+// One confirm at a time: repeated clicks while a payment is being confirmed are ignored.
+let _confirmWalletBusy = false;
 async function confirmWalletPurchase(){
+  if (_confirmWalletBusy) return;
+  _confirmWalletBusy = true;
+  try { await _confirmWalletPurchaseOnce(); }
+  finally { _confirmWalletBusy = false; }
+}
+async function _confirmWalletPurchaseOnce(){
   if (!PROKEYS_USER_ID) { window.location.href = 'index.html'; return; }
   if(!selectedPack){ await appAlert(currentLang==='ar' ? 'من فضلك اختر باقة أولاً' : 'Please select a pack first', {icon:'warning'}); return; }
 
