@@ -833,7 +833,7 @@
         <!-- Export range for users/credits -->
         <div class="filter-row">
           <div class="chip on" data-f="all" onclick="setOrderFilter('all')" data-i18n="f_all">الكل</div>
-          <div class="chip" data-f="floating" onclick="setOrderFilter('floating')" data-i18n="f_floating">Floating</div>
+          <div class="chip" data-f="floating" onclick="setOrderFilter('floating')" data-i18n="f_floating">معلّق</div>
           <div class="chip" data-f="processing" onclick="setOrderFilter('processing')" data-i18n="f_processing">قيد التنفيذ</div>
           <div class="chip" data-f="completed" onclick="setOrderFilter('completed')" data-i18n="f_completed">مكتملة</div>
           <div class="chip" data-f="problem" onclick="setOrderFilter('problem')" data-i18n="f_problem">فيها مشكلة</div>
@@ -1177,7 +1177,7 @@
                 <th data-i18n="cr_col_plan">الخطة / السبب</th>
                 <th data-i18n="cr_col_method">وسيلة الدفع</th>
                 <th data-i18n="cr_col_amount">المبلغ</th>
-                <th>Checks</th>
+                <th data-i18n="cr_col_credits">الفحوصات</th>
                 <th data-i18n="cr_col_type">النوع</th>
                 <th data-i18n="cr_col_date">التاريخ</th>
                 <th></th>
@@ -1367,16 +1367,16 @@ const I18N = {
     logout:'تسجيل الخروج', refresh:'⟲ تحديث', user_profile:'ملف الأدمن', currency_btn_lbl:'العملة', lang_btn_lbl:'اللغة', presence_online:'متصل الآن', presence_offline:'غير متصل',
     overview_title:'نظرة عامة', overview_sub:'أداء المنصة',
     sec_credits:'الفحوصات والطلبات الآن', sec_orders_count:'عدد الطلبات', sec_revenue:'الإيرادات (من شحن المحفظة)',
-    lbl_validity:'صلاحية الفحوصات (API)', lbl_api_credits:'الفحوصات المتبقي في الـ API', lbl_floating:'Floating', lbl_processing:'قيد التنفيذ',
+    lbl_validity:'صلاحية الفحوصات (API)', lbl_api_credits:'الفحوصات المتبقي في الـ API', lbl_floating:'معلّق', lbl_processing:'قيد التنفيذ',
     lbl_completed:'مكتملة (كل الوقت)', lbl_problem:'طلبات فيها مشكلة', lbl_stuck:'طلبات عالقة', lbl_users:'عدد المستخدمين',
     lbl_today:'اليوم', lbl_week:'الأسبوع', lbl_month:'الشهر', lbl_year:'السنة',
     problem_orders_title:'طلبات فيها مشكلة (آخر 10)', no_data:'لا يوجد',
     export_csv:'⬇ تصدير CSV',
     orders_title:'الطلبات', orders_sub:'كل طلبات كل العملاء',
-    f_all:'الكل', f_floating:'Floating', f_processing:'قيد التنفيذ', f_completed:'مكتملة', f_problem:'فيها مشكلة',
+    f_all:'الكل', f_floating:'معلّق', f_processing:'قيد التنفيذ', f_completed:'مكتملة', f_problem:'فيها مشكلة',
     search_ph:'بحث بالاسم / الإيميل / رقم الطلب...',
     th_order:'رقم الطلب', th_user:'المستخدم', th_file:'الملف', th_status:'الحالة', th_sent:'وقت الإرسال',
-    th_source:'Source', th_sim:'الاقتباس', th_ai:'AI', th_msg:'رسالة', th_resend:'إعادة إرسال', th_delete:'حذف', pg_rows_per_page:'عدد الصفوف',
+    th_source:'المصدر', th_sim:'الاقتباس', th_ai:'AI', th_msg:'رسالة', th_resend:'إعادة إرسال', th_delete:'حذف', pg_rows_per_page:'عدد الصفوف',
     source_open:'فتح الملف', source_expired:'— (انتهت 24س)', link_open:'فتح', link_none:'—',
     send_msg:'✉ رسالة', edit_link:'تعديل اللينك',
     filter_showing:'بيعرض', reason_label:'السبب',
@@ -4628,56 +4628,10 @@ function onCsToggle(){
   csState.api_mode_enabled = document.getElementById('csApiEnabled').checked;
   csState.sim_only_visible = document.getElementById('csSimOnly').checked;
   updateCsStatusBadges();
-  updateCsSideIndicators();
   clearTimeout(_csSaveTimer);
   _csSaveTimer = setTimeout(saveCheckSettings, 800);
 }
 
-/* ── 8. Sidebar indicators ─────────────────────────────────────── */
-function updateCsSideIndicators(){
-  const strip = document.getElementById('csSideStatusStrip');
-  if (!strip) return;
-  // Show strip only if any setting is non-default
-  const anyOff = !csState.service_enabled || !csState.api_mode_enabled || !csState.sim_only_visible;
-  strip.style.display = anyOff ? 'flex' : 'none';
-  const svc = document.getElementById('csStripService');
-  const api = document.getElementById('csStripApi');
-  const sim = document.getElementById('csStripSim');
-  if (svc) {
-    svc.style.display = csState.service_enabled ? 'none' : 'flex';
-    svc.querySelector('.cs-dot').className = 'cs-dot red';
-    svc.querySelector('span:last-child').textContent = '🔴 الخدمة موقوفة';
-  }
-  if (api) {
-    api.style.display = csState.api_mode_enabled ? 'none' : 'flex';
-    api.querySelector('.cs-dot').className = 'cs-dot orange';
-    api.querySelector('span:last-child').textContent = '👤 وضع يدوي';
-  }
-  if (sim) {
-    sim.style.display = csState.sim_only_visible ? 'none' : 'flex';
-    sim.querySelector('.cs-dot').className = 'cs-dot red';
-    sim.querySelector('span:last-child').textContent = '🙈 اقتباس فقط مخفي';
-  }
-}
-
-// Override saveCheckSettings banner to also update sidebar indicators
-const _origSaveCS = saveCheckSettings;
-saveCheckSettings = async function(){
-  await _origSaveCS();
-  updateCsSideIndicators();
-};
-
-// Update sidebar after loading settings on startup
-const _origInitCS = initCheckSettings;
-initCheckSettings = async function(){
-  await _origInitCS();
-  updateCsSideIndicators();
-};
-const _origLoadCsBg = loadCsStateBackground;
-loadCsStateBackground = async function(){
-  await _origLoadCsBg();
-  updateCsSideIndicators();
-};
 </script>
 <script>
 /* ── 3. Delete order ─────────────────────────────────────────── */
