@@ -5114,6 +5114,7 @@ async function loadPaymentHistory(){
       .from('payments')
       .select('*')
       .eq('user_id', PROKEYS_USER_ID)
+      .neq('status', 'superseded')
       .order('created_at', { ascending: false });
     if (error) throw error;
     paymentHistoryList = data || [];

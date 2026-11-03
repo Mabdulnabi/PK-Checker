@@ -1,0 +1,8 @@
+-- A payment can only be confirmed while it is pending. When one payment of a package
+-- completes, the other pending attempts for the same customer and package are closed
+-- as 'superseded': they leave the history and cannot be confirmed later.
+-- The full function text is in the database; this file records the change.
+-- confirm_topup: status must be 'pending' (else "Payment is not pending");
+--                after completing, UPDATE other pending payments of the same
+--                user and pack_id to status 'superseded'.
+-- my_history: superseded payments are not listed.

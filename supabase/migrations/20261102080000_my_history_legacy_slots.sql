@@ -100,6 +100,7 @@ ev_pay AS (
          p.currency
   FROM payments p
   WHERE p.user_id = auth.uid()
+    AND p.status <> 'superseded'
     AND NOT EXISTS (SELECT 1 FROM customer_slot_grants g WHERE g.source = 'purchase' AND g.source_ref = p.id::text)
     AND NOT EXISTS (SELECT 1 FROM wallet_transactions w WHERE w.payment_id = p.id)
 ),
