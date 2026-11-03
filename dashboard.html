@@ -8520,7 +8520,15 @@ async function loadUIConfig(){
     if (error || !data) {
       console.warn('ui_config not available');
     } else {
+      // Icons changed since the cached copy was applied: the old images are already in the page,
+      // so reload once to draw the current set (the cache then matches and this does not repeat).
+      let _prevCfg = null;
+      try { _prevCfg = JSON.parse(localStorage.getItem('prokeys-uiconfig') || 'null'); } catch(e) {}
       try { localStorage.setItem('prokeys-uiconfig', JSON.stringify(data)); } catch(e) {}
+      if (_prevCfg && JSON.stringify(_prevCfg.icons || {}) !== JSON.stringify(data.icons || {})) {
+        location.reload();
+        return;
+      }
       uiConfigOverrides.ar        = data.i18n_ar    || {};
       uiConfigOverrides.en        = data.i18n_en    || {};
       uiConfigOverrides.icons     = data.icons      || {};

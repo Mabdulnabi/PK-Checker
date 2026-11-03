@@ -4263,6 +4263,7 @@ async function loadUIConfigData(){
   const{data,error}=await supabaseClient.from('ui_config').select('*').single();
   if(error){console.error('loadUIConfigData:',error);return;}
   uiConfigState={i18n_ar:data.i18n_ar||{},i18n_en:data.i18n_en||{},icons:data.icons||{},iconSizes:data.icon_sizes||{},colors:data.colors||{light:{},dark:{}}};
+  _uiSavedSnapshot=JSON.stringify(uiConfigState);
   uiConfigLoaded=true;
 }
 // Applies the admin's own logo (sidebar) + nav icon overrides — separate
@@ -4437,13 +4438,16 @@ function toggleUISec(id){
   t.textContent=b.classList.toggle('open')?'▾':'▸';
 }
 let _uiAutoSaveTimer=null;
+// What the database holds, so a change is saved even when it leaves no overrides behind (e.g. a reset).
+let _uiSavedSnapshot=null;
 function updateModifiedCount(){
   const colorCount = Object.keys(uiConfigState.colors?.light||{}).length + Object.keys(uiConfigState.colors?.dark||{}).length;
   const n=Object.keys(uiConfigState.i18n_ar).length+Object.keys(uiConfigState.i18n_en).length+Object.keys(uiConfigState.icons).length+Object.keys(uiConfigState.iconSizes).length+colorCount;
+  const dirty=_uiSavedSnapshot!==null && JSON.stringify(uiConfigState)!==_uiSavedSnapshot;
   const el=document.getElementById('uiModifiedCount');
-  if(el) el.textContent=n>0?'⏳ جاري الحفظ...':'';
+  if(el) el.textContent=dirty?'⏳ جاري الحفظ...':'';
   clearTimeout(_uiAutoSaveTimer);
-  if(n>0) _uiAutoSaveTimer=setTimeout(saveUIConfig,700);
+  if(dirty) _uiAutoSaveTimer=setTimeout(saveUIConfig,700);
 }
 async function handleIconUpload(key,size,input){
   const file=input.files[0];input.value='';
@@ -4483,6 +4487,7 @@ async function saveUIConfig(){
   try{
     const{error}=await supabaseClient.from('ui_config').update({i18n_ar:uiConfigState.i18n_ar,i18n_en:uiConfigState.i18n_en,icons:uiConfigState.icons,icon_sizes:uiConfigState.iconSizes,colors:uiConfigState.colors,updated_at:new Date().toISOString()}).eq('id',1);
     if(error) throw error;
+    _uiSavedSnapshot=JSON.stringify(uiConfigState);
     const cnt=document.getElementById('uiModifiedCount'); if(cnt) cnt.textContent='';
     const n = Object.keys(uiConfigState.i18n_ar).length + Object.keys(uiConfigState.i18n_en).length + Object.keys(uiConfigState.icons).length + Object.keys(uiConfigState.iconSizes).length + Object.keys(uiConfigState.colors.light||{}).length + Object.keys(uiConfigState.colors.dark||{}).length;
     await logAdminActivity('setting_change', null, '', `تعديل تصميم الواجهة (${n} عنصر مخصّص إجمالاً)`);
