@@ -1370,7 +1370,7 @@ const I18N = {
     logout:'تسجيل الخروج', refresh:'⟲ تحديث', user_profile:'ملف الأدمن', currency_btn_lbl:'العملة', lang_btn_lbl:'اللغة', presence_online:'متصل الآن', presence_offline:'غير متصل',
     overview_title:'نظرة عامة', overview_sub:'أداء المنصة',
     sec_credits:'الكريديت والطلبات الآن', sec_orders_count:'عدد الطلبات', sec_revenue:'الإيرادات (من شحن المحفظة)',
-    lbl_api_credits:'الكريديت المتبقي في الـ API', lbl_floating:'Floating', lbl_processing:'قيد التنفيذ',
+    lbl_validity:'صلاحية الكريدت (API)', lbl_api_credits:'الكريديت المتبقي في الـ API', lbl_floating:'Floating', lbl_processing:'قيد التنفيذ',
     lbl_completed:'مكتملة (كل الوقت)', lbl_problem:'طلبات فيها مشكلة', lbl_stuck:'طلبات عالقة', lbl_users:'عدد المستخدمين',
     lbl_today:'اليوم', lbl_week:'الأسبوع', lbl_month:'الشهر', lbl_year:'السنة',
     problem_orders_title:'طلبات فيها مشكلة (آخر 10)', no_data:'لا يوجد',
@@ -1486,7 +1486,7 @@ const I18N = {
     logout:'Logout', refresh:'⟲ Refresh', user_profile:'Admin Profile', currency_btn_lbl:'Currency', lang_btn_lbl:'Language', presence_online:'Online now', presence_offline:'Offline',
     overview_title:'Overview', overview_sub:'Platform performance',
     sec_credits:'Credits & current orders', sec_orders_count:'Order count', sec_revenue:'Revenue (from wallet top-ups)',
-    lbl_api_credits:'Remaining API credits', lbl_floating:'Floating', lbl_processing:'Processing',
+    lbl_validity:'API credit validity', lbl_api_credits:'Remaining API credits', lbl_floating:'Floating', lbl_processing:'Processing',
     lbl_completed:'Completed (all time)', lbl_problem:'Problem orders', lbl_stuck:'Stuck orders', lbl_users:'Total users',
     lbl_today:'Today', lbl_week:'Week', lbl_month:'Month', lbl_year:'Year',
     problem_orders_title:'Problem orders (last 10)', no_data:'None',
@@ -6551,7 +6551,7 @@ function renderBroadcastHistory(rows){
 const API_COST_BOTH=32.5, API_COST_SIM=0;
 
 function initRevenueTab(payments){
-  renderDailyChart(payments, 14);
+  renderDailyChart(payments);
   renderPackChart();
 }
 
@@ -6569,9 +6569,15 @@ function renderDailyChart(payments, days){
   if (payments) _revPayments = payments;
   const el = document.getElementById('dailyRangeSel');
   if (el && !el.options.length) {
-    el.innerHTML = REV_RANGES.map(r => `<option value="${r.days}" ${r.days === 14 ? 'selected' : ''}>${currentLang === 'ar' ? r.ar : r.en}</option>`).join('');
+    let saved = null;
+    try { saved = Number(localStorage.getItem('adminRevRange')); } catch (e) {}
+    const current = days || saved || 14;
+    el.innerHTML = REV_RANGES.map(r => `<option value="${r.days}" ${r.days === current ? 'selected' : ''}>${currentLang === 'ar' ? r.ar : r.en}</option>`).join('');
   }
-  const range = Number(days || (el && el.value) || 14);
+  let saved = null;
+  try { saved = localStorage.getItem('adminRevRange'); } catch (e) {}
+  const range = Number(days || (el && el.value) || saved || 14);
+  try { localStorage.setItem('adminRevRange', String(range)); } catch (e) {}
   const canvas = document.getElementById('dailyRevenueChart');
   if (!canvas) return;
   const labels = [];

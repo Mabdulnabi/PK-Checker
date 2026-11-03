@@ -8105,8 +8105,8 @@ function sfValidateFile(file){
   if (!/\.(pdf|docx)$/i.test(file.name)) return t('sf_err_format');
   // Arabic file names are not accepted (the check provider does not take them).
   if (/[\u0600-\u06FF]/.test(file.name)) return currentLang === 'ar'
-    ? 'اسم الملف مينفعش يكون بالعربي. غيّر الاسم لحروف إنجليزي وارفعه تاني.'
-    : 'Arabic file names are not allowed. Rename the file in English letters and upload again.';
+    ? 'اللغة العربية غير مدعومة حالياً. ارفع ملف باللغة الإنجليزية.'
+    : 'Arabic is not supported at the moment. Please upload a file in English.';
   if (file.size > SF_MAX_BYTES) return t('sf_err_size');
   return null;
 }

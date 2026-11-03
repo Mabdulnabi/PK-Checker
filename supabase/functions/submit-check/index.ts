@@ -27,7 +27,7 @@ type ServiceKey = "plag_ai" | "plag_only";
 const ARABIC_CHARS = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/g;
 const LATIN_CHARS = /[A-Za-z]/g;
 const ARABIC_REJECT = {
-  error: "الملف باللغة العربية ومش مسموح برفعه. The file is in Arabic and cannot be submitted.",
+  error: "اللغة العربية غير مدعومة حالياً. Arabic is not supported at the moment. Please upload a file in English.",
   code: "ARABIC_NOT_ALLOWED",
 };
 
