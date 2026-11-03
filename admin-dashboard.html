@@ -4963,12 +4963,20 @@ async function refreshLiveRate(){
   } catch (e) { console.error('live rate failed:', e); }
   return liveUsdEgp || 50;
 }
-// Real profit of a package: price in EGP minus the API cost of its checks
-// (every package is plag + AI, so each check costs API_COST_BOTH_EGP), in USD at the live rate.
+// Provider cost of one check, in USD, by the size of the package bought from the provider:
+// 1 file 0.85$, 5 files 0.82$, 10 files and up 0.80$.
+function providerCostUsdPerCheck(slots){
+  const n = Number(slots);
+  if (n >= 10) return 0.80;
+  if (n >= 5) return 0.82;
+  return 0.85;
+}
+// Real profit of a package in USD: price in USD at the live rate minus the provider cost of its checks.
 function profitUsd(priceEgp, slots){
   const rate = liveUsdEgp || 50;
-  const profitEgp = Number(priceEgp) - Number(slots) * API_COST_BOTH_EGP;
-  return (profitEgp / rate).toFixed(2);
+  const priceUsd = Number(priceEgp) / rate;
+  const costUsd = Number(slots) * providerCostUsdPerCheck(slots);
+  return (priceUsd - costUsd).toFixed(2);
 }
 function liveRateNote(){
   const rate = liveUsdEgp || 50;
