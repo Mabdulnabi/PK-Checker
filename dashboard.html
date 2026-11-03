@@ -1064,6 +1064,52 @@
   .wallet-slot-cards .wsc-sim{background:linear-gradient(150deg,#0B5FC9 0%,#1E3A8A 100%);}
   .wsc-exp{position:relative;margin-top:14px;font-size:12.5px;color:rgba(255,255,255,0.85);font-family:'Cairo',sans-serif;line-height:1.6;}
   @media (max-width:640px){ .wallet-slot-cards{grid-template-columns:1fr;} }
+  /* Wallet plan cards: plan switch, header, 4 pack cards */
+  .wplan-switch{display:inline-flex;gap:4px;padding:4px;background:var(--paper-soft);border:1px solid var(--paper-line);border-radius:14px;margin-bottom:16px;max-width:100%;flex-wrap:wrap;}
+  .wplan-tab{display:inline-flex;align-items:center;gap:8px;border:none;background:transparent;padding:9px 16px;border-radius:10px;font-family:'Cairo',sans-serif;font-size:13.5px;font-weight:700;color:var(--muted);cursor:pointer;}
+  .wplan-tab svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .wplan-tab.on{background:#2563EB;color:#fff;box-shadow:0 4px 12px -4px rgba(37,99,235,.55);}
+  .wplan-tab.on svg{fill:currentColor;stroke:none;}
+  .wplan-tab-soon{opacity:.45;cursor:not-allowed;}
+  .wplan-tab-soon em{font-style:normal;font-size:10px;font-weight:800;background:#E2E8F0;color:#475569;border-radius:6px;padding:2px 6px;}
+  .wplan-card{background:var(--paper);border:1px solid var(--paper-line);border-radius:18px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.05);}
+  .wplan-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 20px;background:linear-gradient(90deg,#FFF8E6 0%,#FFFDF5 100%);border-bottom:1px solid var(--paper-line);}
+  .wplan-head-l{display:flex;align-items:center;gap:12px;}
+  .wplan-ic{width:40px;height:40px;border-radius:12px;background:#F59E0B;color:#fff;display:flex;align-items:center;justify-content:center;flex:none;}
+  .wplan-ic svg{width:20px;height:20px;fill:currentColor;}
+  .wplan-title{font-family:'Cairo',sans-serif;font-weight:800;font-size:15px;color:var(--navy);}
+  .wplan-pill{display:inline-block;margin-top:5px;font-size:10.5px;font-weight:800;letter-spacing:.4px;color:#0F7A55;background:#E6F7EF;border:1px solid #B7EBD5;border-radius:6px;padding:2px 8px;}
+  .wplan-auto{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:#8A5A00;background:#FFF7E0;border:1px solid #F5D98B;border-radius:999px;padding:6px 12px;}
+  .wplan-auto svg{width:13px;height:13px;fill:#F59E0B;}
+  .wplan-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;padding:18px;}
+  .wplan-pack{position:relative;background:var(--paper);border:1px solid var(--paper-line);border-radius:16px;padding:18px 16px 16px;display:flex;flex-direction:column;gap:10px;transition:border-color .2s, box-shadow .2s;}
+  .wplan-pack:hover{box-shadow:0 8px 22px -10px rgba(37,99,235,.35);}
+  .wplan-pack.popular{border:2px solid #2563EB;}
+  .wplan-pack.selected{box-shadow:0 0 0 2px rgba(37,99,235,.25);}
+  .wplan-popular{position:absolute;top:-11px;right:14px;background:#2563EB;color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.4px;border-radius:999px;padding:3px 10px;}
+  .wplan-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .wplan-name{font-family:'Cairo',sans-serif;font-weight:800;font-size:15px;color:var(--navy);}
+  .wplan-files{font-size:11px;font-weight:700;color:#1D4ED8;background:#EEF4FF;border:1px solid #C7D7FE;border-radius:6px;padding:2px 7px;white-space:nowrap;}
+  .wplan-price{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:30px;color:var(--navy);line-height:1.1;}
+  .wplan-price small{font-size:14px;font-weight:700;color:var(--muted);}
+  .wplan-usd{align-self:flex-start;font-size:12px;font-weight:800;color:#0F7A55;background:#E6F7EF;border:1px solid #B7EBD5;border-radius:999px;padding:3px 10px;}
+  .wplan-valid{align-self:flex-start;font-size:11.5px;font-weight:700;color:var(--muted);background:var(--paper-soft);border:1px solid var(--paper-line);border-radius:999px;padding:4px 10px;}
+  .wplan-feats{list-style:none;margin:6px 0 0;padding:12px 0 0;border-top:1px solid var(--paper-line);display:flex;flex-direction:column;gap:9px;flex:1;}
+  .wplan-feats li{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--navy);line-height:1.5;}
+  .wplan-tick{width:15px;height:15px;flex:none;margin-top:2px;fill:none;stroke:#10B981;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;}
+  .wplan-chip{font-size:11.5px;font-weight:800;color:#0F7A55;background:#E6F7EF;border-radius:6px;padding:1px 7px;}
+  .wplan-buy{margin-top:8px;width:100%;display:flex;align-items:center;justify-content:center;gap:6px;background:#2563EB;color:#fff;border:none;border-radius:12px;padding:12px;font-family:'Cairo',sans-serif;font-weight:800;font-size:13.5px;letter-spacing:.3px;cursor:pointer;}
+  .wplan-buy:hover{background:#1D4ED8;}
+  @media (max-width:1100px){ .wplan-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+  @media (max-width:560px){
+    .wplan-grid{grid-template-columns:1fr;padding:14px;}
+    .wplan-switch{display:flex;width:100%;}
+    .wplan-tab{flex:1;justify-content:center;padding:9px 8px;font-size:12.5px;}
+    .wplan-auto{width:100%;justify-content:center;}
+  }
+  [data-theme="dark"] .wplan-head{background:linear-gradient(90deg,rgba(245,158,11,.14) 0%,rgba(15,20,36,.4) 100%);}
+  [data-theme="dark"] .wplan-usd,[data-theme="dark"] .wplan-chip{background:rgba(16,185,129,.16);border-color:rgba(16,185,129,.35);}
+  [data-theme="dark"] .wplan-files{background:rgba(37,99,235,.16);border-color:rgba(37,99,235,.35);color:#93C5FD;}
   .sf-dd{position:relative;}
   .sf-dd-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--ok-wash);border:1.5px solid var(--ok);border-radius:14px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13.5px;font-weight:800;color:#0F5132;cursor:pointer;text-align:start;}
   .sf-dd-btn:disabled{cursor:default;opacity:.7;}
@@ -2214,33 +2260,49 @@
         <div class="ref-link"><span>t.me/Prokeys_Turnbot?ref=MO812K</span><span style="color:var(--gold-deep);font-weight:700;cursor:pointer;" data-i18n="copy">نسخ</span></div>
       </div>
 
-      <!-- Packs are hidden by default (they take a lot of vertical space) —
-           revealed on demand via this button instead of always showing. -->
-      <button type="button" class="btn-show-packs" id="showPacksBtn" onclick="togglePacksVisibility()">
+      <!-- Top-up button hidden: the packs are shown directly with the plan switch below. -->
+      <button type="button" class="btn-show-packs" id="showPacksBtn" onclick="togglePacksVisibility()" style="display:none;">
         <span data-i18n="topup_now">اشحن المحفظة الآن</span>
         <svg class="ic packs-toggle-chevron" viewBox="0 0 24 24" style="width:14px;height:14px;"><path d="M6 9l6 6 6-6"/></svg>
       </button>
-      <div id="packsCollapsible" style="display:none;">
-        <!-- Top-up packs slider -->
-        <div class="pack-section-head">
-          <h2 class="pack-section-title" data-i18n="packs_topup_tab">باقات الشحن</h2>
-          <p class="pack-section-desc" data-i18n="packs_topup_desc">كريديت لا تنتهي صلاحيتها — مثالية للأساتذة والباحثين</p>
-        </div>
-        <div class="pack-slider-wrap">
-          <button class="slider-arrow slider-arrow-prev" id="topupPrev" aria-label="prev">
-            <svg class="ic" data-icon-key="wal_slider_prev" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+      <div id="packsCollapsible" style="display:block;">
+        <!-- Plan switch: Plag + AI is live, Plag Only comes later -->
+        <div class="wplan-switch">
+          <button type="button" class="wplan-tab on" id="wplanAi">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>
+            <span>Plag + AI Report</span>
           </button>
-          <div class="pack-slider" id="topupSlider"></div>
-          <button class="slider-arrow slider-arrow-next" id="topupNext" aria-label="next">
-            <svg class="ic" data-icon-key="wal_slider_next" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          <button type="button" class="wplan-tab wplan-tab-soon" id="wplanOnly" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>
+            <span>Only Plag Report</span>
+            <em>Soon</em>
           </button>
         </div>
+
+        <div class="wplan-card">
+          <div class="wplan-head">
+            <div class="wplan-head-l">
+              <span class="wplan-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span>
+              <div>
+                <div class="wplan-title">Turnitin Plag + AI Check</div>
+                <span class="wplan-pill">PLAG + AI REPORT</span>
+              </div>
+            </div>
+            <span class="wplan-auto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg> <span>Automated Instant Activation</span></span>
+          </div>
+          <div class="wplan-grid" id="topupSlider"></div>
+        </div>
+      </div>
+
+      <div class="pack-slider-wrap" style="display:none;">
+        <button class="slider-arrow slider-arrow-prev" id="topupPrev" aria-label="prev"></button>
+        <button class="slider-arrow slider-arrow-next" id="topupNext" aria-label="next"></button>
+      </div>
 
         <!-- Daily packs slider — hidden (kept for legacy compatibility) -->
         <div id="dailyPacksSection" style="display:none;">
           <div class="pack-slider" id="dailySlider"></div>
         </div>
-      </div>
 
       <!-- Full-width payment section, shown only after pack selection -->
       <div id="walletPayBlock" style="display:none;margin-top:30px;">
@@ -3760,11 +3822,46 @@ function togglePacksVisibility(){
   if (opening) box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
+const ICON_TICK = '<svg class="wplan-tick" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+// One pack card in the Plag + AI plan grid.
+function buildPlanCard(p){
+  const ar = currentLang === 'ar';
+  const selected = selectedPack && selectedPack.id === p.id;
+  const popular = Number(p.credits) === 10;
+  const usd = (Math.ceil(p.priceEgp / EGP_TO_USD_RATE * 100) / 100).toFixed(2);
+  const files = Number(p.credits);
+  const validity = p.expiryDays
+    ? (ar ? `صلاحية ${p.expiryDays} يوم (${files} ملف)` : `${p.expiryDays} Days (${files} ${files === 1 ? 'File' : 'Files'}) validity`)
+    : (ar ? 'بدون انتهاء' : 'No expiry');
+  const feat = (txt, chip) => `<li>${ICON_TICK}${chip ? `<span class="wplan-chip">${txt}</span>` : `<span>${txt}</span>`}</li>`;
+  return `
+    <div class="wplan-pack ${selected ? 'selected' : ''} ${popular ? 'popular' : ''}">
+      ${popular ? `<span class="wplan-popular">${ar ? 'الأكثر طلباً' : 'POPULAR'}</span>` : ''}
+      <div class="wplan-top">
+        <div class="wplan-name">${escapeHtml(packName(p.id))}</div>
+        <span class="wplan-files">${files} ${ar ? 'ملف' : (files === 1 ? 'File' : 'Files')}</span>
+      </div>
+      <div class="wplan-price">${p.priceEgp} <small>${ar ? 'ج.م' : 'EGP'}</small></div>
+      <span class="wplan-usd">$${usd} USDT</span>
+      <div class="wplan-valid">${escapeHtml(validity)}</div>
+      <ul class="wplan-feats">
+        ${feat(ar ? `${files} تقرير كامل` : `${files} Full Report${files === 1 ? '' : 's'}`)}
+        ${feat(ar ? 'تقرير Turnitin رسمي' : 'Official Turnitin Report')}
+        ${feat(ar ? 'تقرير Plag + AI' : 'Plag + AI Report', true)}
+        ${feat(ar ? 'آمن 100% — لا يُحفظ في أي مستودع' : '100% Non-Repository Safe')}
+        ${feat(ar ? 'تسليم سريع فوري' : 'Fast Instant Delivery')}
+        ${feat(ar ? 'يدعم ملفات حتى 50,000 كلمة' : 'Supports files up to 50,000 words')}
+      </ul>
+      <button class="wplan-buy" type="button" onclick='selectPack("topup","${p.id}")'>${ar ? 'اشتري الآن' : 'BUY NOW'} <span aria-hidden="true">→</span></button>
+    </div>`;
+}
+
 function renderPacks(){
   const topupSlider = document.getElementById('topupSlider');
   const dailySlider = document.getElementById('dailySlider');
   if(topupSlider){
-    topupSlider.innerHTML = TOPUP_PACKS.map((p,i)=>buildPackCard(p,'topup',i)).join('');
+    topupSlider.innerHTML = TOPUP_PACKS.map(p => buildPlanCard(p)).join('');
   }
   if(dailySlider){
     dailySlider.innerHTML = DAILY_PACKS.map((p,i)=>buildPackCard(p,'daily',i)).join('');
