@@ -471,7 +471,7 @@
       <a class="btn btn-store" href="https://www.pro-keys.store/" target="_blank" rel="noopener"><span class="full-label">🛍️</span> <span data-i18n="idx_store_btn">متجر Pro Keys</span></a>
       <a class="btn btn-signin" href="auth.html" onclick="openAuthModal('login');return false;" data-i18n="idx_signin_btn">تسجيل الدخول</a>
       <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="menu">
-        <svg data-icon-key="idx_idx_signin_btn" viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <svg data-icon-key="idx_signin_btn_icon" viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
     </div>
   </div>
@@ -497,8 +497,8 @@
       <h1><span class="grad-text" data-i18n="hero_title_1">تقارير الاقتباس و AI</span> <span data-i18n="hero_title_2">في دقائق</span></h1>
       <p class="sub" data-i18n="hero_sub">فحوصات آلية رسمية 100% عبر Turnitin Instructor API · بدون أي تدخل بشري · تقارير دقيقة ومفصلة</p>
       <div class="hero-cta-row" data-aos="fade-up" data-aos-delay="150">
-        <a class="btn btn-hero" href="auth.html" onclick="openAuthModal('signup');return false;"><span data-icon-key="hero_cta_icon"><svg data-icon-key="idx_hero_sub" viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></span> <span data-i18n="hero_cta">ابدأ فحص جديد الآن</span></a>
-        <a class="btn btn-hero-outline" id="watchDemoBtn" href="#how" data-i18n="hero_cta_secondary"><span data-icon-key="home_watch"><svg data-icon-key="idx_hero_cta_secondary" viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;"><circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z"/></svg></span> شاهد كيف يعمل</a>
+        <a class="btn btn-hero" href="auth.html" onclick="openAuthModal('signup');return false;"><span data-icon-key="hero_cta_icon"><svg data-icon-key="idx_hero_start_btn_icon" viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></span> <span data-i18n="hero_cta">ابدأ فحص جديد الآن</span></a>
+        <a class="btn btn-hero-outline" id="watchDemoBtn" href="#how" data-i18n="hero_cta_secondary"><span data-icon-key="home_watch"><svg data-icon-key="idx_hero_demo_btn_icon" viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;"><circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z"/></svg></span> شاهد كيف يعمل</a>
       </div>
     </div>
     <div class="hero-visual" data-aos="zoom-in" data-aos-delay="200">
@@ -795,8 +795,8 @@ function applyLang(){
   renderFaq();
 }
 
-const HAMBURGER_ICON = '<svg data-icon-key="idx_l798" viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
-const CLOSE_ICON = '<svg data-icon-key="idx_l799" viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+const HAMBURGER_ICON = '<svg data-icon-key="idx_mobile_menu_icon" viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+const CLOSE_ICON = '<svg data-icon-key="idx_mobile_menu_close_icon" viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 function toggleMobileMenu(){
   const menu = document.getElementById('mobileMenu');
   const btn = document.getElementById('hamburgerBtn');
@@ -1042,7 +1042,7 @@ supabaseClient
 </style>
 <div id="pkScrollBar"></div>
 <button id="pkTopBtn" aria-label="Back to top">
-  <svg data-icon-key="idx_pktopbtn" width="46" height="46" viewBox="0 0 46 46" aria-hidden="true">
+  <svg data-icon-key="idx_back_to_top_ring" width="46" height="46" viewBox="0 0 46 46" aria-hidden="true">
     <circle class="pkRingBg" cx="23" cy="23" r="18" fill="none" stroke-width="3"></circle>
     <circle id="pkRingProg" class="pkRingProg" cx="23" cy="23" r="18" fill="none" stroke-width="3"
             stroke-linecap="round" transform="rotate(-90 23 23)"></circle>
@@ -1534,7 +1534,7 @@ supabaseClient
         <button type="button" class="am-btn" id="amLoginBtn"><span id="amLoginBtnText">دخول</span></button>
         <div class="am-divider"><span id="amDividerOr1">أو</span></div>
         <button type="button" class="am-btn-google" id="amGoogleLoginBtn">
-          <svg data-icon-key="idx_amgoogleloginbtn" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+          <svg data-icon-key="idx_google_login_icon" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
           <span id="amGoogleLoginText">الدخول بحساب Google</span>
         </button>
         <div class="am-footer"><span id="amNoAccountText">ليس لديك حساب؟</span> <a id="amToSignupLink">إنشاء حساب جديد</a></div>
@@ -1580,7 +1580,7 @@ supabaseClient
         <button type="button" class="am-btn" id="amSignupBtn"><span id="amSignupBtnText">إنشاء حساب</span></button>
         <div class="am-divider"><span id="amDividerOr2">أو</span></div>
         <button type="button" class="am-btn-google" id="amGoogleSignupBtn">
-          <svg data-icon-key="idx_amgooglesignupbtn" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+          <svg data-icon-key="idx_google_signup_icon" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
           <span id="amGoogleSignupText">التسجيل بحساب Google</span>
         </button>
         <div class="am-footer"><span id="amHaveAccountText">لديك حساب؟</span> <a id="amToLoginLink">تسجيل دخول</a></div>
