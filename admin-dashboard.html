@@ -1180,7 +1180,7 @@
                 <th data-i18n="cr_col_plan">الخطة / السبب</th>
                 <th data-i18n="cr_col_method">وسيلة الدفع</th>
                 <th data-i18n="cr_col_amount">المبلغ</th>
-                <th data-i18n="cr_col_credits">الكريديت</th>
+                <th>Slots</th>
                 <th data-i18n="cr_col_type">النوع</th>
                 <th data-i18n="cr_col_date">التاريخ</th>
                 <th></th>
@@ -1369,7 +1369,7 @@ const I18N = {
     nav_overview:'نظرة عامة', nav_orders:'الطلبات', nav_chat:'الشات المباشر', nav_tickets:'تذاكر الدعم', nav_uidesign:'تصميم الواجهة', nav_checksettings:'إعدادات الفحص',
     logout:'تسجيل الخروج', refresh:'⟲ تحديث', user_profile:'ملف الأدمن', currency_btn_lbl:'العملة', lang_btn_lbl:'اللغة', presence_online:'متصل الآن', presence_offline:'غير متصل',
     overview_title:'نظرة عامة', overview_sub:'أداء المنصة',
-    sec_credits:'الكريديت والطلبات الآن', sec_orders_count:'عدد الطلبات', sec_revenue:'الإيرادات (من شحن المحفظة)',
+    sec_credits:'الـ Slots والطلبات الآن', sec_orders_count:'عدد الطلبات', sec_revenue:'الإيرادات (من شحن المحفظة)',
     lbl_validity:'صلاحية الكريدت (API)', lbl_api_credits:'الكريديت المتبقي في الـ API', lbl_floating:'Floating', lbl_processing:'قيد التنفيذ',
     lbl_completed:'مكتملة (كل الوقت)', lbl_problem:'طلبات فيها مشكلة', lbl_stuck:'طلبات عالقة', lbl_users:'عدد المستخدمين',
     lbl_today:'اليوم', lbl_week:'الأسبوع', lbl_month:'الشهر', lbl_year:'السنة',
@@ -1385,18 +1385,18 @@ const I18N = {
     filter_showing:'بيعرض', reason_label:'السبب',
     compose_prompt:'اكتب رسالتك للعميل بخصوص الطلب:', compose_sent:'اتبعتت الرسالة', compose_fail:'تعذر إرسال الرسالة',
     csv_period:'الفترة', csv_orders:'عدد الطلبات', csv_revenue:'الإيرادات',
-    add_credit_btn:'💳 إضافة كريديت', broadcast_btn:'📢 رسالة', add_credit_title:'إضافة كريديت', broadcast_title:'رسالة جماعية',
+    add_credit_btn:'💳 إضافة slot', broadcast_btn:'📢 رسالة', add_credit_title:'إضافة slot', broadcast_title:'رسالة جماعية',
     notif_title:'🔔 الإشعارات', notif_mark_all:'تحديد الكل كمقروء', notif_empty:'لا توجد إشعارات', notif_bell_title:'الإشعارات',
     dark_mode_btn:'🌙 وضع ليلي', light_mode_btn:'☀️ وضع نهاري',
-    qc_title:'تعديل رصيد العميل', qc_amount_ph:'عدد الكريديت', qc_note_ph:'ملاحظة (اختياري)',
+    qc_title:'تعديل رصيد العميل', qc_amount_ph:'عدد الـ Slots', qc_note_ph:'ملاحظة (اختياري)',
     qc_add_btn:'➕ إضافة', qc_deduct_btn:'➖ خصم', qc_cancel_btn:'إلغاء',
     qc_not_found:'⚠️ لم يُعثر على مستخدم بهذا الكود', qc_looking:'⏳ جاري البحث...',
-    qc_found:'✅ الرصيد الحالي:', qc_amount_required:'أدخل عدد كريديت صحيح (أكبر من 0)',
-    qc_success_add:'تم إضافة الكريديت بنجاح', qc_success_deduct:'تم خصم الكريديت بنجاح',
+    qc_found:'✅ الرصيد الحالي:', qc_amount_required:'أدخل عدد slot صحيح (أكبر من 0)',
+    qc_success_add:'تم إضافة الـ Slots بنجاح', qc_success_deduct:'تم خصم الـ Slots بنجاح',
     qc_pk_ph:'كود PK الخاص بالعميل', qc_mode_value:'قيمة', qc_mode_package:'باقة',
     qc_pk_required:'ابحث أولاً عن عميل بكود PK صحيح',
     qc_packs_topup:'باقات الشحن', qc_packs_daily:'الباقات اليومية', qc_packs_loading:'⏳ جاري تحميل الباقات...',
-    qc_packs_empty:'لا توجد باقات مسجلة', qc_credits_unit:'كريديت',
+    qc_packs_empty:'لا توجد باقات مسجلة', qc_credits_unit:'slot',
     qc_pack_charge_success:'تم شحن الباقة للعميل بنجاح',
     qc_pack_select_ph:'-- اختر باقة --', qc_charge_pack_btn:'💳 شحن الباقة',
     loading_ellipsis:'جاري التحميل...', search_generic_ph:'بحث...',
@@ -1414,14 +1414,14 @@ const I18N = {
     bc_col_title:'العنوان', bc_col_target:'الفئة المستهدفة', bc_col_recipients:'عدد المستلمين', bc_col_sent_at:'وقت الإرسال', bc_col_admin:'الإدمن',
     act_title:'📋 سجل نشاط الأدمن', act_subtitle:'تتبع كل إجراءات الأدمن', act_log_title:'سجل الإجراءات',
     act_col_action:'الإجراء', act_col_admin:'الأدمن', act_col_user:'المستخدم', act_col_details:'التفاصيل', act_col_date:'التاريخ',
-    cr_title:'💳 الكريديت', cr_subtitle:'إضافة وخصم رصيد يدوياً + سجل كامل بجميع عمليات الشحن', cr_adjust_title:'⚡ تعديل رصيد عميل',
+    cr_title:'💳 الـ Slots', cr_subtitle:'إضافة وخصم رصيد يدوياً + سجل كامل بجميع عمليات الشحن', cr_adjust_title:'⚡ تعديل رصيد عميل',
     cr_pk_lbl:'كود العميل (PK)', cr_pk_ph:'مثال: 1', cr_amount_ph:'مثال: 10', cr_note_ph:'سبب التعديل...',
     cr_log_title:'سجل عمليات الشحن والتعديل',
     cr_col_txcode:'كود العملية', cr_col_name:'الاسم', cr_col_plan:'الخطة / السبب', cr_col_method:'وسيلة الدفع',
-    cr_col_amount:'المبلغ', cr_col_credits:'الكريديت', cr_col_type:'النوع', cr_col_date:'التاريخ',
+    cr_col_amount:'المبلغ', cr_col_credits:'الـ Slots', cr_col_type:'النوع', cr_col_date:'التاريخ',
     usr_title:'👥 المستخدمون', usr_subtitle:'جميع بيانات عملاء المنصة', usr_search_ph:'🔍 ابحث باسم أو إيميل أو PK أو واتساب...',
     usr_add_btn:'+ إضافة مستخدم', adm_col_password:'الباسورد', adm_col_permissions:'الصلاحيات',
-    usr_col_email:'الإيميل', usr_col_whatsapp:'واتساب', usr_col_credits:'الكريديت الحالي', usr_col_completed:'أوردرات مكتملة', usr_col_joined:'تاريخ الانضمام',
+    usr_col_email:'الإيميل', usr_col_whatsapp:'واتساب', usr_col_credits:'الـ Slots الحالية', usr_col_completed:'أوردرات مكتملة', usr_col_joined:'تاريخ الانضمام',
     cs_title:'⚙️ إعدادات الفحص', cs_subtitle:'تحكم في خدمات الفحص المتاحة للعملاء',
     cs_card1_title:'🔴 استقبال الطلبات', cs_card1_desc:'لما تقفل الخدمة، العميل هيشوف رسالة إيقاف مؤقت ومش هيقدر يبعت أي طلب جديد. الطلبات الموجودة مش بتتأثر.',
     cs_offline_ar_lbl:'رسالة الإيقاف (عربي) 🇪🇬', cs_offline_ar_ph:'الخدمة متوقفة مؤقتاً...',
@@ -1433,16 +1433,16 @@ const I18N = {
     cs_card3_desc:'لما تخفيه، خيار "اقتباس فقط" بيختفي من صفحة الفحص الجديد عند العميل — بيفضل خيار واحد بس وهو "اقتباس + AI".',
     cr_empty:'لا توجد عمليات', usr_empty:'لا يوجد مستخدمون', bc_empty:'لا توجد رسائل مرسلة', act_empty:'لا يوجد سجل',
     badge_topup:'شحن', badge_admin_add:'أدمن +', badge_admin_deduct:'أدمن −', badge_deduct:'خصم',
-    nav_revenue:'الإيرادات', nav_broadcast:'رسائل جماعية', nav_activity:'سجل النشاط', nav_credits:'الكريديت', nav_users:'المستخدمون',
+    nav_revenue:'الإيرادات', nav_broadcast:'رسائل جماعية', nav_activity:'سجل النشاط', nav_credits:'الـ Slots', nav_users:'المستخدمون',
     nav_accounts:'إدارة الحسابات', accounts_title:'👤 إدارة الحسابات', accounts_subtitle:'حسابات الأدمن وعملاء المنصة',
     rc_pkg_lbl:'الباقة', rc_pkg_placeholder:'-- اختار باقة --', rc_col_package:'الباقة', rc_pkg_none:'باقة غير معروفة',
     rc_preview_slots:'{s} فحص ({t}) لكل كود', rc_err_pkg:'اختار باقة الأول',
-    rc_title:'🎟 أكواد الخصم (Redeem Codes)', rc_rate_note:'السعر: 1$ = 50 ج.م = 10 كريديت', rc_value_lbl:'القيمة', rc_unit_lbl:'الوحدة',
-    rc_unit_credits:'كريديت', rc_unit_egp:'جنيه مصري', rc_unit_usd:'دولار', rc_count_lbl:'عدد الأكواد', rc_gen_btn:'توليد الأكواد',
-    rc_preview:'= {c} كريديت لكل كود', rc_preview_empty:'أدخل قيمة لحساب الكريديت',
-    rc_err_credits:'القيمة لازم تعطي كريديت واحد على الأقل', rc_err_count:'عدد الأكواد لازم يكون بين 1 و 500',
-    rc_err_generic:'فشل توليد الأكواد', rc_err_load:'تعذر تحميل الأكواد', rc_new_title:'تم توليد {n} كود، كل كود بـ {c} كريديت',
-    rc_copy_all:'📋 نسخ الكل', rc_copied:'تم نسخ الأكواد ✅', rc_col_code:'الكود', rc_col_credits:'الكريديت',
+    rc_title:'🎟 أكواد الخصم (Redeem Codes)', rc_rate_note:'السعر: 1$ = 50 ج.م = 10 slot', rc_value_lbl:'القيمة', rc_unit_lbl:'الوحدة',
+    rc_unit_credits:'slot', rc_unit_egp:'جنيه مصري', rc_unit_usd:'دولار', rc_count_lbl:'عدد الأكواد', rc_gen_btn:'توليد الأكواد',
+    rc_preview:'= {c} slot لكل كود', rc_preview_empty:'أدخل قيمة لحساب الـ Slots',
+    rc_err_credits:'القيمة لازم تعطي slot واحد على الأقل', rc_err_count:'عدد الأكواد لازم يكون بين 1 و 500',
+    rc_err_generic:'فشل توليد الأكواد', rc_err_load:'تعذر تحميل الأكواد', rc_new_title:'تم توليد {n} كود، كل كود بـ {c} slot',
+    rc_copy_all:'📋 نسخ الكل', rc_copied:'تم نسخ الأكواد ✅', rc_col_code:'الكود', rc_col_credits:'الـ Slots',
     rc_col_status:'الحالة', rc_col_created:'تاريخ الإنشاء', rc_status_unused:'متاح', rc_status_used:'مستخدم', rc_empty:'لا توجد أكواد بعد',
     nav_slots:'الفحوصات',
     slt_title:'🎫 باقات الفحوصات', slt_subtitle:'الباقات اللي بتظهر للعملاء في الموقع، وكل باقة بتتحدد بنوع الفحص وعدد الفحوصات وصلاحيتها',
@@ -1457,8 +1457,8 @@ const I18N = {
     slt_err_names:'لازم تكتب الاسم بالعربي والإنجليزي', slt_err_slots:'عدد الفحوصات لازم يكون 1 أو أكتر',
     slt_err_price:'السعر لازم يكون صفر أو أكتر', slt_err_days:'مدة الصلاحية لازم تكون يوم أو أكتر',
     slt_err_save:'فشل الحفظ', slt_confirm_delete:'هتحذف الباقة نهائياً. العملاء اللي اشتروها هيفضلوا عندهم الفحوصات، بس اسم الباقة هيتشال. متأكد؟',
-    nav_payments:'المدفوعات', pay_tab_title:'💳 المدفوعات', pay_tab_subtitle:'الكريديت، سجل العمليات، وبوابات الدفع',
-    credback_title:'🔒 النسخ الاحتياطي للكريديت', credback_desc:'نسخة تلقائية كل يوم الساعة 5 الفجر، بالإضافة لإمكانية عمل نسخة يدوية في أي وقت وتصديرها/استيرادها منفصلة عن باك أب الإعدادات العام.',
+    nav_payments:'المدفوعات', pay_tab_title:'💳 المدفوعات', pay_tab_subtitle:'الـ Slots، سجل العمليات، وبوابات الدفع',
+    credback_title:'🔒 النسخ الاحتياطي للslot', credback_desc:'نسخة تلقائية كل يوم الساعة 5 الفجر، بالإضافة لإمكانية عمل نسخة يدوية في أي وقت وتصديرها/استيرادها منفصلة عن باك أب الإعدادات العام.',
     credback_manual_btn:'💾 نسخة يدوية الآن', credback_export_btn:'⬇ تصدير آخر نسخة كملف', credback_import_btn:'📂 استيراد من ملف',
     credback_col_type:'النوع', credback_col_rows:'عدد العمليات', credback_col_date:'التاريخ',
     nav_adminmgmt:'إدارة الأدمن', nav_paygateways:'بوابات الدفع',
@@ -1485,7 +1485,7 @@ const I18N = {
     nav_overview:'Overview', nav_orders:'Orders', nav_chat:'Live Chat', nav_tickets:'Support Tickets', nav_uidesign:'UI Design', nav_checksettings:'Check Settings',
     logout:'Logout', refresh:'⟲ Refresh', user_profile:'Admin Profile', currency_btn_lbl:'Currency', lang_btn_lbl:'Language', presence_online:'Online now', presence_offline:'Offline',
     overview_title:'Overview', overview_sub:'Platform performance',
-    sec_credits:'Credits & current orders', sec_orders_count:'Order count', sec_revenue:'Revenue (from wallet top-ups)',
+    sec_credits:'Slots & current orders', sec_orders_count:'Order count', sec_revenue:'Revenue (from wallet top-ups)',
     lbl_validity:'API credit validity', lbl_api_credits:'Remaining API credits', lbl_floating:'Floating', lbl_processing:'Processing',
     lbl_completed:'Completed (all time)', lbl_problem:'Problem orders', lbl_stuck:'Stuck orders', lbl_users:'Total users',
     lbl_today:'Today', lbl_week:'Week', lbl_month:'Month', lbl_year:'Year',
@@ -1501,18 +1501,18 @@ const I18N = {
     filter_showing:'Showing', reason_label:'Reason',
     compose_prompt:'Write your message to the customer about the order:', compose_sent:'Message sent', compose_fail:'Failed to send message',
     csv_period:'Period', csv_orders:'Order count', csv_revenue:'Revenue',
-    add_credit_btn:'💳 Add Credit', broadcast_btn:'📢 Broadcast', add_credit_title:'Add credit', broadcast_title:'Broadcast message',
+    add_credit_btn:'💳 Add Slot', broadcast_btn:'📢 Broadcast', add_credit_title:'Add slot', broadcast_title:'Broadcast message',
     notif_title:'🔔 Notifications', notif_mark_all:'Mark all as read', notif_empty:'No notifications', notif_bell_title:'Notifications',
     dark_mode_btn:'🌙 Dark mode', light_mode_btn:'☀️ Light mode',
-    qc_title:'Adjust customer balance', qc_amount_ph:'Credit amount', qc_note_ph:'Note (optional)',
+    qc_title:'Adjust customer balance', qc_amount_ph:'Slots amount', qc_note_ph:'Note (optional)',
     qc_add_btn:'➕ Add', qc_deduct_btn:'➖ Deduct', qc_cancel_btn:'Cancel',
     qc_not_found:'⚠️ No user found with this code', qc_looking:'⏳ Searching...',
-    qc_found:'✅ Current balance:', qc_amount_required:'Enter a valid credit amount (greater than 0)',
-    qc_success_add:'Credit added successfully', qc_success_deduct:'Credit deducted successfully',
+    qc_found:'✅ Current balance:', qc_amount_required:'Enter a valid slots amount (greater than 0)',
+    qc_success_add:'Slot added successfully', qc_success_deduct:'Slot deducted successfully',
     qc_pk_ph:'Customer PK code', qc_mode_value:'Value', qc_mode_package:'Package',
     qc_pk_required:'Search for a customer with a valid PK code first',
     qc_packs_topup:'Top-up packs', qc_packs_daily:'Daily packs', qc_packs_loading:'⏳ Loading packages...',
-    qc_packs_empty:'No packages found', qc_credits_unit:'credits',
+    qc_packs_empty:'No packages found', qc_credits_unit:'slots',
     qc_pack_charge_success:'Package charged to customer successfully',
     qc_pack_select_ph:'-- Select a package --', qc_charge_pack_btn:'💳 Charge package',
     loading_ellipsis:'Loading...', search_generic_ph:'Search...',
@@ -1530,14 +1530,14 @@ const I18N = {
     bc_col_title:'Title', bc_col_target:'Target group', bc_col_recipients:'Recipients', bc_col_sent_at:'Sent at', bc_col_admin:'Admin',
     act_title:'📋 Admin Activity Log', act_subtitle:'Track every admin action', act_log_title:'Action log',
     act_col_action:'Action', act_col_admin:'Admin', act_col_user:'User', act_col_details:'Details', act_col_date:'Date',
-    cr_title:'💳 Credits', cr_subtitle:'Manually add/deduct balance + full transaction log', cr_adjust_title:'⚡ Adjust customer balance',
+    cr_title:'💳 Slots', cr_subtitle:'Manually add/deduct balance + full transaction log', cr_adjust_title:'⚡ Adjust customer balance',
     cr_pk_lbl:'Customer code (PK)', cr_pk_ph:'e.g. 1', cr_amount_ph:'e.g. 10', cr_note_ph:'Reason for adjustment...',
     cr_log_title:'Top-up & adjustment log',
     cr_col_txcode:'Transaction code', cr_col_name:'Name', cr_col_plan:'Plan / Reason', cr_col_method:'Payment method',
-    cr_col_amount:'Amount', cr_col_credits:'Credits', cr_col_type:'Type', cr_col_date:'Date',
+    cr_col_amount:'Amount', cr_col_credits:'Slots', cr_col_type:'Type', cr_col_date:'Date',
     usr_title:'👥 Users', usr_subtitle:'All platform customer data', usr_search_ph:'🔍 Search by name, email, PK, or WhatsApp...',
     usr_add_btn:'+ Add User', adm_col_password:'Password', adm_col_permissions:'Permissions',
-    usr_col_email:'Email', usr_col_whatsapp:'WhatsApp', usr_col_credits:'Current credits', usr_col_completed:'Completed orders', usr_col_joined:'Joined',
+    usr_col_email:'Email', usr_col_whatsapp:'WhatsApp', usr_col_credits:'Current slots', usr_col_completed:'Completed orders', usr_col_joined:'Joined',
     cs_title:'⚙️ Check Settings', cs_subtitle:'Control the check services available to customers',
     cs_card1_title:'🔴 Accepting requests', cs_card1_desc:"When you turn the service off, customers will see a temporary-pause message and won't be able to submit new requests. Existing orders are unaffected.",
     cs_offline_ar_lbl:'Offline message (Arabic) 🇪🇬', cs_offline_ar_ph:'Service temporarily offline...',
@@ -1549,16 +1549,16 @@ const I18N = {
     cs_card3_desc:'When hidden, the "Similarity only" option disappears from the customer\'s New Check page — leaving only "Similarity + AI".',
     cr_empty:'No transactions', usr_empty:'No users', bc_empty:'No messages sent', act_empty:'No log entries',
     badge_topup:'Top-up', badge_admin_add:'Admin +', badge_admin_deduct:'Admin −', badge_deduct:'Deduct',
-    nav_revenue:'Revenue', nav_broadcast:'Broadcast', nav_activity:'Activity Log', nav_credits:'Credits', nav_users:'Users',
+    nav_revenue:'Revenue', nav_broadcast:'Broadcast', nav_activity:'Activity Log', nav_credits:'Slots', nav_users:'Users',
     nav_accounts:'Account Management', accounts_title:'👤 Account Management', accounts_subtitle:'Admin accounts and platform customers',
     rc_pkg_lbl:'Package', rc_pkg_placeholder:'-- Choose a package --', rc_col_package:'Package', rc_pkg_none:'Unknown package',
     rc_preview_slots:'{s} slot ({t}) per code', rc_err_pkg:'Choose a package first',
-    rc_title:'🎟 Redeem Codes', rc_rate_note:'Rate: $1 = 50 EGP = 10 credits', rc_value_lbl:'Value', rc_unit_lbl:'Unit',
-    rc_unit_credits:'Credits', rc_unit_egp:'EGP', rc_unit_usd:'USD', rc_count_lbl:'Number of codes', rc_gen_btn:'Generate codes',
-    rc_preview:'= {c} credits per code', rc_preview_empty:'Enter a value to calculate credits',
-    rc_err_credits:'The value must be at least 1 credit', rc_err_count:'Number of codes must be between 1 and 500',
-    rc_err_generic:'Failed to generate codes', rc_err_load:'Could not load codes', rc_new_title:'{n} codes generated, {c} credits each',
-    rc_copy_all:'📋 Copy all', rc_copied:'Codes copied ✅', rc_col_code:'Code', rc_col_credits:'Credits',
+    rc_title:'🎟 Redeem Codes', rc_rate_note:'Rate: $1 = 50 EGP = 10 slots', rc_value_lbl:'Value', rc_unit_lbl:'Unit',
+    rc_unit_credits:'Slots', rc_unit_egp:'EGP', rc_unit_usd:'USD', rc_count_lbl:'Number of codes', rc_gen_btn:'Generate codes',
+    rc_preview:'= {c} slots per code', rc_preview_empty:'Enter a value to calculate slots',
+    rc_err_credits:'The value must be at least 1 slot', rc_err_count:'Number of codes must be between 1 and 500',
+    rc_err_generic:'Failed to generate codes', rc_err_load:'Could not load codes', rc_new_title:'{n} codes generated, {c} slots each',
+    rc_copy_all:'📋 Copy all', rc_copied:'Codes copied ✅', rc_col_code:'Code', rc_col_credits:'Slots',
     rc_col_status:'Status', rc_col_created:'Created', rc_status_unused:'Unused', rc_status_used:'Used', rc_empty:'No codes yet',
     nav_slots:'Slots',
     slt_title:'🎫 Slot packages', slt_subtitle:'Packages customers see on the site. Each one has a check type, a number of slots and a validity period.',
@@ -1573,8 +1573,8 @@ const I18N = {
     slt_err_names:'Enter both the Arabic and English names', slt_err_slots:'Number of slots must be 1 or more',
     slt_err_price:'Price must be 0 or more', slt_err_days:'Validity must be 1 day or more',
     slt_err_save:'Save failed', slt_confirm_delete:'This permanently deletes the package. Customers who bought it keep their slots, but the package name is removed. Are you sure?',
-    nav_payments:'Payments', pay_tab_title:'💳 Payments', pay_tab_subtitle:'Credits, transaction log, and payment gateways',
-    credback_title:'🔒 Credit Backups', credback_desc:'An automatic backup runs daily at 5 AM, plus you can make a manual backup any time and export/import it separately from the general settings backup.',
+    nav_payments:'Payments', pay_tab_title:'💳 Payments', pay_tab_subtitle:'Slots, transaction log, and payment gateways',
+    credback_title:'🔒 Slot Backups', credback_desc:'An automatic backup runs daily at 5 AM, plus you can make a manual backup any time and export/import it separately from the general settings backup.',
     credback_manual_btn:'💾 Backup now', credback_export_btn:'⬇ Export latest backup', credback_import_btn:'📂 Import from file',
     credback_col_type:'Type', credback_col_rows:'Transactions', credback_col_date:'Date',
     nav_adminmgmt:'Admin Management', nav_paygateways:'Payment Gateways',
@@ -2909,6 +2909,7 @@ function renderOverviewStatusKpis(orders, usersCount){
 
 async function loadOverview(){
   document.getElementById('overviewSub').textContent = 'جاري التحميل...';
+  await loadSlotData();
 
   const [ordersRes, profilesRes, walletRes] = await Promise.all([
     supabaseClient.from('orders').select('id, status, submitted_at, check_type'),
@@ -3136,6 +3137,7 @@ function _renderOnlineUsers(){
   const countEl = document.getElementById('onlineCountNum');
   if (countEl) countEl.textContent = users.length;
   _fetchMissingOnlineProfiles(); // async, re-renders once profiles land
+  if (!Object.keys(slotBalanceByUser).length) loadSlotData().then(() => _renderOnlineUsers());
 
   const page = paginateList('onlineUsers', users, _renderOnlineUsers);
   const tbody = document.getElementById('onlineUsersBody');
@@ -3152,8 +3154,8 @@ function _renderOnlineUsers(){
     const name = escapeHtml(u.name || '—');
     const email = escapeHtml(u.email || '—');
     const since = timeAgo(u.joined_at);
-    const credits = (profilesByUserId[u.user_id]?.credits ?? '—');
-    const creditsHtml = credits !== '—'
+    const credits = slotTotal(u.user_id);
+    const creditsHtml = credits > 0
       ? `<span style="font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--ok);">${credits}</span>`
       : '—';
     const sendBtn = `<button class="icon-btn" title="${t('btn_send_msg')}" onclick="_openChatForOnlineUser('${escapeHtml(u.user_id)}')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>`;
@@ -5211,14 +5213,14 @@ async function loadPendingPayments(){
       <td class="mono" style="color:var(--blue-deep);font-weight:700;">${clickablePk(p.user_id, profile.pk_number)}</td>
       <td><b style="font-size:12px;">${name}</b></td>
       <td style="font-size:12px;">${pack}</td>
-      <td style="font-weight:800;color:var(--ok);">+${p.credits}</td>
+      <td style="font-weight:800;color:var(--ok);">+${slotsOfPayment(p)}</td>
       <td style="font-size:12px;">${expLabel}</td>
       <td style="font-size:12px;font-weight:700;">${escapeHtml(amt)}</td>
       <td style="font-size:12px;">${gw}</td>
       <td style="font-size:11px;color:var(--muted);">${date}</td>
       <td style="display:flex;gap:6px;">
         <button class="btn btn-primary" style="background:var(--ok);border-color:var(--ok);padding:5px 12px;font-size:12px;"
-          onclick="approvePendingPayment('${p.id}','${p.user_id}',${p.credits},this)">✅ موافقة</button>
+          onclick="approvePendingPayment('${p.id}','${p.user_id}',${slotsOfPayment(p)},this)">✅ موافقة</button>
         <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger);padding:5px 12px;font-size:12px;"
           onclick="rejectPendingPayment('${p.id}',this)">❌ رفض</button>
       </td>
@@ -5228,41 +5230,69 @@ async function loadPendingPayments(){
 
 async function loadCreditsTab(){
   loadPendingPayments();
+  await loadSlotData();
   document.getElementById('creditsBody').innerHTML =
     '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px;">جاري التحميل...</td></tr>';
 
-  // Fetch wallet_transactions (all types) + joined payments for pack/gateway/amount_paid
-  const { data: txs, error } = await supabaseClient
-    .from('wallet_transactions')
-    .select(`*, payments(pack_id, gateway, amount, currency)`)
-    .order('created_at', { ascending: false })
-    .limit(500);
-
+  // The log is in slots. Sources: completed top-ups (payments), admin package
+  // additions and slot deductions (admin_slot_adjustments), and old admin credit
+  // rows (20 credits = 1 slot). Each row gets its own log code (LOG-...).
+  const [payRes, adjRes, packRes, legacyRes] = await Promise.all([
+    supabaseClient.from('payments').select('id, user_id, pack_id, gateway, amount, currency, status, created_at, verified_at').eq('status', 'completed').order('created_at', { ascending: false }).limit(1000),
+    supabaseClient.from('admin_slot_adjustments').select('*').order('created_at', { ascending: false }).limit(1000),
+    supabaseClient.from('slot_packages').select('id, legacy_pack_id, slots, name_ar, name_en'),
+    supabaseClient.from('wallet_transactions').select('*').in('type', ['admin_credit', 'admin_debit']).order('created_at', { ascending: false }).limit(500),
+  ]);
+  const error = payRes.error || adjRes.error || packRes.error || legacyRes.error;
   if (error) {
     console.error('loadCreditsTab:', error);
     document.getElementById('creditsBody').innerHTML =
       `<tr><td colspan="10" style="text-align:center;color:var(--danger);padding:20px;">❌ فشل تحميل البيانات: ${escapeHtml(error.message)}</td></tr>`;
     return;
   }
-  allTxRows = (txs || []).map(tx => {
-    const pay = tx.payments || {};
-    const p   = profilesByUserId[tx.user_id] || {};
-    return {
-      tx_code:     tx.tx_code || ('TX-' + tx.id.slice(0,8).toUpperCase()),
-      user_id:     tx.user_id,
-      pk_number:   p.pk_number,
-      full_name:   p.full_name || '—',
-      pack_id:     pay.pack_id || null,
-      gateway:     pay.gateway || (tx.type==='admin_credit'||tx.type==='admin_debit' ? 'admin' : null),
-      amount_paid: pay.amount  || null,
-      currency:    pay.currency || 'EGP',
-      credits:     tx.amount,
-      type:        tx.type,
-      admin_note:  tx.admin_note || '',
-      admin_name:  tx.admin_name || '',
-      created_at:  tx.created_at,
-    };
+
+  const packByKey = {};
+  (packRes.data || []).forEach(pk => {
+    const info = { slots: Number(pk.slots), name: currentLang === 'ar' ? pk.name_ar : pk.name_en };
+    packByKey[pk.legacy_pack_id || pk.id] = info;
+    packByKey[pk.id] = info;
   });
+  const logCode = (prefix, id) => 'LOG-' + String(prefix || '') + String(id).replace(/-/g, '').slice(0, 8).toUpperCase();
+  const profileOf = (uid) => profilesByUserId[uid] || {};
+
+  const rows = [];
+  (payRes.data || []).forEach(p => {
+    const pack = packByKey[p.pack_id] || null;
+    const pr = profileOf(p.user_id);
+    rows.push({
+      code: logCode('', p.id), user_id: p.user_id, pk_number: pr.pk_number, full_name: pr.full_name || '—',
+      plan: pack ? pack.name : (p.pack_id || '—'), method: p.gateway, amount_paid: p.amount, currency: p.currency || 'EGP',
+      slots: pack ? pack.slots : null, kind: 'topup', created_at: p.verified_at || p.created_at,
+    });
+  });
+  (adjRes.data || []).forEach(a => {
+    const pr = profileOf(a.user_id);
+    const isAdd = a.action === 'add_package';
+    rows.push({
+      code: logCode('ADJ-', a.id), user_id: a.user_id, pk_number: pr.pk_number, full_name: pr.full_name || '—',
+      plan: a.note || (isAdd ? (currentLang === 'ar' ? 'إضافة باقة' : 'Package added') : (currentLang === 'ar' ? 'خصم فحوصات' : 'Slots deducted')),
+      method: 'manual', amount_paid: null, currency: null,
+      slots: isAdd ? Number(a.slots) : -Number(a.slots), kind: isAdd ? 'admin_add' : 'admin_deduct',
+      created_at: a.created_at,
+    });
+  });
+  (legacyRes.data || []).forEach(w => {
+    const pr = profileOf(w.user_id);
+    const n = Math.round(Number(w.amount) / 20);
+    rows.push({
+      code: logCode('OLD-', w.id), user_id: w.user_id, pk_number: pr.pk_number, full_name: pr.full_name || '—',
+      plan: w.admin_note || '—', method: 'manual', amount_paid: null, currency: null,
+      slots: w.type === 'admin_debit' ? -n : n, kind: w.type === 'admin_debit' ? 'admin_deduct' : 'admin_add',
+      created_at: w.created_at,
+    });
+  });
+  rows.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  allTxRows = rows;
   renderCreditsTable(allTxRows);
 }
 
@@ -5276,26 +5306,25 @@ function renderCreditsTable(rows){
   const pageRows = paginateList('credits', rows, () => renderCreditsTable(rows));
   document.getElementById('creditsBody').innerHTML = pageRows.map(r => {
     const pkStr   = r.pk_number != null ? `PK${formatPkNumber(r.pk_number)}` : '—';
-    const plan    = r.pack_id ? (PACK_NAMES[r.pack_id] || r.pack_id) : (r.admin_note || '—');
-    const gw      = (r.type==='admin_credit'||r.type==='admin_debit')
-                       ? `${GATEWAY_LABELS.manual} — ${r.admin_name || GATEWAY_LABELS.admin}`
-                       : (GATEWAY_LABELS[r.gateway] || r.gateway || '—');
-    const amt     = r.amount_paid != null ? `${r.amount_paid} ${r.currency}` : '—';
-    const typeBadge = r.type === 'credit'      ? `<span class="cr-badge-add">${t('badge_topup')}</span>`
-                    : r.type === 'admin_credit' ? `<span class="cr-badge-adm">${t('badge_admin_add')}</span>`
-                    : r.type === 'admin_debit'  ? `<span class="cr-badge-adm">${t('badge_admin_deduct')}</span>`
-                    : `<span class="cr-badge-ded">${t('badge_deduct')}</span>`;
-    const credSign = (r.type==='debit'||r.type==='admin_debit') ? `-${r.credits}` : `+${r.credits}`;
-    const credColor = (r.type==='debit'||r.type==='admin_debit') ? 'color:var(--danger)' : 'color:var(--ok)';
+    const gw      = r.method === 'manual'
+                       ? `${GATEWAY_LABELS.manual}`
+                       : (GATEWAY_LABELS[r.method] || r.method || '—');
+    const amt     = r.amount_paid != null ? `${Number(r.amount_paid).toFixed(2)} ${r.currency || ''}` : '—';
+    const typeBadge = r.kind === 'topup'        ? `<span class="cr-badge-add">${t('badge_topup')}</span>`
+                    : r.kind === 'admin_add'    ? `<span class="cr-badge-adm">${t('badge_admin_add')}</span>`
+                    : `<span class="cr-badge-ded">${t('badge_admin_deduct')}</span>`;
+    const n       = Number(r.slots);
+    const slotTxt = r.slots == null ? '—' : `${n > 0 ? '+' : ''}${n}`;
+    const slotCol = n < 0 ? 'color:var(--danger)' : 'color:var(--ok)';
     const msgBtn  = r.user_id ? `<button class="msg-btn" onclick="composeMessage('${r.user_id}','${pkStr}')">✉</button>` : '';
     return `<tr>
-      <td class="mono" style="font-size:10px;color:var(--muted);">${escapeHtml(r.tx_code)}</td>
+      <td class="mono" style="font-size:10px;color:var(--muted);">${escapeHtml(r.code)}</td>
       <td class="mono" style="color:var(--blue-deep);font-weight:700;">${clickablePk(r.user_id, r.pk_number)}</td>
       <td><b style="font-size:12px;">${escapeHtml(r.full_name)}</b></td>
-      <td style="font-size:11.5px;">${escapeHtml(plan)}</td>
+      <td style="font-size:11.5px;">${escapeHtml(r.plan)}</td>
       <td style="font-size:11.5px;">${escapeHtml(gw)}</td>
       <td style="font-size:12px;font-weight:700;">${escapeHtml(amt)}</td>
-      <td style="font-weight:800;${credColor}">${credSign}</td>
+      <td style="font-weight:800;${slotCol}">${escapeHtml(slotTxt)}</td>
       <td>${typeBadge}</td>
       <td style="font-size:11px;color:var(--muted);">${formatDate(r.created_at)}</td>
       <td>${msgBtn}</td>
@@ -5312,7 +5341,7 @@ function filterCreditsTable(q){
   if (window.Fuse) {
     if (!_creditsFuse || _creditsFuse._list !== allTxRows) {
       _creditsFuse = new Fuse(allTxRows, {
-        keys: ['full_name', 'tx_code', 'pk_number', 'pack_id', 'admin_note'],
+        keys: ['full_name', 'code', 'pk_number', 'plan', 'method'],
         threshold: 0.35,
       });
       _creditsFuse._list = allTxRows;
@@ -5323,10 +5352,9 @@ function filterCreditsTable(q){
   const ql = q.toLowerCase();
   renderCreditsTable(allTxRows.filter(r =>
     (r.full_name||'').toLowerCase().includes(ql) ||
-    (r.tx_code||'').toLowerCase().includes(ql) ||
+    (r.code||'').toLowerCase().includes(ql) ||
     String(r.pk_number||'').includes(ql) ||
-    (r.pack_id||'').toLowerCase().includes(ql) ||
-    (r.admin_note||'').toLowerCase().includes(ql)
+    String(r.plan||'').toLowerCase().includes(ql)
   ));
 }
 
@@ -5347,7 +5375,7 @@ async function crLookupUser(){
       const { data: bal } = await supabaseClient
         .from('wallet_transactions').select('balance_after')
         .eq('user_id', found.user_id).order('created_at',{ascending:false}).limit(1);
-      const credits = bal?.[0]?.balance_after ?? found.credits ?? 0;
+      const credits = slotTotal(found.user_id);
       prev.innerHTML = `<span class="cr-found-badge">✅ ${escapeHtml(found.full_name)} — رصيد حالي: ${credits} كريديت</span>`;
     } else {
       prev.innerHTML = `<span class="cr-not-found">⚠️ لم يُعثر على مستخدم بكود PK${formatPkNumber(pk)}</span>`;
@@ -5880,13 +5908,14 @@ async function loadUsersTab(){
     completedCount[o.user_id] = (completedCount[o.user_id] || 0) + 1;
   });
 
+  await loadSlotData();
   allUsersRows = (profiles || []).map(p => ({
     user_id:   p.user_id,
     pk_number: p.pk_number,
     full_name: p.full_name || '—',
     email:     p.email || '—',
     whatsapp:  p.whatsapp || '—',
-    credits:   p.credits ?? 0,
+    credits:   slotTotal(p.user_id),
     completed: completedCount[p.user_id] || 0,
     joined:    p.created_at,
   }));
@@ -6756,6 +6785,29 @@ window.adminAdjustCredit = async function(action){
    FEATURE 8: TOOLBAR QUICK ACTIONS (add credit / broadcast)
    ================================================================ */
 let qcPacksCache = null;
+
+// Slot data shared by the admin tabs: remaining slots per customer, slots per package key.
+let slotBalanceByUser = {};
+let slotPackSlots = {};
+async function loadSlotData(){
+  const [bal, pk] = await Promise.all([
+    supabaseClient.rpc('admin_slot_balances'),
+    supabaseClient.from('slot_packages').select('id, legacy_pack_id, slots'),
+  ]);
+  slotBalanceByUser = {};
+  (bal.data || []).forEach(r => { slotBalanceByUser[r.user_id] = r; });
+  slotPackSlots = {};
+  (pk.data || []).forEach(x => { slotPackSlots[x.legacy_pack_id || x.id] = Number(x.slots); slotPackSlots[x.id] = Number(x.slots); });
+}
+function slotTotal(uid){
+  const b = slotBalanceByUser[uid];
+  return b ? (Number(b.plag_ai) || 0) + (Number(b.plag_only) || 0) : 0;
+}
+// Slots a payment bought: from its package; old credit payments: 20 credits = 1 slot.
+function slotsOfPayment(p){
+  if (p.pack_id && slotPackSlots[p.pack_id] != null) return slotPackSlots[p.pack_id];
+  return Math.round((Number(p.credits) || 0) / 20);
+}
 let qcLookupTimerToolbar = null;
 
 async function qaAddCredit(){
@@ -6801,7 +6853,7 @@ async function qcLookupPk(){
     const { data: bal } = await supabaseClient
       .from('wallet_transactions').select('balance_after')
       .eq('user_id', found.user_id).order('created_at',{ascending:false}).limit(1);
-    const credits = bal?.[0]?.balance_after ?? found.credits ?? 0;
+    const credits = slotTotal(found.user_id);
     const badge = `<span class="cr-found-badge">${t('qc_found')} ${escapeHtml(found.full_name)} — ${credits}</span>`;
     prev.innerHTML = badge;
     const crUserPreview = document.getElementById('crUserPreview');
@@ -6839,7 +6891,8 @@ async function qcLoadPackages(){
   const select = document.getElementById('qcPackageSelect');
   if (!qcPacksCache) {
     select.innerHTML = `<option value="">${t('qc_packs_loading')}</option>`;
-    const { data, error } = await supabaseClient.from('packages').select('*').eq('active', true).order('sort_order');
+    const { data: spRows, error } = await supabaseClient.from('slot_packages').select('id, name_ar, name_en, slots, sort_order').eq('is_active', true).eq('slot_type', 'plag_ai').order('sort_order');
+    const data = (spRows || []).map(x => ({ id: x.id, name_ar: x.name_ar, name_en: x.name_en, credits: x.slots }));
     if (error) {
       console.error('qcLoadPackages:', error);
       select.innerHTML = `<option value="">${escapeHtml(error.message)}</option>`;
