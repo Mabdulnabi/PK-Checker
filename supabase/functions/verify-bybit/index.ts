@@ -128,6 +128,20 @@ export function findBybitOrderById(
   return { ok: false, reason: 'tx_not_found' };
 }
 
+// Match by the payment reference the customer put in the transfer note (Pkchecker PAY-XXXXXXX).
+function findByReference(list: any[], reference: string, expectedAmountUsd: number) {
+  const ref = reference.trim().toUpperCase();
+  for (const tx of list) {
+    if (!JSON.stringify(tx).toUpperCase().includes(ref)) continue;
+    const status = tx.orderStatus || tx.status || '';
+    if (!PAID_STATUSES.includes(status)) return { ok: false, reason: 'not_paid', matchedTx: tx };
+    const amountPaid = Number(tx.amount || tx.totalAmount || 0);
+    if (amountPaid >= expectedAmountUsd - 0.05) return { ok: true, matchedTx: tx, amountPaid };
+    return { ok: false, reason: 'wrong_amount', matchedTx: tx, amountPaid };
+  }
+  return { ok: false, reason: 'tx_not_found' };
+}
+
 export async function handleVerifyBybit(
   req: Request,
   makeSupabaseClient: typeof createClient
@@ -162,7 +176,7 @@ export async function handleVerifyBybit(
 
     const { data: payment, error: paymentError } = await supabaseClient
       .from('payments')
-      .select('id, user_id, amount, credits, status')
+      .select('id, user_id, amount, credits, status, reference')
       .eq('id', payment_id)
       .eq('user_id', userId)
       .single();
@@ -177,7 +191,11 @@ export async function handleVerifyBybit(
     if (!apiKey || !apiSecret) return jsonResponse({ success: false, error: 'Server misconfiguration' }, 500);
 
     const orders = await fetchBybitPayOrders(apiKey, apiSecret);
-    const match = findBybitOrderById(orders, String(tx_id), Number(payment.amount));
+    let match = findBybitOrderById(orders, String(tx_id), Number(payment.amount));
+    if (!match.ok && payment.reference) {
+      const byRef = findByReference(orders, payment.reference, Number(payment.amount));
+      if (byRef.ok || byRef.reason === 'wrong_amount') match = byRef;
+    }
 
     if (!match.ok) {
       if (match.reason === 'wrong_amount') {
