@@ -2897,10 +2897,10 @@ function renderOverviewRevenueKpis(orders, wallet, ranges){
   const revWeek  = sumPaymentsEgp(wallet, ranges.startOfWeek);
   const revMonth = sumPaymentsEgp(wallet, ranges.startOfMonth);
   const revYear  = sumPaymentsEgp(wallet, ranges.startOfYear);
-  const profToday = calcNetProfit(orders, ranges.startOfToday);
-  const profWeek  = calcNetProfit(orders, ranges.startOfWeek);
-  const profMonth = calcNetProfit(orders, ranges.startOfMonth);
-  const profYear  = calcNetProfit(orders, ranges.startOfYear);
+  const profToday = calcLedgerProfit(ranges.startOfToday);
+  const profWeek  = calcLedgerProfit(ranges.startOfWeek);
+  const profMonth = calcLedgerProfit(ranges.startOfMonth);
+  const profYear  = calcLedgerProfit(ranges.startOfYear);
   document.getElementById('kpiRevToday').innerHTML = `${formatMoney(revToday)}<div style="font-size:10px;color:var(--ok);">${t('profit_label')}: ${formatMoney(profToday)}</div>`;
   document.getElementById('kpiRevWeek').innerHTML  = `${formatMoney(revWeek)}<div style="font-size:10px;color:var(--ok);">${t('profit_label')}: ${formatMoney(profWeek)}</div>`;
   document.getElementById('kpiRevMonth').innerHTML = `${formatMoney(revMonth)}<div style="font-size:10px;color:var(--ok);">${t('profit_label')}: ${formatMoney(profMonth)}</div>`;
@@ -2941,7 +2941,10 @@ async function loadOverview(){
 
   const orders = ordersRes.data || [];
   const wallet = walletRes.data || []; // completed top-ups (payments)
-  const doneOrders = orders.filter(o => o.status === 'completed'); // successful checks only
+  // Checks come from the order ledger, so removed order rows still count.
+  const { data: ledgerRows } = await supabaseClient.from('order_ledger').select('created_at,status,revenue_egp,cost_egp,profit_egp,check_type');
+  _ledgerRows = ledgerRows || [];
+  const doneOrders = _ledgerRows.filter(r => r.status === 'completed').map(r => ({ submitted_at: r.created_at }));
   const usersCount = profilesRes.count ?? '—';
 
   const now = new Date();
@@ -3890,7 +3893,8 @@ function formatDate(dateStr){
       <input class="adm-modal-input" id="newUserPassword" type="password" dir="ltr" placeholder="باسورد (8 حروف على الأقل)" style="margin-bottom:8px;">
       <input class="adm-modal-input" id="newUserWhatsapp" dir="ltr" placeholder="واتساب (اختياري، مع كود الدولة)" style="margin-bottom:8px;">
       <input class="adm-modal-input" id="newUserPhone" dir="ltr" placeholder="تليفون (اختياري، مع كود الدولة)" style="margin-bottom:8px;">
-      <input class="adm-modal-input" id="newUserCredits" type="number" min="0" dir="ltr" placeholder="رصيد ابتدائي (اختياري)" style="margin-bottom:14px;">
+      <select class="adm-modal-input" id="newUserPackage" style="margin-bottom:8px;"></select>
+      <input class="adm-modal-input" id="newUserCredits" type="number" min="0" dir="ltr" placeholder="عدد الباقات (اختياري)" style="margin-bottom:8px;">
       <div class="adm-modal-btns">
         <button class="adm-modal-ok" style="background:var(--blue);" onclick="submitNewUser()">إضافة</button>
         <button class="adm-modal-cancel" onclick="closeAddUserPopup()">إلغاء</button>
@@ -4592,6 +4596,14 @@ function sumPaymentsEgp(list, since){
     .filter(p => !String(p.transaction_id || '').startsWith('sheet-row-'))
     .filter(p => new Date(p.verified_at || p.created_at) >= since)
     .reduce((s, p) => s + (p.currency === 'USD' ? Number(p.amount) * 50 : Number(p.amount)), 0);
+}
+
+let _ledgerRows = [];
+// Profit of successful checks since a date, from the ledger (revenue per check minus its API cost).
+function calcLedgerProfit(since){
+  return _ledgerRows
+    .filter(r => r.status === 'completed' && new Date(r.created_at) >= since)
+    .reduce((sum, r) => sum + Number(r.profit_egp || 0), 0);
 }
 
 function calcNetProfit(orders, since){
@@ -5888,7 +5900,8 @@ async function submitNewUser(){
   const password = document.getElementById('newUserPassword').value;
   const whatsapp = document.getElementById('newUserWhatsapp').value.trim();
   const phone = document.getElementById('newUserPhone').value.trim();
-  const initial_credits = document.getElementById('newUserCredits').value.trim();
+  const pkgCount = parseInt(document.getElementById('newUserCredits').value, 10) || 0;
+  const pkgId = document.getElementById('newUserPackage')?.value || '';
   if (!full_name || !email || !password) { await adminAlert('من فضلك املأ الاسم والإيميل والباسورد', {icon:'⚠️'}); return; }
   if (password.length < 8) { await adminAlert('الباسورد لازم يكون 8 حروف على الأقل', {icon:'⚠️'}); return; }
   try {
@@ -5896,10 +5909,14 @@ async function submitNewUser(){
     const resp = await fetch(`${FN_BASE}/create-customer`, {
       method: 'POST',
       headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${sessionData.session.access_token}` },
-      body: JSON.stringify({ email, password, full_name, whatsapp, phone, initial_credits }),
+      body: JSON.stringify({ email, password, full_name, whatsapp, phone, initial_credits: 0 }),
     });
     const result = await resp.json();
     if (!resp.ok) throw new Error(result.error || 'فشل الإنشاء');
+    if (pkgCount > 0 && pkgId && result.id) {
+      const g = await supabaseClient.rpc('admin_grant_package', { p_user_id: result.id, p_package_id: pkgId, p_count: pkgCount, p_note: 'باقة عند إنشاء الحساب' });
+      if (g.error) throw new Error('الحساب اتعمل بس الباقة متضافتش: ' + g.error.message);
+    }
     closeAddUserPopup();
     await logAdminActivity('setting_change', result.id, '', `إضافة مستخدم جديد: ${full_name}`);
     await adminAlert('✅ اتضاف المستخدم بنجاح', {icon:'✅'});
@@ -5909,7 +5926,16 @@ async function submitNewUser(){
   }
 }
 
+async function loadNewUserPackages(){
+  const sel = document.getElementById('newUserPackage');
+  if (!sel) return;
+  const { data } = await supabaseClient.from('slot_packages').select('id, name_ar, name_en, slots, sort_order').eq('is_active', true).eq('slot_type', 'plag_ai').order('sort_order');
+  sel.innerHTML = '<option value="">— بدون باقة —</option>' + (data || []).map(pk =>
+    `<option value="${pk.id}">${escapeHtml(currentLang === 'ar' ? pk.name_ar : pk.name_en)} (${pk.slots})</option>`).join('');
+}
+
 async function initUsersTab(){
+  loadNewUserPackages();
   const searchEl = document.getElementById('usersSearch');
   if (searchEl) searchEl.value = '';
   await loadUsersTab();
