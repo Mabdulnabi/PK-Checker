@@ -1824,6 +1824,10 @@
     /* Lift back-to-top above chat bubble: 92 + chat_h(54) + gap(14) = 160px */
     #pkTopBtn{bottom:160px !important;}
   }
+  .my-files-note,.orders-files-note{display:flex;align-items:flex-start;gap:8px;}
+  .mf-note-ic{display:inline-flex;flex:none;margin-top:2px;color:var(--blue-deep);}
+  .sidebar-user-pk-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .sidebar-slots-badge{font-size:10px;font-weight:800;font-family:'Cairo',sans-serif;background:var(--blue-wash,#E8F0FF);color:var(--blue-deep,#1d4ed8);border-radius:999px;padding:2px 8px;}
 </style>
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -1861,13 +1865,13 @@
       <div class="navtab sidebar-item" data-tab="wallet">
         <div class="sid-chip sid-green">
           <!-- ph-wallet duotone -->
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="24" height="24"><path d="M224,80V192a8,8,0,0,1-8,8H56a16,16,0,0,1-16-16V56A16,16,0,0,0,56,72H216A8,8,0,0,1,224,80Z" opacity="0.2"/><path d="M216,64H56a8,8,0,0,1,0-16H192a8,8,0,0,0,0-16H56A24,24,0,0,0,32,56V184a24,24,0,0,0,24,24H216a16,16,0,0,0,16-16V80A16,16,0,0,0,216,64Zm0,128H56a8,8,0,0,1-8-8V78.63A23.84,23.84,0,0,0,56,80H216Zm-48-60a12,12,0,1,1,12,12A12,12,0,0,1,168,132Z"/></svg>
+          <svg data-icon-key="side_wallet" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="24" height="24"><path d="M224,80V192a8,8,0,0,1-8,8H56a16,16,0,0,1-16-16V56A16,16,0,0,0,56,72H216A8,8,0,0,1,224,80Z" opacity="0.2"/><path d="M216,64H56a8,8,0,0,1,0-16H192a8,8,0,0,0,0-16H56A24,24,0,0,0,32,56V184a24,24,0,0,0,24,24H216a16,16,0,0,0,16-16V80A16,16,0,0,0,216,64Zm0,128H56a8,8,0,0,1-8-8V78.63A23.84,23.84,0,0,0,56,80H216Zm-48-60a12,12,0,1,1,12,12A12,12,0,0,1,168,132Z"/></svg>
         </div>
         <span data-i18n="nav_wallet">المحفظة</span>
       </div>
       <div class="navtab sidebar-item" data-tab="my-history">
         <div class="sid-chip sid-blue">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="24" height="24"><path d="M128,40a88,88,0,1,0,88,88A88.1,88.1,0,0,0,128,40Zm0,160a72,72,0,1,1,72-72A72.08,72.08,0,0,1,128,200Z" opacity="0.2"/><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm-8-48A95.44,95.44,0,0,0,61.57,58.32L45.5,42.24a8,8,0,0,0-11.31,11.32l16.07,16.07A96,96,0,1,0,128,32Z"/></svg>
+          <svg data-icon-key="side_my_history" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="24" height="24"><path d="M128,40a88,88,0,1,0,88,88A88.1,88.1,0,0,0,128,40Zm0,160a72,72,0,1,1,72-72A72.08,72.08,0,0,1,128,200Z" opacity="0.2"/><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm-8-48A95.44,95.44,0,0,0,61.57,58.32L45.5,42.24a8,8,0,0,0-11.31,11.32l16.07,16.07A96,96,0,1,0,128,32Z"/></svg>
         </div>
         <span data-i18n="nav_my_history">السجل</span>
       </div>
@@ -1891,7 +1895,7 @@
       <div class="sidebar-user-av" id="sidebarAv">مح</div>
       <div class="sidebar-user-info">
         <div class="sidebar-user-name" id="sidebarName">—</div>
-        <div class="sidebar-user-pk mono" id="sidebarUid">—</div>
+        <div class="sidebar-user-pk-row"><div class="sidebar-user-pk mono" id="sidebarUid">—</div><span class="sidebar-slots-badge" id="sidebarSlotsBadge" style="display:none;"></span></div>
       </div>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="14" height="14" style="flex:none;color:var(--muted);"><path d="M208,160H48l80-80Z" opacity="0.2"/><path d="M213.66,154.34l-80-80a8,8,0,0,0-11.32,0l-80,80A8,8,0,0,0,48,168H208a8,8,0,0,0,5.66-13.66ZM67.31,152,128,91.31,188.69,152Z"/></svg>
     </div>
@@ -2044,7 +2048,7 @@
           <div class="lbl" data-i18n="kpi_expiry_label">تاريخ انتهاء الفحوصات</div>
         </div>
         <div class="kpi kpi-centered">
-          <div class="icon-circle" style="background:var(--blue-wash);color:var(--blue-deep);"><svg class="ic" data-icon-key="nc_processing" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div>
+          <div class="icon-circle" id="kpiApiIcon" style="background:var(--blue-wash);color:var(--blue-deep);"><svg class="ic" data-icon-key="nc_processing" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div>
           <div class="num" id="kpiApiStatus">—</div>
           <div class="lbl" data-i18n="kpi_api_status">حالة الـ API</div>
         </div>
@@ -2156,7 +2160,7 @@
           <span data-i18n="mf_col_action">إجراء</span>
         </div>
         <div id="myFilesList" class="mf-list"></div>
-        <div class="my-files-note" data-i18n="mf_retention_note">حمّل ملفاتك واحفظها، بتتمسح تلقائياً بعد 48 ساعة من انتهاء الفحص.</div>
+        <div class="my-files-note"><span class="mf-note-ic" data-icon-key="mf_notice_info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:15px;height:15px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg></span><span data-i18n="mf_retention_note">حمّل ملفاتك واحفظها، بتتمسح تلقائياً بعد 48 ساعة من انتهاء الفحص.</span></div>
       </section>
 
       <div class="last-order-card panel-block" id="lastOrderCard" style="display:none;margin-top:20px;">
@@ -2241,7 +2245,7 @@
           <div id="ordersPagination"></div>
         </div>
       </div>
-      <div class="orders-files-note" data-i18n="orders_files_note">Please download and save your checked files. Files are automatically cleaned after 48 hours.</div>
+      <div class="orders-files-note"><span class="mf-note-ic" data-icon-key="mf_notice_info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:15px;height:15px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg></span><span data-i18n="orders_files_note">Please download and save your checked files. Files are automatically cleaned after 48 hours.</span></div>
     </div>
 
     <!-- ============ WALLET ============ -->
@@ -3074,7 +3078,7 @@ const I18N = {
     tour_support_title:"محتاج مساعدة؟", tour_support_desc:"افتح تذكرة دعم أو كلمنا على اللايف شات من الفقاعة الزرقاء في أسفل الشاشة — فريقنا دايماً موجود.",
     tour_done_title:"كل حاجة واضحة؟", tour_done_desc:"الجولة التعريفية خلصت. تقدر تبدأ دلوقتي وترفع أول ملف بثقة. بالتوفيق! 🌟",
     kpi_slots_label:"فحوصات متبقية", kpi_expiry_label:"تاريخ انتهاء الفحوصات", kpi_api_status:"حالة الـ API",
-    api_active:"نشط", api_inactive:"متوقف", expiry_days_left:"باقي {d} يوم", sf_no_expiry:"بدون انتهاء", sf_no_slots_short:"لا توجد فحوصات",
+    api_active:"نشط", api_inactive:"متوقف", api_maintenance:"صيانة", expiry_days_left:"باقي {d} يوم", sf_no_expiry:"بدون انتهاء", sf_no_slots_short:"لا توجد فحوصات",
     mf_title:"ملفاتي", mf_col_doc:"الملف", mf_col_order:"رقم الطلب", mf_col_time:"تاريخ الإرسال / التسليم", mf_col_ai:"كشف الذكاء الاصطناعي", mf_col_sim:"التشابه", mf_col_action:"إجراء",
     mf_empty:"لسه مفيش ملفات. ابعت ملف عشان تشوف النتايج هنا.", mf_checking:"جاري الفحص", mf_delivered:"تم التسليم في", mf_delivered_plain:"تم التسليم",
     mf_failed:"فشل الفحص", mf_not_included:"غير مضمّن", mf_result_unavailable:"النتيجة غير متاحة", mf_download:"تحميل",
@@ -3179,7 +3183,7 @@ const I18N = {
     topup_title:"شحن الرصيد", most_popular:"الأكثر طلبًا", choose:"اختيار",
     trial_badge:"تجريبي", validity_prefix:"صلاحية", validity_days_unit:"يوم", validity_1day:"صلاحية 24 ساعة",
     feature_ai_plag:"تقرير Similarity + AI", usd_unit_short:"دولار", egp_unit:"جنيه مصري",
-    best_seller_badge:"الأكثر مبيعاً", high_value_badge:"أفضل قيمة",
+    best_seller_badge:"الأكثر مبيعاً", high_value_badge:"أفضل قيمة", best_seller_label:"الأكثر مبيعاً", best_value_label:"أفضل قيمة",
     packs_topup_tab:"باقات الشحن", packs_daily_tab:"الباقات اليومية",
     packs_topup_desc:"اختار الباقة اللي تناسبك — كل فحص بيخصم فحص واحد من رصيدك", packs_daily_desc:"لعمليات الفحص الكثيفة — صلاحية 24 ساعة فقط",
     pack_pack_1:"فحص واحد", pack_pack_5:"5 ملفات", pack_pack_10:"10 ملفات", pack_pack_25:"25 ملف",
@@ -3264,7 +3268,7 @@ const I18N = {
     tour_support_title:"Need help?", tour_support_desc:"Open a support ticket or chat with us via the blue bubble at the bottom of the screen — our team is always here.",
     tour_done_title:"All set!", tour_done_desc:"The tour is complete. You're ready to upload your first file with confidence. Good luck! 🌟",
     kpi_slots_label:"Slots remaining", kpi_expiry_label:"Slots expiry date", kpi_api_status:"API status",
-    api_active:"Active", api_inactive:"Inactive", expiry_days_left:"{d} days left", sf_no_expiry:"No expiry", sf_no_slots_short:"No slots",
+    api_active:"Active", api_inactive:"Inactive", api_maintenance:"Maintenance", expiry_days_left:"{d} days left", sf_no_expiry:"No expiry", sf_no_slots_short:"No slots",
     mf_title:"My Files", mf_col_doc:"Document", mf_col_order:"Order #", mf_col_time:"Submitted / Delivery time", mf_col_ai:"AI detection", mf_col_sim:"Similarity", mf_col_action:"Action",
     mf_empty:"No files yet. Submit a file to see your results here.", mf_checking:"Checking", mf_delivered:"Delivered in", mf_delivered_plain:"Delivered",
     mf_failed:"Failed", mf_not_included:"Not included", mf_result_unavailable:"Result unavailable", mf_download:"Download",
@@ -3369,7 +3373,7 @@ const I18N = {
     topup_title:"Top up credits", most_popular:"Most popular", choose:"Choose",
     trial_badge:"Trial", validity_prefix:"Validity", validity_days_unit:"days", validity_1day:"24h validity",
     feature_ai_plag:"Similarity + AI Report", usd_unit_short:"USD", egp_unit:"EGP",
-    best_seller_badge:"Best Seller", high_value_badge:"High Value",
+    best_seller_badge:"Best Seller", high_value_badge:"High Value", best_seller_label:"Best Seller", best_value_label:"Best Value",
     packs_topup_tab:"Top-up packs", packs_daily_tab:"Daily packs",
     packs_topup_desc:"Choose the package that fits you — each check uses one slot", packs_daily_desc:"For heavy-checking days — valid for 24 hours only",
     pack_pack_1:"1 File", pack_pack_5:"5 Files", pack_pack_10:"10 Files", pack_pack_25:"25 Files",
@@ -3809,7 +3813,10 @@ const ICON_TICK = '<svg class="wplan-tick" viewBox="0 0 24 24" aria-hidden="true
 function buildPlanCard(p){
   const ar = currentLang === 'ar';
   const selected = selectedPack && selectedPack.id === p.id;
-  const popular = Number(p.credits) === 10;
+  const maxFiles = Math.max(0, ...TOPUP_PACKS.map(x => Number(x.credits) || 0));
+  const bestSeller = Number(p.credits) === 10;
+  const bestValue = Number(p.credits) === maxFiles && maxFiles > 10;
+  const badgeText = bestSeller ? t('best_seller_label') : (bestValue ? t('best_value_label') : '');
   const usd = (Math.ceil(p.priceEgp / EGP_TO_USD_RATE * 100) / 100).toFixed(2);
   const files = Number(p.credits);
   const validity = p.expiryDays
@@ -3817,8 +3824,8 @@ function buildPlanCard(p){
     : (ar ? 'بدون انتهاء' : 'No expiry');
   const feat = (txt, chip) => `<li>${ICON_TICK}${chip ? `<span class="wplan-chip">${txt}</span>` : `<span>${txt}</span>`}</li>`;
   return `
-    <div class="wplan-pack ${selected ? 'selected' : ''} ${popular ? 'popular' : ''}">
-      ${popular ? `<span class="wplan-popular">${ar ? 'الأكثر طلباً' : 'POPULAR'}</span>` : ''}
+    <div class="wplan-pack ${selected ? 'selected' : ''} ${bestSeller ? 'popular' : ''}">
+      ${badgeText ? `<span class="wplan-popular">${escapeHtml(badgeText)}</span>` : ''}
       <div class="wplan-top">
         <div class="wplan-name">${escapeHtml(packName(p.id))}</div>
         <span class="wplan-files">${files} ${ar ? 'ملف' : (files === 1 ? 'File' : 'Files')}</span>
@@ -7021,11 +7028,8 @@ function renderMyHistory(){
   }
 
   // Filters
-  // The ledger starts today: older rows are kept in the data but not shown.
-  const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
-  const isToday = e => e.at && new Date(e.at) >= todayStart;
   const counts = { all: 0, added: 0, scan: 0, orders: 0 };
-  events.filter(isToday).forEach(e => {
+  events.forEach(e => {
     counts.all++;
     const k = histKind(e);
     if (k === 'added') counts.added++; else if (k === 'scan') counts.scan++; else counts.orders++;
@@ -7055,7 +7059,6 @@ function renderMyHistory(){
 
   const q = (document.getElementById('histSearch')?.value || '').trim().toLowerCase();
   const rows = events.filter(e => {
-    if (!isToday(e)) return false;
     if (histFilter !== 'all' && histKind(e) !== histFilter && !(histFilter === 'scan' && e.kind === 'scan')) return false;
     if (!q) return true;
     const act = histActivity(e);
@@ -7108,6 +7111,14 @@ function applyCheckSettings(){
     if (serviceWarn) serviceWarn.style.display = 'none';
     if (submitBtn)   { submitBtn.disabled = false; submitBtn.style.opacity = ''; }
   }
+
+  // 1a. Upload-file buttons lock with the service switch, like the upload zone
+  document.querySelectorAll('.submit-files-btn, #sfUploadBtn').forEach(btn => {
+    btn.disabled = !checkSettings.service_enabled;
+    btn.style.opacity = checkSettings.service_enabled ? '' : '0.4';
+    btn.style.cursor = checkSettings.service_enabled ? '' : 'not-allowed';
+  });
+  renderApiStatusCard();
 
   // 1b. Disable/enable upload zone
   const uploadzoneEl = document.getElementById('uploadzoneBox');
@@ -7327,6 +7338,12 @@ function renderWalletSlotCards(){
   };
   set('walletExpAI', expText(slotExpiryByType.plag_ai));
   set('walletExpSim', expText(slotExpiryByType.plag_only));
+  const totalSlots = (slotsByType.plag_ai || 0) + (slotsByType.plag_only || 0);
+  const sbBadge = document.getElementById('sidebarSlotsBadge');
+  if (sbBadge) {
+    sbBadge.textContent = ar ? `${totalSlots} فحص` : `${totalSlots} ${totalSlots === 1 ? 'slot' : 'slots'}`;
+    sbBadge.style.display = _slotsLoaded ? '' : 'none';
+  }
 }
 
 // A failed or missing response counts as "unavailable", so a customer is never sent into a dead provider.
@@ -7823,14 +7840,22 @@ function renderExpiryCard(){
   sub.style.color = 'var(--danger)';
 }
 
+let _kpiApiIconDefault = null;
 function renderApiStatusCard(){
   const el = document.getElementById('kpiApiStatus');
+  const iconEl = document.getElementById('kpiApiIcon');
   if (!el) return;
+  if (iconEl && _kpiApiIconDefault === null) _kpiApiIconDefault = iconEl.innerHTML;
+  // Service switched off by the admin = maintenance, with its own icon.
+  const maintenance = checkSettings && checkSettings.service_enabled === false;
+  if (iconEl) iconEl.innerHTML = maintenance ? MAINT_ICON_SVG : _kpiApiIconDefault;
+  if (maintenance) { el.textContent = t('api_maintenance'); el.style.color = 'var(--warn, #D97706)'; return; }
   if (!_availabilityLoaded) { el.textContent = '—'; el.style.color = ''; return; }
   const ok = !!(serviceAvailability.plag_ai && serviceAvailability.plag_ai.available);
   el.textContent = ok ? t('api_active') : t('api_inactive');
   el.style.color = ok ? 'var(--ok)' : 'var(--danger)';
 }
+const MAINT_ICON_SVG = '<svg class="ic" data-icon-key="nc_api_maintenance" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/></svg>';
 
 async function loadSiteTexts(){
   const { data, error } = await supabaseClient.from('site_texts').select('key, value_ar, value_en');
@@ -9439,7 +9464,7 @@ function maybeShowOnboarding(profileData){
     <span class="mob-label" data-i18n="nav_wallet">المحفظة</span>
   </div>
   <div class="mob-nav-item" data-tab="my-history" onclick="goTab('my-history')">
-    <div class="mob-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="24" height="24"><path d="M128,40a88,88,0,1,0,88,88A88.1,88.1,0,0,0,128,40Zm0,160a72,72,0,1,1,72-72A72.08,72.08,0,0,1,128,200Z" opacity="0.2"/><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm-8-48A95.44,95.44,0,0,0,61.57,58.32L45.5,42.24a8,8,0,0,0-11.31,11.32l16.07,16.07A96,96,0,1,0,128,32Z"/></svg></div>
+    <div class="mob-icon" data-icon-key="tab_my_history"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="24" height="24"><path d="M128,40a88,88,0,1,0,88,88A88.1,88.1,0,0,0,128,40Zm0,160a72,72,0,1,1,72-72A72.08,72.08,0,0,1,128,200Z" opacity="0.2"/><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm-8-48A95.44,95.44,0,0,0,61.57,58.32L45.5,42.24a8,8,0,0,0-11.31,11.32l16.07,16.07A96,96,0,1,0,128,32Z"/></svg></div>
     <span class="mob-label" data-i18n="nav_my_history">السجل</span>
   </div>
   <div class="mob-nav-item" data-tab="support" onclick="goTab('support')">
