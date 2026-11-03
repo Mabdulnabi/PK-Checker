@@ -4628,7 +4628,17 @@ function calcNetProfit(orders, since){
 
 /* ── 6. Auto-save: check settings ─────────────────────────────── */
 let _csSaveTimer = null;
-function onCsToggle(){
+async function onCsToggle(){
+  const svcEl = document.getElementById('csServiceEnabled');
+  if (svcEl.checked !== csState.service_enabled) {
+    // Switching the whole service changes what customers can do and starts or ends an outage.
+    const turningOn = svcEl.checked;
+    const ok = await adminConfirm(turningOn
+      ? 'هترجع الخدمة للعملاء. الوقت اللي الخدمة كانت فيها متوقفة هيتضاف لاشتراكات كل المشتركين الحاليين. متأكد؟'
+      : 'هتوقف الخدمة عن كل العملاء، والوقت هيقف لاشتراكات المشتركين الحاليين لحد ما ترجع. متأكد؟',
+      { icon: turningOn ? '✅' : '⚠️', danger: !turningOn, confirmLabel: turningOn ? 'تشغيل الخدمة' : 'إيقاف الخدمة' });
+    if (!ok) { svcEl.checked = csState.service_enabled; return; }
+  }
   csState.service_enabled  = document.getElementById('csServiceEnabled').checked;
   csState.api_mode_enabled = document.getElementById('csApiEnabled').checked;
   csState.sim_only_visible = document.getElementById('csSimOnly').checked;
@@ -4893,13 +4903,22 @@ async function loadServiceAvailability(){
   if (error) { console.error('loadServiceAvailability:', error); return; }
   const by = Object.fromEntries((data || []).map(r => [r.service, r]));
   document.getElementById('avMaster').checked = by.master ? !!by.master.enabled : true;
+  _avMasterSaved = document.getElementById('avMaster').checked;
   document.getElementById('avPlagAi').checked = by.plag_ai ? !!by.plag_ai.enabled : true;
   document.getElementById('avPlagOnly').checked = by.plag_only ? !!by.plag_only.enabled : false;
   document.getElementById('avMin').value = by.plag_ai ? by.plag_ai.min_provider_credits : 2;
 }
 
+let _avMasterSaved = null;
 async function saveServiceAvailability(){
   const master = document.getElementById('avMaster').checked;
+  if (_avMasterSaved !== null && master !== _avMasterSaved) {
+    const ok = await adminConfirm(master
+      ? 'هترجع الخدمة للعملاء. الوقت اللي الخدمة كانت فيها متوقفة هيتضاف لاشتراكات كل المشتركين الحاليين. متأكد؟'
+      : 'هتوقف الخدمة كلها عن العملاء، والوقت هيقف لاشتراكات المشتركين الحاليين لحد ما ترجع. متأكد؟',
+      { icon: master ? '✅' : '⚠️', danger: !master, confirmLabel: master ? 'تشغيل الخدمة' : 'إيقاف الخدمة' });
+    if (!ok) { document.getElementById('avMaster').checked = _avMasterSaved; return; }
+  }
   const plagAi = document.getElementById('avPlagAi').checked;
   const plagOnly = document.getElementById('avPlagOnly').checked;
   const min = parseInt(document.getElementById('avMin').value, 10);
@@ -4908,6 +4927,7 @@ async function saveServiceAvailability(){
     p_master: master, p_plag_ai: plagAi, p_plag_only: plagOnly, p_min: min,
   });
   if (error) { await adminAlert('فشل الحفظ: ' + error.message, {icon:'❌', danger:true}); return; }
+  _avMasterSaved = master;
   await logAdminActivity('service_availability', null, null,
     `الخدمة: ${master ? 'مفعّلة' : 'متوقفة'} | Plagiarism + AI: ${plagAi ? 'on' : 'off'} | Plagiarism Only: ${plagOnly ? 'on' : 'off'} | الحد الأدنى: ${min}`);
   await adminAlert('تم حفظ حالة الخدمة', {icon:'✅'});
