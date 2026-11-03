@@ -727,7 +727,7 @@
         <div class="section-title" data-i18n="sec_credits">الكريديت والطلبات الآن</div>
         <div class="kpi-row">
           <div class="kpi gold"><div class="icon">💳</div><div class="num" id="kpiApiCredits">—</div><div class="lbl" data-i18n="lbl_api_credits">الكريديت المتبقي في الـ API</div></div>
-          <div class="kpi"><div class="icon">🕓</div><div class="num" id="kpiFloating">—</div><div class="lbl" data-i18n="lbl_floating">Floating</div></div>
+          <div class="kpi"><div class="icon">📅</div><div class="num" id="kpiValidity" style="font-size:20px;">—</div><div class="kpi-subcaption" id="kpiValidityDays"></div><div class="lbl" data-i18n="lbl_validity">صلاحية الكريدت (API)</div></div>
           <div class="kpi"><div class="icon">⚙️</div><div class="num" id="kpiProcessing">—</div><div class="lbl" data-i18n="lbl_processing">قيد التنفيذ</div></div>
           <div class="kpi ok"><div class="icon">✓</div><div class="num" id="kpiCompleted">—</div><div class="lbl" data-i18n="lbl_completed">مكتملة (كل الوقت)</div></div>
           <div class="kpi danger" id="kpiStuckCard" style="cursor:pointer;" onclick="switchTab('orders')" title="طلبات عالقة فترة طويلة"><div class="icon">⏱️</div><div class="num" id="kpiStuck">—</div><div class="lbl" data-i18n="lbl_stuck">طلبات عالقة</div></div>
@@ -755,7 +755,10 @@
         <div class="chart-grid">
           <!-- Daily Revenue Bar Chart -->
           <div class="chart-card">
-            <h3 data-i18n="rev_daily_chart">الإيراد اليومي (آخر 14 يوم)</h3>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+              <h3 data-i18n="rev_daily_chart">الإيراد اليومي</h3>
+              <select id="dailyRangeSel" onchange="renderDailyChart(_revPayments, +this.value)" style="padding:6px 10px;border:1px solid var(--line, #cbd5e1);border-radius:8px;font-size:13px;"></select>
+            </div>
             <div class="chart-canvas-wrap"><canvas id="dailyRevenueChart"></canvas></div>
           </div>
           <!-- Pack Sales Pie Chart -->
@@ -1399,7 +1402,7 @@ const I18N = {
     loading_ellipsis:'جاري التحميل...', search_generic_ph:'بحث...',
     rev_title:'📊 لوحة الإيرادات', rev_subtitle:'تحليل إيرادات وأرباح المنصة', rev_refresh_btn:'🔄 تحديث',
     rev_today:'إيراد اليوم (جنيه)', rev_week:'إيراد الأسبوع', rev_month:'إيراد الشهر', rev_profit:'صافي الربح (الشهر)',
-    rev_daily_chart:'الإيراد اليومي (آخر 14 يوم)', rev_pack_chart:'أكثر الباقات مبيعاً',
+    rev_daily_chart:'الإيراد اليومي', rev_pack_chart:'أكثر الباقات مبيعاً',
     rev_perf_stats:'إحصائيات الأداء', rev_total_orders:'إجمالي الأوردرات', rev_avg_order:'متوسط قيمة الطلب', rev_total_users:'إجمالي العملاء', rev_detail_title:'تحليل تفصيلي',
     bc_title:'📢 رسائل جماعية', bc_subtitle:'إرسال إشعارات لعملاء المنصة', bc_create_title:'✍️ إنشاء رسالة جماعية',
     bc_title_ar_lbl:'العنوان (عربي)', bc_title_ar_ph:'عنوان الإشعار بالعربي',
@@ -1515,7 +1518,7 @@ const I18N = {
     loading_ellipsis:'Loading...', search_generic_ph:'Search...',
     rev_title:'📊 Revenue Dashboard', rev_subtitle:'Platform revenue and profit analysis', rev_refresh_btn:'🔄 Refresh',
     rev_today:"Today's revenue (EGP)", rev_week:"Week's revenue", rev_month:"Month's revenue", rev_profit:'Net profit (month)',
-    rev_daily_chart:'Daily revenue (last 14 days)', rev_pack_chart:'Best-selling packages',
+    rev_daily_chart:'Daily revenue', rev_pack_chart:'Best-selling packages',
     rev_perf_stats:'Performance stats', rev_total_orders:'Total orders', rev_avg_order:'Average order value', rev_total_users:'Total customers', rev_detail_title:'Detailed analysis',
     bc_title:'📢 Broadcast Messages', bc_subtitle:'Send notifications to platform customers', bc_create_title:'✍️ Create broadcast message',
     bc_title_ar_lbl:'Title (Arabic)', bc_title_ar_ph:'Notification title in Arabic',
@@ -2867,10 +2870,10 @@ function renderOverviewOrderKpis(orders, ranges){
 // Net profit = revenue from wallet top-ups - API cost per completed check
 // (sim_only: cost 0 → full profit; sim_ai/both: cost 32.5 EGP each)
 function renderOverviewRevenueKpis(orders, wallet, ranges){
-  const revToday = sumSince(wallet, 'created_at', 'amount', ranges.startOfToday) * EGP_PER_CREDIT;
-  const revWeek  = sumSince(wallet, 'created_at', 'amount', ranges.startOfWeek)  * EGP_PER_CREDIT;
-  const revMonth = sumSince(wallet, 'created_at', 'amount', ranges.startOfMonth) * EGP_PER_CREDIT;
-  const revYear  = sumSince(wallet, 'created_at', 'amount', ranges.startOfYear)  * EGP_PER_CREDIT;
+  const revToday = sumPaymentsEgp(wallet, ranges.startOfToday);
+  const revWeek  = sumPaymentsEgp(wallet, ranges.startOfWeek);
+  const revMonth = sumPaymentsEgp(wallet, ranges.startOfMonth);
+  const revYear  = sumPaymentsEgp(wallet, ranges.startOfYear);
   const profToday = calcNetProfit(orders, ranges.startOfToday);
   const profWeek  = calcNetProfit(orders, ranges.startOfWeek);
   const profMonth = calcNetProfit(orders, ranges.startOfMonth);
@@ -2894,7 +2897,6 @@ function renderOverviewStatusKpis(orders, usersCount){
     if (o.status === 'processing') return ageMs > 1 * 3600 * 1000;
     return false;
   }).length;
-  document.getElementById('kpiFloating').textContent = floating;
   document.getElementById('kpiProcessing').textContent = processing;
   document.getElementById('kpiCompleted').textContent = completed;
   document.getElementById('kpiStuck').textContent = stuck;
@@ -2908,19 +2910,20 @@ async function loadOverview(){
   const [ordersRes, profilesRes, walletRes] = await Promise.all([
     supabaseClient.from('orders').select('id, status, submitted_at, check_type'),
     supabaseClient.from('users_profile_numbered').select('user_id', { count: 'exact', head: true }),
-    supabaseClient.from('wallet_transactions').select('amount, created_at').in('type', ['credit', 'admin_credit']),
+    supabaseClient.from('payments').select('amount, currency, status, created_at, verified_at, pack_id').eq('status', 'completed'),
   ]);
 
   if (ordersRes.error) { console.error(ordersRes.error); document.getElementById('overviewSub').textContent = 'تعذر التحميل'; return; }
 
   const orders = ordersRes.data || [];
-  const wallet = walletRes.data || [];
+  const wallet = walletRes.data || []; // completed top-ups (payments)
+  const doneOrders = orders.filter(o => o.status === 'completed'); // successful checks only
   const usersCount = profilesRes.count ?? '—';
 
   const now = new Date();
   const ranges = getOverviewDateRanges(now);
 
-  renderOverviewOrderKpis(orders, ranges);
+  renderOverviewOrderKpis(doneOrders, ranges);
   const { revToday, revWeek, revMonth, revYear } = renderOverviewRevenueKpis(orders, wallet, ranges);
   const { floating, processing, completed, problem } = renderOverviewStatusKpis(orders, usersCount);
 
@@ -2934,8 +2937,8 @@ async function loadOverview(){
   // Snapshot for CSV export — kept in EGP (the ledger's real currency);
   // exportOverviewCSV() converts to USD at export time if that's selected.
   lastOverviewSnapshot = {
-    ordersToday: countSince(orders, 'submitted_at', ranges.startOfToday), ordersWeek: countSince(orders, 'submitted_at', ranges.startOfWeek),
-    ordersMonth: countSince(orders, 'submitted_at', ranges.startOfMonth), ordersYear: countSince(orders, 'submitted_at', ranges.startOfYear),
+    ordersToday: countSince(doneOrders, 'submitted_at', ranges.startOfToday), ordersWeek: countSince(doneOrders, 'submitted_at', ranges.startOfWeek),
+    ordersMonth: countSince(doneOrders, 'submitted_at', ranges.startOfMonth), ordersYear: countSince(doneOrders, 'submitted_at', ranges.startOfYear),
     revToday, revWeek, revMonth, revYear,
     floating, processing, completed, problem, usersCount,
   };
@@ -2944,7 +2947,25 @@ async function loadOverview(){
   if (allOrders.length === 0) await loadOrders(); else renderProblemOrdersList();
 
   // Revenue analysis section (merged into Overview from the old standalone Revenue tab)
-  initRevenueTab(orders, wallet);
+  initRevenueTab(wallet);
+}
+
+function renderValidityCard(expiresAt){
+  const el = document.getElementById('kpiValidity');
+  const sub = document.getElementById('kpiValidityDays');
+  if (!el) return;
+  const ar = currentLang === 'ar';
+  if (!expiresAt) {
+    el.textContent = '—';
+    if (sub) sub.textContent = ar ? 'التاريخ مش راجع من الـ API' : 'Not returned by the API';
+    return;
+  }
+  const d = new Date(expiresAt);
+  const months = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  const enMonths = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  el.textContent = ar ? `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}` : `${d.getDate()} ${enMonths[d.getMonth()]}, ${d.getFullYear()}`;
+  const left = Math.max(0, Math.ceil((d - Date.now()) / 86400000));
+  if (sub) sub.textContent = ar ? `فاضل ${left} يوم` : `${left} days left`;
 }
 
 async function loadApiCredits(){
@@ -2967,6 +2988,7 @@ async function loadApiCredits(){
       return;
     }
     el.textContent = `${data.creditsRemaining} / ${data.creditsTotal}`;
+    renderValidityCard(data.expiresAt);
     el.title = data.isActive
       ? `متزامن: ${data.currentConcurrent}/${data.concurrencyLimit}`
       : 'الحساب غير مفعّل';
@@ -4536,6 +4558,13 @@ document.getElementById('admModalInput').addEventListener('keydown', e => {
 // API cost per completed check (EGP)
 const API_COST_SIM_EGP  = 0;      // sim_only: free
 const API_COST_BOTH_EGP = 32.5;   // sim_ai / both: $0.65 = 32.5 EGP
+
+// EGP value of completed top-ups since a date (USD payments converted at 50 EGP per USD).
+function sumPaymentsEgp(list, since){
+  return list
+    .filter(p => new Date(p.verified_at || p.created_at) >= since)
+    .reduce((s, p) => s + (p.currency === 'USD' ? Number(p.amount) * 50 : Number(p.amount)), 0);
+}
 
 function calcNetProfit(orders, since){
   return orders
@@ -6521,38 +6550,52 @@ function renderBroadcastHistory(rows){
    ================================================================ */
 const API_COST_BOTH=32.5, API_COST_SIM=0;
 
-function initRevenueTab(orders, wallet){
-  renderDailyChart(wallet);
+function initRevenueTab(payments){
+  renderDailyChart(payments, 14);
   renderPackChart();
 }
 
 let _dailyChartInstance = null;
-function renderDailyChart(wallet){
-  const el = document.getElementById('dailyRevenueChart');
-  if(!el) return;
-  const days=[];
-  for(let i=13;i>=0;i--){
-    const d=new Date(); d.setDate(d.getDate()-i);
-    days.push(d.toISOString().split('T')[0]);
+let _revPayments = [];
+const REV_RANGES = [
+  { days: 7,   ar: 'آخر أسبوع',  en: 'Last week' },
+  { days: 14,  ar: 'آخر 14 يوم', en: 'Last 14 days' },
+  { days: 30,  ar: 'آخر شهر',    en: 'Last month' },
+  { days: 90,  ar: 'آخر 3 شهور', en: 'Last 3 months' },
+  { days: 180, ar: 'آخر 6 شهور', en: 'Last 6 months' },
+  { days: 365, ar: 'آخر سنة',    en: 'Last year' },
+];
+function renderDailyChart(payments, days){
+  if (payments) _revPayments = payments;
+  const el = document.getElementById('dailyRangeSel');
+  if (el && !el.options.length) {
+    el.innerHTML = REV_RANGES.map(r => `<option value="${r.days}" ${r.days === 14 ? 'selected' : ''}>${currentLang === 'ar' ? r.ar : r.en}</option>`).join('');
   }
-  const dailyRev = days.map(d=>({
-    day:d.slice(5),
-    rev:wallet.filter(w=>w.created_at?.split('T')[0]===d).reduce((s,w)=>s+w.amount,0)*EGP_PER_CREDIT
-  }));
-  if (!window.Chart) return; // library failed to load — chart card just stays empty, non-fatal
+  const range = Number(days || (el && el.value) || 14);
+  const canvas = document.getElementById('dailyRevenueChart');
+  if (!canvas) return;
+  const labels = [];
+  const values = [];
+  for (let i = range - 1; i >= 0; i--) {
+    const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - i);
+    const next = new Date(d); next.setDate(next.getDate() + 1);
+    labels.push(`${d.getDate()}/${d.getMonth() + 1}`);
+    values.push(Math.round(sumPaymentsEgp(_revPayments, d) - sumPaymentsEgp(_revPayments, next)));
+  }
+  if (!window.Chart) return;
   if (_dailyChartInstance) { _dailyChartInstance.destroy(); }
-  _dailyChartInstance = new Chart(el.getContext('2d'), {
+  _dailyChartInstance = new Chart(canvas.getContext('2d'), {
     type: 'line',
     data: {
-      labels: dailyRev.map(d => d.day.replace('-', '/')),
+      labels,
       datasets: [{
         label: t('rev_daily_chart'),
-        data: dailyRev.map(d => Math.round(d.rev)),
+        data: values,
         borderColor: '#0E7AFE',
         backgroundColor: 'rgba(14,122,254,.12)',
         tension: 0.35,
         fill: true,
-        pointRadius: 3,
+        pointRadius: range > 60 ? 0 : 3,
         pointBackgroundColor: '#0E7AFE',
       }],
     },
@@ -6562,7 +6605,7 @@ function renderDailyChart(wallet){
       plugins: { legend: { display: false } },
       scales: {
         y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.06)' } },
-        x: { grid: { display: false } },
+        x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } },
       },
     },
   });
@@ -6585,10 +6628,14 @@ async function renderPackChart(){
 
   const counts = {};
   (data || []).forEach(p => { counts[p.pack_id] = (counts[p.pack_id] || 0) + 1; });
+  // Names come from the packages table: a new package is listed by its key (legacy id or package id).
+  const { data: pkgs } = await supabaseClient.from('slot_packages').select('id, legacy_pack_id, name_ar, name_en');
+  const labelMap = {};
+  (pkgs || []).forEach(pk => { labelMap[pk.legacy_pack_id || pk.id] = currentLang === 'ar' ? pk.name_ar : pk.name_en; });
   const colors = ['#0E7AFE', '#00BAF7', '#0E9F6E', '#E8A20B', '#E0445B', '#8B5CF6', '#FF7A59', '#14B8A6'];
   const items = Object.entries(counts)
     .sort((a, b) => b[1] - a[1])
-    .map(([k, v], i) => ({ k: PACK_NAMES[k] || k, v, c: colors[i % colors.length] }));
+    .map(([k, v], i) => ({ k: labelMap[k] || PACK_NAMES[k] || k, v, c: colors[i % colors.length] }));
 
   if (!window.Chart) return;
   if (_packChartInstance) { _packChartInstance.destroy(); }

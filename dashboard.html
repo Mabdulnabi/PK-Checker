@@ -2386,7 +2386,7 @@
               <th data-i18n="ph_col_code">كود العملية</th>
               <th data-i18n="ph_col_method">وسيلة الدفع</th>
               <th data-i18n="ph_col_amount">القيمة</th>
-              <th data-i18n="ph_col_credits">الكريديت</th>
+              <th>Slots</th>
               <th data-i18n="ph_col_pack">اسم الباقة</th>
               <th data-i18n="ph_col_datetime">التاريخ والوقت</th>
               <th data-i18n="ph_col_status">الحالة</th>
@@ -2397,29 +2397,6 @@
         <div id="paymentHistoryPagination"></div>
       </div>
 
-      <!-- Order credit transactions (debit on submit, refund on reject) -->
-      <div class="pack-section-head" style="margin-top:36px;">
-        <h2 class="pack-section-title" data-i18n="order_tx_title">المعاملات</h2>
-        <p class="pack-section-desc" data-i18n="order_tx_desc">عمليات خصم واسترداد الكريديت على ملفات الفحص</p>
-      </div>
-      <div class="panel-block">
-        <div style="overflow-x:auto;">
-          <table class="data-tbl">
-            <thead><tr>
-              <th></th>
-              <th data-i18n="col_order_id" style="min-width:150px;">رقم الطلب</th>
-              <th data-i18n="col_file">اسم الملف</th>
-              <th data-i18n="ph_col_credits">الكريديت</th>
-              <th data-i18n="ph_col_bal_before">الرصيد قبل</th>
-              <th data-i18n="ph_col_bal_after">الرصيد بعد</th>
-              <th data-i18n="ph_col_datetime">التاريخ والوقت</th>
-              <th data-i18n="ph_col_status">الحالة</th>
-            </tr></thead>
-            <tbody id="orderTxBody"><tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px;" data-i18n="loading_ellipsis">جاري التحميل...</td></tr></tbody>
-          </table>
-        </div>
-        <div id="orderTxPagination"></div>
-      </div>
     </div>
 
     <!-- ============ SUPPORT (formal ticket) ============ -->
@@ -3568,9 +3545,10 @@ async function loadTopupPacks(){
   if (error || !Array.isArray(data)) { console.error('loadTopupPacks failed:', error); return; }
   SLOT_PACK_NAMES = {};
   TOPUP_PACKS = data.map(r => {
-    SLOT_PACK_NAMES[r.legacy_pack_id] = { ar: r.name_ar, en: r.name_en };
+    const key = r.pack_key || r.legacy_pack_id;
+    SLOT_PACK_NAMES[key] = { ar: r.name_ar, en: r.name_en };
     return {
-      id: r.legacy_pack_id,
+      id: key,
       credits: Number(r.slots),
       priceEgp: Number(r.price_egp),
       files: Number(r.slots),
@@ -5087,7 +5065,7 @@ function goTab(tab, persist = true){
     nextPane.classList.add('pane-entering');
     nextPane.addEventListener('animationend', () => nextPane.classList.remove('pane-entering'), {once:true});
     (document.querySelector('.main-wrap')||window).scrollTo({top:0,behavior:'smooth'});
-    if(tab === 'wallet'){ loadPaymentHistory(); loadOrderTransactions(); }
+    if(tab === 'wallet'){ loadPaymentHistory(); }
     if(tab === 'my-history'){ loadMyHistory(); }
     if(tab === 'my-profile'){ openMyProfileTab(); }
     return;
@@ -5110,7 +5088,7 @@ function goTab(tab, persist = true){
     }, {once:true});
 
     (document.querySelector('.main-wrap')||window).scrollTo({top:0,behavior:'smooth'});
-    if(tab === 'wallet'){ loadPaymentHistory(); loadOrderTransactions(); }
+    if(tab === 'wallet'){ loadPaymentHistory(); }
     if(tab === 'my-history'){ loadMyHistory(); }
     if(tab === 'my-profile'){ openMyProfileTab(); }
   }, {once:true});
@@ -5155,6 +5133,13 @@ function formatPaymentAmount(amount, storedCurrency){
   }
   return valueInDisplayCurrency.toFixed(2) + ' ' + currencyLabel();
 }
+// Slots bought with a payment: the package's slots, or 20 old credits = 1 slot.
+function paymentSlots(p){
+  const pack = TOPUP_PACKS.find(x => x.id === p.pack_id);
+  if (pack) return pack.credits;
+  if (p.credits != null) return Math.round(Number(p.credits) / 20);
+  return '—';
+}
 function renderPaymentHistory(){
   const tbody = document.getElementById('paymentHistoryBody');
   if (!tbody) return;
@@ -5173,15 +5158,15 @@ function renderPaymentHistory(){
     // when contacting support — no separate numbering scheme to confuse.
     const code = 'PAY-' + String(p.id).slice(0, 8).toUpperCase();
     const dt = new Date(p.created_at);
-    const dateStr = dt.toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : 'en-GB');
-    const timeStr = dt.toLocaleTimeString(currentLang === 'ar' ? 'ar-EG' : 'en-GB', { hour: '2-digit', minute: '2-digit' });
+    const dateStr = fmtDayMonthYear(dt);
+    const timeStr = dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
     const statusClass = STATUS_CLASS[p.status] || 'ph-status-pending';
     const statusLabel = STATUS_LABEL[p.status] || p.status;
     return `<tr>
       <td class="mono">${escapeHtml(code)}</td>
       <td>${escapeHtml(GATEWAY_LABELS[p.gateway] || p.gateway || '—')}</td>
-      <td>${p.amount != null ? formatPaymentAmount(p.amount, p.currency) : '—'}</td>
-      <td>${p.credits != null ? p.credits : '—'}</td>
+      <td>${p.amount != null ? `${Number(p.amount).toFixed(2)} ${escapeHtml(p.currency || '')}` : '—'}</td>
+      <td>${paymentSlots(p)}</td>
       <td>${p.pack_id ? escapeHtml(packName(p.pack_id)) : '—'}</td>
       <td>${dateStr} — ${timeStr}</td>
       <td><span class="ph-status ${statusClass}">${escapeHtml(statusLabel)}</span></td>
@@ -5258,7 +5243,7 @@ function restoreTabAndScroll(){
     document.querySelectorAll('.tabpane').forEach(el => {
       el.style.display = (el.id === 'pane-' + savedTab) ? 'block' : 'none';
     });
-    if (savedTab === 'wallet') { loadPaymentHistory(); loadOrderTransactions(); }
+    if (savedTab === 'wallet') { loadPaymentHistory(); }
     if (savedTab === 'my-profile') { openMyProfileTab(); }
   }
   const y = _tabScrollPositions[savedTab || 'new-check'] || 0;
@@ -6561,7 +6546,6 @@ function applyLang(){
   renderInbox();
   applyCheckSettings();
   renderPaymentHistory();
-  renderOrderTransactions();
   if (typeof refreshRatingModalLang === 'function') refreshRatingModalLang();
   // My Files rows are built in JS, so they must be rebuilt to show the new language.
   if (typeof renderMyFiles === 'function') renderMyFiles();
@@ -8119,6 +8103,10 @@ function sfClearFile(){
 function sfValidateFile(file){
   if (!file) return t('sf_err_format');
   if (!/\.(pdf|docx)$/i.test(file.name)) return t('sf_err_format');
+  // Arabic file names are not accepted (the check provider does not take them).
+  if (/[\u0600-\u06FF]/.test(file.name)) return currentLang === 'ar'
+    ? 'اسم الملف مينفعش يكون بالعربي. غيّر الاسم لحروف إنجليزي وارفعه تاني.'
+    : 'Arabic file names are not allowed. Rename the file in English letters and upload again.';
   if (file.size > SF_MAX_BYTES) return t('sf_err_size');
   return null;
 }
@@ -8825,7 +8813,6 @@ async function refreshCheckSettings(){
         await loadSlots();
         if (typeof renderKpis === 'function') renderKpis();
         if (typeof updatePrice === 'function') updatePrice();
-        if (typeof loadOrderTransactions === 'function') loadOrderTransactions();
       })
       .subscribe();
   }

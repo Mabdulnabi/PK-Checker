@@ -1,5 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import JSZip from "npm:jszip@3.10.1";
+import { getDocumentProxy, extractText } from "npm:unpdf@1";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -20,6 +22,42 @@ const cors = {
 // Check types map to slot types: sim_only -> plag_only, sim_ai -> plag_ai.
 
 type ServiceKey = "plag_ai" | "plag_only";
+
+// Arabic is not accepted: in the file name, or as the language of the document.
+const ARABIC_CHARS = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/g;
+const LATIN_CHARS = /[A-Za-z]/g;
+const ARABIC_REJECT = {
+  error: "الملف باللغة العربية ومش مسموح برفعه. The file is in Arabic and cannot be submitted.",
+  code: "ARABIC_NOT_ALLOWED",
+};
+
+async function documentText(file: File): Promise<string> {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const name = file.name.toLowerCase();
+  try {
+    if (name.endsWith(".docx")) {
+      const zip = await JSZip.loadAsync(bytes);
+      const xml = (await zip.file("word/document.xml")?.async("string")) ?? "";
+      return xml.replace(/<[^>]+>/g, " ");
+    }
+    if (name.endsWith(".pdf")) {
+      const pdf = await getDocumentProxy(bytes);
+      const { text } = await extractText(pdf, { mergePages: true });
+      return String(text);
+    }
+  } catch (e) {
+    console.error("submit-check: could not read the document text", String(e));
+  }
+  return "";
+}
+
+// Arabic when there are enough Arabic letters and they are a large share of the letters.
+function isArabicDocument(text: string): boolean {
+  const arabic = (text.match(ARABIC_CHARS) || []).length;
+  const latin = (text.match(LATIN_CHARS) || []).length;
+  const letters = arabic + latin;
+  return arabic >= 50 && letters > 0 && arabic / letters >= 0.2;
+}
 
 async function providerAvailability(
   admin: ReturnType<typeof createClient>,
@@ -109,6 +147,11 @@ Deno.serve(async (req: Request) => {
     // A retried request for an order that was already sent does nothing new.
     if (order.external_order_id) {
       return cors_json({ success: true, externalOrderId: order.external_order_id, alreadySubmitted: true });
+    }
+
+    // Arabic file name or Arabic document: refused before any slot is used.
+    if (/[\u0600-\u06FF]/.test(file.name) || isArabicDocument(await documentText(file))) {
+      return cors_json({ success: false, code: ARABIC_REJECT.code, error: ARABIC_REJECT.error }, 422);
     }
 
     const service: ServiceKey = order.check_type === "sim_only" ? "plag_only" : "plag_ai";

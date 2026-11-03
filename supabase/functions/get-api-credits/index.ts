@@ -48,11 +48,15 @@ Deno.serve(async (req: Request) => {
       return json({ success: false, error: { code: res.status, message: data.message || "API error" } }, 200);
     }
 
+    // Expiry date of the credits, when the provider returns one (any of the usual field names).
+    const expiresAt = data.expires_at || data.expiry_date || data.expiration_date || data.valid_until || data.expires || null;
+
     return json({
       success: true,
       creditsRemaining: data.available_credits,
       creditsTotal: data.total_credits,
       isActive: data.status === "Active" && !data.is_expired,
+      expiresAt,
       currentConcurrent: 0,
       concurrencyLimit: 0,
     });
