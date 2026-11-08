@@ -1140,7 +1140,11 @@
               <select id="crPackageSelect" style="width:100%;"></select>
             </div>
             <div class="cr-form-group">
-              <label>عدد الباقات</label>
+              <label>على شراء محدد للعميل (اختياري)</label>
+              <select id="crGrantSelect" style="width:100%;" onchange="crGrantChanged()"><option value="">— حسب نوع الباقة (الأقرب انتهاءً) —</option></select>
+            </div>
+            <div class="cr-form-group">
+              <label id="crAmountLbl">عدد الباقات</label>
               <input type="number" id="crAmountInput" placeholder="مثال: 1" min="1">
             </div>
             <div class="cr-form-group">
@@ -5556,6 +5560,7 @@ async function crLookupUser(){
     const found = Object.values(profilesByUserId).find(p => Number(p.pk_number) === pk);
     if (found) {
       crUserFound = found;
+      loadCrGrants(found.user_id);
       // Get current balance
       const { data: bal } = await supabaseClient
         .from('wallet_transactions').select('balance_after')
@@ -5579,6 +5584,27 @@ async function loadCrPackageOptions(){
   ).join('');
 }
 
+async function loadCrGrants(userId){
+  const sel = document.getElementById('crGrantSelect');
+  if (!sel) return;
+  const { data } = await supabaseClient.rpc('admin_customer_grants', { p_user_id: userId });
+  const rows = Array.isArray(data) ? data : [];
+  sel.innerHTML = '<option value="">— حسب نوع الباقة (الأقرب انتهاءً) —</option>' + rows.map(g => {
+    const type = g.slot_type === 'plag_only' ? 'Plag' : 'Plag + AI';
+    const end = g.expires_at ? 'تنتهي ' + new Date(g.expires_at).toLocaleDateString('ar-EG') : 'مدى الحياة';
+    const bought = new Date(g.granted_at).toLocaleDateString('ar-EG');
+    return `<option value="${g.grant_id}">${escapeHtml(g.package)} · ${type} · متبقي ${g.remaining} من ${g.slots_total} · ${end} · اشتري ${bought}</option>`;
+  }).join('');
+  crGrantChanged();
+}
+function crGrantChanged(){
+  const targeted = !!document.getElementById('crGrantSelect')?.value;
+  const lbl = document.getElementById('crAmountLbl');
+  if (lbl) lbl.textContent = targeted ? 'عدد الفحوصات' : 'عدد الباقات';
+  const pkg = document.getElementById('crPackageSelect');
+  if (pkg) pkg.disabled = targeted;
+}
+
 async function adminAdjustCredit(action){
   // Adjustments are by package: "add" grants the chosen package N times (its own validity applies),
   // "deduct" removes the slots of N packages of the same type. Every change is logged.
@@ -5587,21 +5613,30 @@ async function adminAdjustCredit(action){
   if (!count || count < 1) { await adminAlert('أدخل عدد صحيح (أكبر من 0)', {icon:'⚠️'}); return; }
   const note = document.getElementById('crNoteInput').value.trim();
   const banner = document.getElementById('crAdjBanner');
-  const opt = document.getElementById('crPackageSelect')?.selectedOptions[0];
-  const pkgId = opt?.value || '';
-  if (!pkgId) { await adminAlert('اختار الباقة الأول', {icon:'⚠️'}); return; }
-  const pkgSlots = Number(opt.dataset.slots || 0);
-  const slotType = opt.dataset.type || 'plag_ai';
-
-  let res;
-  if (action === 'add') {
-    res = await supabaseClient.rpc('admin_grant_package', {
-      p_user_id: crUserFound.user_id, p_package_id: pkgId, p_count: count, p_note: note || null,
-    });
+  const grantId = document.getElementById('crGrantSelect')?.value || '';
+  let res, slotsDone;
+  if (grantId) {
+    // A specific purchase: the count is in checks, and the purchase's own package and end date apply.
+    res = action === 'add'
+      ? await supabaseClient.rpc('admin_add_to_grant', { p_grant_id: grantId, p_count: count, p_note: note || null })
+      : await supabaseClient.rpc('admin_deduct_from_grant', { p_grant_id: grantId, p_count: count, p_note: note || null });
+    slotsDone = count;
   } else {
-    res = await supabaseClient.rpc('admin_deduct_slots', {
-      p_user_id: crUserFound.user_id, p_slot_type: slotType, p_count: count * pkgSlots, p_note: note || null,
-    });
+    const opt = document.getElementById('crPackageSelect')?.selectedOptions[0];
+    const pkgId = opt?.value || '';
+    if (!pkgId) { await adminAlert('اختار الباقة الأول', {icon:'⚠️'}); return; }
+    const pkgSlots = Number(opt.dataset.slots || 0);
+    const slotType = opt.dataset.type || 'plag_ai';
+    if (action === 'add') {
+      res = await supabaseClient.rpc('admin_grant_package', {
+        p_user_id: crUserFound.user_id, p_package_id: pkgId, p_count: count, p_note: note || null,
+      });
+    } else {
+      res = await supabaseClient.rpc('admin_deduct_slots', {
+        p_user_id: crUserFound.user_id, p_slot_type: slotType, p_count: count * pkgSlots, p_note: note || null,
+      });
+    }
+    slotsDone = count * pkgSlots;
   }
 
   if (res.error) {
@@ -5617,8 +5652,11 @@ async function adminAdjustCredit(action){
   document.getElementById('crNoteInput').value = '';
   document.getElementById('crUserPreview').innerHTML = '';
   crUserFound = null;
+  const grantSel = document.getElementById('crGrantSelect');
+  if (grantSel) grantSel.innerHTML = '<option value="">— حسب نوع الباقة (الأقرب انتهاءً) —</option>';
+  crGrantChanged();
 
-  const slots = res.data?.slots ?? count * pkgSlots;
+  const slots = res.data?.slots ?? slotsDone;
   banner.className = 'cr-save-banner ok';
   banner.textContent = action === 'add'
     ? `✅ تمت إضافة ${slots} فحص لـ ${adjustedUserName}.`
