@@ -1226,6 +1226,33 @@
   .pay-confirm .field-label{font-size:12px;color:var(--muted);font-weight:700;margin-bottom:4px;display:block;}
   .pay-confirm input{width:100%;background:var(--paper);border:1.5px solid var(--paper-line);border-radius:9px;padding:11px 13px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--navy);}
   .pay-confirm input:focus{outline:none;border-color:var(--blue);}
+  .pay-tabs{display:flex;gap:4px;background:var(--paper-soft);border:1px solid var(--paper-line);border-radius:14px;padding:4px;margin-bottom:14px;}
+  .pay-tab{flex:1;border:1px solid transparent;background:transparent;border-radius:11px;padding:10px 8px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;transition:background .2s,color .2s;}
+  .pay-tab:hover{color:var(--navy);}
+  .pay-tab.on{background:var(--paper);color:var(--navy);border-color:var(--paper-line);box-shadow:0 1px 4px rgba(15,23,42,0.08);}
+  .pay-tab-panel{display:none;}
+  .pay-tab-panel.on{display:block;}
+  .pay-tab-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
+  #customPayCards{display:contents;}
+  .pay-tab-note{font-size:12.5px;font-weight:700;color:#B45309;background:#FEF3C7;border:1px solid #FCD34D;border-radius:10px;padding:9px 12px;margin-bottom:12px;text-align:center;}
+  [data-theme="dark"] .pay-tab-note{background:rgba(245,158,11,0.12);color:#FCD34D;border-color:rgba(245,158,11,0.3);}
+  .coupon-card{margin-top:24px;background:var(--paper);border:1px solid var(--paper-line);border-radius:16px;padding:18px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;box-shadow:0 8px 24px -16px rgba(15,23,42,0.18);}
+  .coupon-ic{width:44px;height:44px;border-radius:50%;border:1px solid var(--paper-line);display:flex;align-items:center;justify-content:center;flex:none;color:var(--muted);}
+  .coupon-ic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .coupon-txt{flex:1;min-width:200px;}
+  .coupon-title{font-family:'Cairo',sans-serif;font-weight:800;font-size:16px;color:var(--navy);}
+  .coupon-sub{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.5;}
+  .coupon-form{display:flex;gap:10px;flex:1 1 320px;min-width:0;}
+  .coupon-input{flex:1;min-width:0;box-sizing:border-box;text-align:center;text-transform:uppercase;letter-spacing:1.5px;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;padding:11px 14px;border:1px solid var(--paper-line);border-radius:12px;background:var(--paper-soft);color:var(--navy);outline:none;}
+  .coupon-input::placeholder{color:var(--muted);letter-spacing:1px;}
+  .coupon-input:focus{border-color:var(--ok);box-shadow:0 0 0 3px rgba(14,159,110,0.18);}
+  .coupon-btn{background:var(--ok);color:#fff;border:none;border-radius:12px;padding:0 22px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:800;cursor:pointer;white-space:nowrap;}
+  .coupon-btn:disabled{opacity:0.6;cursor:wait;}
+  .coupon-msg{width:100%;font-size:12.5px;font-weight:600;}
+  .coupon-msg:empty{display:none;}
+  .coupon-msg.err{color:#E0445B;}
+  .coupon-msg.ok{color:var(--ok);}
+  @media (max-width:640px){ .pay-tab-grid{grid-template-columns:repeat(2,1fr);} .pay-tab{font-size:12px;padding:9px 4px;} }
   #walletUidValue:hover{color:var(--blue);text-decoration:underline dotted;}
   .total-due{font-family:'Space Grotesk',sans-serif;font-size:21px;font-weight:700;color:var(--paper);}
   .total-due small{font-size:12px;color:#A9B4D6;font-weight:500;}
@@ -2374,33 +2401,51 @@
           </div>
           <div class="panel-block-body">
             <div id="walletPackSummary" style="font-size:13px;color:var(--navy);font-weight:700;"></div>
-            <div class="pay-grid" id="walletPayGrid">
-              <div class="paycard on" data-pay="binance" data-builtin="1">
-                <div class="pic"><svg class="ic" data-icon-key="wal_pay_binance" viewBox="0 0 24 24"><path d="M12 3l9 9-9 9-9-9z"/><path d="M12 9l3 3-3 3-3-3z"/></svg></div>
-                <b>Binance Pay</b><span data-i18n="pay_auto">تلقائي</span>
+            <div class="pay-tabs" role="tablist">
+              <button type="button" class="pay-tab on" data-ptab="wallets" role="tab" data-i18n="pay_tab_wallets">محافظ إلكترونية</button>
+              <button type="button" class="pay-tab" data-ptab="visa" role="tab" data-i18n="pay_tab_visa">Visa</button>
+              <button type="button" class="pay-tab" data-ptab="crypto" role="tab" data-i18n="pay_tab_crypto">Crypto</button>
+            </div>
+            <div id="walletPayGrid">
+              <div class="pay-tab-panel on" data-ptab-panel="wallets">
+                <div class="pay-tab-grid">
+                  <div class="paycard on" data-pay="instapay" data-builtin="1">
+                    <div class="pic"><svg class="ic" data-icon-key="wal_pay_instapay" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/></svg></div>
+                    <b>InstaPay</b><span data-i18n="pay_ref">رقم مرجعي</span>
+                  </div>
+                  <div class="paycard" data-pay="vodafone" data-builtin="1">
+                    <div class="pic"><svg class="ic" data-icon-key="wal_pay_vodafone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/></svg></div>
+                    <b data-i18n="vf_cash">فودافون كاش</b><span data-i18n="pay_ref">رقم مرجعي</span>
+                  </div>
+                  <!-- Custom payment methods added by the admin get appended here dynamically -->
+                  <div id="customPayCards"></div>
+                </div>
               </div>
-              <div class="paycard" data-pay="bybit" data-builtin="1">
-                <div class="pic"><svg class="ic" data-icon-key="wal_pay_bybit" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9h3.5a2 2 0 0 1 0 4H9zM9 13h4"/></svg></div>
-                <b>Bybit Pay</b><span data-i18n="pay_auto">تلقائي</span>
+              <div class="pay-tab-panel" data-ptab-panel="visa">
+                <div class="pay-tab-note" data-i18n="pay_visa_note">الدفع بالفيزا يعمل داخل مصر فقط</div>
+                <div class="pay-tab-grid">
+                  <div class="paycard" data-pay="easykash" data-builtin="1">
+                    <div class="pic"><svg class="ic" data-icon-key="wal_pay_easykash" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg></div>
+                    <b>EasyKash</b><span data-i18n="pay_auto">تلقائي</span>
+                  </div>
+                </div>
               </div>
-              <div class="paycard" data-pay="bep20" data-builtin="1">
-                <div class="pic"><svg class="ic" data-icon-key="wal_pay_bep20" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
-                <b>BEP20 / BSC</b><span style="font-size:9.5px;color:var(--muted);font-weight:600;">USDT</span>
+              <div class="pay-tab-panel" data-ptab-panel="crypto">
+                <div class="pay-tab-grid">
+                  <div class="paycard" data-pay="binance" data-builtin="1">
+                    <div class="pic"><svg class="ic" data-icon-key="wal_pay_binance" viewBox="0 0 24 24"><path d="M12 3l9 9-9 9-9-9z"/><path d="M12 9l3 3-3 3-3-3z"/></svg></div>
+                    <b>Binance Pay</b><span data-i18n="pay_auto">تلقائي</span>
+                  </div>
+                  <div class="paycard" data-pay="bybit" data-builtin="1">
+                    <div class="pic"><svg class="ic" data-icon-key="wal_pay_bybit" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9h3.5a2 2 0 0 1 0 4H9zM9 13h4"/></svg></div>
+                    <b>Bybit Pay</b><span data-i18n="pay_auto">تلقائي</span>
+                  </div>
+                  <div class="paycard" data-pay="bep20" data-builtin="1">
+                    <div class="pic"><svg class="ic" data-icon-key="wal_pay_bep20" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+                    <b>BEP20 / BSC</b><span style="font-size:9.5px;color:var(--muted);font-weight:600;">USDT</span>
+                  </div>
+                </div>
               </div>
-              <div class="paycard" data-pay="easykash" data-builtin="1">
-                <div class="pic"><svg class="ic" data-icon-key="wal_pay_easykash" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg></div>
-                <b>EasyKash</b><span data-i18n="pay_auto">تلقائي</span>
-              </div>
-              <div class="paycard" data-pay="instapay" data-builtin="1">
-                <div class="pic"><svg class="ic" data-icon-key="wal_pay_instapay" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/></svg></div>
-                <b>InstaPay</b><span data-i18n="pay_ref">رقم مرجعي</span>
-              </div>
-              <div class="paycard" data-pay="vodafone" data-builtin="1">
-                <div class="pic"><svg class="ic" data-icon-key="wal_pay_vodafone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/></svg></div>
-                <b data-i18n="vf_cash">فودافون كاش</b><span data-i18n="pay_ref">رقم مرجعي</span>
-              </div>
-              <!-- Custom payment methods added by the admin get appended here dynamically -->
-              <div id="customPayCards"></div>
             </div>
             <div class="pay-confirm" id="walletPayConfirm">
               <div class="qrbox" id="walletQrBox">
@@ -2421,6 +2466,20 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Discount / gift code -->
+      <div class="coupon-card">
+        <div class="coupon-ic"><svg data-icon-key="redeem_code_icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2"/></svg></div>
+        <div class="coupon-txt">
+          <div class="coupon-title" data-i18n="coupon_title">عندك كود؟</div>
+          <div class="coupon-sub" data-i18n="coupon_sub">أكواد الخصم بتضيف فحوصات لرصيدك فوراً</div>
+        </div>
+        <form class="coupon-form" id="inlineRedeemForm" onsubmit="submitInlineRedeem(event)">
+          <input class="coupon-input" id="inlineRedeemInput" type="text" dir="ltr" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="19" placeholder="XXXX-XXXX-XXXX-XXXX">
+          <button class="coupon-btn" id="inlineRedeemBtn" type="submit" data-i18n="coupon_btn">تفعيل</button>
+        </form>
+        <div class="coupon-msg" id="inlineRedeemMsg" role="alert"></div>
       </div>
 
       <!-- Payment history -->
@@ -3160,6 +3219,8 @@ const I18N = {
     redeem_err_used:"الكود ده اتستخدم قبل كده", redeem_err_invalid:"الكود غير صحيح، اتأكد من كتابته",
     redeem_err_limit:"محاولات كتير غلط، استنى شوية وحاول تاني", redeem_err_auth:"انتهت جلستك، سجّل الدخول من جديد", redeem_err_generic:"حصلت مشكلة، حاول تاني",
     redeem_success:"اتضافت لك باقة {p} ({n} فحص) ✅",
+    pay_tab_wallets:"محافظ إلكترونية", pay_tab_visa:"Visa", pay_tab_crypto:"Crypto", pay_visa_note:"الدفع بالفيزا يعمل داخل مصر فقط",
+    coupon_title:"عندك كود؟", coupon_sub:"أكواد الخصم بتضيف فحوصات لرصيدك فوراً", coupon_btn:"تفعيل",
     kpi_topup:"شحن +", kpi_credits_unit:"فحص", credit_unit_singular:"فحص", kpi_balance:"رصيدك الحالي",
     kpi_processing:"قيد الفحص الآن", kpi_floating:"رصيد عائم (معلّق)",
     kpi_completed_label:"مكتمل بالكامل", kpi_rejected_word:"مرفوض", kpi_cancelled_word:"ملغي",
@@ -3350,6 +3411,8 @@ const I18N = {
     redeem_err_used:"This code has already been used", redeem_err_invalid:"Invalid code, please check it and try again",
     redeem_err_limit:"Too many failed attempts, please wait a bit and try again", redeem_err_auth:"Your session expired, please sign in again", redeem_err_generic:"Something went wrong, please try again",
     redeem_success:"{p} added to your account ({n} slot) ✅",
+    pay_tab_wallets:"E-Wallets", pay_tab_visa:"Visa", pay_tab_crypto:"Crypto", pay_visa_note:"Visa payments work inside Egypt only",
+    coupon_title:"Have a code?", coupon_sub:"Gift and promo codes add checks to your balance right away", coupon_btn:"Redeem",
     kpi_topup:"Top up", kpi_credits_unit:"slots", credit_unit_singular:"slot", kpi_balance:"Current balance",
     kpi_processing:"Processing now", kpi_floating:"Floating (pending)",
     kpi_completed_label:"Total completed", kpi_rejected_word:"rejected", kpi_cancelled_word:"cancelled",
@@ -3787,6 +3850,7 @@ async function loadPaymentMethodsConfig(){
         };
       });
     }
+    refreshPayTabs();
   } catch (e) { console.warn('loadPaymentMethodsConfig failed (non-fatal):', e); }
 }
 
@@ -3965,6 +4029,39 @@ document.addEventListener('click', e=>{
     card.classList.add('on');
     renderPaymentDetails(card.dataset.pay);
   }
+});
+
+/* Payment method tabs: E-Wallets / Visa / Crypto. Only one panel shows at a time. */
+function setPayTab(tab){
+  document.querySelectorAll('.pay-tab').forEach(b=>b.classList.toggle('on', b.dataset.ptab===tab));
+  document.querySelectorAll('.pay-tab-panel').forEach(p=>p.classList.toggle('on', p.dataset.ptabPanel===tab));
+  const panel = document.querySelector(`.pay-tab-panel[data-ptab-panel="${tab}"]`);
+  if(!panel) return;
+  const visible = [...panel.querySelectorAll('.paycard')].filter(c=>c.style.display!=='none');
+  if(visible.length && !visible.some(c=>c.classList.contains('on'))) selectPayCard(visible[0]);
+}
+function selectPayCard(card){
+  document.querySelectorAll('#walletPayGrid .paycard').forEach(x=>x.classList.remove('on'));
+  card.classList.add('on');
+  renderPaymentDetails(card.dataset.pay);
+}
+// Hide tabs whose gateways the admin turned off, and keep a valid selection.
+function refreshPayTabs(){
+  let current = document.querySelector('.pay-tab.on')?.dataset.ptab || 'wallets';
+  let firstVisible = null;
+  document.querySelectorAll('.pay-tab').forEach(b=>{
+    const panel = document.querySelector(`.pay-tab-panel[data-ptab-panel="${b.dataset.ptab}"]`);
+    const has = !!panel && [...panel.querySelectorAll('.paycard')].some(c=>c.style.display!=='none');
+    b.style.display = has ? '' : 'none';
+    if(has && !firstVisible) firstVisible = b.dataset.ptab;
+  });
+  const cur = document.querySelector(`.pay-tab[data-ptab="${current}"]`);
+  if(cur && cur.style.display==='none') current = firstVisible;
+  if(current) setPayTab(current);
+}
+document.addEventListener('click', e=>{
+  const tab = e.target.closest('.pay-tab');
+  if(tab && tab.dataset.ptab) setPayTab(tab.dataset.ptab);
 });
 
 // Payment reference for lock gateways: the customer writes "Pkchecker PAY-XXXXXXX" in the transfer note.
@@ -7843,6 +7940,23 @@ function setRedeemMsg(text, kind = ''){
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && document.getElementById('redeemModalOverlay').classList.contains('show')) closeRedeemCodeModal();
 });
+// Shared redeem logic for the modal and the inline coupon card.
+async function performRedeem(code){
+  const { data, error } = await supabaseClient.rpc('redeem_code', { p_code: code });
+  // The database returns { error: 'CODE' } for expected failures, and raises only on unexpected ones.
+  if (error || (data && data.error)) {
+    const code_ = data?.error || error?.message || '';
+    const errKey = Object.keys(REDEEM_ERROR_KEYS).find(k => code_.includes(k));
+    if (!errKey) console.error('redeem_code failed:', error || data);
+    return { ok: false, msg: t(errKey ? REDEEM_ERROR_KEYS[errKey] : 'redeem_err_generic') };
+  }
+  await loadSlots();
+  renderKpis();
+  updatePrice();
+  const pkgName = currentLang === 'ar' ? data.name_ar : data.name_en;
+  return { ok: true, msg: t('redeem_success').replace('{n}', data.slots).replace('{p}', pkgName) };
+}
+
 async function submitRedeemCode(e){
   e.preventDefault();
   const input = document.getElementById('redeemCodeInput');
@@ -7853,25 +7967,34 @@ async function submitRedeemCode(e){
   btn.disabled = true;
   setRedeemMsg('');
   try {
-    const { data, error } = await supabaseClient.rpc('redeem_code', { p_code: code });
-    // The database returns { error: 'CODE' } for expected failures, and raises only on unexpected ones.
-    if (error || (data && data.error)) {
-      const code_ = data?.error || error?.message || '';
-      const errKey = Object.keys(REDEEM_ERROR_KEYS).find(k => code_.includes(k));
-      if (!errKey) console.error('redeem_code failed:', error || data);
-      setRedeemMsg(t(errKey ? REDEEM_ERROR_KEYS[errKey] : 'redeem_err_generic'), 'err');
-      return;
-    }
-
-    await loadSlots();
-    renderKpis();
-    updatePrice();
+    const r = await performRedeem(code);
+    if (!r.ok) { setRedeemMsg(r.msg, 'err'); return; }
     input.value = '';
-    const pkgName = currentLang === 'ar' ? data.name_ar : data.name_en;
-    const msg = t('redeem_success').replace('{n}', data.slots).replace('{p}', pkgName);
-    setRedeemMsg(msg, 'ok');
-    toast(msg, 'success');
+    setRedeemMsg(r.msg, 'ok');
+    toast(r.msg, 'success');
     setTimeout(closeRedeemCodeModal, 1600);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function submitInlineRedeem(e){
+  e.preventDefault();
+  const input = document.getElementById('inlineRedeemInput');
+  const btn = document.getElementById('inlineRedeemBtn');
+  const msg = document.getElementById('inlineRedeemMsg');
+  const show = (text, kind) => { msg.textContent = text; msg.className = 'coupon-msg' + (kind ? ' ' + kind : ''); };
+  const code = input.value.trim();
+  if (!code) { show(t('redeem_err_empty'), 'err'); input.focus(); return; }
+
+  btn.disabled = true;
+  show('');
+  try {
+    const r = await performRedeem(code);
+    if (!r.ok) { show(r.msg, 'err'); return; }
+    input.value = '';
+    show(r.msg, 'ok');
+    toast(r.msg, 'success');
   } finally {
     btn.disabled = false;
   }
