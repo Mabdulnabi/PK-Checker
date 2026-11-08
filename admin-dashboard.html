@@ -5572,13 +5572,10 @@ async function adminAdjustCredit(action){
   if (!count || count < 1) { await adminAlert('أدخل عدد صحيح (أكبر من 0)', {icon:'⚠️'}); return; }
   const note = document.getElementById('crNoteInput').value.trim();
   const banner = document.getElementById('crAdjBanner');
-  const pkgId = document.getElementById('qcPackageSelect')?.value || '';
-
   let res;
   if (action === 'add') {
-    if (!pkgId) { await adminAlert('اختار الباقة الأول', {icon:'⚠️'}); return; }
-    res = await supabaseClient.rpc('admin_grant_package', {
-      p_user_id: crUserFound.user_id, p_package_id: pkgId, p_count: count, p_note: note || null,
+    res = await supabaseClient.rpc('admin_grant_checks', {
+      p_user_id: crUserFound.user_id, p_count: count, p_note: note || null,
     });
   } else {
     res = await supabaseClient.rpc('admin_deduct_slots', {
