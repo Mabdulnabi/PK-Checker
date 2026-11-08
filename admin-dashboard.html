@@ -5633,9 +5633,13 @@ async function loadCrGrants(userId){
   const rows = Array.isArray(data) ? data : [];
   sel.innerHTML = '<option value="">— حسب نوع الباقة (الأقرب انتهاءً) —</option>' + rows.map(g => {
     const type = g.slot_type === 'plag_only' ? 'Plag' : 'Plag + AI';
-    const end = g.expires_at ? 'تنتهي ' + new Date(g.expires_at).toLocaleDateString('ar-EG') : 'مدى الحياة';
+    const expired = !!g.expires_at && new Date(g.expires_at) <= new Date();
+    const endDate = g.expires_at ? new Date(g.expires_at).toLocaleDateString('ar-EG') : '';
+    const end = !g.expires_at ? 'مدى الحياة' : expired ? `انتهت ${endDate}` : `تنتهي ${endDate}`;
     const bought = new Date(g.granted_at).toLocaleDateString('ar-EG');
-    return `<option value="${g.grant_id}" data-expires="${g.expires_at || ''}">${escapeHtml(g.package)} · ${type} · متبقي ${g.remaining} من ${g.slots_total} · ${end} · اشتري ${bought}</option>`;
+    const label = `${expired ? '⛔ منتهية · ' : ''}${escapeHtml(g.package)} · ${type} · متبقي ${g.remaining} من ${g.slots_total} · ${end} · اشتري ${bought}`;
+    const style = expired ? ' style="color:#E0445B;font-weight:700;"' : '';
+    return `<option value="${g.grant_id}" data-expires="${g.expires_at || ''}"${style}>${label}</option>`;
   }).join('');
   crGrantChanged();
 }
