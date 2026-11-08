@@ -1077,6 +1077,18 @@
       <!-- CREDITS TAB -->
 
       <div class="tabpane" id="tab-slots">
+        <!-- Slot validity switch: ON = packages expire by their days; OFF = lifetime for packages bought from now on -->
+        <div class="cr-form-card" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+          <div>
+            <h3 style="margin:0 0 4px">⏳ صلاحية الفحوصات</h3>
+            <div id="slotValidityNote" style="font-size:12px;color:var(--muted)"></div>
+          </div>
+          <label style="display:flex;align-items:center;gap:8px;font-weight:700;cursor:pointer;">
+            <input type="checkbox" id="slotValidityToggle" onchange="toggleSlotValidity(this)" style="width:18px;height:18px;">
+            <span id="slotValidityLbl">بالأيام</span>
+          </label>
+        </div>
+
         <div class="tab-card" id="availCard" style="margin-bottom:16px;padding:18px 20px;">
           <div style="font-weight:800;font-size:15px;margin-bottom:4px;">🛰️ حالة خدمة الفحص</div>
           <div class="sub" style="margin-bottom:12px;">التحكم في توفر الفحص للعملاء. الرسائل بتظهر للعميل تلقائياً حسب الحالة.</div>
@@ -1113,18 +1125,6 @@
           <div><h1 data-i18n="pay_tab_title">💳 المدفوعات</h1><div class="sub" data-i18n="pay_tab_subtitle">الفحوصات، سجل العمليات، وبوابات الدفع</div></div>
         </div>
         <div class="cr-save-banner" id="crAdjBanner"></div>
-
-        <!-- Slot validity switch: ON = packages expire by their days; OFF = lifetime for packages bought from now on -->
-        <div class="cr-form-card" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
-          <div>
-            <h3 style="margin:0 0 4px">⏳ صلاحية الفحوصات</h3>
-            <div id="slotValidityNote" style="font-size:12px;color:var(--muted)"></div>
-          </div>
-          <label style="display:flex;align-items:center;gap:8px;font-weight:700;cursor:pointer;">
-            <input type="checkbox" id="slotValidityToggle" onchange="toggleSlotValidity(this)" style="width:18px;height:18px;">
-            <span id="slotValidityLbl">بالأيام</span>
-          </label>
-        </div>
 
         <!-- Add / Deduct form -->
         <div class="cr-form-card">
@@ -5058,6 +5058,7 @@ function liveRateNote(){
 }
 
 async function loadSlotPackages(){
+  loadSlotValidityToggle();
   await refreshLiveRate();
   const tbody = document.getElementById('slotPackagesBody');
   const { data, error } = await supabaseClient
@@ -5408,7 +5409,6 @@ async function toggleSlotValidity(el){
 }
 
 async function loadCreditsTab(){
-  loadSlotValidityToggle();
   loadPendingPayments();
   await loadSlotData();
   document.getElementById('creditsBody').innerHTML =
