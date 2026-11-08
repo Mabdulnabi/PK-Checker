@@ -477,6 +477,13 @@
   .cr-btn:hover{filter:brightness(.92);}
   .cr-btn-ok{background:var(--ok);}
   .cr-btn-danger{background:var(--danger);}
+  .cr-btn-ghost{background:var(--paper-soft);color:var(--ink-soft);border:1.5px solid var(--paper-line);}
+  .qc-box{max-width:460px;width:100%;text-align:right;padding:22px 24px;}
+  .qc-box .cr-field{margin-bottom:14px;}
+  .qc-head{margin-bottom:18px;}
+  .qc-title{font-family:'Cairo',sans-serif;font-weight:800;font-size:15px;color:var(--navy);margin-bottom:3px;}
+  .qc-sub{font-size:12px;color:var(--muted);}
+  .qc-box .cr-form-actions{margin-top:6px;}
   @media (max-width:900px){
     .cr-span-3,.cr-span-4,.cr-span-5,.cr-span-6{grid-column:span 12;}
     .cr-form-actions{justify-content:stretch;}
@@ -4026,41 +4033,53 @@ function formatDate(dateStr){
     </div>
   </div>
 
-  <!-- QUICK ADD/DEDUCT CREDIT POPUP -->
+  <!-- QUICK ADD/DEDUCT CHECKS POPUP (same form logic as the Checks tab) -->
   <div class="adm-modal-overlay" id="qcOverlay">
-    <div class="adm-modal-box" id="qcBox" style="max-width:420px;">
-      <div class="adm-modal-icon">💳</div>
-      <div class="adm-modal-msg" data-i18n="qc_title">تعديل رصيد العميل</div>
-
-      <input class="adm-modal-input" id="qcPkInput" type="number" min="1" data-i18n-ph="qc_pk_ph" placeholder="كود PK الخاص بالعميل" dir="rtl" oninput="qcLookupPk()">
-      <div id="qcUserPreview" style="margin-bottom:12px;"></div>
-
-      <div class="qc-mode-tabs" id="qcModeTabs">
-        <button type="button" class="qc-mode-btn on" data-mode="value" onclick="qcSetMode('value')" data-i18n="qc_mode_value">قيمة</button>
-        <button type="button" class="qc-mode-btn" data-mode="package" onclick="qcSetMode('package')" data-i18n="qc_mode_package">باقة</button>
+    <div class="adm-modal-box qc-box" id="qcBox">
+      <div class="qc-head">
+        <div class="qc-title">⚡ تعديل فحوصات العميل</div>
+        <div class="qc-sub">أضف أو اخصم بالباقة، أو على شراء محدد للعميل</div>
       </div>
 
-      <div id="qcValuePane">
-        <input class="adm-modal-input" id="qcAmountInput" type="number" min="1" data-i18n-ph="qc_amount_ph" placeholder="عدد الفحوصات" dir="rtl">
-        <input class="adm-modal-input" id="qcNoteInput" type="text" data-i18n-ph="qc_note_ph" placeholder="ملاحظة (اختياري)" dir="rtl" style="margin-top:-6px;">
-        <div class="adm-modal-btns">
-          <button class="adm-modal-ok qc-btn-add" style="background:var(--ok);" onclick="qcSubmitValue('add')" data-i18n="qc_add_btn">➕ إضافة</button>
-          <button class="adm-modal-ok qc-btn-deduct" style="background:var(--danger);" onclick="qcSubmitValue('deduct')" data-i18n="qc_deduct_btn">➖ خصم</button>
+      <div class="cr-field">
+        <label>كود العميل (PK)</label>
+        <input type="number" id="qcPkInput" placeholder="مثال: 1" min="1" oninput="qcLookupPk()">
+        <div id="qcUserPreview" class="cr-user-preview"></div>
+      </div>
+
+      <div class="cr-field">
+        <label>الباقة</label>
+        <select id="qcPackageSelect" onchange="qcUpdateHint()"></select>
+      </div>
+
+      <div class="cr-field">
+        <label>شراء محدد للعميل <span class="cr-optional">(اختياري)</span></label>
+        <select id="qcGrantSelect" onchange="qcGrantChanged()"><option value="">— حسب نوع الباقة (الأقرب انتهاءً) —</option></select>
+      </div>
+
+      <div class="cr-field" id="qcExtendGroup" style="display:none;">
+        <label>تمديد الشراء حتى تاريخ</label>
+        <div class="cr-inline">
+          <input type="date" id="qcExtendDate">
+          <button class="btn btn-ghost" onclick="qcExtend()">تمديد</button>
         </div>
       </div>
 
-      <div id="qcPackagePane" style="display:none;text-align:right;">
-        <select class="adm-modal-input qc-pack-select" id="qcPackageSelect" dir="rtl" onchange="qcPackageSelected()">
-          <option value="" data-i18n="qc_pack_select_ph">-- اختر باقة --</option>
-        </select>
-        <div id="qcPackagePreview" class="qc-pack-preview" style="display:none;"></div>
-        <div class="adm-modal-btns">
-          <button class="adm-modal-ok qc-btn-add" id="qcChargePackBtn" style="background:var(--ok);" onclick="qcChargeSelectedPackage()" disabled data-i18n="qc_charge_pack_btn">💳 شحن الباقة</button>
-        </div>
+      <div class="cr-field">
+        <label id="qcAmountLbl">عدد الباقات</label>
+        <input type="number" id="qcAmountInput" placeholder="مثال: 1" min="1" oninput="qcUpdateHint()">
+        <div id="qcAmountHint" class="cr-amount-hint"></div>
       </div>
 
-      <div class="adm-modal-btns" style="margin-top:14px;">
-        <button class="adm-modal-cancel qc-btn-cancel" onclick="qcClose()" data-i18n="qc_cancel_btn">إلغاء</button>
+      <div class="cr-field">
+        <label>ملاحظة (اختياري)</label>
+        <input type="text" id="qcNoteInput" placeholder="سبب التعديل...">
+      </div>
+
+      <div class="cr-form-actions">
+        <button class="cr-btn cr-btn-ghost" onclick="qcClose()">إلغاء</button>
+        <button class="cr-btn cr-btn-danger" onclick="qcSubmitValue('deduct')">➖ خصم</button>
+        <button class="cr-btn cr-btn-ok" onclick="qcSubmitValue('add')">➕ إضافة</button>
       </div>
     </div>
   </div>
@@ -5615,23 +5634,31 @@ async function crLookupUser(){
 }
 
 // ── Admin adjust credit ──
-async function loadCrPackageOptions(){
-  const sel = document.getElementById('crPackageSelect');
+// Two forms use this logic: the Checks tab form (CR_FORM) and the header popup (QC_FORM).
+const CR_FORM = { pkg: 'crPackageSelect', grant: 'crGrantSelect', amount: 'crAmountInput', note: 'crNoteInput',
+                  extendDate: 'crExtendDate', extendGroup: 'crExtendGroup', hint: 'crAmountHint', lbl: 'crAmountLbl' };
+const QC_FORM = { pkg: 'qcPackageSelect', grant: 'qcGrantSelect', amount: 'qcAmountInput', note: 'qcNoteInput',
+                  extendDate: 'qcExtendDate', extendGroup: 'qcExtendGroup', hint: 'qcAmountHint', lbl: 'qcAmountLbl' };
+const GRANT_PLACEHOLDER = '<option value="">— حسب نوع الباقة (الأقرب انتهاءً) —</option>';
+
+async function loadCrPackageOptions(F = CR_FORM){
+  const sel = document.getElementById(F.pkg);
   if (!sel) return;
   const { data } = await supabaseClient.from('slot_packages')
-    .select('id, name_ar, slots, slot_type, expiry_days').eq('is_active', true).order('sort_order');
+    .select('id, name_ar, slots, slot_type').eq('is_active', true).order('sort_order');
   sel.innerHTML = (data || []).map(p =>
     `<option value="${p.id}" data-slots="${p.slots}" data-type="${p.slot_type}">${escapeHtml(p.name_ar)} — ${p.slots} فحص (${p.slot_type === 'plag_only' ? 'Plag' : 'Plag + AI'})</option>`
   ).join('');
-  crUpdateAmountHint();
+  formUpdateHint(F);
 }
 
-async function loadCrGrants(userId){
-  const sel = document.getElementById('crGrantSelect');
+// The customer's purchases. Expired ones are shown in red, with their end date.
+async function loadCrGrants(userId, F = CR_FORM){
+  const sel = document.getElementById(F.grant);
   if (!sel) return;
   const { data } = await supabaseClient.rpc('admin_customer_grants', { p_user_id: userId });
   const rows = Array.isArray(data) ? data : [];
-  sel.innerHTML = '<option value="">— حسب نوع الباقة (الأقرب انتهاءً) —</option>' + rows.map(g => {
+  sel.innerHTML = GRANT_PLACEHOLDER + rows.map(g => {
     const type = g.slot_type === 'plag_only' ? 'Plag' : 'Plag + AI';
     const expired = !!g.expires_at && new Date(g.expires_at) <= new Date();
     const endDate = g.expires_at ? new Date(g.expires_at).toLocaleDateString('ar-EG') : '';
@@ -5641,29 +5668,16 @@ async function loadCrGrants(userId){
     const style = expired ? ' style="color:#E0445B;font-weight:700;"' : '';
     return `<option value="${g.grant_id}" data-expires="${g.expires_at || ''}"${style}>${label}</option>`;
   }).join('');
-  crGrantChanged();
+  formGrantChanged(F);
 }
-// Shows what the amount means: packages x slots, or checks of the chosen purchase.
-function crUpdateAmountHint(){
-  const hint = document.getElementById('crAmountHint');
-  if (!hint) return;
-  const count = parseInt(document.getElementById('crAmountInput')?.value);
-  if (!count || count < 1) { hint.textContent = ''; return; }
-  if (document.getElementById('crGrantSelect')?.value) {
-    hint.textContent = `= ${count} فحص من الشراء المحدد`;
-    return;
-  }
-  const opt = document.getElementById('crPackageSelect')?.selectedOptions[0];
-  const pkgSlots = Number(opt?.dataset.slots || 0);
-  hint.textContent = pkgSlots ? `= ${count} × ${pkgSlots} = ${count * pkgSlots} فحص` : '';
-}
-function crGrantChanged(){
-  const gSel = document.getElementById('crGrantSelect');
+
+// A specific purchase is chosen: the package is locked and the count means checks.
+function formGrantChanged(F = CR_FORM){
+  const gSel = document.getElementById(F.grant);
   const targeted = !!gSel?.value;
-  // A purchase with an end date can be extended; lifetime purchases cannot.
   const expires = gSel?.selectedOptions[0]?.dataset.expires || '';
-  const extendGroup = document.getElementById('crExtendGroup');
-  const extendDate = document.getElementById('crExtendDate');
+  const extendGroup = document.getElementById(F.extendGroup);
+  const extendDate = document.getElementById(F.extendDate);
   if (extendGroup) extendGroup.style.display = expires ? '' : 'none';
   if (extendDate && expires) {
     const d = new Date(expires);
@@ -5671,23 +5685,98 @@ function crGrantChanged(){
     extendDate.value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
     extendDate.min = extendDate.value;
   }
-  const lbl = document.getElementById('crAmountLbl');
+  const lbl = document.getElementById(F.lbl);
   if (lbl) lbl.textContent = targeted ? 'عدد الفحوصات' : 'عدد الباقات';
-  const pkg = document.getElementById('crPackageSelect');
+  const pkg = document.getElementById(F.pkg);
   if (pkg) pkg.disabled = targeted;
-  crUpdateAmountHint();
+  formUpdateHint(F);
 }
 
-async function adminExtendGrant(){
-  const grantId = document.getElementById('crGrantSelect')?.value || '';
-  const dateVal = document.getElementById('crExtendDate')?.value || '';
+// Shows what the amount means: packages x slots, or checks of the chosen purchase.
+function formUpdateHint(F = CR_FORM){
+  const hint = document.getElementById(F.hint);
+  if (!hint) return;
+  const count = parseInt(document.getElementById(F.amount)?.value);
+  if (!count || count < 1) { hint.textContent = ''; return; }
+  if (document.getElementById(F.grant)?.value) { hint.textContent = `= ${count} فحص من الشراء المحدد`; return; }
+  const opt = document.getElementById(F.pkg)?.selectedOptions[0];
+  const pkgSlots = Number(opt?.dataset.slots || 0);
+  hint.textContent = pkgSlots ? `= ${count} × ${pkgSlots} = ${count * pkgSlots} فحص` : '';
+}
+
+// One adjustment from a form. Returns { ok, slots, name } or { ok:false, error, validation }.
+async function adjustCredit(action, F = CR_FORM){
+  if (!crUserFound) return { ok: false, validation: true, error: 'ابحث أولاً عن مستخدم بكود PK' };
+  const count = parseInt(document.getElementById(F.amount).value);
+  if (!count || count < 1) return { ok: false, validation: true, error: 'أدخل عدد صحيح (أكبر من 0)' };
+  const note = (document.getElementById(F.note).value || '').trim() || null;
+  const grantId = document.getElementById(F.grant)?.value || '';
+  const name = crUserFound.full_name || 'المستخدم';
+  let res, slotsDone;
+  if (grantId) {
+    // A specific purchase: the count is in checks; that purchase's package and end date apply.
+    res = action === 'add'
+      ? await supabaseClient.rpc('admin_add_to_grant', { p_grant_id: grantId, p_count: count, p_note: note })
+      : await supabaseClient.rpc('admin_deduct_from_grant', { p_grant_id: grantId, p_count: count, p_note: note });
+    slotsDone = count;
+  } else {
+    const opt = document.getElementById(F.pkg)?.selectedOptions[0];
+    const pkgId = opt?.value || '';
+    if (!pkgId) return { ok: false, validation: true, error: 'اختار الباقة الأول' };
+    const pkgSlots = Number(opt.dataset.slots || 0);
+    const slotType = opt.dataset.type || 'plag_ai';
+    if (action === 'add') {
+      res = await supabaseClient.rpc('admin_grant_package', {
+        p_user_id: crUserFound.user_id, p_package_id: pkgId, p_count: count, p_note: note,
+      });
+    } else {
+      res = await supabaseClient.rpc('admin_deduct_slots', {
+        p_user_id: crUserFound.user_id, p_slot_type: slotType, p_count: count * pkgSlots, p_note: note,
+      });
+    }
+    slotsDone = count * pkgSlots;
+  }
+  if (res.error) return { ok: false, error: res.error.message };
+  return { ok: true, slots: res.data?.slots ?? slotsDone, name };
+}
+
+async function adminAdjustCredit(action){
+  const banner = document.getElementById('crAdjBanner');
+  const r = await adjustCredit(action, CR_FORM);
+  if (!r.ok) {
+    if (r.validation) { await adminAlert(r.error, {icon:'⚠️'}); return; }
+    banner.className = 'cr-save-banner err';
+    banner.textContent = '❌ فشل: ' + r.error;
+    banner.style.display = 'block';
+    return;
+  }
+  document.getElementById('crPkInput').value = '';
+  document.getElementById('crAmountInput').value = '';
+  document.getElementById('crNoteInput').value = '';
+  document.getElementById('crUserPreview').innerHTML = '';
+  crUserFound = null;
+  document.getElementById('crGrantSelect').innerHTML = GRANT_PLACEHOLDER;
+  formGrantChanged(CR_FORM);
+  banner.className = 'cr-save-banner ok';
+  banner.textContent = action === 'add'
+    ? `✅ تمت إضافة ${r.slots} فحص لـ ${r.name}.`
+    : `✅ تم خصم ${r.slots} فحص من ${r.name}.`;
+  banner.style.display = 'block';
+  toast(banner.textContent, 'success');
+  setTimeout(() => { banner.style.display = 'none'; }, 5000);
+  loadCreditsTab();
+}
+
+async function adminExtendGrant(F = CR_FORM){
+  const grantId = document.getElementById(F.grant)?.value || '';
+  const dateVal = document.getElementById(F.extendDate)?.value || '';
   if (!grantId) { await adminAlert('اختار الشراء الأول', {icon:'⚠️'}); return; }
   if (!dateVal) { await adminAlert('اختار التاريخ الجديد', {icon:'⚠️'}); return; }
   const newExp = new Date(dateVal + 'T23:59:59');
   const ok = await adminConfirm('هيتمدد الشراء لحد ' + newExp.toLocaleDateString('ar-EG') + '. متأكد؟',
     { icon: '⚠️', confirmLabel: 'تمديد' });
   if (!ok) return;
-  const note = document.getElementById('crNoteInput')?.value.trim() || '';
+  const note = document.getElementById(F.note)?.value.trim() || '';
   const { error } = await supabaseClient.rpc('admin_extend_grant', {
     p_grant_id: grantId, p_new_expires: newExp.toISOString(), p_note: note || null,
   });
@@ -5698,70 +5787,16 @@ async function adminExtendGrant(){
     return;
   }
   await adminAlert('تم تمديد الشراء', {icon:'✅'});
-  if (crUserFound) loadCrGrants(crUserFound.user_id);
+  if (crUserFound) loadCrGrants(crUserFound.user_id, F);
 }
 
-async function adminAdjustCredit(action){
-  // Adjustments are by package: "add" grants the chosen package N times (its own validity applies),
-  // "deduct" removes the slots of N packages of the same type. Every change is logged.
-  if (!crUserFound) { await adminAlert('ابحث أولاً عن مستخدم بكود PK', {icon:'⚠️'}); return; }
-  const count = parseInt(document.getElementById('crAmountInput').value);
-  if (!count || count < 1) { await adminAlert('أدخل عدد صحيح (أكبر من 0)', {icon:'⚠️'}); return; }
-  const note = document.getElementById('crNoteInput').value.trim();
-  const banner = document.getElementById('crAdjBanner');
-  const grantId = document.getElementById('crGrantSelect')?.value || '';
-  let res, slotsDone;
-  if (grantId) {
-    // A specific purchase: the count is in checks, and the purchase's own package and end date apply.
-    res = action === 'add'
-      ? await supabaseClient.rpc('admin_add_to_grant', { p_grant_id: grantId, p_count: count, p_note: note || null })
-      : await supabaseClient.rpc('admin_deduct_from_grant', { p_grant_id: grantId, p_count: count, p_note: note || null });
-    slotsDone = count;
-  } else {
-    const opt = document.getElementById('crPackageSelect')?.selectedOptions[0];
-    const pkgId = opt?.value || '';
-    if (!pkgId) { await adminAlert('اختار الباقة الأول', {icon:'⚠️'}); return; }
-    const pkgSlots = Number(opt.dataset.slots || 0);
-    const slotType = opt.dataset.type || 'plag_ai';
-    if (action === 'add') {
-      res = await supabaseClient.rpc('admin_grant_package', {
-        p_user_id: crUserFound.user_id, p_package_id: pkgId, p_count: count, p_note: note || null,
-      });
-    } else {
-      res = await supabaseClient.rpc('admin_deduct_slots', {
-        p_user_id: crUserFound.user_id, p_slot_type: slotType, p_count: count * pkgSlots, p_note: note || null,
-      });
-    }
-    slotsDone = count * pkgSlots;
-  }
+// Checks-tab wrappers
+function crGrantChanged(){ formGrantChanged(CR_FORM); }
+function crUpdateAmountHint(){ formUpdateHint(CR_FORM); }
 
-  if (res.error) {
-    banner.className = 'cr-save-banner err';
-    banner.textContent = '❌ فشل: ' + res.error.message;
-    banner.style.display = 'block';
-    return;
-  }
+// Shows what the amount means: packages x slots, or checks of the chosen purchase.
 
-  const adjustedUserName = crUserFound?.full_name || 'المستخدم';
-  document.getElementById('crPkInput').value = '';
-  document.getElementById('crAmountInput').value = '';
-  document.getElementById('crNoteInput').value = '';
-  document.getElementById('crUserPreview').innerHTML = '';
-  crUserFound = null;
-  const grantSel = document.getElementById('crGrantSelect');
-  if (grantSel) grantSel.innerHTML = '<option value="">— حسب نوع الباقة (الأقرب انتهاءً) —</option>';
-  crGrantChanged();
 
-  const slots = res.data?.slots ?? slotsDone;
-  banner.className = 'cr-save-banner ok';
-  banner.textContent = action === 'add'
-    ? `✅ تمت إضافة ${slots} فحص لـ ${adjustedUserName}.`
-    : `✅ تم خصم ${slots} فحص من ${adjustedUserName}.`;
-  banner.style.display = 'block';
-  toast(banner.textContent, 'success');
-  setTimeout(()=>{ banner.style.display='none'; }, 5000);
-  loadCreditsTab();
-}
 
 /* ================================================================
    USERS TAB
@@ -7130,7 +7165,6 @@ window.adminAdjustCredit = async function(action){
 /* ================================================================
    FEATURE 8: TOOLBAR QUICK ACTIONS (add credit / broadcast)
    ================================================================ */
-let qcPacksCache = null;
 
 // Slot data shared by the admin tabs: remaining slots per customer, slots per package key.
 let slotBalanceByUser = {};
@@ -7157,13 +7191,12 @@ function slotsOfPayment(p){
 let qcLookupTimerToolbar = null;
 
 async function qaAddCredit(){
-  document.getElementById('qcPkInput').value = '';
-  document.getElementById('qcAmountInput').value = '';
-  document.getElementById('qcNoteInput').value = '';
+  ['qcPkInput', 'qcAmountInput', 'qcNoteInput'].forEach(id => { document.getElementById(id).value = ''; });
   document.getElementById('qcUserPreview').innerHTML = '';
   crUserFound = null;
-  if (qcPacksCache) qcRenderPackageOptions(); // reset dropdown to placeholder if already loaded
-  qcSetMode('value');
+  document.getElementById('qcGrantSelect').innerHTML = GRANT_PLACEHOLDER;
+  loadCrPackageOptions(QC_FORM);
+  formGrantChanged(QC_FORM);
   document.getElementById('qcOverlay').classList.add('open');
   setTimeout(() => document.getElementById('qcPkInput').focus(), 100);
 }
@@ -7172,18 +7205,15 @@ function qcClose(){
   document.getElementById('qcOverlay').classList.remove('open');
 }
 
-function qcSetMode(mode){
-  document.querySelectorAll('#qcModeTabs .qc-mode-btn').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
-  document.getElementById('qcValuePane').style.display   = mode === 'value'   ? 'block' : 'none';
-  document.getElementById('qcPackagePane').style.display = mode === 'package' ? 'block' : 'none';
-  if (mode === 'package') qcLoadPackages();
-}
+function qcUpdateHint(){ formUpdateHint(QC_FORM); }
+function qcGrantChanged(){ formGrantChanged(QC_FORM); }
+function qcExtend(){ return adminExtendGrant(QC_FORM); }
 
-// Live-linked PK lookup — queries the already-loaded profile map (kept in sync with the DB)
+// Live PK lookup: the customer's packages and purchases load into this popup.
 async function qcLookupPk(){
   clearTimeout(qcLookupTimerToolbar);
   const raw = document.getElementById('qcPkInput').value;
-  const pk  = parseInt(String(raw).replace(/[^0-9]/g, '')); // tolerate stray "PK"/spaces
+  const pk = parseInt(String(raw).replace(/[^0-9]/g, ''));
   const prev = document.getElementById('qcUserPreview');
   crUserFound = null;
   if (!pk || pk < 1) { prev.innerHTML = ''; return; }
@@ -7196,116 +7226,23 @@ async function qcLookupPk(){
       return;
     }
     crUserFound = found;
-    const { data: bal } = await supabaseClient
-      .from('wallet_transactions').select('balance_after')
-      .eq('user_id', found.user_id).order('created_at',{ascending:false}).limit(1);
-    const credits = slotTotal(found.user_id);
-    const badge = `<span class="cr-found-badge">${t('qc_found')} ${escapeHtml(found.full_name)} — ${credits}</span>`;
-    prev.innerHTML = badge;
-    const crUserPreview = document.getElementById('crUserPreview');
-    if (crUserPreview) crUserPreview.innerHTML = badge; // keep Credits tab in sync too
-    const crPkInput = document.getElementById('crPkInput');
-    if (crPkInput) crPkInput.value = pk;
+    prev.innerHTML = `<span class="cr-found-badge">${t('qc_found')} ${escapeHtml(found.full_name)} — ${slotTotal(found.user_id)} فحص</span>`;
+    loadCrGrants(found.user_id, QC_FORM);
   }, 350);
 }
 
 async function qcSubmitValue(action){
-  if (!crUserFound) { await adminAlert(t('qc_pk_required'), {icon:'⚠️'}); return; }
-  const amount = parseInt(document.getElementById('qcAmountInput').value);
-  if (!amount || amount < 1) { await adminAlert(t('qc_amount_required'), {icon:'⚠️'}); return; }
-
-  document.getElementById('crAmountInput').value = amount;
-  document.getElementById('crNoteInput').value = document.getElementById('qcNoteInput').value.trim();
-
-  const wasUser = crUserFound;
-  await adminAdjustCredit(action); // does the DB write, logs to activity log, refreshes Credits tab
-
-  if (crUserFound === null && wasUser) {
-    // adminAdjustCredit clears crUserFound only on success
-    document.getElementById('qcAmountInput').value = '';
-    document.getElementById('qcNoteInput').value = '';
-    qcClose();
-    await adminAlert(t(action === 'add' ? 'qc_success_add' : 'qc_success_deduct'), {icon:'✅'});
-  } else {
-    const banner = document.getElementById('crAdjBanner');
-    await adminAlert((banner && banner.textContent) || t('qc_amount_required'), {icon:'❌', danger:true});
-  }
-}
-
-// Packages come from the `packages` table (single source of truth shared with the storefront)
-async function qcLoadPackages(){
-  const select = document.getElementById('qcPackageSelect');
-  if (!qcPacksCache) {
-    select.innerHTML = `<option value="">${t('qc_packs_loading')}</option>`;
-    const { data: spRows, error } = await supabaseClient.from('slot_packages').select('id, name_ar, name_en, slots, sort_order').eq('is_active', true).eq('slot_type', 'plag_ai').order('sort_order');
-    const data = (spRows || []).map(x => ({ id: x.id, name_ar: x.name_ar, name_en: x.name_en, credits: x.slots }));
-    if (error) {
-      console.error('qcLoadPackages:', error);
-      select.innerHTML = `<option value="">${escapeHtml(error.message)}</option>`;
-      return;
-    }
-    qcPacksCache = data || [];
-  }
-  qcRenderPackageOptions();
-}
-
-function qcRenderPackageOptions(){
-  const select = document.getElementById('qcPackageSelect');
-  const list = qcPacksCache || [];
-  const optLabel = (p) => {
-    const name  = currentLang === 'ar' ? p.name_ar : p.name_en;
-    const price = currentCurrency === 'USD' ? `$${p.price_usd}` : `${p.price_egp} ${currentLang==='ar'?'ج.م':'EGP'}`;
-    return `${name} — ${price} — ${p.credits} ${t('qc_credits_unit')}`;
-  };
-  const topup = list.filter(p => p.type === 'topup');
-  const daily = list.filter(p => p.type === 'daily');
-  let html = `<option value="">${t('qc_pack_select_ph')}</option>`;
-  if (!list.length) {
-    html += `<option value="" disabled>${t('qc_packs_empty')}</option>`;
-  } else {
-    if (topup.length) html += `<optgroup label="${t('qc_packs_topup')}">` + topup.map(p => `<option value="${p.id}">${escapeHtml(optLabel(p))}</option>`).join('') + `</optgroup>`;
-    if (daily.length) html += `<optgroup label="${t('qc_packs_daily')}">` + daily.map(p => `<option value="${p.id}">${escapeHtml(optLabel(p))}</option>`).join('') + `</optgroup>`;
-  }
-  select.innerHTML = html;
-  document.getElementById('qcPackagePreview').style.display = 'none';
-  document.getElementById('qcChargePackBtn').disabled = true;
-}
-
-function qcPackageSelected(){
-  const id = document.getElementById('qcPackageSelect').value;
-  const preview = document.getElementById('qcPackagePreview');
-  const btn = document.getElementById('qcChargePackBtn');
-  const pack = (qcPacksCache || []).find(p => p.id === id);
-  if (!pack) { preview.style.display = 'none'; btn.disabled = true; return; }
-  const name  = currentLang === 'ar' ? pack.name_ar : pack.name_en;
-  const price = currentCurrency === 'USD' ? `$${pack.price_usd}` : `${pack.price_egp} ${currentLang==='ar'?'ج.م':'EGP'}`;
-  preview.innerHTML = `
-    <div><div class="qc-pack-name">${escapeHtml(name)}</div><div class="qc-pack-meta">${price}</div></div>
-    <div class="qc-pack-credits">${pack.credits}<small>${t('qc_credits_unit')}</small></div>`;
-  preview.style.display = 'flex';
-  btn.disabled = false;
-}
-
-async function qcChargeSelectedPackage(){
-  if (!crUserFound) { await adminAlert(t('qc_pk_required'), {icon:'⚠️'}); return; }
-  const id = document.getElementById('qcPackageSelect').value;
-  const pack = (qcPacksCache || []).find(p => p.id === id);
-  if (!pack) return;
-  const name = currentLang === 'ar' ? pack.name_ar : pack.name_en;
-
-  document.getElementById('crAmountInput').value = 1;
-  document.getElementById('crNoteInput').value = (currentLang === 'ar' ? 'شحن باقة: ' : 'Package charge: ') + name;
-
-  const wasUser = crUserFound;
-  await adminAdjustCredit('add');
-
-  if (crUserFound === null && wasUser) {
-    qcClose();
-    await adminAlert(t('qc_pack_charge_success'), {icon:'✅'});
-  } else {
-    const banner = document.getElementById('crAdjBanner');
-    await adminAlert((banner && banner.textContent) || t('qc_amount_required'), {icon:'❌', danger:true});
-  }
+  if (!crUserFound) { await adminAlert('ابحث أولاً عن العميل بكود PK', {icon:'⚠️'}); return; }
+  const r = await adjustCredit(action, QC_FORM);
+  if (!r.ok) { await adminAlert(r.error, {icon:'❌', danger:true}); return; }
+  ['qcPkInput', 'qcAmountInput', 'qcNoteInput'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('qcUserPreview').innerHTML = '';
+  crUserFound = null;
+  qcClose();
+  loadCreditsTab();
+  await adminAlert(action === 'add'
+    ? `✅ تمت إضافة ${r.slots} فحص لـ ${r.name}.`
+    : `✅ تم خصم ${r.slots} فحص من ${r.name}.`, {icon:'✅'});
 }
 
 function qaSendBroadcast(){
