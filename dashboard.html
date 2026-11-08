@@ -1867,6 +1867,11 @@
   else if (choice !== 'no') document.addEventListener('DOMContentLoaded', banner);
 })();
 </script>
+<link rel="manifest" href="/dashboard-manifest.json">
+<meta name="theme-color" content="#1B2556">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PK Checker">
+<link rel="apple-touch-icon" href="/admin-icon-192.png">
 </head>
 <body>
 
@@ -2550,6 +2555,17 @@
 
     <!-- ============ MY PROFILE ============ -->
     <div class="tabpane" id="pane-my-profile" style="display:none;">
+      <div id="pushCard" style="background:var(--paper);border:1px solid var(--paper-line);border-radius:14px;padding:18px 20px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+          <div style="width:40px;height:40px;border-radius:12px;background:var(--blue-wash);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none;">🔔</div>
+          <div style="flex:1;min-width:200px;">
+            <div id="pushCardTitle" style="font-weight:800;font-size:14px;color:var(--navy);">الإشعارات</div>
+            <div id="pushCardDesc" style="font-size:12px;color:var(--muted);line-height:1.7;margin-top:3px;"></div>
+          </div>
+          <button id="pushToggleBtn" type="button" onclick="togglePushCustomer()" style="padding:9px 18px;border-radius:10px;border:none;background:var(--blue);color:#fff;font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer;flex:none;">تفعيل</button>
+        </div>
+        <div id="pushCardNote" style="font-size:11.5px;color:var(--muted);line-height:1.7;margin-top:12px;"></div>
+      </div>
 
       <!-- Single merged card -->
       <div class="panel-block">
@@ -5081,6 +5097,7 @@ document.addEventListener('click', (e)=>{
    Old pane exits (pane-exiting, 0.22s), then new pane enters (pane-entering, 0.22s). */
 let _goTabLock = false;
 function goTab(tab, persist = true){
+  if (tab === 'my-profile' && typeof renderPushCard === 'function') setTimeout(renderPushCard, 0);
   if(_goTabLock) return;
   const currentPane = document.querySelector('.tabpane[style*="block"]') ||
                       document.querySelector('.tabpane.pane-entering') ||
@@ -10016,6 +10033,85 @@ if(typeof PK !== 'undefined'){
 }
 
 })();
+
+// ---- Push notifications in My Account ----
+const PUSH_KEY_FN = 'https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/admin-push';
+const PUSH_SUPPORTED = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+const PUSH_IOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+const PUSH_STANDALONE = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+function pushKeyBytes(b64u){
+  const pad = '='.repeat((4 - b64u.length % 4) % 4);
+  const raw = atob((b64u + pad).replace(/-/g, '+').replace(/_/g, '/'));
+  return Uint8Array.from(raw, c => c.charCodeAt(0));
+}
+async function pushRegistration(){
+  if (!('serviceWorker' in navigator)) return null;
+  try { return await navigator.serviceWorker.register('/sw.js'); } catch (e) { return null; }
+}
+function pushLangAr(){ return currentLang !== 'en'; }
+async function renderPushCard(){
+  const card = document.getElementById('pushCard');
+  if (!card) return;
+  const ar = pushLangAr();
+  document.getElementById('pushCardTitle').textContent = ar ? 'الإشعارات' : 'Notifications';
+  document.getElementById('pushCardDesc').textContent = ar
+    ? 'هيوصلك إشعار على الجهاز ده لما الفحص يخلص أو يحصل فيه مشكلة، ولما يتأكد شحن رصيدك، ولما الدعم يرد عليك في الشات أو التذاكر. الإشعار بيوصل حتى لو الموقع مقفول. تقدر توقفه في أي وقت من الزرار ده.'
+    : 'You get a notification on this device when your check finishes or has a problem, when a top-up is confirmed, and when support replies in chat or tickets. It arrives even when the site is closed. Turn it off any time with this button.';
+  const btn = document.getElementById('pushToggleBtn');
+  const note = document.getElementById('pushCardNote');
+  if (!PUSH_SUPPORTED) {
+    btn.disabled = true; btn.textContent = ar ? 'غير مدعوم' : 'Not supported';
+    note.textContent = ar ? 'المتصفح ده مش بيدعم الإشعارات.' : 'This browser does not support notifications.';
+    return;
+  }
+  if (PUSH_IOS && !PUSH_STANDALONE) {
+    btn.disabled = true; btn.textContent = ar ? 'أضف للشاشة' : 'Add to Home Screen';
+    note.textContent = ar
+      ? 'على الآيفون لازم تضيف الموقع للشاشة الرئيسية الأول: من زرار المشاركة ← إضافة إلى الشاشة الرئيسية، وبعدين تفتحه من الأيقونة وتفعّل الإشعارات.'
+      : 'On iPhone, first add the site to your Home Screen: Share ← Add to Home Screen. Then open it from the icon and turn notifications on.';
+    return;
+  }
+  btn.disabled = false;
+  const reg = await pushRegistration();
+  const sub = reg ? await reg.pushManager.getSubscription() : null;
+  btn.textContent = sub ? (ar ? 'إيقاف' : 'Turn off') : (ar ? 'تفعيل' : 'Turn on');
+  btn.style.background = sub ? 'var(--paper-soft)' : 'var(--blue)';
+  btn.style.color = sub ? 'var(--ink-soft)' : '#fff';
+  btn.style.border = sub ? '1.5px solid var(--paper-line)' : 'none';
+  note.textContent = sub
+    ? (ar ? 'الإشعارات مفعّلة على الجهاز ده.' : 'Notifications are on for this device.')
+    : (ar ? 'الإشعارات مش مفعّلة على الجهاز ده.' : 'Notifications are off for this device.');
+}
+async function togglePushCustomer(){
+  const ar = pushLangAr();
+  const reg = await pushRegistration();
+  if (!reg) return;
+  const sub = await reg.pushManager.getSubscription();
+  if (sub) {
+    await supabaseClient.from('customer_push_subscriptions').delete().eq('endpoint', sub.endpoint);
+    await sub.unsubscribe();
+    await renderPushCard();
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') {
+    await appAlert(ar ? 'لازم تسمح بالإشعارات من المتصفح عشان توصلك.' : 'Please allow notifications in your browser.', { icon: 'warning' });
+    return;
+  }
+  try {
+    const { publicKey } = await (await fetch(PUSH_KEY_FN)).json();
+    const created = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: pushKeyBytes(publicKey) });
+    const j = created.toJSON();
+    const { error } = await supabaseClient.from('customer_push_subscriptions')
+      .upsert({ endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth, lang: ar ? 'ar' : 'en' }, { onConflict: 'endpoint' });
+    if (error) throw error;
+    await renderPushCard();
+    await appAlert(ar ? 'تم تفعيل الإشعارات على الجهاز ده.' : 'Notifications are on for this device.', { icon: 'success' });
+  } catch (e) {
+    await appAlert((ar ? 'تعذّر تفعيل الإشعارات: ' : 'Could not turn notifications on: ') + (e.message || e), { icon: 'error' });
+  }
+}
+pushRegistration().then(renderPushCard);
 </script>
 </body>
 </html>
