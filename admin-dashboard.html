@@ -656,6 +656,11 @@
 </style>
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
 <script defer src="/_vercel/insights/script.js"></script>
+<link rel="manifest" href="/admin-manifest.json">
+<meta name="theme-color" content="#1B2556">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PK Admin">
+<link rel="apple-touch-icon" href="/admin-icon-192.png">
 </head>
 <body>
 
@@ -746,6 +751,7 @@
             <div class="admin-menu-item" onclick="toggleDarkMode()"><span class="ami-ic">🌙</span><span class="ami-label" id="darkToggleBtn" data-i18n="dark_mode_btn">وضع ليلي</span></div>
             <div class="admin-menu-item" onclick="toggleAdminMenu(false);qaSendBroadcast()"><span class="ami-ic">📢</span><span class="ami-label" data-i18n="broadcast_btn" data-i18n-title="broadcast_title">رسالة</span></div>
             <div class="admin-menu-item" onclick="toggleAdminMenu(false);qaAddCredit()"><span class="ami-ic">💳</span><span class="ami-label" data-i18n="add_credit_btn" data-i18n-title="add_credit_title">إضافة فحص</span></div>
+            <div class="admin-menu-item" id="pushMenuItem" onclick="toggleAdminMenu(false);togglePushNotifications()"><span class="ami-ic">🔔</span><span class="ami-label" id="pushMenuLabel">تفعيل الإشعارات</span></div>
             <div class="admin-menu-divider"></div>
             <div class="admin-menu-item danger" onclick="handleLogout()"><span class="ami-ic">🚪</span><span class="ami-label" data-i18n="logout">تسجيل الخروج</span></div>
           </div>
@@ -7458,5 +7464,62 @@ function toggleDarkMode(){
     if (e.key === 'ArrowRight') pdfPreviewPage(document.documentElement.dir === 'rtl' ? 1 : -1);
   });
 })();
+
+/* ================ ADMIN PUSH NOTIFICATIONS (PWA) ================ */
+const ADMIN_PUSH_FN = 'https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/admin-push';
+const ADMIN_PUSH_SUPPORTED = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+let adminSWReg = null;
+
+async function registerAdminSW(){
+  if (!('serviceWorker' in navigator)) return null;
+  try { adminSWReg = await navigator.serviceWorker.register('/sw.js'); return adminSWReg; }
+  catch (e) { console.error('service worker failed', e); return null; }
+}
+function pushKeyBytes(b64u){
+  const pad = '='.repeat((4 - b64u.length % 4) % 4);
+  const raw = atob((b64u + pad).replace(/-/g, '+').replace(/_/g, '/'));
+  return Uint8Array.from(raw, c => c.charCodeAt(0));
+}
+async function currentPushSub(){
+  if (!adminSWReg) return null;
+  return adminSWReg.pushManager.getSubscription();
+}
+async function refreshPushMenu(){
+  const label = document.getElementById('pushMenuLabel');
+  if (!label) return;
+  const sub = ADMIN_PUSH_SUPPORTED ? await currentPushSub() : null;
+  label.textContent = sub ? 'إيقاف الإشعارات على الجهاز ده' : 'تفعيل الإشعارات';
+}
+async function togglePushNotifications(){
+  if (!ADMIN_PUSH_SUPPORTED) {
+    await adminAlert('المتصفح ده مش بيدعم الإشعارات. على iPhone لازم تضيف الموقع للشاشة الرئيسية الأول (مشاركة ← إضافة إلى الشاشة الرئيسية).', {icon:'ℹ️'});
+    return;
+  }
+  if (!adminSWReg) await registerAdminSW();
+  const existing = await currentPushSub();
+  if (existing) {
+    const { error } = await supabaseClient.from('admin_push_subscriptions').delete().eq('endpoint', existing.endpoint);
+    await existing.unsubscribe();
+    await refreshPushMenu();
+    await adminAlert(error ? 'تم إيقاف الإشعارات على الجهاز، لكن فشل مسح الاشتراك: ' + error.message : 'تم إيقاف الإشعارات على الجهاز ده', {icon: error ? '⚠️' : 'ℹ️'});
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') { await adminAlert('لازم تسمح بالإشعارات من المتصفح عشان توصلك', {icon:'⚠️'}); return; }
+  try {
+    const res = await fetch(ADMIN_PUSH_FN);
+    const { publicKey } = await res.json();
+    const sub = await adminSWReg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: pushKeyBytes(publicKey) });
+    const j = sub.toJSON();
+    const { error } = await supabaseClient.from('admin_push_subscriptions')
+      .upsert({ endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth }, { onConflict: 'endpoint' });
+    if (error) throw error;
+    await refreshPushMenu();
+    await adminAlert('تم تفعيل الإشعارات على الجهاز ده ✅', {icon:'✅'});
+  } catch (e) {
+    await adminAlert('فشل تفعيل الإشعارات: ' + (e.message || e), {icon:'❌', danger:true});
+  }
+}
+registerAdminSW().then(refreshPushMenu);
 </script>
 
