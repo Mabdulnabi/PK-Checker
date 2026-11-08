@@ -1896,7 +1896,11 @@
   }
   var choice = localStorage.getItem(KEY);
   if (choice === 'yes') loadPixel();
-  else if (choice !== 'no') document.addEventListener('DOMContentLoaded', banner);
+  else if (choice !== 'no') document.addEventListener('DOMContentLoaded', function(){
+    // First visit: the guided tour runs first, the banner waits until it ends.
+    if (localStorage.getItem('prokeys-tour-seen-v2')) banner();
+    else window.addEventListener('pk-tour-ended', banner, { once: true });
+  });
 })();
 </script>
 <link rel="manifest" href="/dashboard-manifest.json">
@@ -3194,8 +3198,10 @@ const I18N = {
     tour_skip:"تخطي الجولة", tour_back:"→ السابق", tour_next:"التالي ←", tour_finish:"ابدأ الآن 🚀",
     tour_welcome_title:"أهلاً بك في Pro Keys! 🎉", tour_welcome_desc:"هنريك في خطوات بسيطة إزاي تشحن رصيدك، ترفع ملفك، وتاخد تقرير Turnitin رسمي في دقائق.",
     tour_balance_title:"رصيدك الحالي", tour_balance_desc:"كل ملف بيتفحص بيخصم <b>1 slot</b> من الـ slots المتاحة ليك.",
-    tour_topup_btn_title:"باقات الشحن", tour_topup_btn_desc:"الباقات بتظهر هنا مباشرةً من غير ما تضغط على أي زرار. <b>Plag + AI</b> هي الباقة المتاحة دلوقتي.",
-    tour_select_pack_title:"اختار الباقة المناسبة", tour_select_pack_desc:"اختار الباقة اللي تناسبك واضغط زرار <b>اختار</b> عليها — هيظهر قسم الدفع تلقائياً تحت.",
+    tour_topup_btn_title:"تاب المحفظة", tour_topup_btn_desc:"من تاب <b>المحفظة</b> تقدر تشوف باقات الشحن وتختار اللي يناسبك.",
+    tour_submitfiles_title:"ارفع ملفك بخطوة واحدة", tour_submitfiles_desc:"اضغط <b>Submit Files</b> عشان تفتح نافذة الرفع. هناك هتختار <b>نوع الفحص</b>: اقتباس فقط أو اقتباس + AI، وبعدين ترفع الملف.",
+    tour_filters_title:"فلاتر التحليل", tour_filters_desc:"دي فلاتر اختيارية لو عايز نتيجة أدق: <b>استبعاد المراجع</b> و<b>الاقتباسات</b> و<b>الاستشهادات</b> و<b>الكلام القصير</b>.",
+    tour_select_pack_title:"اختار الباقة المناسبة", tour_select_pack_desc:"اضغط <b>اشتري الآن</b> على الباقة اللي تناسبك — قسم الدفع هيظهر تحت تلقائياً.",
     tour_instapay_method_title:"اختار InstaPay", tour_instapay_method_desc:"انزل لتحت واختار <b>InstaPay</b> كوسيلة دفع. هيظهر رقم المحفظة اللي هتحوّل عليه.",
     tour_instapay_transfer_title:"حوّل المبلغ على الرقم ده", tour_instapay_transfer_desc:"افتح تطبيق InstaPay وحوّل المبلغ المطلوب على الرقم اللي شايفه. <b>احتفظ برقم العملية</b> اللي هييجيلك في الـ SMS.",
     tour_txid_input_title:"أدخل رقم العملية المرجعي", tour_txid_input_desc:"ادخل <b>رقم الـ Reference</b> اللي وصلك في الـ SMS بعد التحويل في الخانة دي.",
@@ -3388,8 +3394,10 @@ const I18N = {
     tour_skip:"Skip tour", tour_back:"← Back", tour_next:"Next →", tour_finish:"Start now 🚀",
     tour_welcome_title:"Welcome to Pro Keys! 🎉", tour_welcome_desc:"Let's walk you through how to top up, upload your file, and receive an official Turnitin report in minutes.",
     tour_balance_title:"Your current balance", tour_balance_desc:"Each file checked uses <b>1 slot</b> from your available slots.",
-    tour_topup_btn_title:"Top-up packages", tour_topup_btn_desc:"The packages are shown right here, no button needed. <b>Plag + AI</b> is the plan available right now.",
-    tour_select_pack_title:"Choose a package", tour_select_pack_desc:"Browse the packages and click <b>Select</b> on the one that suits you — the payment section will appear below automatically.",
+    tour_topup_btn_title:"Wallet tab", tour_topup_btn_desc:"From the <b>Wallet</b> tab you can see the top-up packages and choose the one you need.",
+    tour_submitfiles_title:"Submit your file in one step", tour_submitfiles_desc:"Click <b>Submit Files</b> to open the upload window. There you choose the <b>check type</b>: similarity only or similarity + AI, then upload your file.",
+    tour_filters_title:"Analysis filters", tour_filters_desc:"Optional filters for a more precise result: exclude <b>references</b>, <b>quotes</b>, <b>citations</b> and <b>short phrases</b>.",
+    tour_select_pack_title:"Choose a package", tour_select_pack_desc:"Click <b>BUY NOW</b> on the package that suits you — the payment section will appear below automatically.",
     tour_instapay_method_title:"Choose InstaPay", tour_instapay_method_desc:"Scroll down and select <b>InstaPay</b> as your payment method. The wallet number you need to transfer to will appear.",
     tour_instapay_transfer_title:"Transfer to this number", tour_instapay_transfer_desc:"Open the InstaPay app and transfer the required amount to the number shown here. <b>Keep the reference number</b> you receive in the SMS.",
     tour_txid_input_title:"Enter the reference number", tour_txid_input_desc:"Enter the <b>Reference number</b> you received in the SMS after the transfer into this field.",
@@ -9832,7 +9840,7 @@ function isAr(){ return (typeof currentLang !== 'undefined' ? currentLang : 'ar'
 const TOUR_STEPS_DEF = [
   { id:'welcome',           center:true,  emoji:'👋' },
   { id:'balance',           target:'#kpiBalanceNum',           emoji:'💰', tab:'new-check' },
-  { id:'topup_btn',         target:'.wplan-card',              emoji:'💳', tab:'wallet',    expandPacks:true, scrollBlock:'center' },
+  { id:'topup_btn',         target:'[data-tab="wallet"]',      emoji:'💳', scrollBlock:'center' },
   { id:'select_pack',       target:'#topupSlider',             emoji:'🗂️', tab:'wallet',    expandPacks:true, scrollBlock:'center' },
   { id:'pay_tabs',          target:'.pay-tabs',                emoji:'🗂️', tab:'wallet',    expandPacks:true, scrollBlock:'center' },
   { id:'instapay_method',   target:'[data-pay="instapay"]',    emoji:'📲', tab:'wallet',    expandPacks:true, scrollBlock:'center', payTab:'wallets' },
@@ -9841,10 +9849,11 @@ const TOUR_STEPS_DEF = [
   { id:'confirm_pay',       target:'#walletPayBlock .btn-gold', emoji:'✅', tab:'wallet',    expandPacks:true, scrollBlock:'end' },
   { id:'coupon',            target:'.coupon-card',             emoji:'🎟️', tab:'wallet',    expandPacks:true, scrollBlock:'center' },
   { id:'upload',            target:'#uploadzoneBox',           emoji:'📂', tab:'new-check', scrollBlock:'top' },
-  { id:'checktype',         target:'.seg',                     emoji:'⚙️', tab:'new-check' },
-  { id:'submit',            target:'#submitBtn',               emoji:'🚀', tab:'new-check' },
+  { id:'submitfiles',       target:'.submit-files-btn',        emoji:'📤', tab:'new-check' },
+  { id:'filters',           target:'#sfStepFilters',           emoji:'⚙️', tab:'new-check', sf:'filters', scrollBlock:'center' },
+  { id:'submit',            target:'#sfUploadBtn',             emoji:'🚀', tab:'new-check', sf:'filters', scrollBlock:'center' },
   { id:'result',            target:'#ordersBody',              emoji:'📊', tab:'orders',    mockOrder:true },
-  { id:'download',          target:'.tour-mock-row .dl-cell',  emoji:'⬇️', tab:'orders',    mockOrder:true },
+  { id:'download',          target:'.tour-mock-row .dl-cell, .tour-mock-row', emoji:'⬇️', tab:'orders', mockOrder:true },
   { id:'support',           target:'[data-tab="support"]',     emoji:'💬', tab:'support' },
   { id:'done',              center:true,  emoji:'🎉', isLast:true },
 ];
@@ -9890,12 +9899,12 @@ function buildMockOrderRow(){
     </div>
     <div class="ostatus-cell"><span class="badge badge-completed"><span class="dot"></span>${ar?'مكتمل':'Completed'}</span></div>
     <div class="ocell" style="font-size:12px;color:var(--muted);">${ar?'منذ قليل':'Just now'}</div>
-    <div class="ocell" style="font-size:12px;font-weight:700;">2m 18s</div>
+    <div class="ocell ohandle-cell"><span style="color:var(--muted);">—</span></div>
     <div class="dl-cell">
-      <button class="dl-btn" title="${ar?'اقتباس':'Similarity'}" onclick="event.preventDefault()">${downloadIcon}</button>
+      <a class="dl-btn" href="#" onclick="event.preventDefault()" title="${ar?'اقتباس':'Similarity'}">${ICONS.download}</a><button type="button" class="dl-btn pdf-preview-btn" onclick="event.preventDefault()" title="${ar?'معاينة':'Preview'}">👁</button>
     </div>
     <div class="dl-cell">
-      <button class="dl-btn" title="AI" onclick="event.preventDefault()">${downloadIcon}</button>
+      <a class="dl-btn" href="#" onclick="event.preventDefault()" title="AI">${ICONS.download}</a><button type="button" class="dl-btn pdf-preview-btn" onclick="event.preventDefault()" title="${ar?'معاينة':'Preview'}">👁</button>
     </div>
     <div class="ocell" style="display:flex;justify-content:center;">
       <div class="star-rate" style="pointer-events:none;">${[1,2,3,4,5].map(n=>`<i class="rate-star ${n<=4?'filled':''}">${starSvg}</i>`).join('')}</div>
@@ -9943,6 +9952,13 @@ nextBtn.addEventListener('click', ()=>{
   showStep(currentStep+1);
 });
 
+// Several elements can match (sidebar on desktop, bottom bar on mobile): pick the one on screen.
+function pickVisible(sel){
+  const els = document.querySelectorAll(sel);
+  for(const el of els){ if(el.getClientRects().length) return el; }
+  return els[0] || null;
+}
+
 function positionSpotlight(el){
   const r = el.getBoundingClientRect();
   const pad = 12;
@@ -9973,9 +9989,12 @@ function positionBox(el){
 
   if(mobile){
     // Phone: the box sits full-width at the top or bottom, on the side away from the highlighted element.
-    const targetInTopHalf = (r.top + r.height / 2) < vh / 2;
+    // Right under or right above the element when there is room, so the box stays close to it.
     left = margin;
-    top  = targetInTopHalf ? Math.max(margin, vh - bh - margin) : margin;
+    const below = r.bottom + gap, above = r.top - gap - bh;
+    if(below + bh <= vh - margin) top = below;
+    else if(above >= margin) top = above;
+    else top = (r.top + r.height / 2) < vh / 2 ? Math.max(margin, vh - bh - margin) : margin;
     box.style.left      = left + 'px';
     box.style.top       = top  + 'px';
     box.style.transform = 'none';
@@ -10132,6 +10151,16 @@ async function showStep(idx){
   // Open the payment tab this step points at (the gateways live in tabs now)
   if(s.payTab && typeof setPayTab === 'function'){ setPayTab(s.payTab); }
 
+  // Submit Files popup: open it for the steps that live inside it, close it otherwise
+  const sfOverlay = document.getElementById('submitFilesOverlay');
+  if(s.sf){
+    if(sfOverlay && !sfOverlay.classList.contains('show') && typeof openSubmitFilesModal === 'function') openSubmitFilesModal();
+    if(typeof sfSetStep === 'function') sfSetStep(s.sf);
+    await new Promise(r => setTimeout(r, 150));
+  } else if(sfOverlay && sfOverlay.classList.contains('show') && typeof closeSubmitFilesModal === 'function'){
+    closeSubmitFilesModal();
+  }
+
   // Mock order
   if(s.mockOrder){ injectMockOrder(); }
 
@@ -10165,10 +10194,10 @@ async function showStep(idx){
     overlay.classList.remove('center-step');
     arrow.style.display    = '';
     spotlight.style.display = '';
-    let el = document.querySelector(s.target);
+    let el = pickVisible(s.target);
     if(!el){
       await new Promise(r => setTimeout(r, 150));
-      el = document.querySelector(s.target);
+      el = pickVisible(s.target);
     }
     if(el){
       await scrollAndPosition(el, s.scrollBlock);
@@ -10189,6 +10218,11 @@ function endTour(){
   spotlight.style.cssText = '';
   removeMockOrder();
   localStorage.setItem(LS_KEY, '1');
+  const sfOverlay = document.getElementById('submitFilesOverlay');
+  if(sfOverlay) sfOverlay.classList.remove('show');
+  // Finish on the Check page, and let the cookie banner appear now that the tour is done
+  if(typeof goTab === 'function') goTab('new-check');
+  window.dispatchEvent(new Event('pk-tour-ended'));
 }
 
 // Auto-start on first visit
