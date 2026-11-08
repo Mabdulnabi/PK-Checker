@@ -2911,6 +2911,13 @@
         <label class="sf-check"><input type="checkbox" id="sfCit"><span data-i18n="sf_f_cit">استبعاد الاستشهادات داخل النص</span></label>
         <label class="sf-check"><input type="checkbox" id="sfSmall"><span data-i18n="sf_f_small">استبعاد التطابقات الصغيرة أقل من</span>
           <input type="number" id="sfSmallWords" class="sf-num" min="8" max="250" value="8"> <span data-i18n="sf_f_words">كلمة</span></label>
+        <div class="sf-ct-block" id="sfCheckTypeBlock">
+          <span class="sf-filters-title" data-i18n="check_type_label">نوع الفحص</span>
+          <div class="seg sf-seg">
+            <button id="sfCtSim" type="button" data-i18n="ct_sim">اقتباس فقط</button>
+            <button id="sfCtBoth" class="on" type="button" data-i18n="ct_both">اقتباس + ذكاء اصطناعي</button>
+          </div>
+        </div>
         <div class="sf-notice">
           <b data-i18n="sf_notice_title">لا يتم حفظ الملف في أي مستودع</b>
           <span data-i18n="sf_notice_body">ملفك آمن 100%، ولن يُحفظ في أي قاعدة بيانات للطلاب أو مستودع مؤسسي.</span>
@@ -3199,6 +3206,7 @@ const I18N = {
     tour_welcome_title:"أهلاً بك في Pro Keys! 🎉", tour_welcome_desc:"هنريك في خطوات بسيطة إزاي تشحن رصيدك، ترفع ملفك، وتاخد تقرير Turnitin رسمي في دقائق.",
     tour_balance_title:"رصيدك الحالي", tour_balance_desc:"كل ملف بيتفحص بيخصم <b>1 slot</b> من الـ slots المتاحة ليك.",
     tour_topup_btn_title:"تاب المحفظة", tour_topup_btn_desc:"من تاب <b>المحفظة</b> تقدر تشوف باقات الشحن وتختار اللي يناسبك.",
+    tour_ctype_title:"اختار نوع الفحص", tour_ctype_desc:"<b>اقتباس فقط</b> بيفحص التشابه مع المصادر، و<b>اقتباس + AI</b> بيضيف كشف المحتوى المولّد بالذكاء الاصطناعي.",
     tour_pick_package_title:"اختار الباقة اللي اشتريتها", tour_pick_package_desc:"من القايمة دي اختار <b>الباقة اللي اشتريتها</b>. كل باقة بتوضح الفحوصات المتبقية فيها.",
     tour_submitfiles_title:"ارفع ملفك بخطوة واحدة", tour_submitfiles_desc:"اضغط <b>Submit Files</b> عشان تفتح نافذة الرفع، وهناك هترفع ملفك.",
     tour_filters_title:"فلاتر التحليل", tour_filters_desc:"دي فلاتر اختيارية لو عايز نتيجة أدق: <b>استبعاد المراجع</b> و<b>الاقتباسات</b> و<b>الاستشهادات</b> و<b>الكلام القصير</b>.",
@@ -3396,6 +3404,7 @@ const I18N = {
     tour_welcome_title:"Welcome to Pro Keys! 🎉", tour_welcome_desc:"Let's walk you through how to top up, upload your file, and receive an official Turnitin report in minutes.",
     tour_balance_title:"Your current balance", tour_balance_desc:"Each file checked uses <b>1 slot</b> from your available slots.",
     tour_topup_btn_title:"Wallet tab", tour_topup_btn_desc:"From the <b>Wallet</b> tab you can see the top-up packages and choose the one you need.",
+    tour_ctype_title:"Choose the check type", tour_ctype_desc:"<b>Similarity only</b> checks matches with sources, and <b>Similarity + AI</b> adds AI-generated content detection.",
     tour_pick_package_title:"Choose the package you bought", tour_pick_package_desc:"From this list, pick the <b>package you purchased</b>. Each package shows its remaining checks.",
     tour_submitfiles_title:"Submit your file in one step", tour_submitfiles_desc:"Click <b>Submit Files</b> to open the upload window, where you upload your file.",
     tour_filters_title:"Analysis filters", tour_filters_desc:"Optional filters for a more precise result: exclude <b>references</b>, <b>quotes</b>, <b>citations</b> and <b>short phrases</b>.",
@@ -8156,6 +8165,24 @@ function sfSetStep(step){
   document.getElementById('sfChipName').textContent = sfFile ? sfFile.name : '';
 }
 
+function sfSyncCheckType(){
+  const simBtn = document.getElementById('sfCtSim');
+  const bothBtn = document.getElementById('sfCtBoth');
+  if (!simBtn || !bothBtn) return;
+  const simOk = !!(checkSettings && checkSettings.sim_only_visible);
+  simBtn.style.display = simOk ? '' : 'none';
+  if (!simOk && checkType === 'sim') checkType = 'both';
+  simBtn.classList.toggle('on', simOk && checkType === 'sim');
+  bothBtn.classList.toggle('on', checkType !== 'sim');
+}
+function sfPickCheckType(type){
+  checkType = type;
+  updatePrice();
+  sfSyncCheckType();
+}
+document.getElementById('sfCtSim').onclick = () => sfPickCheckType('sim');
+document.getElementById('sfCtBoth').onclick = () => sfPickCheckType('both');
+
 function openSubmitFilesModal(){
   if (!PROKEYS_USER_ID) return;
   if (currentFile) sfFile = currentFile;
@@ -8163,6 +8190,7 @@ function openSubmitFilesModal(){
   renderTerms();
   document.getElementById('sfError').textContent = '';
   sfSetStep(sfFile ? 'filters' : 'file');
+  sfSyncCheckType();
   document.getElementById('submitFilesOverlay').classList.add('show');
 }
 
@@ -8215,8 +8243,6 @@ async function sfUploadFile(){
     return;
   }
 
-  // Only Plagiarism + AI is offered for now.
-  checkType = 'both';
   currentFile = sfFile;
   pendingGrantId = sfSelectedGrant.grant_id;
   btn.disabled = true;
@@ -9853,6 +9879,7 @@ const TOUR_STEPS_DEF = [
   { id:'upload',            target:'#uploadzoneBox',           emoji:'📂', tab:'new-check', scrollBlock:'top' },
   { id:'submitfiles',       target:'.submit-files-btn',        emoji:'📤', tab:'new-check' },
   { id:'pick_package',      target:'#sfDD',                    emoji:'🎫', tab:'new-check', sf:'file', scrollBlock:'center' },
+  { id:'ctype',             target:'#sfCheckTypeBlock',        emoji:'⚙️', tab:'new-check', sf:'file', scrollBlock:'center' },
   { id:'filters',           target:'#sfStepFilters',           emoji:'⚙️', tab:'new-check', sf:'filters', scrollBlock:'center' },
   { id:'submit',            target:'#sfUploadBtn',             emoji:'🚀', tab:'new-check', sf:'filters', scrollBlock:'center' },
   { id:'result',            target:'#myFilesSection',          emoji:'📊', tab:'new-check', mockOrder:true },
