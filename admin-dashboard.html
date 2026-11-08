@@ -1136,8 +1136,12 @@
               <div id="crUserPreview"></div>
             </div>
             <div class="cr-form-group">
-              <label data-i18n="qc_amount_ph">عدد الفحوصات</label>
-              <input type="number" id="crAmountInput" data-i18n-ph="cr_amount_ph" placeholder="مثال: 10" min="1">
+              <label>الباقة</label>
+              <select id="crPackageSelect" style="width:100%;"></select>
+            </div>
+            <div class="cr-form-group">
+              <label>عدد الباقات</label>
+              <input type="number" id="crAmountInput" placeholder="مثال: 1" min="1">
             </div>
             <div class="cr-form-group">
               <label data-i18n="qc_note_ph">ملاحظة (اختياري)</label>
@@ -5409,6 +5413,7 @@ async function toggleSlotValidity(el){
 }
 
 async function loadCreditsTab(){
+  loadCrPackageOptions();
   loadPendingPayments();
   await loadSlotData();
   document.getElementById('creditsBody').innerHTML =
@@ -5564,22 +5569,38 @@ async function crLookupUser(){
 }
 
 // ── Admin adjust credit ──
+async function loadCrPackageOptions(){
+  const sel = document.getElementById('crPackageSelect');
+  if (!sel) return;
+  const { data } = await supabaseClient.from('slot_packages')
+    .select('id, name_ar, slots, slot_type, expiry_days').eq('is_active', true).order('sort_order');
+  sel.innerHTML = (data || []).map(p =>
+    `<option value="${p.id}" data-slots="${p.slots}" data-type="${p.slot_type}">${escapeHtml(p.name_ar)} — ${p.slots} فحص (${p.slot_type === 'plag_only' ? 'Plag' : 'Plag + AI'})</option>`
+  ).join('');
+}
+
 async function adminAdjustCredit(action){
-  // Balance adjustments are in slots: "add" grants packages of the chosen package,
-  // "deduct" removes plag + AI slots. Every change is logged in admin_slot_adjustments.
+  // Adjustments are by package: "add" grants the chosen package N times (its own validity applies),
+  // "deduct" removes the slots of N packages of the same type. Every change is logged.
   if (!crUserFound) { await adminAlert('ابحث أولاً عن مستخدم بكود PK', {icon:'⚠️'}); return; }
   const count = parseInt(document.getElementById('crAmountInput').value);
   if (!count || count < 1) { await adminAlert('أدخل عدد صحيح (أكبر من 0)', {icon:'⚠️'}); return; }
   const note = document.getElementById('crNoteInput').value.trim();
   const banner = document.getElementById('crAdjBanner');
+  const opt = document.getElementById('crPackageSelect')?.selectedOptions[0];
+  const pkgId = opt?.value || '';
+  if (!pkgId) { await adminAlert('اختار الباقة الأول', {icon:'⚠️'}); return; }
+  const pkgSlots = Number(opt.dataset.slots || 0);
+  const slotType = opt.dataset.type || 'plag_ai';
+
   let res;
   if (action === 'add') {
-    res = await supabaseClient.rpc('admin_grant_checks', {
-      p_user_id: crUserFound.user_id, p_count: count, p_note: note || null,
+    res = await supabaseClient.rpc('admin_grant_package', {
+      p_user_id: crUserFound.user_id, p_package_id: pkgId, p_count: count, p_note: note || null,
     });
   } else {
     res = await supabaseClient.rpc('admin_deduct_slots', {
-      p_user_id: crUserFound.user_id, p_slot_type: 'plag_ai', p_count: count, p_note: note || null,
+      p_user_id: crUserFound.user_id, p_slot_type: slotType, p_count: count * pkgSlots, p_note: note || null,
     });
   }
 
@@ -5597,7 +5618,7 @@ async function adminAdjustCredit(action){
   document.getElementById('crUserPreview').innerHTML = '';
   crUserFound = null;
 
-  const slots = res.data?.slots ?? count;
+  const slots = res.data?.slots ?? count * pkgSlots;
   banner.className = 'cr-save-banner ok';
   banner.textContent = action === 'add'
     ? `✅ تمت إضافة ${slots} فحص لـ ${adjustedUserName}.`
