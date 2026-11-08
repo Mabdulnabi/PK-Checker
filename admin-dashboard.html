@@ -454,6 +454,34 @@
   .cr-form-group input:focus{outline:none;border-color:var(--blue);}
   .cr-found-badge{background:var(--ok-wash);color:var(--ok);font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:20px;display:inline-block;margin-top:6px;}
   .cr-not-found{color:var(--danger);font-size:11px;margin-top:4px;}
+  .cr-form-head{margin-bottom:18px;}
+  .cr-form-head h3{margin:0 0 4px;}
+  .cr-form-sub{font-size:12px;color:var(--muted);}
+  .cr-form-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px 18px;align-items:start;}
+  .cr-span-3{grid-column:span 3;}
+  .cr-span-4{grid-column:span 4;}
+  .cr-span-5{grid-column:span 5;}
+  .cr-span-6{grid-column:span 6;}
+  .cr-span-12{grid-column:span 12;}
+  .cr-field label{display:block;font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:6px;}
+  .cr-field input,.cr-field select{width:100%;height:40px;padding:0 12px;border:1.5px solid var(--paper-line);border-radius:10px;background:var(--paper);font-family:'Cairo',sans-serif;font-size:13px;color:var(--ink);transition:border-color .15s,box-shadow .15s;}
+  .cr-field input:focus,.cr-field select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(14,122,254,.12);}
+  .cr-field-hint{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;}
+  .cr-optional{font-weight:500;color:var(--muted);}
+  .cr-user-preview{min-height:20px;margin-top:6px;}
+  .cr-inline{display:flex;gap:8px;}
+  .cr-inline input{flex:1;}
+  .cr-amount-hint{font-size:12px;font-weight:700;color:var(--blue-deep);margin-top:6px;min-height:16px;}
+  .cr-form-actions{display:flex;justify-content:flex-end;gap:10px;padding-top:16px;margin-top:4px;border-top:1px solid var(--paper-line);}
+  .cr-btn{border:none;padding:10px 22px;border-radius:10px;font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;color:#fff;cursor:pointer;transition:filter .15s;}
+  .cr-btn:hover{filter:brightness(.92);}
+  .cr-btn-ok{background:var(--ok);}
+  .cr-btn-danger{background:var(--danger);}
+  @media (max-width:900px){
+    .cr-span-3,.cr-span-4,.cr-span-5,.cr-span-6{grid-column:span 12;}
+    .cr-form-actions{justify-content:stretch;}
+    .cr-form-actions .cr-btn{flex:1;}
+  }
   .qc-mode-tabs{display:flex;gap:8px;margin-bottom:14px;}
   .qc-mode-btn{flex:1;padding:8px 10px;border-radius:9px;border:1.5px solid var(--paper-line);background:var(--paper);color:var(--ink);font-family:'Cairo',sans-serif;font-weight:700;font-size:12.5px;cursor:pointer;transition:all .15s;}
   .qc-mode-btn.on{background:var(--blue);border-color:var(--blue);color:#fff;}
@@ -1128,39 +1156,45 @@
 
         <!-- Add / Deduct form -->
         <div class="cr-form-card">
-          <h3 data-i18n="cr_adjust_title">⚡ تعديل رصيد عميل</h3>
-          <div class="cr-form-row">
-            <div class="cr-form-group">
+          <div class="cr-form-head">
+            <h3 data-i18n="cr_adjust_title">⚡ تعديل رصيد عميل</h3>
+            <div class="cr-form-sub">أضف أو اخصم فحوصات من عميل، بالباقة أو من شراء محدد.</div>
+          </div>
+          <div class="cr-form-grid">
+            <div class="cr-field cr-span-3">
               <label data-i18n="cr_pk_lbl">كود العميل (PK)</label>
               <input type="number" id="crPkInput" data-i18n-ph="cr_pk_ph" placeholder="مثال: 1" min="1" oninput="crLookupUser()">
-              <div id="crUserPreview"></div>
+              <div id="crUserPreview" class="cr-user-preview"></div>
             </div>
-            <div class="cr-form-group">
+            <div class="cr-field cr-span-4">
               <label>الباقة</label>
-              <select id="crPackageSelect" style="width:100%;"></select>
+              <select id="crPackageSelect" onchange="crUpdateAmountHint()"></select>
+              <div class="cr-field-hint">الباقة بتحدد نوع الفحص وصلاحيته.</div>
             </div>
-            <div class="cr-form-group">
-              <label>على شراء محدد للعميل (اختياري)</label>
-              <select id="crGrantSelect" style="width:100%;" onchange="crGrantChanged()"><option value="">— حسب نوع الباقة (الأقرب انتهاءً) —</option></select>
+            <div class="cr-field cr-span-5">
+              <label>شراء محدد للعميل <span class="cr-optional">(اختياري)</span></label>
+              <select id="crGrantSelect" onchange="crGrantChanged()"><option value="">— حسب نوع الباقة (الأقرب انتهاءً) —</option></select>
+              <div class="cr-field-hint">لو اخترت شراء، الباقة بتتقفل والعدد بيبقى فحوصات.</div>
             </div>
-            <div class="cr-form-group" id="crExtendGroup" style="display:none;">
+            <div class="cr-field cr-span-6" id="crExtendGroup" style="display:none;">
               <label>تمديد الشراء حتى تاريخ</label>
-              <div style="display:flex;gap:6px;">
-                <input type="date" id="crExtendDate" style="flex:1;">
-                <button class="btn btn-primary" onclick="adminExtendGrant()">تمديد</button>
+              <div class="cr-inline">
+                <input type="date" id="crExtendDate">
+                <button class="btn btn-ghost" onclick="adminExtendGrant()">تمديد</button>
               </div>
             </div>
-            <div class="cr-form-group">
+            <div class="cr-field cr-span-3">
               <label id="crAmountLbl">عدد الباقات</label>
-              <input type="number" id="crAmountInput" placeholder="مثال: 1" min="1">
+              <input type="number" id="crAmountInput" placeholder="مثال: 1" min="1" oninput="crUpdateAmountHint()">
+              <div id="crAmountHint" class="cr-amount-hint"></div>
             </div>
-            <div class="cr-form-group">
+            <div class="cr-field cr-span-6">
               <label data-i18n="qc_note_ph">ملاحظة (اختياري)</label>
               <input type="text" id="crNoteInput" data-i18n-ph="cr_note_ph" placeholder="سبب التعديل...">
             </div>
-            <div style="display:flex;gap:8px;">
-              <button class="btn btn-primary" style="background:var(--ok);border-color:var(--ok);" onclick="adminAdjustCredit('add')" data-i18n="qc_add_btn">➕ إضافة</button>
-              <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger);" onclick="adminAdjustCredit('deduct')" data-i18n="qc_deduct_btn">➖ خصم</button>
+            <div class="cr-form-actions cr-span-12">
+              <button class="cr-btn cr-btn-ok" onclick="adminAdjustCredit('add')" data-i18n="qc_add_btn">➕ إضافة</button>
+              <button class="cr-btn cr-btn-danger" onclick="adminAdjustCredit('deduct')" data-i18n="qc_deduct_btn">➖ خصم</button>
             </div>
           </div>
         </div>
@@ -5589,6 +5623,7 @@ async function loadCrPackageOptions(){
   sel.innerHTML = (data || []).map(p =>
     `<option value="${p.id}" data-slots="${p.slots}" data-type="${p.slot_type}">${escapeHtml(p.name_ar)} — ${p.slots} فحص (${p.slot_type === 'plag_only' ? 'Plag' : 'Plag + AI'})</option>`
   ).join('');
+  crUpdateAmountHint();
 }
 
 async function loadCrGrants(userId){
@@ -5603,6 +5638,20 @@ async function loadCrGrants(userId){
     return `<option value="${g.grant_id}" data-expires="${g.expires_at || ''}">${escapeHtml(g.package)} · ${type} · متبقي ${g.remaining} من ${g.slots_total} · ${end} · اشتري ${bought}</option>`;
   }).join('');
   crGrantChanged();
+}
+// Shows what the amount means: packages x slots, or checks of the chosen purchase.
+function crUpdateAmountHint(){
+  const hint = document.getElementById('crAmountHint');
+  if (!hint) return;
+  const count = parseInt(document.getElementById('crAmountInput')?.value);
+  if (!count || count < 1) { hint.textContent = ''; return; }
+  if (document.getElementById('crGrantSelect')?.value) {
+    hint.textContent = `= ${count} فحص من الشراء المحدد`;
+    return;
+  }
+  const opt = document.getElementById('crPackageSelect')?.selectedOptions[0];
+  const pkgSlots = Number(opt?.dataset.slots || 0);
+  hint.textContent = pkgSlots ? `= ${count} × ${pkgSlots} = ${count * pkgSlots} فحص` : '';
 }
 function crGrantChanged(){
   const gSel = document.getElementById('crGrantSelect');
@@ -5622,6 +5671,7 @@ function crGrantChanged(){
   if (lbl) lbl.textContent = targeted ? 'عدد الفحوصات' : 'عدد الباقات';
   const pkg = document.getElementById('crPackageSelect');
   if (pkg) pkg.disabled = targeted;
+  crUpdateAmountHint();
 }
 
 async function adminExtendGrant(){
