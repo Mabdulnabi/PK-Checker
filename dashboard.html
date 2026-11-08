@@ -9967,10 +9967,17 @@ nextBtn.addEventListener('click', ()=>{
 });
 
 // Several elements can match (sidebar on desktop, bottom bar on mobile): pick the one on screen.
+// Selectors separated by commas are tried in order, so the first one wins even when
+// a later one is an ancestor of it (document order would pick the ancestor).
 function pickVisible(sel){
-  const els = document.querySelectorAll(sel);
-  for(const el of els){ if(el.getClientRects().length) return el; }
-  return els[0] || null;
+  const parts = sel.split(',').map(s => s.trim()).filter(Boolean);
+  for(const part of parts){
+    for(const el of document.querySelectorAll(part)){
+      if(el.getClientRects().length) return el;
+    }
+  }
+  const any = parts.map(p => document.querySelector(p)).find(Boolean);
+  return any || null;
 }
 
 function positionSpotlight(el){
