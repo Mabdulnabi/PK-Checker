@@ -192,31 +192,67 @@ Deno.serve(async (req: Request) => {
     }
     tsForm.append("webhook_url", `${SUPABASE_URL}/functions/v1/turnitin-webhook`);
 
-    let tsData: Record<string, unknown> = {};
-    let tsOk = false;
-    try {
-      const tsRes = await fetch(`${TURNISCAN_BASE}/scan/submit`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` },
-        body: tsForm,
-      });
-      tsData = await tsRes.json();
-      tsOk = tsRes.ok && tsData.success === true && typeof tsData.file_id === "string";
-    } catch (e) {
-      console.error("submit-check: provider request failed", e);
+    // TurniScan sometimes answers with an HTML error page instead of JSON. That means the provider
+    // is unavailable, not that the file was refused, so it is retried once and reported separately.
+    type SubmitResult =
+      | { ok: true; fileId: string }
+      | { ok: false; unavailable: boolean; detail: string };
+
+    const sendToProvider = async (): Promise<SubmitResult> => {
+      try {
+        const tsRes = await fetch(`${TURNISCAN_BASE}/scan/submit`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` },
+          body: tsForm,
+          signal: AbortSignal.timeout(90000),
+        });
+        const raw = await tsRes.text();
+        let data: Record<string, unknown> | null = null;
+        try {
+          data = JSON.parse(raw) as Record<string, unknown>;
+        } catch {
+          data = null;
+        }
+        if (data === null) {
+          return { ok: false, unavailable: true, detail: `HTTP ${tsRes.status} non-JSON body: ${raw.slice(0, 300)}` };
+        }
+        const fid = data.file_id;
+        if (tsRes.ok && data.success === true && typeof fid === "string") {
+          return { ok: true, fileId: fid };
+        }
+        return {
+          ok: false,
+          unavailable: tsRes.status >= 500,
+          detail: `HTTP ${tsRes.status} ${JSON.stringify(data).slice(0, 300)}`,
+        };
+      } catch (e) {
+        return { ok: false, unavailable: true, detail: `request failed: ${String(e)}` };
+      }
+    };
+
+    let result = await sendToProvider();
+    if (!result.ok && result.unavailable) {
+      console.error("submit-check: provider unavailable, retrying once", result.detail);
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      result = await sendToProvider();
     }
 
-    if (!tsOk) {
+    if (!result.ok) {
       // Not accepted for processing, so the slot goes back.
       await admin.rpc("release_slot", { p_idempotency_key: slotKey });
       // Provider details stay in the logs only; the customer sees a neutral message.
-      console.error("submit-check: provider refused", JSON.stringify(tsData));
+      console.error(result.unavailable ? "submit-check: provider unavailable" : "submit-check: provider refused", result.detail);
+      if (result.unavailable) {
+        const unavailableMsg = "The check service is temporarily unavailable. Please try again in a few minutes. Your check was not used.";
+        await admin.from("orders").update({ status: "error", error_reason: unavailableMsg }).eq("id", orderId);
+        return cors_json({ success: false, code: "PROVIDER_UNAVAILABLE", error: unavailableMsg }, 503);
+      }
       const errMsg = "The file could not be submitted for checking. Please try again later.";
       await admin.from("orders").update({ status: "error", error_reason: errMsg }).eq("id", orderId);
       return cors_json({ success: false, error: errMsg }, 422);
     }
 
-    const fileId = tsData.file_id as string;
+    const fileId = result.fileId;
     await admin.from("orders").update({ external_order_id: fileId, status: "run" }).eq("id", orderId);
 
     return cors_json({ success: true, externalOrderId: fileId, slot_type: service });
