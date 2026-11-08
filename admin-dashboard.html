@@ -6330,6 +6330,8 @@ async function loadUsersTab(){
     completed: completedCount[p.user_id] || 0,
     joined:    p.created_at,
   }));
+  // Newest members first
+  allUsersRows.sort((a, b) => new Date(b.joined || 0) - new Date(a.joined || 0));
 
   renderUsersTable(allUsersRows);
 }
