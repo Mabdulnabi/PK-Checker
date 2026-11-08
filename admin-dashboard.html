@@ -1114,6 +1114,18 @@
         </div>
         <div class="cr-save-banner" id="crAdjBanner"></div>
 
+        <!-- Slot validity switch: ON = packages expire by their days; OFF = lifetime for packages bought from now on -->
+        <div class="cr-form-card" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+          <div>
+            <h3 style="margin:0 0 4px">⏳ صلاحية الفحوصات</h3>
+            <div id="slotValidityNote" style="font-size:12px;color:var(--muted)"></div>
+          </div>
+          <label style="display:flex;align-items:center;gap:8px;font-weight:700;cursor:pointer;">
+            <input type="checkbox" id="slotValidityToggle" onchange="toggleSlotValidity(this)" style="width:18px;height:18px;">
+            <span id="slotValidityLbl">بالأيام</span>
+          </label>
+        </div>
+
         <!-- Add / Deduct form -->
         <div class="cr-form-card">
           <h3 data-i18n="cr_adjust_title">⚡ تعديل رصيد عميل</h3>
@@ -5365,7 +5377,38 @@ async function loadPendingPayments(){
   }).join('');
 }
 
+// Slot validity switch: ON = packages expire by their days; OFF = packages bought from now on are lifetime.
+function updateSlotValidityNote(){
+  const on = document.getElementById('slotValidityToggle')?.checked;
+  const note = document.getElementById('slotValidityNote');
+  const lbl = document.getElementById('slotValidityLbl');
+  if (lbl) lbl.textContent = on ? 'بالأيام' : 'مدى الحياة';
+  if (note) note.textContent = on
+    ? 'كل باقة بتاخد صلاحيتها بالأيام (زي ما هي). الباقات الجديدة بتنتهي في موعدها.'
+    : 'الباقات اللي تتشترى من دلوقتي مدى الحياة، والعميل بيشوف "صلاحية مدى الحياة". الباقات اللي اتشترت قبل كده مش بتتغير.';
+}
+async function loadSlotValidityToggle(){
+  const { data } = await supabaseClient.from('check_settings').select('slot_expiry_enabled').single();
+  const el = document.getElementById('slotValidityToggle');
+  if (!el) return;
+  el.checked = data ? data.slot_expiry_enabled !== false : true;
+  updateSlotValidityNote();
+}
+async function toggleSlotValidity(el){
+  const wantOn = el.checked;
+  const ok = await adminConfirm(wantOn
+    ? 'هتتفعّل الصلاحية بالأيام، والباقات الجديدة هتنتهي في موعدها. متأكد؟'
+    : 'هتتقفل الصلاحية، والباقات اللي تتشتري من دلوقتي هتبقى مدى الحياة. الباقات اللي اتشترت قبل كده مش هتتغير. متأكد؟',
+    { icon: wantOn ? '✅' : '⚠️', danger: !wantOn, confirmLabel: wantOn ? 'تفعيل الصلاحية' : 'قفل الصلاحية' });
+  if (!ok) { el.checked = !wantOn; return; }
+  const { error } = await supabaseClient.rpc('admin_set_slot_validity', { p_enabled: wantOn });
+  if (error) { el.checked = !wantOn; await adminAlert('فشل الحفظ: ' + error.message, {icon:'❌', danger:true}); return; }
+  updateSlotValidityNote();
+  await logAdminActivity('setting_change', null, '', 'صلاحية الفحوصات: ' + (wantOn ? 'بالأيام' : 'مدى الحياة'));
+}
+
 async function loadCreditsTab(){
+  loadSlotValidityToggle();
   loadPendingPayments();
   await loadSlotData();
   document.getElementById('creditsBody').innerHTML =

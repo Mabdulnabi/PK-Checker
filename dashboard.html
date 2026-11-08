@@ -3050,7 +3050,7 @@ function applyCustomIcons(){
 
 const I18N = {
   ar: {
-    loading_ellipsis:"جاري التحميل...", profile_save_ok:"تم حفظ التغييرات", profile_pass_short:"كلمة المرور قصيرة (6 أحرف على الأقل)", profile_pass_error:"تعذر تغيير كلمة المرور",
+    loading_ellipsis:"جاري التحميل...", lifetime_validity:"صلاحية مدى الحياة", profile_save_ok:"تم حفظ التغييرات", profile_pass_short:"كلمة المرور قصيرة (6 أحرف على الأقل)", profile_pass_error:"تعذر تغيير كلمة المرور",
     nav_home:"الرئيسية", nav_new_check:"فحص جديد", nav_orders:"ملفاتي", nav_wallet:"المحفظة", nav_my_history:"السجل", plan_ai_tab:"فحص إقتباس + AI", plan_only_tab:"فحص إقتباس فقط", plan_soon:"قريباً", plan_title:"فحص Turnitin Plag + AI", plan_pill:"تقرير Plag + AI", plan_auto:"تفعيل فوري تلقائي", nav_support:"الدعم", nav_my_profile:"حسابي",
     sup_lang:"اللغة", sup_currency:"العملة", sup_settings:"الإعدادات",
     profile_modal_title:"الملف الشخصي", profile_save_btn:"حفظ", profile_cancel_btn:"إلغاء",
@@ -3240,7 +3240,7 @@ const I18N = {
     faq_title:"الأسئلة الشائعة",
   },
   en: {
-    loading_ellipsis:"Loading...", profile_save_ok:"Changes saved", profile_pass_short:"Password too short (at least 6 characters)", profile_pass_error:"Could not change the password",
+    loading_ellipsis:"Loading...", lifetime_validity:"Lifetime validity", profile_save_ok:"Changes saved", profile_pass_short:"Password too short (at least 6 characters)", profile_pass_error:"Could not change the password",
     nav_home:"Home", nav_new_check:"New Check", nav_orders:"My orders", nav_wallet:"Wallet", nav_my_history:"History", plan_ai_tab:"Plag + AI Report", plan_only_tab:"Only Plag Report", plan_soon:"Soon", plan_title:"Turnitin Plag + AI Check", plan_pill:"PLAG + AI REPORT", plan_auto:"Automated Instant Activation", nav_support:"Support", nav_my_profile:"My Account",
     sup_lang:"Language", sup_currency:"Currency", sup_settings:"Settings",
     profile_modal_title:"Account Settings", profile_save_btn:"Save", profile_cancel_btn:"Cancel",
@@ -3456,7 +3456,7 @@ function applyColorOverrides(){
 // Check-settings loaded by loadUIConfig() below; defaults keep the dashboard
 // fully functional if the table doesn't exist yet or fetch fails.
 let checkSettings = { service_enabled: true, api_mode_enabled: true, sim_only_visible: true,
-                      service_off_msg_ar: '', service_off_msg_en: '' };
+                      service_off_msg_ar: '', service_off_msg_en: '', slot_expiry_enabled: true };
 let currentCurrency = 'USD';
 const exchangeRate = 50; // 1 USD = 50 EGP = 10 credits
 let currentUser = { name: localStorage.getItem('prokeys-user-name') || '', id: '', whatsapp: '', email: '', avatarUrl: '' };
@@ -3758,7 +3758,7 @@ const PACK_TONES = ['orange','green','blue','navy','gold'];
 function buildPackCard(p, tab, index){
   let tone = `tone-${PACK_TONES[index % PACK_TONES.length]}`;
   const isSelected = selectedPack && selectedPack.id===p.id;
-  const validityLabel = p.expiryDays
+  const validityLabel = (tab !== 'daily' && checkSettings.slot_expiry_enabled === false) ? t('lifetime_validity') : p.expiryDays
     ? `${t('validity_prefix')} ${p.expiryDays} ${t('validity_days_unit')}`
     : (tab==='daily' ? t('validity_1day') : t('credits_no_expiry'));
   let badge = '';
@@ -3819,7 +3819,7 @@ function buildPlanCard(p){
   const badgeText = bestSeller ? t('best_seller_label') : (bestValue ? t('best_value_label') : '');
   const usd = (Math.ceil(p.priceEgp / EGP_TO_USD_RATE * 100) / 100).toFixed(2);
   const files = Number(p.credits);
-  const validity = p.expiryDays
+  const validity = (checkSettings.slot_expiry_enabled === false) ? (ar ? 'صلاحية مدى الحياة' : 'Lifetime validity') : p.expiryDays
     ? (ar ? `صلاحية ${p.expiryDays} يوم (${files} ملف)` : `${p.expiryDays} Days (${files} ${files === 1 ? 'File' : 'Files'}) validity`)
     : (ar ? 'بدون انتهاء' : 'No expiry');
   const feat = (txt, chip) => `<li>${ICON_TICK}${chip ? `<span class="wplan-chip">${txt}</span>` : `<span>${txt}</span>`}</li>`;
@@ -3860,6 +3860,7 @@ function renderPacks(){
 
 // Validity text for a pack: its own days, or the daily / never-expires wording.
 function packValidityNote(p, tab){
+  if (tab !== 'daily' && checkSettings.slot_expiry_enabled === false) return t('lifetime_validity');
   if (p.expiryDays) return `${t('validity_prefix')} ${p.expiryDays} ${t('validity_days_unit')}`;
   return tab === 'daily' ? t('daily_expiry_note') : t('credits_no_expiry');
 }
@@ -7332,15 +7333,15 @@ function renderWalletSlotCards(){
   const slotLeft = (n) => ar ? 'فحص متبقي' : (n === 1 ? 'Slot left' : 'Slots left');
   set('walletLblAI', slotLeft(slotsByType.plag_ai || 0));
   set('walletLblSim', slotLeft(slotsByType.plag_only || 0));
-  const expText = (iso) => {
-    if (!iso) return ar ? 'لا توجد صلاحية نشطة' : 'No active expiry';
+  const expText = (iso, type) => {
+    if (!iso) return (checkSettings.slot_expiry_enabled === false && (slotsByType[type] || 0) > 0) ? t('lifetime_validity') : (ar ? 'لا توجد صلاحية نشطة' : 'No active expiry');
     const dl = daysLeft(iso);
     return ar
       ? `تاريخ الصلاحية: ${fmtExpiryDate(iso)} · باقي ${dl} يوم`
       : `Valid until: ${fmtExpiryDate(iso)} · ${dl} days left`;
   };
-  set('walletExpAI', expText(slotExpiryByType.plag_ai));
-  set('walletExpSim', expText(slotExpiryByType.plag_only));
+  set('walletExpAI', expText(slotExpiryByType.plag_ai, 'plag_ai'));
+  set('walletExpSim', expText(slotExpiryByType.plag_only, 'plag_only'));
   const totalSlots = (slotsByType.plag_ai || 0) + (slotsByType.plag_only || 0);
   const supBalEl = document.getElementById('supBalanceNum');
   if (supBalEl) supBalEl.textContent = totalSlots;
@@ -8595,6 +8596,7 @@ async function refreshCheckSettings(){
         sim_only_visible:   cs.sim_only_visible,
         service_off_msg_ar: cs.service_off_msg_ar || '',
         service_off_msg_en: cs.service_off_msg_en || '',
+        slot_expiry_enabled: cs.slot_expiry_enabled !== false,
       };
       if (typeof applyCheckSettings === 'function') applyCheckSettings();
     }
