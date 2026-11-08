@@ -3040,6 +3040,13 @@
 // Runs immediately (before data loading / any other script) so the page
 // never visibly flashes "New Check" first when a different tab was open
 // before the refresh — New Check is only a fallback if nothing was saved.
+// Installed app (standalone): always open on the Check page, not the last tab used.
+(function forceCheckTabInInstalledApp(){
+  try {
+    const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (standalone) localStorage.setItem('prokeys-active-tab', 'new-check');
+  } catch (e) {}
+})();
 (function showCorrectTabImmediately(){
   const savedTab = localStorage.getItem('prokeys-active-tab') || 'new-check';
   document.querySelectorAll('.navtab[data-tab]').forEach(el => {
