@@ -1229,6 +1229,8 @@
   .pay-tabs{display:flex;gap:4px;background:var(--paper-soft);border:1px solid var(--paper-line);border-radius:14px;padding:4px;margin-bottom:14px;}
   .pay-tab{flex:1;border:1px solid transparent;background:transparent;border-radius:11px;padding:10px 8px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;transition:background .2s,color .2s;}
   .pay-tab:hover{color:var(--navy);}
+  .pay-tab{display:inline-flex;align-items:center;justify-content:center;gap:7px;}
+  .pay-tab-ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
   .pay-tab.on{background:var(--paper);color:var(--navy);border-color:var(--paper-line);box-shadow:0 1px 4px rgba(15,23,42,0.08);}
   .pay-tab-panel{display:none;}
   .pay-tab-panel.on{display:block;}
@@ -2402,9 +2404,9 @@
           <div class="panel-block-body">
             <div id="walletPackSummary" style="font-size:13px;color:var(--navy);font-weight:700;"></div>
             <div class="pay-tabs" role="tablist">
-              <button type="button" class="pay-tab on" data-ptab="wallets" role="tab" data-i18n="pay_tab_wallets">محافظ إلكترونية</button>
-              <button type="button" class="pay-tab" data-ptab="visa" role="tab" data-i18n="pay_tab_visa">Visa</button>
-              <button type="button" class="pay-tab" data-ptab="crypto" role="tab" data-i18n="pay_tab_crypto">Crypto</button>
+              <button type="button" class="pay-tab on" data-ptab="wallets" role="tab"><svg class="pay-tab-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h13v4"/><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="16.5" cy="13.5" r="1"/></svg><span data-i18n="pay_tab_wallets">محافظ إلكترونية</span></button>
+              <button type="button" class="pay-tab" data-ptab="card" role="tab"><svg class="pay-tab-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6 15h4"/></svg><span data-i18n="pay_tab_card">Card</span></button>
+              <button type="button" class="pay-tab" data-ptab="crypto" role="tab"><svg class="pay-tab-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 8.5h4a1.75 1.75 0 0 1 0 3.5h-4zM9.5 12h4.5a1.75 1.75 0 0 1 0 3.5H9.5zM10.5 6.5v2M13.5 6.5v2M10.5 15.5v2M13.5 15.5v2"/></svg><span data-i18n="pay_tab_crypto">Crypto</span></button>
             </div>
             <div id="walletPayGrid">
               <div class="pay-tab-panel on" data-ptab-panel="wallets">
@@ -2421,8 +2423,8 @@
                   <div id="customPayCards"></div>
                 </div>
               </div>
-              <div class="pay-tab-panel" data-ptab-panel="visa">
-                <div class="pay-tab-note" data-i18n="pay_visa_note">الدفع بالفيزا يعمل داخل مصر فقط</div>
+              <div class="pay-tab-panel" data-ptab-panel="card">
+                <div class="pay-tab-note" data-i18n="pay_card_note">الدفع بالكارت يعمل داخل مصر فقط</div>
                 <div class="pay-tab-grid">
                   <div class="paycard" data-pay="easykash" data-builtin="1">
                     <div class="pic"><svg class="ic" data-icon-key="wal_pay_easykash" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg></div>
@@ -3219,7 +3221,9 @@ const I18N = {
     redeem_err_used:"الكود ده اتستخدم قبل كده", redeem_err_invalid:"الكود غير صحيح، اتأكد من كتابته",
     redeem_err_limit:"محاولات كتير غلط، استنى شوية وحاول تاني", redeem_err_auth:"انتهت جلستك، سجّل الدخول من جديد", redeem_err_generic:"حصلت مشكلة، حاول تاني",
     redeem_success:"اتضافت لك باقة {p} ({n} فحص) ✅",
-    pay_tab_wallets:"محافظ إلكترونية", pay_tab_visa:"Visa", pay_tab_crypto:"Crypto", pay_visa_note:"الدفع بالفيزا يعمل داخل مصر فقط",
+    pay_tab_wallets:"محافظ إلكترونية", pay_tab_card:"Card", pay_tab_crypto:"Crypto", pay_card_note:"الدفع بالكارت يعمل داخل مصر فقط",
+    tour_pay_tabs_title:"اختار طريقة الدفع", tour_pay_tabs_desc:"وسائل الدفع مقسّمة في 3 تابات: <b>محافظ إلكترونية</b> (InstaPay وفودافون كاش)، و<b>Card</b> (داخل مصر فقط)، و<b>Crypto</b>.",
+    tour_coupon_title:"عندك كود خصم؟", tour_coupon_desc:"لو معاك كود خصم أو هدية، اكتبه في الخانة دي واضغط <b>تفعيل</b> — الفحوصات بتتضاف لرصيدك فوراً.",
     coupon_title:"عندك كود؟", coupon_sub:"أكواد الخصم بتضيف فحوصات لرصيدك فوراً", coupon_btn:"تفعيل",
     kpi_topup:"شحن +", kpi_credits_unit:"فحص", credit_unit_singular:"فحص", kpi_balance:"رصيدك الحالي",
     kpi_processing:"قيد الفحص الآن", kpi_floating:"رصيد عائم (معلّق)",
@@ -3411,7 +3415,9 @@ const I18N = {
     redeem_err_used:"This code has already been used", redeem_err_invalid:"Invalid code, please check it and try again",
     redeem_err_limit:"Too many failed attempts, please wait a bit and try again", redeem_err_auth:"Your session expired, please sign in again", redeem_err_generic:"Something went wrong, please try again",
     redeem_success:"{p} added to your account ({n} slot) ✅",
-    pay_tab_wallets:"E-Wallets", pay_tab_visa:"Visa", pay_tab_crypto:"Crypto", pay_visa_note:"Visa payments work inside Egypt only",
+    pay_tab_wallets:"E-Wallets", pay_tab_card:"Card", pay_tab_crypto:"Crypto", pay_card_note:"Card payments work inside Egypt only",
+    tour_pay_tabs_title:"Choose a payment method", tour_pay_tabs_desc:"Payment methods are split into 3 tabs: <b>E-Wallets</b> (InstaPay, Vodafone Cash), <b>Card</b> (inside Egypt only), and <b>Crypto</b>.",
+    tour_coupon_title:"Have a discount code?", tour_coupon_desc:"If you have a discount or gift code, enter it in this box and press <b>Redeem</b> — the checks are added to your balance right away.",
     coupon_title:"Have a code?", coupon_sub:"Gift and promo codes add checks to your balance right away", coupon_btn:"Redeem",
     kpi_topup:"Top up", kpi_credits_unit:"slots", credit_unit_singular:"slot", kpi_balance:"Current balance",
     kpi_processing:"Processing now", kpi_floating:"Floating (pending)",
@@ -9749,6 +9755,16 @@ function maybeShowOnboarding(profileData){
   0%,100%{box-shadow:0 0 0 9999px rgba(0,0,0,.62), 0 0 0 3px rgba(14,122,254,.9), 0 0 28px 8px rgba(14,122,254,.55);}
   50%{box-shadow:0 0 0 9999px rgba(0,0,0,.62), 0 0 0 4px rgba(14,122,254,1), 0 0 44px 14px rgba(14,122,254,.75);}
 }
+@media (max-width:640px){
+  #tourBox{padding:20px 18px 16px;border-radius:16px;max-height:min(62vh, 440px);}
+  #tourTitle{font-size:15.5px;margin-bottom:8px;}
+  #tourDesc{font-size:12.5px;line-height:1.65;margin-bottom:12px;}
+  .tour-emoji{font-size:24px;margin-bottom:6px;}
+  .tour-progress-wrap{margin-bottom:12px;}
+  .tour-skip-btn{padding:8px 10px;font-size:11.5px;}
+  .tour-prev-btn{padding:9px 10px;font-size:12px;}
+  .tour-next-btn{padding:9px 12px;font-size:12.5px;}
+}
 #tourBox{
   position:absolute;z-index:2;background:#fff;border-radius:20px;
   padding:26px 26px 22px;width:420px;max-width:calc(100vw - 28px);
@@ -9811,10 +9827,12 @@ const TOUR_STEPS_DEF = [
   { id:'balance',           target:'#kpiBalanceNum',           emoji:'💰', tab:'new-check' },
   { id:'topup_btn',         target:'#showPacksBtn',            emoji:'💳', tab:'wallet',    expandPacks:true },
   { id:'select_pack',       target:'.pack-slider-wrap',        emoji:'🗂️', tab:'wallet',    expandPacks:true, scrollBlock:'center' },
-  { id:'instapay_method',   target:'[data-pay="instapay"]',    emoji:'📲', tab:'wallet',    expandPacks:true, scrollBlock:'center' },
+  { id:'pay_tabs',          target:'.pay-tabs',                emoji:'🗂️', tab:'wallet',    expandPacks:true, scrollBlock:'center' },
+  { id:'instapay_method',   target:'[data-pay="instapay"]',    emoji:'📲', tab:'wallet',    expandPacks:true, scrollBlock:'center', payTab:'wallets' },
   { id:'instapay_transfer', target:'#walletUidValue',          emoji:'💸', tab:'wallet',    expandPacks:true, scrollBlock:'center' },
   { id:'txid_input',        target:'#walletTxidInput',         emoji:'🔢', tab:'wallet',    expandPacks:true, scrollBlock:'center' },
   { id:'confirm_pay',       target:'#walletPayBlock .btn-gold', emoji:'✅', tab:'wallet',    expandPacks:true, scrollBlock:'end' },
+  { id:'coupon',            target:'.coupon-card',             emoji:'🎟️', tab:'wallet',    expandPacks:true, scrollBlock:'center' },
   { id:'upload',            target:'#uploadzoneBox',           emoji:'📂', tab:'new-check', scrollBlock:'top' },
   { id:'checktype',         target:'.seg',                     emoji:'⚙️', tab:'new-check' },
   { id:'submit',            target:'#submitBtn',               emoji:'🚀', tab:'new-check' },
@@ -9934,14 +9952,29 @@ function getBoxHeight(){
 
 function positionBox(el){
   const r   = el.getBoundingClientRect();
-  const bw  = 430;
-  const bh  = getBoxHeight();
   const gap = 20;
-  const margin = 16;
   const vw = window.innerWidth, vh = window.innerHeight;
+  const mobile = vw <= 640;
+  const margin = mobile ? 8 : 16;
+  // Real box width (CSS caps it at 420px); phones get the full width minus the margins.
+  const bw  = mobile ? vw - margin * 2 : Math.min(box.offsetWidth || 420, vw - margin * 2);
+  const bh  = getBoxHeight();
   let left, top;
   arrow.className  = 'tour-arrow';
   arrow.style.cssText = '';
+  box.style.width = mobile ? bw + 'px' : '';
+
+  if(mobile){
+    // Phone: the box sits full-width at the top or bottom, on the side away from the highlighted element.
+    const targetInTopHalf = (r.top + r.height / 2) < vh / 2;
+    left = margin;
+    top  = targetInTopHalf ? Math.max(margin, vh - bh - margin) : margin;
+    box.style.left      = left + 'px';
+    box.style.top       = top  + 'px';
+    box.style.transform = 'none';
+    arrow.style.cssText = 'display:none;';
+    return;
+  }
 
   const spaceBelow  = vh - r.bottom - gap - margin;
   const spaceAbove  = r.top - gap - margin;
@@ -10066,7 +10099,7 @@ async function showStep(idx){
       await new Promise(r => setTimeout(r, 300));
     }
     // For payment steps (after pack selection), ensure a pack is selected so walletPayBlock is visible
-    const paySteps = ['instapay_method','instapay_transfer','txid_input','confirm_pay'];
+    const paySteps = ['pay_tabs','instapay_method','instapay_transfer','txid_input','confirm_pay'];
     if(paySteps.includes(s.id)){
       const payBlock = document.getElementById('walletPayBlock');
       if(payBlock && payBlock.style.display === 'none'){
@@ -10088,6 +10121,9 @@ async function showStep(idx){
       }
     }
   }
+
+  // Open the payment tab this step points at (the gateways live in tabs now)
+  if(s.payTab && typeof setPayTab === 'function'){ setPayTab(s.payTab); }
 
   // Mock order
   if(s.mockOrder){ injectMockOrder(); }
