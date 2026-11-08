@@ -2565,6 +2565,13 @@
           <button id="pushToggleBtn" type="button" onclick="togglePushCustomer()" style="padding:9px 18px;border-radius:10px;border:none;background:var(--blue);color:#fff;font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer;flex:none;">تفعيل</button>
         </div>
         <div id="pushCardNote" style="font-size:11.5px;color:var(--muted);line-height:1.7;margin-top:12px;"></div>
+        <div id="pwaInstallBox" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--paper-line);">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+            <div id="pwaInstallTitle" style="font-weight:800;font-size:13px;color:var(--navy);">📲 ثبّت الموقع كتطبيق الأول</div>
+            <button id="pwaInstallBtn" type="button" onclick="pwaInstallNow()" style="display:none;padding:8px 14px;border-radius:9px;border:none;background:var(--ok);color:#fff;font-family:'Cairo',sans-serif;font-weight:700;font-size:12px;cursor:pointer;">تثبيت التطبيق</button>
+          </div>
+          <ol id="pwaInstallSteps" style="margin:0;padding-inline-start:20px;font-size:12px;color:var(--ink-soft);line-height:1.9;"></ol>
+        </div>
       </div>
 
       <!-- Single merged card -->
@@ -10064,11 +10071,12 @@ async function renderPushCard(){
     note.textContent = ar ? 'المتصفح ده مش بيدعم الإشعارات.' : 'This browser does not support notifications.';
     return;
   }
+  renderPwaInstallBox();
   if (PUSH_IOS && !PUSH_STANDALONE) {
     btn.disabled = true; btn.textContent = ar ? 'أضف للشاشة' : 'Add to Home Screen';
     note.textContent = ar
-      ? 'على الآيفون لازم تضيف الموقع للشاشة الرئيسية الأول: من زرار المشاركة ← إضافة إلى الشاشة الرئيسية، وبعدين تفتحه من الأيقونة وتفعّل الإشعارات.'
-      : 'On iPhone, first add the site to your Home Screen: Share ← Add to Home Screen. Then open it from the icon and turn notifications on.';
+      ? 'على الآيفون الإشعارات بتشتغل بعد ما تضيف الموقع للشاشة الرئيسية. اتبع الخطوات اللي فوق.'
+      : 'On iPhone, notifications work after you add the site to your Home Screen. Follow the steps above.';
     return;
   }
   btn.disabled = false;
@@ -10112,6 +10120,51 @@ async function togglePushCustomer(){
   }
 }
 pushRegistration().then(renderPushCard);
+renderPwaInstallBox();
+
+// ---- How to install the site as an app (shown inside the notifications card) ----
+let pwaDeferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  pwaDeferredPrompt = e;
+  renderPwaInstallBox();
+});
+window.addEventListener('appinstalled', () => { pwaDeferredPrompt = null; renderPwaInstallBox(); });
+function pwaSteps(){
+  const ar = pushLangAr();
+  if (PUSH_IOS) return ar
+    ? ['افتح الموقع في Safari.', 'اضغط زرار المشاركة (المربع اللي فيه سهم لفوق).', 'اختار "إضافة إلى الشاشة الرئيسية".', 'افتح الموقع من الأيقونة الجديدة.', 'رجع لهنا وفعّل الإشعارات.']
+    : ['Open the site in Safari.', 'Tap the Share button (the box with an arrow).', 'Choose "Add to Home Screen".', 'Open the site from the new icon.', 'Come back here and turn notifications on.'];
+  if (/Android/i.test(navigator.userAgent)) return ar
+    ? ['افتح الموقع في Chrome.', 'اضغط النقط الثلاث ⋮ فوق.', 'اختار "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية".', 'افتح الموقع من الأيقونة وفعّل الإشعارات.']
+    : ['Open the site in Chrome.', 'Tap the three dots ⋮ at the top.', 'Choose "Install app" or "Add to Home screen".', 'Open the site from the icon and turn notifications on.'];
+  return ar
+    ? ['في Chrome أو Edge، اضغط أيقونة التثبيت ⊕ في شريط العنوان.', 'اختار "تثبيت".', 'افتح الموقع من التطبيق وفعّل الإشعارات.']
+    : ['In Chrome or Edge, click the install icon ⊕ in the address bar.', 'Choose "Install".', 'Open the site from the app and turn notifications on.'];
+}
+function renderPwaInstallBox(){
+  const box = document.getElementById('pwaInstallBox');
+  if (!box) return;
+  const ar = pushLangAr();
+  if (PUSH_STANDALONE) {
+    box.style.display = 'block';
+    document.getElementById('pwaInstallTitle').textContent = ar ? '✅ الموقع متثبّت كتطبيق على الجهاز ده' : '✅ The site is installed as an app on this device';
+    document.getElementById('pwaInstallSteps').innerHTML = '';
+    document.getElementById('pwaInstallBtn').style.display = 'none';
+    return;
+  }
+  box.style.display = 'block';
+  document.getElementById('pwaInstallTitle').textContent = ar ? '📲 ثبّت الموقع كتطبيق الأول' : '📲 Install the site as an app first';
+  document.getElementById('pwaInstallSteps').innerHTML = pwaSteps().map(x => `<li>${escapeHtml(x)}</li>`).join('');
+  document.getElementById('pwaInstallBtn').style.display = pwaDeferredPrompt ? '' : 'none';
+}
+async function pwaInstallNow(){
+  if (!pwaDeferredPrompt) return;
+  pwaDeferredPrompt.prompt();
+  await pwaDeferredPrompt.userChoice;
+  pwaDeferredPrompt = null;
+  renderPwaInstallBox();
+}
 </script>
 </body>
 </html>
