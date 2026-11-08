@@ -465,6 +465,13 @@ body {
   var SUPABASE_URL = 'https://ixpgqhwausnfjphitsty.supabase.co';
   var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4cGdxaHdhdXNuZmpwaGl0c3R5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNTk4NTgsImV4cCI6MjA5NzczNTg1OH0.m8ZLubDuxiSRIEXSa4pEgZiwDtXImUhEH_jI6GWP990';
   var supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  var adminClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: { storageKey: 'prokeys-admin-auth', storage: {
+      getItem: function(k) { return sessionStorage.getItem(k) ?? localStorage.getItem(k); },
+      setItem: function(k, v) { var remember = localStorage.getItem('prokeys-admin-remember') === '1'; var primary = remember ? localStorage : sessionStorage; (remember ? sessionStorage : localStorage).removeItem(k); primary.setItem(k, v); },
+      removeItem: function(k) { sessionStorage.removeItem(k); localStorage.removeItem(k); }
+    }, persistSession: true, autoRefreshToken: true }
+  });
 
   // Logo/favicon overrides from the admin's UI Design tab (same ui_config
   // store used by index.html / dashboard.html / admin-dashboard.html).
@@ -852,14 +859,15 @@ body {
     btn.disabled = true;
     btn.innerHTML = '<div class="spinner"></div>';
 
-    supabaseClient.auth.signInWithPassword({ email: email, password: pass }).then(function(res) {
+    localStorage.setItem('prokeys-admin-remember', byId('rememberAdmin') && byId('rememberAdmin').checked ? '1' : '0');
+    adminClient.auth.signInWithPassword({ email: email, password: pass }).then(function(res) {
       if (res.error) throw new Error(res.error.message);
       var user = res.data.user;
       // Verify this account is actually registered as an admin (see
       // add_live_chat_and_admin.sql — public.admins) before letting them
       // into the admin dashboard. Any Supabase Auth account can sign in
       // successfully above; this is the actual authorization check.
-      return supabaseClient
+      return adminClient
         .from('admins')
         .select('id')
         .eq('id', user.id)
@@ -867,7 +875,7 @@ body {
         .then(function(adminRes) {
           if (adminRes.error) throw new Error(adminRes.error.message);
           if (!adminRes.data) {
-            supabaseClient.auth.signOut();
+            adminClient.auth.signOut();
             throw new Error(lang === 'ar' ? 'هذا الحساب مش مسجل كأدمن.' : 'This account is not registered as an admin.');
           }
           showSuccess('adminSuccess', text[lang].redirecting);

@@ -1422,7 +1422,21 @@
 const SUPABASE_URL = 'https://ixpgqhwausnfjphitsty.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4cGdxaHdhdXNuZmpwaGl0c3R5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNTk4NTgsImV4cCI6MjA5NzczNTg1OH0.m8ZLubDuxiSRIEXSa4pEgZiwDtXImUhEH_jI6GWP990';
 const FN_BASE = '/api/fn';
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const ADMIN_STORAGE_KEY = 'prokeys-admin-auth';
+// Admin session storage: "تذكرني" on = localStorage (stays), off = sessionStorage (ends with the browser session).
+// Its own key, so a customer login or sign-out on this browser never touches the admin session.
+const adminAuthStorage = {
+  getItem: (k) => sessionStorage.getItem(k) ?? localStorage.getItem(k),
+  setItem: (k, v) => {
+    const remember = localStorage.getItem('prokeys-admin-remember') === '1';
+    const primary = remember ? localStorage : sessionStorage;
+    (remember ? sessionStorage : localStorage).removeItem(k);
+    primary.setItem(k, v);
+  },
+  removeItem: (k) => { sessionStorage.removeItem(k); localStorage.removeItem(k); },
+};
+const ADMIN_CLIENT_OPTIONS = { auth: { storageKey: ADMIN_STORAGE_KEY, storage: adminAuthStorage, persistSession: true, autoRefreshToken: true } };
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, ADMIN_CLIENT_OPTIONS);
 
 const EGP_PER_CREDIT = 5; // 1 USD = 50 EGP = 10 credits -> 1 credit = 5 EGP
 
@@ -1762,9 +1776,19 @@ async function handleLogout(){
     window.location.href = 'auth.html#admin';
     return;
   }
-  const { data: adminRow, error: adminErr } = await supabaseClient
-    .from('admins').select('*').eq('id', session.user.id).maybeSingle();
-  if (adminErr || !adminRow) {
+  // A temporary error (network, slow response) must not end the session: retry a few times first.
+  let adminRow = null, adminErr = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    ({ data: adminRow, error: adminErr } = await supabaseClient
+      .from('admins').select('*').eq('id', session.user.id).maybeSingle());
+    if (!adminErr) break;
+    await new Promise(r => setTimeout(r, 1500));
+  }
+  if (adminErr) {
+    window.location.href = 'auth.html#admin';
+    return;
+  }
+  if (!adminRow) {
     // Valid Supabase session, but this account isn't registered as an
     // admin — sign out so a stray user session doesn't loop back here.
     await supabaseClient.auth.signOut();
