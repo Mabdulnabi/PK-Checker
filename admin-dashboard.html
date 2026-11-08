@@ -1143,6 +1143,13 @@
               <label>على شراء محدد للعميل (اختياري)</label>
               <select id="crGrantSelect" style="width:100%;" onchange="crGrantChanged()"><option value="">— حسب نوع الباقة (الأقرب انتهاءً) —</option></select>
             </div>
+            <div class="cr-form-group" id="crExtendGroup" style="display:none;">
+              <label>تمديد الشراء حتى تاريخ</label>
+              <div style="display:flex;gap:6px;">
+                <input type="date" id="crExtendDate" style="flex:1;">
+                <button class="btn btn-primary" onclick="adminExtendGrant()">تمديد</button>
+              </div>
+            </div>
             <div class="cr-form-group">
               <label id="crAmountLbl">عدد الباقات</label>
               <input type="number" id="crAmountInput" placeholder="مثال: 1" min="1">
@@ -5593,16 +5600,51 @@ async function loadCrGrants(userId){
     const type = g.slot_type === 'plag_only' ? 'Plag' : 'Plag + AI';
     const end = g.expires_at ? 'تنتهي ' + new Date(g.expires_at).toLocaleDateString('ar-EG') : 'مدى الحياة';
     const bought = new Date(g.granted_at).toLocaleDateString('ar-EG');
-    return `<option value="${g.grant_id}">${escapeHtml(g.package)} · ${type} · متبقي ${g.remaining} من ${g.slots_total} · ${end} · اشتري ${bought}</option>`;
+    return `<option value="${g.grant_id}" data-expires="${g.expires_at || ''}">${escapeHtml(g.package)} · ${type} · متبقي ${g.remaining} من ${g.slots_total} · ${end} · اشتري ${bought}</option>`;
   }).join('');
   crGrantChanged();
 }
 function crGrantChanged(){
-  const targeted = !!document.getElementById('crGrantSelect')?.value;
+  const gSel = document.getElementById('crGrantSelect');
+  const targeted = !!gSel?.value;
+  // A purchase with an end date can be extended; lifetime purchases cannot.
+  const expires = gSel?.selectedOptions[0]?.dataset.expires || '';
+  const extendGroup = document.getElementById('crExtendGroup');
+  const extendDate = document.getElementById('crExtendDate');
+  if (extendGroup) extendGroup.style.display = expires ? '' : 'none';
+  if (extendDate && expires) {
+    const d = new Date(expires);
+    const pad = n => String(n).padStart(2, '0');
+    extendDate.value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    extendDate.min = extendDate.value;
+  }
   const lbl = document.getElementById('crAmountLbl');
   if (lbl) lbl.textContent = targeted ? 'عدد الفحوصات' : 'عدد الباقات';
   const pkg = document.getElementById('crPackageSelect');
   if (pkg) pkg.disabled = targeted;
+}
+
+async function adminExtendGrant(){
+  const grantId = document.getElementById('crGrantSelect')?.value || '';
+  const dateVal = document.getElementById('crExtendDate')?.value || '';
+  if (!grantId) { await adminAlert('اختار الشراء الأول', {icon:'⚠️'}); return; }
+  if (!dateVal) { await adminAlert('اختار التاريخ الجديد', {icon:'⚠️'}); return; }
+  const newExp = new Date(dateVal + 'T23:59:59');
+  const ok = await adminConfirm('هيتمدد الشراء لحد ' + newExp.toLocaleDateString('ar-EG') + '. متأكد؟',
+    { icon: '⚠️', confirmLabel: 'تمديد' });
+  if (!ok) return;
+  const note = document.getElementById('crNoteInput')?.value.trim() || '';
+  const { error } = await supabaseClient.rpc('admin_extend_grant', {
+    p_grant_id: grantId, p_new_expires: newExp.toISOString(), p_note: note || null,
+  });
+  if (error) {
+    const msg = error.message.includes('NOT_LATER') ? 'التاريخ لازم يكون بعد تاريخ الانتهاء الحالي'
+      : error.message.includes('DATE_IN_PAST') ? 'التاريخ لازم يكون في المستقبل' : error.message;
+    await adminAlert('فشل التمديد: ' + msg, {icon:'❌', danger:true});
+    return;
+  }
+  await adminAlert('تم تمديد الشراء', {icon:'✅'});
+  if (crUserFound) loadCrGrants(crUserFound.user_id);
 }
 
 async function adminAdjustCredit(action){
