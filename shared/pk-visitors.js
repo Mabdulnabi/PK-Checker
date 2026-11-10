@@ -25,7 +25,7 @@
       '.pkv-wrap{display:flex;justify-content:center;width:100%;margin-top:14px;}',
       '.pkv-copy{display:block;}',
       '.pkv-side{display:flex;justify-content:center;margin:0 0 10px;}',
-      '.pkv-title{text-align:center;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;font-weight:500;color:#1B2556;letter-spacing:.3px;}',
+      '.pkv-title{text-align:center;font-family:"Cairo",sans-serif;font-size:13.5px;font-weight:700;color:#1B2556;padding:8px 0 4px;}',
       '.pkv-title .pkv-code{color:#2563EB;font-weight:800;}',
       '.pkv-title b{color:#2563EB;font-weight:800;}',
       '.pkv-title .pkv-link{color:inherit;text-decoration:none;border-bottom:1.5px solid currentColor;}',
