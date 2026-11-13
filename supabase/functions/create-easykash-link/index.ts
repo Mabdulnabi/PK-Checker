@@ -45,6 +45,18 @@ Deno.serve(async (req) => {
     if (payment.gateway !== 'easykash') return jsonResponse({ success: false, error: 'Wrong gateway for this payment' }, 400);
     if (payment.status === 'completed') return jsonResponse({ success: false, error: 'Payment already completed' }, 409);
 
+    // One payment, one link: a link created in the last hour is returned again, not replaced.
+    // Two links for the same payment could lead to a payment that no one can match.
+    const { data: linkRow } = await supabaseClient
+      .from('payments')
+      .select('easykash_pay_url, easykash_link_at')
+      .eq('id', payment_id)
+      .single();
+    if (linkRow?.easykash_pay_url && linkRow.easykash_link_at &&
+        Date.now() - new Date(linkRow.easykash_link_at).getTime() < 60 * 60 * 1000) {
+      return jsonResponse({ success: true, payUrl: linkRow.easykash_pay_url, reused: true });
+    }
+
     const { data: profile } = await supabaseClient
       .from('users_profile')
       .select('email, phone, full_name')
@@ -89,6 +101,14 @@ Deno.serve(async (req) => {
       console.error('[EasyKash] no URL in response:', data);
       return jsonResponse({ success: false, error: 'EasyKash did not return a payment URL' }, 502);
     }
+
+    // Keep the link on the payment (written with the service role, the customer cannot write payments).
+    const adminClient = createClient(Deno.env.get('PROKEYS_SUPABASE_URL') ?? '', Deno.env.get('PROKEYS_SERVICE_ROLE_KEY') ?? '');
+    const { error: saveErr } = await adminClient
+      .from('payments')
+      .update({ easykash_pay_url: payUrl, easykash_link_at: new Date().toISOString() })
+      .eq('id', payment_id);
+    if (saveErr) console.error('[EasyKash] could not store the link:', saveErr.message);
 
     return jsonResponse({ success: true, payUrl });
   } catch (err) {
