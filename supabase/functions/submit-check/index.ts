@@ -183,8 +183,11 @@ Deno.serve(async (req: Request) => {
         message_ar: availability.message_ar, message_en: availability.message_en }, 503);
     }
 
+    // The slot reservation is the gate: only the request that actually inserts the usage may send.
+    // A concurrent request for the same order gets either a unique-key conflict (code 23505) or
+    // replayed=true, and must not send the file again (that would charge the provider and a slot twice).
     const slotKey = `order:${orderId}`;
-    const { error: reserveErr } = await admin.rpc("reserve_slot", {
+    const { data: reserved, error: reserveErr } = await admin.rpc("reserve_slot", {
       p_user_id: user.id,
       p_slot_type: service,
       p_idempotency_key: slotKey,
@@ -196,7 +199,14 @@ Deno.serve(async (req: Request) => {
         await admin.from("orders").update({ status: "error", error_reason: "NO_SLOTS" }).eq("id", orderId);
         return cors_json({ success: false, code: "NO_SLOTS", slot_type: service }, 402);
       }
+      if ((reserveErr as { code?: string }).code === "23505") {
+        return cors_json({ success: false, code: "ALREADY_SUBMITTING", error: "This order is already being submitted." }, 409);
+      }
       throw reserveErr;
+    }
+    if ((reserved as { replayed?: boolean } | null)?.replayed) {
+      // Another request already reserved this order: never send it again.
+      return cors_json({ success: false, code: "ALREADY_SUBMITTING", error: "This order is already being submitted." }, 409);
     }
 
     const tsForm = new FormData();
@@ -272,7 +282,14 @@ Deno.serve(async (req: Request) => {
     }
 
     const fileId = result.fileId;
-    await admin.from("orders").update({ external_order_id: fileId, status: "run" }).eq("id", orderId);
+    // The provider accepted the file, so the order must record it. Retry once if the write fails:
+    // without the id a second submit of this order would be refused, but polling would not work.
+    let { error: saveErr } = await admin.from("orders").update({ external_order_id: fileId, status: "run" }).eq("id", orderId);
+    if (saveErr) {
+      console.error("submit-check: saving external_order_id failed, retrying", saveErr.message);
+      ({ error: saveErr } = await admin.from("orders").update({ external_order_id: fileId, status: "run" }).eq("id", orderId));
+      if (saveErr) console.error("submit-check: external_order_id NOT saved for order", orderId, fileId);
+    }
 
     return cors_json({ success: true, externalOrderId: fileId, slot_type: service });
   } catch (err) {
