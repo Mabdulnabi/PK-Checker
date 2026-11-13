@@ -279,6 +279,10 @@
   select.status-dd{border:none;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:9.5px;padding:3px 6px;border-radius:20px;font-weight:600;white-space:nowrap;-webkit-appearance:none;appearance:none;}
   html[lang="ar"] select.status-dd{font-family:'Cairo',sans-serif;}
   .link-cell{display:flex;align-items:center;gap:5px;}
+  .mf-dl{display:inline-flex;align-items:center;justify-content:center;gap:5px;background:#0E9F6E;color:#fff;border:none;border-radius:9px;padding:6px 9px;font-family:'Cairo',sans-serif;font-weight:800;font-size:12px;cursor:pointer;white-space:nowrap;}
+  .mf-dl svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+  .mf-dl:disabled{opacity:.55;cursor:not-allowed;}
+  .mf-dl.mf-dl-high{background:#E0445B;box-shadow:0 6px 14px -8px rgba(224,68,91,.6);}
   .link-cell a{color:var(--blue-deep);text-decoration:none;font-size:11px;}
   .edit-link-btn{border:none;background:none;cursor:pointer;color:var(--muted);font-size:12px;padding:2px;}
   .edit-link-btn:hover{color:var(--blue-deep);}
@@ -2926,7 +2930,6 @@ function timeAgo(dateStr){
 }
 
 function switchTab(tab){
-  if (window.innerWidth > 860) toggleDesktopSidebar(true);
   document.querySelectorAll('.side-item').forEach(x=>x.classList.remove('on'));
   document.querySelector(`.side-item[data-tab="${tab}"]`).classList.add('on');
   document.querySelectorAll('.tabpane').forEach(p=>p.classList.remove('on'));
@@ -3368,8 +3371,8 @@ function renderOrdersTable(){
       <td><span class="badge ${badgeClass}"><span class="dot"></span>${badgeLabel}</span></td>
       <td style="font-size:11px;color:var(--muted);">${formatDate(o.submitted_at)}</td>
       <td>${sourceCell}</td>
-      <td>${linkCell(o.id, 'report_url', o.report_url)}</td>
-      <td>${linkCell(o.id, 'ai_report_url', o.ai_report_url)}</td>
+      <td>${reportButton(o, 'sim')}</td>
+      <td>${reportButton(o, 'ai')}</td>
       <td>${o.user_id ? `<button class="msg-btn" data-a="${escapeHtml(o.user_id)}" data-b="${escapeHtml(o.display_id || o.id.slice(0,8))}" onclick="runWithData(this, composeMessage)" title="${t('send_msg')}">✉</button>` : ''}</td>
       <td style="white-space:nowrap;">
         ${(['error','failed_invalid'].includes(o.status) && o.source_file_path) ? `<button class="msg-btn" onclick="resendOrderToApi('${o.id}')" title="إعادة إرسال نفس الملف للفحص">🔁 إعادة إرسال</button>` : ''}
@@ -3576,6 +3579,28 @@ async function uploadManualReportFile(orderId, kind, inputEl){
     label.innerHTML = prevHtml;
     await adminAlert('فشل رفع الملف: ' + (err.message || err), {icon:'❌', danger:true});
   }
+}
+
+// Report button shown exactly like the customer's: the score on it, red above 20%, green at 20% or below.
+// A stored AI report with no number is the "*%" case (the score is under 20%).
+function reportButton(o, kind){
+  const url = kind === 'ai' ? o.ai_report_url : o.report_url;
+  const score = kind === 'ai' ? o.ai_score : o.similarity_score;
+  const field = kind === 'ai' ? 'ai_report_url' : 'report_url';
+  if (!url) return `<span class="source-none">${t('link_none')}</span>`;
+  let label, high = false;
+  if (score === null || score === undefined) {
+    label = kind === 'ai' ? '*%' : '—';
+  } else {
+    const pct = Math.round(Number(score));
+    label = pct + '%';
+    high = pct > 20;
+  }
+  const dlText = currentLang === 'ar' ? 'تحميل' : 'Download';
+  return `<div class="link-cell">
+    <button class="mf-dl${high ? ' mf-dl-high' : ''}" type="button" data-a="${escapeHtml(url)}" onclick="runWithData(this, adminOpenReport)">${label} <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/></svg> ${dlText}</button>
+    <button class="edit-link-btn" onclick="editOrderLink('${o.id}','${field}')" title="${t('edit_link')}">✎</button>
+  </div>`;
 }
 
 function linkCell(orderId, field, url){
