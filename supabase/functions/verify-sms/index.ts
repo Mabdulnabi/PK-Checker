@@ -118,6 +118,8 @@ export interface SmsVerifyResult {
   timestamp?: string;
   row?: number;
   paid?: number;
+  // The normalized reference from the sheet: the stable key for this transfer.
+  ref?: string;
 }
 
 // Normalizes a reference number: strips whitespace, a leading apostrophe
@@ -138,6 +140,8 @@ export function matchSmsPayment(
 ): SmsVerifyResult {
   const inputRef = String(refNumber).trim();
   const normInput = normalizeRef(inputRef);
+  let sawUsed = false;
+  let sawWrongAmount: number | undefined;
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
@@ -152,7 +156,7 @@ export function matchSmsPayment(
     if (sheetRef !== inputRef && normSheet !== normInput) continue;
 
     const used = row.length > 4 ? String(row[4]).trim().toUpperCase() : '';
-    if (used === 'TRUE') return { ok: false, reason: 'already_used' };
+    if (used === 'TRUE') { sawUsed = true; continue; }
 
     let sheetAmount = 0;
     try {
@@ -165,11 +169,13 @@ export function matchSmsPayment(
     if (Math.abs(sheetAmount - expectedAmountEgp) <= tolerance) {
       const source = row.length > 2 ? String(row[2]).trim() : 'unknown';
       const timestamp = row.length > 3 ? String(row[3]).trim() : '';
-      return { ok: true, amount: sheetAmount, source, timestamp, row: i + 1 };
+      return { ok: true, amount: sheetAmount, source, timestamp, row: i + 1, ref: normSheet };
     }
-    return { ok: false, reason: 'wrong_amount', paid: sheetAmount };
+    sawWrongAmount = sheetAmount;
   }
 
+  if (sawUsed) return { ok: false, reason: 'already_used' };
+  if (sawWrongAmount !== undefined) return { ok: false, reason: 'wrong_amount', paid: sawWrongAmount };
   return { ok: false, reason: 'not_found' };
 }
 
@@ -235,7 +241,7 @@ export async function handleVerifySms(req: Request, makeSupabaseClient: typeof c
       paymentId: payment_id,
       credits: payment.credits ?? 0,
       gateway: payment.gateway, // 'instapay' or 'vodafone_cash'
-      providerRef: `sheet-row-${result.row}-${ref_number}`,
+      providerRef: `sheet:${result.ref}`,
     });
 
     if (!confirmResult.ok) {

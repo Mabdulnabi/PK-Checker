@@ -204,7 +204,12 @@ export async function handleVerifyBybit(
       return jsonResponse({ success: true, verified: false, reason: match.reason, paid: match.amountPaid });
     }
 
-    const providerRef = match.matchedTx?.orderId || '';
+    // Stable key for this transfer. Without an order id, the transaction's own time, amount and
+    // currency identify it; the payment id is the last resort, so two transfers never share a key.
+    const tx = match.matchedTx;
+    const providerRef = tx?.orderId
+      || (tx ? `bybit-tx:${tx.createTime ?? tx.transactionTime ?? ''}:${tx.amount ?? ''}:${tx.currency ?? ''}` : '')
+      || `bybit-payment:${payment_id}`;
     const confirmResult = await confirmTopup({
       adminClient,
       userId,
