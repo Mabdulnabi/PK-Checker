@@ -687,12 +687,12 @@
       <div class="side-nav">
         <div class="side-item on" data-tab="overview" onclick="switchTab('overview')"><span class="ic" data-icon-key="admin_nav_overview">◷</span><span data-i18n="nav_overview">نظرة عامة</span></div>
         <div class="side-item" data-tab="orders" onclick="switchTab('orders')"><span class="ic" data-icon-key="admin_nav_orders">▤</span><span data-i18n="nav_orders">الطلبات</span></div>
+        <div class="side-item" data-tab="payments" onclick="switchTab('payments')"><span class="ic" data-icon-key="admin_nav_payments">💳</span><span data-i18n="nav_payments">المدفوعات</span></div>
+        <div class="side-item" data-tab="accounts" onclick="switchTab('accounts')"><span class="ic" data-icon-key="admin_nav_accounts">👤</span><span data-i18n="nav_accounts">إدارة الحسابات</span></div>
         <div class="side-item" data-tab="uidesign" onclick="switchTab('uidesign')"><span class="ic" data-icon-key="admin_nav_uidesign">🎨</span><span data-i18n="nav_uidesign">تصميم الواجهة</span></div>
         <div class="side-item" data-tab="broadcast" onclick="switchTab('broadcast')"><span class="ic" data-icon-key="admin_nav_broadcast">📢</span><span data-i18n="nav_broadcast">رسائل جماعية</span></div>
         <div class="side-item" data-tab="activity" onclick="switchTab('activity')"><span class="ic" data-icon-key="admin_nav_activity">📋</span><span data-i18n="nav_activity">سجل النشاط</span></div>
-        <div class="side-item" data-tab="payments" onclick="switchTab('payments')"><span class="ic" data-icon-key="admin_nav_payments">💳</span><span data-i18n="nav_payments">المدفوعات</span></div>
         <div class="side-item" data-tab="slots" onclick="switchTab('slots')"><span class="ic">🎫</span><span data-i18n="nav_slots">الفحوصات</span></div>
-        <div class="side-item" data-tab="accounts" onclick="switchTab('accounts')"><span class="ic" data-icon-key="admin_nav_accounts">👤</span><span data-i18n="nav_accounts">إدارة الحسابات</span></div>
         <div class="side-item" data-tab="backup" onclick="switchTab('backup')"><span class="ic" data-icon-key="admin_nav_backup">💾</span><span data-i18n="nav_backup">النسخ الاحتياطي</span></div>
         <div class="side-item" data-tab="chat" onclick="switchTab('chat')"><span class="ic" data-icon-key="admin_nav_chat">💬</span><span data-i18n="nav_chat">الشات المباشر</span><span class="side-badge" id="chatSideBadge" style="display:none;"></span></div>
         <div class="side-item" data-tab="tickets" onclick="switchTab('tickets')"><span class="ic" data-icon-key="admin_nav_tickets">🎫</span><span data-i18n="nav_tickets">تذاكر الدعم</span><span class="side-badge" id="ticketsSideBadge" style="display:none;"></span></div>
@@ -3003,14 +3003,14 @@ function renderOverviewOrderKpis(orders, ranges){
 // Net profit = revenue from wallet top-ups - API cost per completed check
 // (sim_only: cost 0 → full profit; sim_ai/both: cost 32.5 EGP each)
 function renderOverviewRevenueKpis(orders, wallet, ranges){
-  const revToday = sumPaymentsEgp(wallet, ranges.startOfToday);
-  const revWeek  = sumPaymentsEgp(wallet, ranges.startOfWeek);
-  const revMonth = sumPaymentsEgp(wallet, ranges.startOfMonth);
-  const revYear  = sumPaymentsEgp(wallet, ranges.startOfYear);
-  const profToday = calcLedgerProfit(ranges.startOfToday);
-  const profWeek  = calcLedgerProfit(ranges.startOfWeek);
-  const profMonth = calcLedgerProfit(ranges.startOfMonth);
-  const profYear  = calcLedgerProfit(ranges.startOfYear);
+  const revToday = sumPaymentsEgp(wallet, ranges.startOfToday) + sumRedeem('revenue_egp', ranges.startOfToday);
+  const revWeek  = sumPaymentsEgp(wallet, ranges.startOfWeek)  + sumRedeem('revenue_egp', ranges.startOfWeek);
+  const revMonth = sumPaymentsEgp(wallet, ranges.startOfMonth) + sumRedeem('revenue_egp', ranges.startOfMonth);
+  const revYear  = sumPaymentsEgp(wallet, ranges.startOfYear)  + sumRedeem('revenue_egp', ranges.startOfYear);
+  const profToday = calcLedgerProfit(ranges.startOfToday) + sumRedeem('profit_egp', ranges.startOfToday);
+  const profWeek  = calcLedgerProfit(ranges.startOfWeek)  + sumRedeem('profit_egp', ranges.startOfWeek);
+  const profMonth = calcLedgerProfit(ranges.startOfMonth) + sumRedeem('profit_egp', ranges.startOfMonth);
+  const profYear  = calcLedgerProfit(ranges.startOfYear)  + sumRedeem('profit_egp', ranges.startOfYear);
   document.getElementById('kpiRevToday').innerHTML = `${formatMoney(revToday)}<div style="font-size:10px;color:var(--ok);">${t('profit_label')}: ${formatMoney(profToday)}</div>`;
   document.getElementById('kpiRevWeek').innerHTML  = `${formatMoney(revWeek)}<div style="font-size:10px;color:var(--ok);">${t('profit_label')}: ${formatMoney(profWeek)}</div>`;
   document.getElementById('kpiRevMonth').innerHTML = `${formatMoney(revMonth)}<div style="font-size:10px;color:var(--ok);">${t('profit_label')}: ${formatMoney(profMonth)}</div>`;
@@ -3055,6 +3055,8 @@ async function loadOverview(){
   // Checks come from the order ledger, so removed order rows still count.
   const { data: ledgerRows } = await supabaseClient.from('order_ledger').select('created_at,status,revenue_egp,cost_egp,profit_egp,check_type');
   _ledgerRows = ledgerRows || [];
+  const { data: redeemRows } = await supabaseClient.rpc('admin_redeem_ledger');
+  _redeemRows = redeemRows || [];
   const doneOrders = _ledgerRows.filter(r => r.status === 'completed').map(r => ({ submitted_at: r.created_at }));
   const usersCount = profilesRes.count ?? '—';
 
@@ -3070,7 +3072,7 @@ async function loadOverview(){
   loadApiCredits();
 
   document.getElementById('overviewSub').textContent =
-    (currentLang === 'ar' ? 'آخر تحديث: ' : 'Last updated: ') + now.toLocaleTimeString(currentLang === 'ar' ? 'ar-EG' : 'en-US');
+    (currentLang === 'ar' ? 'آخر تحديث: ' : 'Last updated: ') + fmtDateTime(now);
 
   // Snapshot for CSV export — kept in EGP (the ledger's real currency);
   // exportOverviewCSV() converts to USD at export time if that's selected.
@@ -3392,7 +3394,7 @@ function renderOrdersTable(){
         ${(['error','failed_invalid'].includes(o.status) && o.source_file_path) ? `<button class="msg-btn" onclick="resendOrderToApi('${o.id}')" title="إعادة إرسال نفس الملف للفحص">🔁 إعادة إرسال</button>` : ''}
         ${(['error','failed_invalid'].includes(o.status) && o.processing_mode === 'api') ? `<button class="msg-btn" style="color:var(--blue-deep);border-color:var(--blue-light);" onclick="adoptOrderManually('${o.id}')" title="تولى الطلب يدوياً ورفع التقارير بنفسك">🖐 يدوي</button>` : ''}
       </td>
-      <td>${(() => { const aged = o.submitted_at && (Date.now() - new Date(o.submitted_at).getTime()) >= 48*3600*1000; const hasFiles = !!(o.source_file_path || o.report_url || o.ai_report_url); const ok = aged && hasFiles; return `<button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);white-space:nowrap;" ${ok ? '' : 'disabled'} onclick="deleteOrderFiles('${o.id}')" title="${ok ? 'حذف الملفات (الطلب نفسه بيفضل)' : 'متاح بعد 48 ساعة من الطلب لو فيه ملفات'}">🗑 الملفات</button>`; })()}</td>
+      <td>${(() => { const aged = o.submitted_at && (Date.now() - new Date(o.submitted_at).getTime()) >= 48*3600*1000; const hasFiles = !!(o.source_file_path || o.report_url || o.ai_report_url); const ok = aged; return `<button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);white-space:nowrap;" ${ok ? '' : 'disabled'} onclick="deleteOrderFiles('${o.id}')" title="${ok ? (hasFiles ? 'حذف الملفات (الطلب نفسه بيفضل)' : 'الملفات اتحذفت تلقائياً بعد 48 ساعة') : 'متاح بعد 48 ساعة من الطلب'}">🗑 الملفات</button>`; })()}</td>
     </tr>`;
 
     return mainRow;
@@ -3897,11 +3899,32 @@ function escapeHtml(str){
     '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
   }[c]));
 }
-function formatDate(dateStr){
-  if (!dateStr) return '—';
-  const d = new Date(dateStr);
-  return d.toLocaleString(currentLang === 'ar' ? 'ar-EG' : 'en-GB', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+const _MON_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+const _MON_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+// Dates: "13 نوفمبر 2026" (Arabic) / "13 Nov 2026" (English)
+function fmtDate(input){
+  const d = input instanceof Date ? input : new Date(input);
+  if (!input || isNaN(d)) return '—';
+  return currentLang === 'ar'
+    ? `${d.getDate()} ${_MON_AR[d.getMonth()]} ${d.getFullYear()}`
+    : `${d.getDate()} ${_MON_EN[d.getMonth()]} ${d.getFullYear()}`;
 }
+// Times: 12-hour, "3:05 م" (Arabic) / "3:05 PM" (English)
+function fmtTime(input){
+  const d = input instanceof Date ? input : new Date(input);
+  if (!input || isNaN(d)) return '—';
+  let h = d.getHours();
+  const pm = h >= 12;
+  h = h % 12 || 12;
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  return currentLang === 'ar' ? `${h}:${mm} ${pm ? 'م' : 'ص'}` : `${h}:${mm} ${pm ? 'PM' : 'AM'}`;
+}
+function fmtDateTime(input){
+  const d = input instanceof Date ? input : new Date(input);
+  if (!input || isNaN(d)) return '—';
+  return fmtDate(d) + ' · ' + fmtTime(d);
+}
+function formatDate(dateStr){ return fmtDateTime(dateStr); }
 </script>
   <!-- CUSTOMER PROFILE POPUP -->
   <div class="profile-popup" id="profilePopup">
@@ -4878,6 +4901,16 @@ function sumPaymentsEgp(list, since){
 }
 
 let _ledgerRows = [];
+let _redeemRows = []; // redeemed vouchers: revenue_egp / cost_egp / profit_egp per redeemed_at
+function sumRedeem(field, since){
+  return _redeemRows
+    .filter(r => new Date(r.redeemed_at) >= since)
+    .reduce((s, r) => s + Number(r[field] || 0), 0);
+}
+// Revenue of a period: wallet/payment top-ups plus redeemed vouchers at their value.
+function sumRevenueAll(since){
+  return sumPaymentsEgp(_revPayments, since) + sumRedeem('revenue_egp', since);
+}
 // Profit of successful checks since a date, from the ledger (revenue per check minus its API cost).
 function calcLedgerProfit(since){
   return _ledgerRows
@@ -4959,6 +4992,10 @@ async function deleteOrderFiles(orderId){
   if (!order) return;
   const aged = order.submitted_at && (Date.now() - new Date(order.submitted_at).getTime()) >= 48*3600*1000;
   if (!aged) { await adminAlert('الملفات بتتحذف بعد 48 ساعة من الطلب بس.', {icon:'⚠️'}); return; }
+  if (!order.source_file_path && !order.report_url && !order.ai_report_url) {
+    await adminAlert('الملفات اتحذفت بالفعل (الحذف التلقائي بعد 48 ساعة).', {icon:'ℹ️'});
+    return;
+  }
   const confirmed = await adminConfirm(`هتتحذف ملفات الطلب ${order.display_id || orderId.slice(0,8)} (الأصلي والتقارير). الطلب نفسه بيفضل. متأكد؟`, {icon:'🗑', danger:true, confirmLabel:'حذف الملفات'});
   if (!confirmed) return;
   try {
@@ -5060,7 +5097,7 @@ function cbRenderPage(){
     <tr>
       <td>${b.backup_type === 'auto' ? t('backup_auto') : t('backup_manual')}</td>
       <td>${b.row_count}</td>
-      <td style="font-size:11px;">${new Date(b.created_at).toLocaleString(currentLang === 'ar' ? 'ar-EG' : 'en-US')}</td>
+      <td style="font-size:11px;">${fmtDateTime(b.created_at)}</td>
       <td>
         <button class="msg-btn" onclick="downloadCreditBackup('${b.id}')" title="${t('backup_download')}">⬇</button>
         <button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);" onclick="restoreCreditBackupById('${b.id}')" title="${t('backup_restore')}">↩</button>
@@ -5254,7 +5291,7 @@ function profitUsd(priceEgp, slots, providerCost){
 }
 function liveRateNote(){
   const rate = liveUsdEgp || 50;
-  return '1 USD = ' + rate.toFixed(2) + ' EGP' + (liveRateAt ? ' - ' + liveRateAt.toLocaleTimeString('en-US') : ' (fallback)');
+  return '1 USD = ' + rate.toFixed(2) + ' EGP' + (liveRateAt ? ' - ' + fmtTime(liveRateAt) : ' (fallback)');
 }
 
 async function loadSlotPackages(){
@@ -5812,9 +5849,9 @@ async function loadCrGrants(userId, F = CR_FORM){
   sel.innerHTML = GRANT_PLACEHOLDER + rows.map(g => {
     const type = g.slot_type === 'plag_only' ? 'Plag' : 'Plag + AI';
     const expired = !!g.expires_at && new Date(g.expires_at) <= new Date();
-    const endDate = g.expires_at ? new Date(g.expires_at).toLocaleDateString('ar-EG') : '';
+    const endDate = g.expires_at ? fmtDate(g.expires_at) : '';
     const end = !g.expires_at ? 'مدى الحياة' : expired ? `انتهت ${endDate}` : `تنتهي ${endDate}`;
-    const bought = new Date(g.granted_at).toLocaleDateString('ar-EG');
+    const bought = fmtDate(g.granted_at);
     const label = `${expired ? '⛔ منتهية · ' : ''}${escapeHtml(g.package)} · ${type} · متبقي ${g.remaining} من ${g.slots_total} · ${end} · اشتري ${bought}`;
     const style = expired ? ' style="color:#E0445B;font-weight:700;"' : '';
     return `<option value="${g.grant_id}" data-expires="${g.expires_at || ''}"${style}>${label}</option>`;
@@ -5924,7 +5961,7 @@ async function adminExtendGrant(F = CR_FORM){
   if (!grantId) { await adminAlert('اختار الشراء الأول', {icon:'⚠️'}); return; }
   if (!dateVal) { await adminAlert('اختار التاريخ الجديد', {icon:'⚠️'}); return; }
   const newExp = new Date(dateVal + 'T23:59:59');
-  const ok = await adminConfirm('هيتمدد الشراء لحد ' + newExp.toLocaleDateString('ar-EG') + '. متأكد؟',
+  const ok = await adminConfirm('هيتمدد الشراء لحد ' + fmtDate(newExp) + '. متأكد؟',
     { icon: '⚠️', confirmLabel: 'تمديد' });
   if (!ok) return;
   const note = document.getElementById(F.note)?.value.trim() || '';
@@ -6157,7 +6194,7 @@ async function importBackup(input){
       throw new Error('ملف مش صالح — مش نسخة احتياطية من النظام ده');
     }
     const confirmed = await adminConfirm(
-      `هتستبدل كل الإعدادات الحالية بمحتوى الملف ده${backup.exported_at ? ' (اتصدر بتاريخ ' + new Date(backup.exported_at).toLocaleString('ar-EG') + ')' : ''}. العملية لا يمكن التراجع عنها. متأكد؟`,
+      `هتستبدل كل الإعدادات الحالية بمحتوى الملف ده${backup.exported_at ? ' (اتصدر بتاريخ ' + fmtDateTime(backup.exported_at) + ')' : ''}. العملية لا يمكن التراجع عنها. متأكد؟`,
       {icon:'⚠️', danger:true, confirmLabel:'استيراد واستبدال'}
     );
     if (!confirmed) return;
@@ -6674,57 +6711,72 @@ function closeProfilePopup(){
 async function loadProfileData(userId, pkStr){
   const body = document.getElementById('profilePopupBody');
   body.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px;">جاري التحميل...</div>';
-  const [ordRes, walRes] = await Promise.all([
-    supabaseClient.from('orders').select('*').eq('user_id',userId).order('created_at',{ascending:false}).limit(50),
-    supabaseClient.from('wallet_transactions').select('*').eq('user_id',userId).order('created_at',{ascending:false}).limit(50)
+  const [profRes, grantsRes, histRes, allOrdRes, lastOrdRes] = await Promise.all([
+    supabaseClient.from('users_profile_numbered').select('user_id, full_name, email, whatsapp, pk_number').eq('user_id', userId).maybeSingle(),
+    supabaseClient.rpc('admin_customer_grants', { p_user_id: userId }),
+    supabaseClient.rpc('admin_customer_slot_history', { p_user_id: userId }),
+    supabaseClient.from('orders').select('status, submitted_at').eq('user_id', userId),
+    supabaseClient.from('orders').select('id, display_id, file_name, status, check_type, submitted_at').eq('user_id', userId).order('submitted_at', { ascending: false }).limit(5),
   ]);
-  const orders   = ordRes.data  || [];
-  const wallet   = walRes.data  || [];
-  const profile  = profilesByUserId[userId] || {};
-  const completed= orders.filter(o=>o.status==='completed').length;
-  const totalPaid= wallet.filter(w=>w.type==='credit').reduce((s,w)=>s+(w.amount||0),0);
-  const balance  = wallet.length ? (wallet[0].balance_after||0) : 0;
-  const lastAct  = orders.length ? formatDate(orders[0].created_at) : '—';
+  const profile  = profRes.data || {};
+  const grants   = Array.isArray(grantsRes.data) ? grantsRes.data : [];
+  const history  = Array.isArray(histRes.data) ? histRes.data : [];
+  const allOrds  = allOrdRes.data || [];
+  const lastOrds = lastOrdRes.data || [];
+  const now      = Date.now();
+  // Current balance: slots still left in grants that have not expired.
+  const balance  = grants.filter(g => !g.expires_at || new Date(g.expires_at).getTime() > now)
+                         .reduce((s, g) => s + Number(g.remaining || 0), 0);
+  // Total bought: every slot ever granted to this customer.
+  const totalBought = grants.reduce((s, g) => s + Number(g.slots_total || 0), 0);
+  const completed = allOrds.filter(o => o.status === 'completed').length;
+  const lastAct   = allOrds.length
+    ? fmtDateTime(allOrds.map(o => o.submitted_at).filter(Boolean).sort().pop())
+    : '—';
+  const pkLabel   = profile.pk_number != null ? 'PK' + formatPkNumber(profile.pk_number) : pkStr;
+  const statusLbl = { reserved: 'محجوز', released: 'اتردّ', used: 'اتستخدم' };
+  const typeLbl   = { plag_ai: 'اقتباس + AI', plag_only: 'اقتباس فقط' };
 
   body.innerHTML = `
     <div class="profile-stat-grid">
       <div class="profile-stat"><div class="val">${balance}</div><div class="lbl">رصيد حالي (فحص)</div></div>
-      <div class="profile-stat"><div class="val">${orders.length}</div><div class="lbl">إجمالي الأوردرات</div></div>
+      <div class="profile-stat"><div class="val">${allOrds.length}</div><div class="lbl">إجمالي الأوردرات</div></div>
       <div class="profile-stat"><div class="val">${completed}</div><div class="lbl">أوردرات مكتملة</div></div>
-      <div class="profile-stat"><div class="val">${totalPaid}</div><div class="lbl">إجمالي فحص شحن</div></div>
+      <div class="profile-stat"><div class="val">${totalBought}</div><div class="lbl">إجمالي فحص شحن</div></div>
     </div>
     <div class="profile-section-title">📋 معلومات الحساب</div>
     <div style="font-size:12px;color:var(--muted);line-height:2;">
-      <div>الاسم: <b style="color:var(--navy);">${escapeHtml(profile.full_name||'—')}</b></div>
-      <div>الإيميل: <b style="color:var(--navy);">${escapeHtml(profile.email||'—')}</b></div>
-      <div>واتساب: <b style="color:var(--navy);">${escapeHtml(profile.whatsapp||'—')}</b></div>
+      <div>كود العميل: <b style="color:var(--navy);">${escapeHtml(pkLabel)}</b></div>
+      <div>الاسم: <b style="color:var(--navy);">${escapeHtml(profile.full_name || '—')}</b></div>
+      <div>الإيميل: <b style="color:var(--navy);">${escapeHtml(profile.email || '—')}</b></div>
+      <div>واتساب: <b style="color:var(--navy);">${escapeHtml(profile.whatsapp || '—')}</b></div>
       <div>آخر نشاط: <b style="color:var(--navy);">${lastAct}</b></div>
     </div>
     <div class="profile-section-title">📦 آخر 5 أوردرات</div>
     <div style="overflow-x:auto;">
       <table class="data-tbl">
         <thead><tr><th>${t('th_order')}</th><th>${t('th_file')}</th><th>${t('cr_col_type')}</th><th>${t('cr_col_date')}</th></tr></thead>
-        <tbody>${orders.slice(0,5).map(o=>`
+        <tbody>${lastOrds.map(o=>`
           <tr>
-            <td class="mono" style="font-size:10px;">${escapeHtml(o.display_id||o.id?.slice(0,8)||'—')}</td>
+            <td class="mono" style="font-size:10px;">${escapeHtml(o.display_id||String(o.id).slice(0,8))}</td>
             <td style="font-size:11px;max-width:150px;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(o.file_name||'—')}</td>
-            <td><span class="badge badge-${o.status}">${o.status||'—'}</span></td>
-            <td style="font-size:10px;">${formatDate(o.created_at).split('،')[0]}</td>
-          </tr>`).join('')}
+            <td><span class="badge badge-${o.status}">${escapeHtml(o.status||'—')}</span></td>
+            <td style="font-size:10px;">${fmtDateTime(o.submitted_at)}</td>
+          </tr>`).join('') || '<tr><td colspan="4" style="color:var(--muted);">—</td></tr>'}
         </tbody>
       </table>
     </div>
     <div class="profile-section-title">💳 آخر 5 عمليات فحص</div>
     <div style="overflow-x:auto;">
       <table class="data-tbl">
-        <thead><tr><th>${t('cr_col_type')}</th><th>${t('cr_col_credits')}</th><th>${t('profile_balance_after')}</th><th>${t('cr_col_date')}</th></tr></thead>
-        <tbody>${wallet.slice(0,5).map(w=>`
+        <thead><tr><th>${t('th_file')}</th><th>${t('cr_col_type')}</th><th>${t('th_status')}</th><th>${t('cr_col_date')}</th></tr></thead>
+        <tbody>${history.map(h=>`
           <tr>
-            <td style="font-size:11px;">${w.type||'—'}</td>
-            <td style="font-weight:700;color:${(w.type==='debit'||w.type==='admin_debit')?'var(--danger)':'var(--ok)'};">${(w.type==='debit'||w.type==='admin_debit')?'-':'+'}${w.amount||0}</td>
-            <td>${w.balance_after||0}</td>
-            <td style="font-size:10px;">${formatDate(w.created_at).split('،')[0]}</td>
-          </tr>`).join('')}
+            <td style="font-size:11px;max-width:150px;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(h.file_name||h.display_id||'—')}</td>
+            <td style="font-size:11px;">${escapeHtml(typeLbl[h.slot_type] || h.slot_type || '—')}</td>
+            <td style="font-size:11px;">${escapeHtml(statusLbl[h.status] || h.status || '—')}</td>
+            <td style="font-size:10px;">${fmtDateTime(h.created_at)}</td>
+          </tr>`).join('') || '<tr><td colspan="4" style="color:var(--muted);">لا توجد عمليات فحص بعد</td></tr>'}
         </tbody>
       </table>
     </div>
@@ -7127,8 +7179,8 @@ function renderDailyChart(payments, days){
   for (let i = range - 1; i >= 0; i--) {
     const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - i);
     const next = new Date(d); next.setDate(next.getDate() + 1);
-    labels.push(`${d.getDate()}/${d.getMonth() + 1}`);
-    values.push(Math.round(sumPaymentsEgp(_revPayments, d) - sumPaymentsEgp(_revPayments, next)));
+    labels.push(`${d.getDate()} ${currentLang === 'ar' ? _MON_AR[d.getMonth()] : _MON_EN[d.getMonth()]}`);
+    values.push(Math.round(sumRevenueAll(d) - sumRevenueAll(next)));
   }
   if (!window.Chart) return;
   if (_dailyChartInstance) { _dailyChartInstance.destroy(); }
