@@ -3371,8 +3371,8 @@ function renderOrdersTable(){
       <td><span class="badge ${badgeClass}"><span class="dot"></span>${badgeLabel}</span></td>
       <td style="font-size:11px;color:var(--muted);">${formatDate(o.submitted_at)}</td>
       <td>${sourceCell}</td>
-      <td>${reportButton(o, 'sim')}</td>
-      <td>${reportButton(o, 'ai')}</td>
+      <td style="white-space:nowrap;padding:6px 8px;">${reportButton(o, 'sim')}</td>
+      <td style="white-space:nowrap;padding:6px 8px;">${reportButton(o, 'ai')}</td>
       <td>${o.user_id ? `<button class="msg-btn" data-a="${escapeHtml(o.user_id)}" data-b="${escapeHtml(o.display_id || o.id.slice(0,8))}" onclick="runWithData(this, composeMessage)" title="${t('send_msg')}">✉</button>` : ''}</td>
       <td style="white-space:nowrap;">
         ${(['error','failed_invalid'].includes(o.status) && o.source_file_path) ? `<button class="msg-btn" onclick="resendOrderToApi('${o.id}')" title="إعادة إرسال نفس الملف للفحص">🔁 إعادة إرسال</button>` : ''}
@@ -3581,24 +3581,27 @@ async function uploadManualReportFile(orderId, kind, inputEl){
   }
 }
 
-// Report button shown exactly like the customer's: the score on it, red above 20%, green at 20% or below.
+// Report button shown like the customer's: the score on it, red above 20%, green at 20% or below.
 // A stored AI report with no number is the "*%" case (the score is under 20%).
+// When the file was purged (48 hours) the button stays but is disabled, like the customer's.
 function reportButton(o, kind){
   const url = kind === 'ai' ? o.ai_report_url : o.report_url;
   const score = kind === 'ai' ? o.ai_score : o.similarity_score;
   const field = kind === 'ai' ? 'ai_report_url' : 'report_url';
-  if (!url) return `<span class="source-none">${t('link_none')}</span>`;
+  if (kind === 'ai' && o.check_type === 'sim_only') return '<span class="source-none">—</span>';
+  const hasScore = score !== null && score !== undefined;
+  if (!url && !hasScore) return '<span class="source-none">—</span>';
   let label, high = false;
-  if (score === null || score === undefined) {
+  if (!hasScore) {
     label = kind === 'ai' ? '*%' : '—';
   } else {
     const pct = Math.round(Number(score));
     label = pct + '%';
     high = pct > 20;
   }
-  const dlText = currentLang === 'ar' ? 'تحميل' : 'Download';
-  return `<div class="link-cell">
-    <button class="mf-dl${high ? ' mf-dl-high' : ''}" type="button" data-a="${escapeHtml(url)}" onclick="runWithData(this, adminOpenReport)">${label} <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/></svg> ${dlText}</button>
+  const dlIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>';
+  return `<div class="link-cell" style="flex-wrap:nowrap;">
+    <button class="mf-dl${high ? ' mf-dl-high' : ''}" type="button" ${url ? `data-a="${escapeHtml(url)}" onclick="runWithData(this, adminOpenReport)"` : 'disabled'}>${label} ${dlIcon}</button>
     <button class="edit-link-btn" onclick="editOrderLink('${o.id}','${field}')" title="${t('edit_link')}">✎</button>
   </div>`;
 }
