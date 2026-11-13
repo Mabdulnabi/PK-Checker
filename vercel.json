@@ -1,9 +1,80 @@
 {
   "rewrites": [
-    { "source": "/", "destination": "/index.html" },
     {
-      "source": "/api/fn/:path*",
-      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/:path*"
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/api/fn/check-availability",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/check-availability"
+    },
+    {
+      "source": "/api/fn/check-status",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/check-status"
+    },
+    {
+      "source": "/api/fn/create-admin",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/create-admin"
+    },
+    {
+      "source": "/api/fn/create-customer",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/create-customer"
+    },
+    {
+      "source": "/api/fn/create-easykash-link",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/create-easykash-link"
+    },
+    {
+      "source": "/api/fn/delete-own-account",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/delete-own-account"
+    },
+    {
+      "source": "/api/fn/get-api-credits",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/get-api-credits"
+    },
+    {
+      "source": "/api/fn/get-report",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/get-report"
+    },
+    {
+      "source": "/api/fn/download-report",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/download-report"
+    },
+    {
+      "source": "/api/fn/manage-admin-account",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/manage-admin-account"
+    },
+    {
+      "source": "/api/fn/manage-files",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/manage-files"
+    },
+    {
+      "source": "/api/fn/reserve-order-slot",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/reserve-order-slot"
+    },
+    {
+      "source": "/api/fn/submit-check",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/submit-check"
+    },
+    {
+      "source": "/api/fn/verify-easykash",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/verify-easykash"
+    },
+    {
+      "source": "/api/fn/verify-binance",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/verify-binance"
+    },
+    {
+      "source": "/api/fn/verify-bybit",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/verify-bybit"
+    },
+    {
+      "source": "/api/fn/verify-bep20",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/verify-bep20"
+    },
+    {
+      "source": "/api/fn/verify-sms",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/verify-sms"
     },
     {
       "source": "/storage/:path*",

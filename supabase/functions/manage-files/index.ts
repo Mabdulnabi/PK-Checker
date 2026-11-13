@@ -42,8 +42,12 @@ Deno.serve(async (req: Request) => {
     const body = await req.json();
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Scheduled purge: only touches orders already past 48 hours, so it is safe to call.
+    // Scheduled purge: only touches orders already past 48 hours.
     if (body.action === "purge_due") {
+      // Only the database's own scheduler may call this (it sends the internal secret).
+      const sent = req.headers.get("x-internal-secret") ?? "";
+      const { data: expected } = await admin.rpc("get_internal_cron_secret");
+      if (!expected || sent !== expected) return json({ success: false, error: "Forbidden" }, 403);
       const { data: due, error } = await admin.rpc("orders_due_for_purge");
       if (error) throw error;
       let purgedFiles = 0;

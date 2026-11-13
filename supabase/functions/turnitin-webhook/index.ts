@@ -115,7 +115,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: order } = await supabase
     .from("orders")
-    .select("id, check_type, external_order_id, purged_at, completed_at, status")
+    .select("id, check_type, external_order_id, purged_at, completed_at, status, report_url")
     .eq("id", customId)
     .maybeSingle();
   if (!order) return new Response("OK", { status: 200 });
@@ -148,6 +148,12 @@ Deno.serve(async (req: Request) => {
       const simUrl = await storeFixed(supabase, `sim-reports/${customId}`, "sim_report.pdf", simBytes);
       if (simUrl) updates.report_url = simUrl;
     }
+    // A completed order must have its similarity report. If it could not be stored, do not mark
+    // the order completed: answer 503 so TurniScan sends the webhook again.
+    if (!updates.report_url && !order.report_url) {
+      console.error("webhook: similarity report not stored, asking for a retry", customId);
+      return new Response("Service Unavailable", { status: 503 });
+    }
 
     if (checkType !== "sim_only") {
       const aiBytes = await downloadReport(fileId, "ai");
@@ -176,8 +182,12 @@ Deno.serve(async (req: Request) => {
   }
 
   const { error } = await supabase.from("orders").update(updates).eq("id", customId);
-  if (error) console.error("webhook: DB update failed", error, customId);
-  else       console.log("webhook: order", customId, "->", internalStatus);
+  if (error) {
+    // Answer with an error so TurniScan retries the webhook.
+    console.error("webhook: DB update failed", error, customId);
+    return new Response("Internal Server Error", { status: 500 });
+  }
+  console.log("webhook: order", customId, "->", internalStatus);
   // An order that was waiting in "checking" (unknown outcome) and is now refused by the provider: give the slot back.
   if (internalStatus === "error" && order.status === "checking") {
     const { error: relErr } = await supabase.rpc("release_slot", { p_idempotency_key: `order:${customId}` });

@@ -102,7 +102,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: order, error: orderErr } = await supabase
       .from("orders")
-      .select("id, external_order_id, status, user_id, check_type, completed_at")
+      .select("id, external_order_id, status, user_id, check_type, completed_at, report_url, ai_report_url")
       .eq("id", orderId).eq("user_id", user.id).single();
     if (orderErr || !order) return json({ success: false, error: "Order not found" }, 404);
 
@@ -124,13 +124,18 @@ Deno.serve(async (req: Request) => {
 
     const checkType = (order as { check_type: string }).check_type;
     if (internalStatus === "completed") {
-      const simBytes = await downloadReport(fileId, "sim");
+      // Reports already stored are not downloaded again on every poll.
+      const haveSim = !!(order as { report_url: string | null }).report_url;
+      const haveAi = !!(order as { ai_report_url: string | null }).ai_report_url;
+      if (haveSim) reports.similarity = { downloadUrl: (order as { report_url: string }).report_url };
+      if (haveAi) reports.ai = { downloadUrl: (order as { ai_report_url: string }).ai_report_url };
+      const simBytes = haveSim ? null : await downloadReport(fileId, "sim");
       if (simBytes) {
         const simUrl = await storeFixed(supabase, `sim-reports/${orderId}`, "sim_report.pdf", simBytes);
         if (simUrl) { updates.report_url = simUrl; reports.similarity = { downloadUrl: simUrl }; }
       }
 
-      if (checkType !== "sim_only") {
+      if (checkType !== "sim_only" && !haveAi) {
         const aiBytes = await downloadReport(fileId, "ai");
         if (aiBytes) {
           const aiRead = await readAiPdf(aiBytes);
