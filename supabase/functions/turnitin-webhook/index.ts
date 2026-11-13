@@ -115,7 +115,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: order } = await supabase
     .from("orders")
-    .select("id, check_type, external_order_id, purged_at, completed_at")
+    .select("id, check_type, external_order_id, purged_at, completed_at, status")
     .eq("id", customId)
     .maybeSingle();
   if (!order) return new Response("OK", { status: 200 });
@@ -178,6 +178,11 @@ Deno.serve(async (req: Request) => {
   const { error } = await supabase.from("orders").update(updates).eq("id", customId);
   if (error) console.error("webhook: DB update failed", error, customId);
   else       console.log("webhook: order", customId, "->", internalStatus);
+  // An order that was waiting in "checking" (unknown outcome) and is now refused by the provider: give the slot back.
+  if (internalStatus === "error" && order.status === "checking") {
+    const { error: relErr } = await supabase.rpc("release_slot", { p_idempotency_key: `order:${customId}` });
+    if (relErr) console.error("webhook: release_slot failed", relErr.message, customId);
+  }
   if (internalStatus === "error") await saveProviderError(supabase, customId, String((scan as Record<string, unknown>).error ?? (scan as Record<string, unknown>).message ?? ""));
 
   return new Response("OK", { status: 200 });

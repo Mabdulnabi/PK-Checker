@@ -226,7 +226,7 @@ Deno.serve(async (req: Request) => {
     // is unavailable, not that the file was refused, so it is reported separately (never sent twice).
     type SubmitResult =
       | { ok: true; fileId: string }
-      | { ok: false; unavailable: boolean; detail: string; providerMessage: string };
+      | { ok: false; unavailable: boolean; ambiguous: boolean; detail: string; providerMessage: string };
 
     const sendToProvider = async (): Promise<SubmitResult> => {
       try {
@@ -244,7 +244,7 @@ Deno.serve(async (req: Request) => {
           data = null;
         }
         if (data === null) {
-          return { ok: false, unavailable: true, detail: `HTTP ${tsRes.status} non-JSON body: ${raw.slice(0, 300)}`, providerMessage: `HTTP ${tsRes.status}: ${raw.slice(0, 300)}` };
+          return { ok: false, unavailable: true, ambiguous: false, detail: `HTTP ${tsRes.status} non-JSON body: ${raw.slice(0, 300)}`, providerMessage: `HTTP ${tsRes.status}: ${raw.slice(0, 300)}` };
         }
         const fid = data.file_id;
         if (tsRes.ok && data.success === true && typeof fid === "string") {
@@ -253,19 +253,31 @@ Deno.serve(async (req: Request) => {
         return {
           ok: false,
           unavailable: tsRes.status >= 500,
+          ambiguous: false,
           detail: `HTTP ${tsRes.status} ${JSON.stringify(data).slice(0, 300)}`,
           providerMessage: String(data.message ?? data.error ?? JSON.stringify(data)),
         };
       } catch (e) {
-        return { ok: false, unavailable: true, detail: `request failed: ${String(e)}`, providerMessage: String(e) };
+        // Timeout or network error: the provider may still have received the file.
+        return { ok: false, unavailable: true, ambiguous: true, detail: `request failed: ${String(e)}`, providerMessage: String(e) };
       }
     };
 
     // One send only: a second send could create a second check at the provider.
     const result = await sendToProvider();
 
+    if (!result.ok && result.ambiguous) {
+      // We do not know whether the provider got the file (timeout or dropped connection).
+      // The slot stays reserved and the order waits in "checking": the provider's webhook
+      // confirms it (and completes the order), or the sweeper releases the slot after 2 hours.
+      await admin.from("orders").update({ status: "checking", error_reason: null, completed_at: new Date().toISOString() }).eq("id", orderId);
+      await saveProviderError(admin, orderId, result.providerMessage);
+      console.error("submit-check: provider outcome unknown, order left in checking", orderId, result.detail);
+      return cors_json({ success: true, pending: true, status: "checking" }, 202);
+    }
+
     if (!result.ok) {
-      // Not accepted for processing, so the slot goes back.
+      // Provider answered and did not accept the file, so the slot goes back.
       await admin.rpc("release_slot", { p_idempotency_key: slotKey });
       // Provider details stay in the logs only; the customer sees a neutral message.
       console.error(result.unavailable ? "submit-check: provider unavailable" : "submit-check: provider refused", result.detail);

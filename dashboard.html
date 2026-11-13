@@ -3367,7 +3367,7 @@ const I18N = {
     chat_offline:"سنرد عليك في أقرب وقت", chat_upload_error:"تعذر رفع الملف، حاول مرة أخرى", chat_send_error:"تعذر إرسال الرسالة، حاول مرة أخرى",
     notif_title:"الإشعارات", notif_mark_all:"تحديد الكل كمقروء", notif_empty:"لا توجد إشعارات حالياً",
     user_profile:"حسابي", user_signout:"تسجيل الخروج",
-    phase_floating:"جاهز للإرسال", phase_uploading:"جاري الرفع", phase_pending:"في انتظار المعالجة", phase_processing:"قيد الفحص", phase_completed:"مكتمل", phase_error:"خطأ في الفحص", phase_failed_invalid:"ملف غير صالح", phase_rejected:"مرفوض",
+    phase_checking:"جاري التأكد من استلام الملف", phase_floating:"جاهز للإرسال", phase_uploading:"جاري الرفع", phase_pending:"في انتظار المعالجة", phase_processing:"قيد الفحص", phase_completed:"مكتمل", phase_error:"خطأ في الفحص", phase_failed_invalid:"ملف غير صالح", phase_rejected:"مرفوض",
     similarity:"اقتباس", ai:"AI", sim_only:"اقتباس فقط", sim_ai:"اقتباس + AI",
     col_order_id:"رقم الطلب", col_file:"اسم الملف", col_submitted:"وقت الإرسال", col_completed:"اكتمل", col_handle:"وقت المعالجة",
     stat_completed:"مكتمل", stat_pending:"قيد الانتظار", stat_rejected:"مرفوض",
@@ -3565,7 +3565,7 @@ const I18N = {
     chat_offline:"We'll reply as soon as we can", chat_upload_error:"Couldn't upload the file, please try again", chat_send_error:"Couldn't send the message, please try again",
     notif_title:"Notifications", notif_mark_all:"Mark all as read", notif_empty:"No notifications yet",
     user_profile:"My Account", user_signout:"Sign out",
-    phase_floating:"Ready to send", phase_uploading:"Uploading", phase_pending:"Awaiting processing", phase_processing:"Processing", phase_completed:"Completed", phase_error:"Check error", phase_failed_invalid:"Invalid file", phase_rejected:"Rejected",
+    phase_checking:"Confirming the file was received", phase_floating:"Ready to send", phase_uploading:"Uploading", phase_pending:"Awaiting processing", phase_processing:"Processing", phase_completed:"Completed", phase_error:"Check error", phase_failed_invalid:"Invalid file", phase_rejected:"Rejected",
     similarity:"Similarity", ai:"AI", sim_only:"Similarity only", sim_ai:"Similarity + AI",
     col_order_id:"Order ID", col_file:"File", col_submitted:"Submitted", col_completed:"Completed", col_handle:"Handle time",
     stat_completed:"Completed", stat_pending:"Pending", stat_rejected:"Rejected",
@@ -7066,7 +7066,10 @@ async function submitCheckToApi(orderId, file){
       headers: { Authorization: `Bearer ${accessToken}` },
       body: fd,
     });
+    if (res.status === 409) return { ok: true, alreadySubmitted: true };
     const json = await res.json();
+    // Outcome unknown on the provider side: the order waits in "checking" until the provider confirms.
+    if (json.pending) return { ok: true, pending: true };
     if (!res.ok || !json.success) {
       // MAINTENANCE / NO_SLOTS come back with a message the customer can read.
       const userMessage = json.code === 'MAINTENANCE'
@@ -7451,6 +7454,20 @@ async function submitOrderViaApi(orderRow, fileToSubmit){
   }
 
   const apiResult = await submitCheckToApi(orderRow.id, fileToSubmit);
+  if (apiResult.alreadySubmitted) {
+    // The same order was already sent by another request: keep what the server stored.
+    renderOrders();
+    return;
+  }
+  if (apiResult.pending) {
+    const pendingOrder = orders.find(o => o.id === orderRow.id);
+    if (pendingOrder) pendingOrder.phase = 'checking';
+    renderOrders(); renderKpis();
+    await appAlert(currentLang === 'ar'
+      ? 'تم إرسال ملفك، وجاري التأكد من استلامه من خدمة الفحص. هيتحدث الطلب تلقائياً.'
+      : 'Your file was sent. We are confirming it reached the check service; the order will update automatically.', {icon:'success'});
+    return;
+  }
   if (apiResult.ok) {
     const localOrder = orders.find(o => o.id === orderRow.id);
     if (localOrder) {
@@ -7740,7 +7757,7 @@ function getOrderDate(o){
   return new Date(o.phaseStart).toISOString().split('T')[0];
 }
 
-const ORDER_BADGE_CLASS = { completed:'badge-ok', processing:'badge-run', pending:'badge-wait', uploading:'badge-wait', floating:'badge-wait', error:'badge-no', failed_invalid:'badge-no', rejected:'badge-no' };
+const ORDER_BADGE_CLASS = { checking:'badge-run', completed:'badge-ok', processing:'badge-run', pending:'badge-wait', uploading:'badge-wait', floating:'badge-wait', error:'badge-no', failed_invalid:'badge-no', rejected:'badge-no' };
 
 // Formats a timestamp as "Jun 25, 2026 03:57 AM" — using the viewer's own
 // device/browser timezone (not a fixed one), in 12-hour format with AM/PM.
