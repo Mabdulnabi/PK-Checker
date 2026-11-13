@@ -3815,8 +3815,12 @@ function clickablePk(userId, pkNumber){
    ================================================================ */
 const _pgState = {}; // key -> { page, pageSize, rerender: fn(void) }
 
+// The chosen rows-per-page is remembered per table in this browser.
+function _pgSavedSize(key){
+  try { return parseInt(localStorage.getItem('pk-pagesize-' + key), 10) || null; } catch (e) { return null; }
+}
 function _pgGet(key){
-  if (!_pgState[key]) _pgState[key] = { page: 1, pageSize: 10, rerender: null };
+  if (!_pgState[key]) _pgState[key] = { page: 1, pageSize: _pgSavedSize(key) || 10, rerender: null };
   return _pgState[key];
 }
 
@@ -3867,6 +3871,7 @@ function _pgSetSize(key, size){
   const st = _pgGet(key);
   st.pageSize = parseInt(size, 10) || 10;
   st.page = 1;
+  try { localStorage.setItem('pk-pagesize-' + key, String(st.pageSize)); } catch (e) {}
   if (st.rerender) st.rerender();
 }
 
