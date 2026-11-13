@@ -6783,9 +6783,12 @@ async function approvePendingPayment(paymentId, userId, credits, triggerBtn){
     const balBefore = Number(bal?.[0]?.balance_after ?? 0);
     const balAfter  = balBefore + credits;
 
-    const { error: payErr } = await supabaseClient
-      .from('payments').update({status:'completed'}).eq('id',paymentId);
+    // Claim the payment only while it is still pending: a second approval (double click,
+    // another admin, a stale list) updates nothing and is refused before any credit is written.
+    const { data: claimed, error: payErr } = await supabaseClient
+      .from('payments').update({status:'completed'}).eq('id',paymentId).eq('status','pending').select('id');
     if (payErr) throw payErr;
+    if (!claimed || claimed.length === 0) throw new Error('الدفعة مش معلقة (اتعالجت قبل كده)');
 
     const { error: txErr } = await supabaseClient
       .from('wallet_transactions').insert({
@@ -6797,7 +6800,11 @@ async function approvePendingPayment(paymentId, userId, credits, triggerBtn){
           ? `موافقة يدوية — ${packId} — تنتهي ${new Date(expiresAt).toLocaleDateString('ar-EG')}`
           : 'موافقة يدوية من الأدمن'
       });
-    if (txErr) throw txErr;
+    if (txErr) {
+      // Put the payment back to pending so it is not marked completed without a credit.
+      await supabaseClient.from('payments').update({status:'pending'}).eq('id',paymentId).eq('status','completed');
+      throw txErr;
+    }
 
     await logAdminActivity('manual_approve',userId,'','الموافقة على دفعة معلقة: '+paymentId);
     loadPendingPayments();
