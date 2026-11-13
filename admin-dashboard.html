@@ -2126,6 +2126,13 @@ function subscribeOrdersChannel(){
       if (document.getElementById('tab-orders')?.classList.contains('on')) loadOrders();
       if (document.getElementById('tab-overview')?.classList.contains('on')) loadOverview();
     }).subscribe();
+  // Fallback while the Orders tab is open: if a realtime event is missed (e.g. the socket
+  // dropped), the table still catches up within 8 seconds.
+  if (!window._adminOrdersPoll) {
+    window._adminOrdersPoll = setInterval(() => {
+      if (document.visibilityState === 'visible' && document.getElementById('tab-orders')?.classList.contains('on')) loadOrders();
+    }, 8000);
+  }
 }
 
 // Activity log — new entries appear live while the tab is open.
