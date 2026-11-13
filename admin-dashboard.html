@@ -6772,7 +6772,13 @@ async function approvePendingPayment(paymentId, userId, credits, triggerBtn){
     // A payment that is no longer pending is refused, so a second click never grants twice.
     const { data, error } = await supabaseClient.rpc('admin_approve_payment', { p_payment_id: paymentId });
     if (error) throw error;
-    if (!data || data.ok !== true) throw new Error('الدفعة مش معلقة (اتعالجت قبل كده)');
+    if (!data || data.ok !== true) {
+      const reasons = {
+        NOT_PENDING: 'الدفعة مش معلقة (اتعالجت قبل كده)',
+        REFERENCE_ALREADY_USED: 'الرقم المرجعي ده اتستخدم في دفعة تانية، مش هيتفعّل تاني',
+      };
+      throw new Error(reasons[data?.error] || 'تعذر الموافقة');
+    }
 
     await logAdminActivity('manual_approve', userId, '', 'الموافقة على دفعة معلقة: ' + paymentId);
     loadPendingPayments();
