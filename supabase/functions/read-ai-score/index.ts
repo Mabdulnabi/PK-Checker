@@ -3,20 +3,33 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 import { getDocumentProxy, extractText } from "npm:unpdf@1";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 // Read-only check: reads the AI report stored for an order and returns what its
 // page 2 says. It never writes to storage or to the orders table.
+// Admin only: the report text belongs to the customer's order.
 Deno.serve(async (req: Request) => {
   const json = (body: unknown, status = 200) =>
     new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
   try {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) return json({ error: "Unauthorized" }, 401);
+    const callerClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: userData, error: userErr } = await callerClient.auth.getUser();
+    if (userErr || !userData?.user) return json({ error: "Unauthorized" }, 401);
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    const { data: adminRow } = await supabase.from("admins").select("id").eq("id", userData.user.id).maybeSingle();
+    if (!adminRow) return json({ error: "Forbidden" }, 403);
+
     const url = new URL(req.url);
     const orderId = url.searchParams.get("order_id");
     if (!orderId) return json({ error: "Missing order_id" }, 400);
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const { data: order, error: orderErr } = await supabase
       .from("orders")
       .select("id, ai_report_url, ai_score")

@@ -2374,7 +2374,7 @@ function renderChatThread(){
         </span>`
       : '';
     if (m.file_name) {
-      return `<div class="cp-msg from-${m.sender_type}">${senderLabel}<div class="cp-msg-file" onclick="openAdminChatFile('${encodeURIComponent(m.file_url)}')">
+      return `<div class="cp-msg from-${m.sender_type}">${senderLabel}<div class="cp-msg-file" data-a="${escapeHtml(encodeURIComponent(m.file_url))}" onclick="runWithData(this, openAdminChatFile)">
         <svg viewBox="0 0 24 24" style="width:15px;height:15px;" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
         <span>${escapeHtml(m.file_name)}</span></div>${receipt}</div>`;
     }
@@ -3370,7 +3370,7 @@ function renderOrdersTable(){
       <td>${sourceCell}</td>
       <td>${linkCell(o.id, 'report_url', o.report_url)}</td>
       <td>${linkCell(o.id, 'ai_report_url', o.ai_report_url)}</td>
-      <td>${o.user_id ? `<button class="msg-btn" onclick="composeMessage('${o.user_id}','${escapeHtml(o.display_id || o.id.slice(0,8))}')" title="${t('send_msg')}">✉</button>` : ''}</td>
+      <td>${o.user_id ? `<button class="msg-btn" data-a="${escapeHtml(o.user_id)}" data-b="${escapeHtml(o.display_id || o.id.slice(0,8))}" onclick="runWithData(this, composeMessage)" title="${t('send_msg')}">✉</button>` : ''}</td>
       <td style="white-space:nowrap;">
         ${(['error','failed_invalid'].includes(o.status) && o.source_file_path) ? `<button class="msg-btn" onclick="resendOrderToApi('${o.id}')" title="إعادة إرسال نفس الملف للفحص">🔁 إعادة إرسال</button>` : ''}
         ${(['error','failed_invalid'].includes(o.status) && o.processing_mode === 'api') ? `<button class="msg-btn" style="color:var(--blue-deep);border-color:var(--blue-light);" onclick="adoptOrderManually('${o.id}')" title="تولى الطلب يدوياً ورفع التقارير بنفسك">🖐 يدوي</button>` : ''}
@@ -3839,6 +3839,9 @@ function _pgSetSize(key, size){
   st.page = 1;
   if (st.rerender) st.rerender();
 }
+
+// Calls fn with the values stored in data-a / data-b. Names and file paths never end up inside JS source.
+function runWithData(el, fn){ return fn(el.dataset.a, el.dataset.b); }
 
 function escapeHtml(str){
   return String(str ?? '').replace(/[&<>"']/g, c => ({
@@ -5912,9 +5915,9 @@ function renderAdminMgmtList(){
     <tr id="admin-row-${a.id}">
       <td><b>${escapeHtml(a.name)}</b> ${a.is_super_admin?'<span class="badge badge-ok">Super Admin</span>':''}</td>
       <td class="mono">${escapeHtml(a.email||'—')}</td>
-      <td><button class="msg-btn" onclick="openResetAdminPasswordPopup('${a.id}','${escapeHtml(a.name)}')">🔒 تغيير</button></td>
+      <td><button class="msg-btn" data-a="${escapeHtml(a.id)}" data-b="${escapeHtml(a.name)}" onclick="runWithData(this, openResetAdminPasswordPopup)">🔒 تغيير</button></td>
       <td>${a.is_super_admin ? '<span style="font-size:11px;color:var(--muted);">الكل (Super Admin)</span>' : `<button class="msg-btn" onclick="openAdminPermsPopup('${a.id}')">⚙ تعديل (${Object.values(a.permissions||{}).filter(Boolean).length})</button>`}</td>
-      <td>${(a.id !== currentAdmin.id && !a.is_super_admin) ? `<button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);" onclick="deleteAdminAccount('${a.id}','${escapeHtml(a.name)}')">🗑</button>` : ''}</td>
+      <td>${(a.id !== currentAdmin.id && !a.is_super_admin) ? `<button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);" data-a="${escapeHtml(a.id)}" data-b="${escapeHtml(a.name)}" onclick="runWithData(this, deleteAdminAccount)">🗑</button>` : ''}</td>
     </tr>
   `).join('') || `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;">لا يوجد أدمن مسجل.</td></tr>`;
 }
@@ -6137,7 +6140,7 @@ function renderPayMethodsList(){
       <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">${m.uid ? escapeHtml(m.uid) : 'مفيش UID متسجل'}${m.is_auto ? ' · تلقائي' : ' · يدوي'}</div>
       <div style="display:flex;gap:6px;">
         <button class="msg-btn" onclick="openEditPayMethodPopup('${m.id}')">✎ تعديل</button>
-        <button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);" onclick="deletePayMethod('${m.id}','${escapeHtml(m.name)}')">🗑 حذف</button>
+        <button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);" data-a="${escapeHtml(m.id)}" data-b="${escapeHtml(m.name)}" onclick="runWithData(this, deletePayMethod)">🗑 حذف</button>
       </div>
     </div>
   `).join('') || `<p style="color:var(--muted);">لا توجد وسائل دفع مسجلة.</p>`;
@@ -6404,7 +6407,7 @@ function renderUsersTable(rows){
       <td style="text-align:center;">${r.completed}</td>
       <td style="font-size:11px;color:var(--muted);">${r.joined ? formatDate(r.joined).split(/[,،]/)[0] : '—'}</td>
       <td>${r.user_id ? `<button class="msg-btn" onclick="composeMessage('${r.user_id}','${pkLabel}')">✉</button>` : ''}</td>
-      <td>${r.user_id ? `<button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);" onclick="deleteUser('${r.user_id}','${escapeHtml(r.full_name)}')" title="${t('usr_delete_title')}">🗑</button>` : ''}</td>
+      <td>${r.user_id ? `<button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);" data-a="${escapeHtml(r.user_id)}" data-b="${escapeHtml(r.full_name)}" onclick="runWithData(this, deleteUser)" title="${t('usr_delete_title')}">🗑</button>` : ''}</td>
     </tr>`;
   }).join('');
 
