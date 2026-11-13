@@ -3590,10 +3590,12 @@ function reportButton(o, kind){
   const field = kind === 'ai' ? 'ai_report_url' : 'report_url';
   if (kind === 'ai' && o.check_type === 'sim_only') return '<span class="source-none">—</span>';
   const hasScore = score !== null && score !== undefined;
-  if (!url && !hasScore) return '<span class="source-none">—</span>';
+  // Completed orders always show the button (disabled when there is no value or file).
+  if (!url && !hasScore && o.status !== 'completed') return '<span class="source-none">—</span>';
   let label, high = false;
   if (!hasScore) {
-    label = kind === 'ai' ? '*%' : '—';
+    // A report that exists but prints "*%" means the AI score is under 20%; no report means no value.
+    label = (kind === 'ai' && url) ? '*%' : '—';
   } else {
     const pct = Math.round(Number(score));
     label = pct + '%';
