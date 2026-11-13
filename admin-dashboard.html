@@ -3157,12 +3157,13 @@ async function exportOverviewCSV(){
 function localizeAdminOrderError(reason){
   if (!reason) return '';
   const r = String(reason);
-  if (r === 'NO_SLOTS') return 'مفيش فحوصات كفاية في الباقة';
-  if (r.startsWith('MAINTENANCE')) return 'الخدمة متوقفة للصيانة';
-  if (r.startsWith('The check could not be completed')) return 'تعذّر إتمام الفحص (رجعت الخانة للعميل)';
-  if (r.startsWith('The check service is temporarily unavailable')) return 'خدمة الفحص مش متاحة (ماتخصمتش خانة)';
-  if (r.startsWith('The file could not be submitted')) return 'تعذّر إرسال الملف للمزوّد';
-  if (r.startsWith('We could not confirm the file reached')) return 'ماتأكدناش من وصول الملف (رجعت الخانة)';
+  const ar = currentLang === 'ar';
+  if (r === 'NO_SLOTS') return ar ? 'مفيش فحوصات كفاية في الباقة' : 'Not enough checks in the package';
+  if (r.startsWith('MAINTENANCE')) return ar ? 'الخدمة متوقفة للصيانة' : 'Service under maintenance';
+  if (r.startsWith('The check could not be completed')) return ar ? 'تعذّر إتمام الفحص (رجعت الخانة للعميل)' : 'Check could not be completed (slot returned)';
+  if (r.startsWith('The check service is temporarily unavailable')) return ar ? 'خدمة الفحص مش متاحة (ماتخصمتش خانة)' : 'Check service unavailable (no slot used)';
+  if (r.startsWith('The file could not be submitted')) return ar ? 'تعذّر إرسال الملف للمزوّد' : 'File could not be sent to the provider';
+  if (r.startsWith('We could not confirm the file reached')) return ar ? 'ماتأكدناش من وصول الملف (رجعت الخانة)' : 'Receipt not confirmed (slot returned)';
   return r;
 }
 
