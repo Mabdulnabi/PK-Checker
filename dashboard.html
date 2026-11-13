@@ -955,6 +955,7 @@
   .mf-dl{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:5px;background:#0E9F6E;color:#fff;border:none;border-radius:9px;padding:7px 8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:12px;cursor:pointer;white-space:nowrap;}
   .mf-dl svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
   .mf-dl:disabled{opacity:.55;cursor:not-allowed;}
+  .mf-dl.mf-dl-high{background:#E0445B;box-shadow:0 6px 14px -8px rgba(224,68,91,.6);}
   .mf-muted{font-size:12px;color:var(--muted);font-family:'Cairo',sans-serif;}
   .mf-del{width:32px;height:32px;border-radius:10px;background:#FFF1F3;border:1px solid #F5C2CB;color:var(--danger);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
   .mf-del svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
@@ -8341,12 +8342,21 @@ function mfScoreCell(f, kind){
   if (kind === 'ai' && f.check_type === 'sim_only') return `<span class="mf-muted">${escapeHtml(t('mf_not_included'))}</span>`;
   if (!MF_FINAL.includes(f.status)) return `<span class="mf-muted">${escapeHtml(t('mf_checking'))}</span>`;
   if (f.status !== 'completed') return `<span class="mf-muted">${escapeHtml(t('mf_failed'))}</span>`;
-  const score = kind === 'ai' ? f.ai_score : f.similarity_score;
-  if (score === null || score === undefined) return `<span class="mf-muted">${escapeHtml(t('mf_result_unavailable'))}</span>`;
   const hasReport = kind === 'ai' ? f.has_ai_report : f.has_sim_report;
-  const pct = Math.round(Number(score));
-  return `<button class="mf-dl" type="button" ${hasReport ? '' : 'disabled'} onclick="downloadOrderReport('${f.id}', '${kind}')">
-      ${pct}% <svg data-icon-key="my_files_download_icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/></svg> ${escapeHtml(t('mf_download'))}
+  const score = kind === 'ai' ? f.ai_score : f.similarity_score;
+  let label, high = false;
+  if (score === null || score === undefined) {
+    // The AI report prints "*%" instead of the number when the score is 20% or below,
+    // so a stored AI report with no number is that case, not a missing result.
+    if (kind === 'ai' && hasReport) { label = '*%'; }
+    else return `<span class="mf-muted">${escapeHtml(t('mf_result_unavailable'))}</span>`;
+  } else {
+    const pct = Math.round(Number(score));
+    label = pct + '%';
+    high = pct > 20;
+  }
+  return `<button class="mf-dl${high ? ' mf-dl-high' : ''}" type="button" ${hasReport ? '' : 'disabled'} onclick="downloadOrderReport('${f.id}', '${kind}')">
+      ${label} <svg data-icon-key="my_files_download_icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/></svg> ${escapeHtml(t('mf_download'))}
     </button>`;
 }
 
@@ -8914,6 +8924,7 @@ async function refreshCheckSettings(){
       .channel('orders-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: `user_id=eq.${PROKEYS_USER_ID}` }, () => {
         loadDashboardData();
+        loadMyFiles();
       })
       .subscribe();
   }

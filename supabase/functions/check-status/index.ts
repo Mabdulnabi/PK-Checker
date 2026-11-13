@@ -72,6 +72,15 @@ async function readAiPdf(bytes: ArrayBuffer): Promise<AiRead> {
   }
 }
 
+// The provider's own failure message is kept for the admin only (orders.provider_error).
+// Written in a separate update so a missing column can never stop the order from failing.
+// deno-lint-ignore no-explicit-any
+async function saveProviderError(client: any, orderId: string, message: string) {
+  if (!message) return;
+  const { error } = await client.from("orders").update({ provider_error: message.slice(0, 500) }).eq("id", orderId);
+  if (error) console.error("provider_error not saved:", error.message);
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
@@ -143,9 +152,11 @@ Deno.serve(async (req: Request) => {
     } else if (internalStatus === "error") {
       console.error("check-status: provider reported failure", JSON.stringify(tsData));
       updates.error_reason = "The check could not be completed.";
+      updates.completed_at = new Date().toISOString();
     }
 
     await supabase.from("orders").update(updates).eq("id", orderId);
+    if (internalStatus === "error") await saveProviderError(supabase, orderId, String(tsData.error ?? tsData.message ?? ""));
 
     return json({ success: true, polled: true, status: internalStatus, reports,
       ...(internalStatus === "error" ? { error: updates.error_reason } : {}) });

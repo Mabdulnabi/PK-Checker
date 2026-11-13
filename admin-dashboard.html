@@ -3159,7 +3159,9 @@ function renderProblemOrdersList(){
     </tr></thead>
     <tbody>` + problems.map(o => {
     const p = profilesByUserId[o.user_id] || {};
-    const reason = o.error_reason ? escapeHtml(o.error_reason) : (currentLang === 'ar' ? 'غير معروف' : 'Unknown');
+    // The provider's own message first; our neutral message is only the fallback.
+    const shown = o.provider_error || o.error_reason;
+    const reason = shown ? escapeHtml(shown) : (currentLang === 'ar' ? 'غير معروف' : 'Unknown');
     return `<tr>
       <td class="mono" style="font-size:10.5px;color:var(--muted);white-space:nowrap;">${escapeHtml(o.display_id||o.id.slice(0,8))}</td>
       <td class="mono" style="color:var(--blue-deep);font-weight:700;white-space:nowrap;">${clickablePk(o.user_id, p.pk_number)}</td>
@@ -5516,13 +5518,15 @@ async function loadCreditsTab(){
   // The log is in slots. Sources: completed top-ups (payments), admin package
   // additions and slot deductions (admin_slot_adjustments), and old admin credit
   // rows (20 credits = 1 slot). Each row gets its own log code (LOG-...).
-  const [payRes, adjRes, packRes, legacyRes] = await Promise.all([
-    supabaseClient.from('payments').select('id, user_id, pack_id, gateway, amount, currency, status, created_at, verified_at').eq('status', 'completed').order('created_at', { ascending: false }).limit(1000),
+  const [payRes, adjRes, packRes, legacyRes, usageRes] = await Promise.all([
+    supabaseClient.from('payments').select('id, user_id, pack_id, gateway, amount, currency, status, created_at, verified_at, reference').in('status', ['completed', 'pending', 'rejected']).order('created_at', { ascending: false }).limit(1000),
     supabaseClient.from('admin_slot_adjustments').select('*').order('created_at', { ascending: false }).limit(1000),
     supabaseClient.from('slot_packages').select('id, legacy_pack_id, slots, name_ar, name_en'),
     supabaseClient.from('wallet_transactions').select('*').in('type', ['admin_credit', 'admin_debit']).order('created_at', { ascending: false }).limit(500),
+    // Every check that took a slot (reserved). Released reservations were refunded, so they are not listed.
+    supabaseClient.from('slot_usages').select('id, user_id, slot_type, order_id, status, created_at').eq('status', 'reserved').order('created_at', { ascending: false }).limit(1000),
   ]);
-  const error = payRes.error || adjRes.error || packRes.error || legacyRes.error;
+  const error = payRes.error || adjRes.error || packRes.error || legacyRes.error || usageRes.error;
   if (error) {
     console.error('loadCreditsTab:', error);
     document.getElementById('creditsBody').innerHTML =
@@ -5543,10 +5547,14 @@ async function loadCreditsTab(){
   (payRes.data || []).forEach(p => {
     const pack = packByKey[p.pack_id] || null;
     const pr = profileOf(p.user_id);
+    // Code = the PAY reference the customer sees on the top-up page (fallback: LOG code).
+    const done = p.status === 'completed';
     rows.push({
-      code: logCode('', p.id), user_id: p.user_id, pk_number: pr.pk_number, full_name: pr.full_name || '—',
+      code: p.reference || logCode('', p.id), user_id: p.user_id, pk_number: pr.pk_number, full_name: pr.full_name || '—',
       plan: pack ? pack.name : (p.pack_id || '—'), method: p.gateway, amount_paid: p.amount, currency: p.currency || 'EGP',
-      slots: pack ? pack.slots : null, kind: 'topup', created_at: p.verified_at || p.created_at,
+      slots: done && pack ? pack.slots : null,
+      kind: done ? 'topup' : (p.status === 'pending' ? 'pending' : 'rejected'),
+      status: p.status, created_at: done ? (p.verified_at || p.created_at) : p.created_at,
     });
   });
   (adjRes.data || []).forEach(a => {
@@ -5570,6 +5578,16 @@ async function loadCreditsTab(){
       created_at: w.created_at,
     });
   });
+  (usageRes.data || []).forEach(u => {
+    const pr = profileOf(u.user_id);
+    const ar = currentLang === 'ar';
+    rows.push({
+      code: 'CHK-' + String(u.id).replace(/-/g, '').slice(0, 8).toUpperCase(), user_id: u.user_id,
+      pk_number: pr.pk_number, full_name: pr.full_name || '—',
+      plan: u.slot_type === 'plag_ai' ? (ar ? 'فحص اقتباس + AI' : 'Similarity + AI check') : (ar ? 'فحص اقتباس' : 'Similarity check'),
+      method: 'system', amount_paid: null, currency: null, slots: -1, kind: 'check', created_at: u.created_at,
+    });
+  });
   rows.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   allTxRows = rows;
   renderCreditsTable(allTxRows);
@@ -5591,6 +5609,9 @@ function renderCreditsTable(rows){
     const amt     = r.amount_paid != null ? `${Number(r.amount_paid).toFixed(2)} ${r.currency || ''}` : '—';
     const typeBadge = r.kind === 'topup'        ? `<span class="cr-badge-add">${t('badge_topup')}</span>`
                     : r.kind === 'admin_add'    ? `<span class="cr-badge-adm">${t('badge_admin_add')}</span>`
+                    : r.kind === 'pending'      ? `<span class="cr-badge-adm">${currentLang === 'ar' ? 'معلّق' : 'Pending'}</span>`
+                    : r.kind === 'rejected'     ? `<span class="cr-badge-ded">${currentLang === 'ar' ? 'مرفوض' : 'Rejected'}</span>`
+                    : r.kind === 'check'        ? `<span class="cr-badge-ded">${currentLang === 'ar' ? 'فحص' : 'Check'}</span>`
                     : `<span class="cr-badge-ded">${t('badge_admin_deduct')}</span>`;
     const n       = Number(r.slots);
     const slotTxt = r.slots == null ? '—' : `${n > 0 ? '+' : ''}${n}`;

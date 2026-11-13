@@ -88,6 +88,15 @@ async function fetchScanStatus(fileId: string): Promise<ScanStatus | null> {
   }
 }
 
+// The provider's own failure message is kept for the admin only (orders.provider_error).
+// Written in a separate update so a missing column can never stop the order from failing.
+// deno-lint-ignore no-explicit-any
+async function saveProviderError(client: any, orderId: string, message: string) {
+  if (!message) return;
+  const { error } = await client.from("orders").update({ provider_error: message.slice(0, 500) }).eq("id", orderId);
+  if (error) console.error("provider_error not saved:", error.message);
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return new Response("Method Not Allowed", { status: 405 });
 
@@ -163,11 +172,13 @@ Deno.serve(async (req: Request) => {
   } else if (internalStatus === "error") {
     console.error("webhook: provider reported failure", JSON.stringify(scan));
     updates.error_reason = "The check could not be completed.";
+    updates.completed_at = new Date().toISOString();
   }
 
   const { error } = await supabase.from("orders").update(updates).eq("id", customId);
   if (error) console.error("webhook: DB update failed", error, customId);
   else       console.log("webhook: order", customId, "->", internalStatus);
+  if (internalStatus === "error") await saveProviderError(supabase, customId, String((scan as Record<string, unknown>).error ?? (scan as Record<string, unknown>).message ?? ""));
 
   return new Response("OK", { status: 200 });
 });

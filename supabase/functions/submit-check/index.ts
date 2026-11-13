@@ -114,6 +114,15 @@ async function providerAvailability(
 const cors_json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
 
+// The provider's own failure message is kept for the admin only (orders.provider_error).
+// Written in a separate update so a missing column can never stop the order from failing.
+// deno-lint-ignore no-explicit-any
+async function saveProviderError(client: any, orderId: string, message: string) {
+  if (!message) return;
+  const { error } = await client.from("orders").update({ provider_error: message.slice(0, 500) }).eq("id", orderId);
+  if (error) console.error("provider_error not saved:", error.message);
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
@@ -147,6 +156,17 @@ Deno.serve(async (req: Request) => {
     // A retried request for an order that was already sent does nothing new.
     if (order.external_order_id) {
       return cors_json({ success: true, externalOrderId: order.external_order_id, alreadySubmitted: true });
+    }
+
+    // A file that just failed at the provider waits 60 seconds before it can be sent again.
+    const { data: recentFail } = await admin
+      .from("orders").select("id")
+      .eq("user_id", user.id).eq("file_name", file.name).eq("file_size", file.size).eq("status", "error")
+      .gte("completed_at", new Date(Date.now() - 60000).toISOString())
+      .limit(1).maybeSingle();
+    if (recentFail) {
+      return cors_json({ success: false, code: "FILE_COOLDOWN", retry_after_seconds: 60,
+        error: "This file just failed. Please wait a minute before submitting it again." }, 429);
     }
 
     // Arabic file name or Arabic document: refused before any slot is used.
@@ -196,7 +216,7 @@ Deno.serve(async (req: Request) => {
     // is unavailable, not that the file was refused, so it is retried once and reported separately.
     type SubmitResult =
       | { ok: true; fileId: string }
-      | { ok: false; unavailable: boolean; detail: string };
+      | { ok: false; unavailable: boolean; detail: string; providerMessage: string };
 
     const sendToProvider = async (): Promise<SubmitResult> => {
       try {
@@ -214,7 +234,7 @@ Deno.serve(async (req: Request) => {
           data = null;
         }
         if (data === null) {
-          return { ok: false, unavailable: true, detail: `HTTP ${tsRes.status} non-JSON body: ${raw.slice(0, 300)}` };
+          return { ok: false, unavailable: true, detail: `HTTP ${tsRes.status} non-JSON body: ${raw.slice(0, 300)}`, providerMessage: `HTTP ${tsRes.status}: ${raw.slice(0, 300)}` };
         }
         const fid = data.file_id;
         if (tsRes.ok && data.success === true && typeof fid === "string") {
@@ -224,18 +244,15 @@ Deno.serve(async (req: Request) => {
           ok: false,
           unavailable: tsRes.status >= 500,
           detail: `HTTP ${tsRes.status} ${JSON.stringify(data).slice(0, 300)}`,
+          providerMessage: String(data.message ?? data.error ?? JSON.stringify(data)),
         };
       } catch (e) {
-        return { ok: false, unavailable: true, detail: `request failed: ${String(e)}` };
+        return { ok: false, unavailable: true, detail: `request failed: ${String(e)}`, providerMessage: String(e) };
       }
     };
 
-    let result = await sendToProvider();
-    if (!result.ok && result.unavailable) {
-      console.error("submit-check: provider unavailable, retrying once", result.detail);
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      result = await sendToProvider();
-    }
+    // One send only: a second send could create a second check at the provider.
+    const result = await sendToProvider();
 
     if (!result.ok) {
       // Not accepted for processing, so the slot goes back.
@@ -244,11 +261,13 @@ Deno.serve(async (req: Request) => {
       console.error(result.unavailable ? "submit-check: provider unavailable" : "submit-check: provider refused", result.detail);
       if (result.unavailable) {
         const unavailableMsg = "The check service is temporarily unavailable. Please try again in a few minutes. Your check was not used.";
-        await admin.from("orders").update({ status: "error", error_reason: unavailableMsg }).eq("id", orderId);
+        await admin.from("orders").update({ status: "error", error_reason: unavailableMsg, completed_at: new Date().toISOString() }).eq("id", orderId);
+        await saveProviderError(admin, orderId, result.providerMessage);
         return cors_json({ success: false, code: "PROVIDER_UNAVAILABLE", error: unavailableMsg }, 503);
       }
       const errMsg = "The file could not be submitted for checking. Please try again later.";
-      await admin.from("orders").update({ status: "error", error_reason: errMsg }).eq("id", orderId);
+      await admin.from("orders").update({ status: "error", error_reason: errMsg, completed_at: new Date().toISOString() }).eq("id", orderId);
+      await saveProviderError(admin, orderId, result.providerMessage);
       return cors_json({ success: false, error: errMsg }, 422);
     }
 
