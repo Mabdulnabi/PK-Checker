@@ -7789,6 +7789,10 @@ function localizeOrderError(reason){
   return t('err_generic');
 }
 
+// Old manual-mode / legacy statuses are shown as the closest API status (the DB value stays as it is).
+const LEGACY_STATUS_MAP = { floating:'checking', pending:'run', failed_invalid:'error' };
+function apiStatus(s){ return LEGACY_STATUS_MAP[s] || s; }
+
 const ORDER_BADGE_CLASS = { run:'badge-run', checking:'badge-run', completed:'badge-ok', processing:'badge-run', pending:'badge-wait', uploading:'badge-wait', floating:'badge-wait', error:'badge-no', failed_invalid:'badge-no', rejected:'badge-no' };
 
 // Formats a timestamp as "Jun 25, 2026 03:57 AM" — using the viewer's own
@@ -7953,8 +7957,9 @@ function renderOrders(){
   
   // Then apply status filter
   const list = activeFilter==='all' ? dateFiltered
-    : activeFilter==='floating' ? dateFiltered.filter(o=>['floating','uploading','pending'].includes(o.phase))
-    : activeFilter==='no' ? dateFiltered.filter(o=>o.phase==='error' || o.phase==='failed_invalid' || o.phase==='rejected')
+    : activeFilter==='floating' ? dateFiltered.filter(o=>['uploading','checking'].includes(o.phase))
+    : activeFilter==='processing' ? dateFiltered.filter(o=>['run','processing'].includes(o.phase))
+    : activeFilter==='no' ? dateFiltered.filter(o=>o.phase==='error' || o.phase==='rejected')
     : dateFiltered.filter(o=>o.phase===activeFilter);
   document.getElementById('ordersCount').textContent = dateFiltered.length;
   
@@ -8735,7 +8740,7 @@ async function loadOrders(){
     fileSize: row.file_size,
     checkType: row.check_type,
     tags: [],
-    phase: row.status,
+    phase: apiStatus(row.status),
     phaseStart: row.submitted_at ? new Date(row.submitted_at).getTime() : Date.now(),
     simResult: row.similarity_score,
     aiResult: row.ai_score,

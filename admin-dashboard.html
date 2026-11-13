@@ -3015,7 +3015,7 @@ function renderOverviewRevenueKpis(orders, wallet, ranges){
 }
 
 function renderOverviewStatusKpis(orders, usersCount){
-  const floating = orders.filter(o => o.status === 'floating').length;
+  const floating = orders.filter(o => ['uploading','checking'].includes(o.status)).length;
   const processing = orders.filter(o => ['uploading','pending','processing'].includes(o.status)).length;
   const completed = orders.filter(o => o.status === 'completed').length;
   const problem = orders.filter(o => ['error','failed_invalid','rejected'].includes(o.status)).length;
@@ -3203,7 +3203,8 @@ async function loadOrders(){
   if (profilesRes.error) { console.error('loadOrders (profiles) failed:', profilesRes.error); }
   // Every check stays in the log. Files of orders older than 48 hours are removed (purged_at),
   // but the order row itself is kept, so the admin orders list shows all of them.
-  allOrders = ordersRes.data || [];
+  // Legacy statuses are shown as the API status they correspond to (the DB value stays as it is).
+  allOrders = (ordersRes.data || []).map(o => ({ ...o, status: apiStatus(o.status) }));
   profilesByUserId = {};
   (profilesRes.data || []).forEach(p => { profilesByUserId[p.user_id] = p; });
   renderOrdersTable();
@@ -3323,10 +3324,10 @@ function _openChatForOnlineUser(userId){
 function renderOrdersTable(){
   const search = (document.getElementById('orderSearch').value || '').trim().toLowerCase();
   let list = allOrders;
-  if (orderFilter === 'floating') list = list.filter(o => o.status === 'floating');
-  else if (orderFilter === 'processing') list = list.filter(o => ['uploading','pending','processing'].includes(o.status));
+  if (orderFilter === 'floating') list = list.filter(o => ['uploading','checking'].includes(o.status));
+  else if (orderFilter === 'processing') list = list.filter(o => ['run','processing'].includes(o.status));
   else if (orderFilter === 'completed') list = list.filter(o => o.status === 'completed');
-  else if (orderFilter === 'problem') list = list.filter(o => ['error','failed_invalid','rejected'].includes(o.status));
+  else if (orderFilter === 'problem') list = list.filter(o => ['error','rejected'].includes(o.status));
 
   if (search) {
     list = list.filter(o => {
@@ -3698,7 +3699,10 @@ async function openSourceFile(orderId){
 }
 
 /* ---------------- HELPERS ---------------- */
-const ORDER_STATUS_OPTIONS = ['floating','uploading','pending','processing','completed','error','failed_invalid','rejected'];
+// Only the statuses of the current API flow. The admin picks from this list; legacy values are not offered.
+const ORDER_STATUS_OPTIONS = ['uploading','run','processing','checking','completed','error','rejected'];
+const LEGACY_STATUS_MAP = { floating:'checking', pending:'run', failed_invalid:'error' };
+function apiStatus(s){ return LEGACY_STATUS_MAP[s] || s; }
 function statusDropdown(o){
   const cls = ORDER_BADGE_CLASS[o.status] || 'badge-wait';
   const opts = ORDER_STATUS_OPTIONS.map(s =>
