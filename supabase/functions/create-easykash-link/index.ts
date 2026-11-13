@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
     const { data: profile } = await supabaseClient
       .from('users_profile')
       .select('email, phone, full_name')
-      .eq('id', userId)
+      .eq('user_id', userId)
       .maybeSingle();
 
     const apiKey = Deno.env.get('EASYKASH_API_KEY') ?? '';

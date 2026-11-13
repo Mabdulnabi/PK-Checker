@@ -77,6 +77,7 @@ Deno.serve(async (req: Request) => {
         .from("orders")
         .select("id, source_file_path")
         .not("source_file_path", "is", null)
+        .in("status", FINAL_STATUSES)
         .lt("submitted_at", cutoff)
         .limit(500);
       if (error) throw error;

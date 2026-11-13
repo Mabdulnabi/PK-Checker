@@ -136,6 +136,10 @@ Deno.serve(async (req: Request) => {
   const internalStatus =
     s === "completed" ? "completed" :
     (s === "failed" || s === "rejected") ? "error" : "processing";
+  // A finished order is never moved back by a late or repeated webhook.
+  if (order.status === "completed" && internalStatus !== "completed") {
+    return new Response("OK", { status: 200 });
+  }
 
   const updates: Record<string, unknown> = { status: internalStatus };
   if (!order.external_order_id) updates.external_order_id = fileId;

@@ -2949,7 +2949,8 @@ function switchTab(tab){
 
 // Remember which tab was open and how far scrolled, per tab, so a refresh
 // lands back exactly where the admin was instead of jumping to Overview.
-const _scrollPositions = JSON.parse(localStorage.getItem('prokeys-admin-scroll') || '{}');
+let _scrollPositions = {};
+try { _scrollPositions = JSON.parse(localStorage.getItem('prokeys-admin-scroll') || '{}') || {}; } catch (e) { _scrollPositions = {}; }
 function restoreTabScroll(tab){
   const main = document.querySelector('.main');
   if (!main) return;
@@ -3019,13 +3020,14 @@ function renderOverviewRevenueKpis(orders, wallet, ranges){
 
 function renderOverviewStatusKpis(orders, usersCount){
   const floating = orders.filter(o => ['uploading','checking'].includes(o.status)).length;
-  const processing = orders.filter(o => ['uploading','pending','processing'].includes(o.status)).length;
+  const processing = orders.filter(o => ['uploading','pending','processing','run'].includes(o.status)).length;
   const completed = orders.filter(o => o.status === 'completed').length;
   const problem = orders.filter(o => ['error','failed_invalid','rejected'].includes(o.status)).length;
   const now2 = Date.now();
   const stuck = orders.filter(o => {
     const ageMs = now2 - new Date(o.submitted_at).getTime();
-    if (['floating','uploading','pending'].includes(o.status)) return ageMs > 2 * 3600 * 1000;
+    if (['floating','uploading','pending','checking'].includes(o.status)) return ageMs > 2 * 3600 * 1000;
+    if (o.status === 'run') return ageMs > 30 * 60 * 1000;   // matches check_stuck_orders (30 min after sent)
     if (o.status === 'processing') return ageMs > 1 * 3600 * 1000;
     return false;
   }).length;
@@ -3399,7 +3401,7 @@ function renderManualQueue(){
 
   const queue = allOrders.filter(o =>
     o.processing_mode === 'manual' &&
-    ['floating', 'uploading', 'pending', 'processing'].includes(o.status)
+    ['floating', 'uploading', 'pending', 'processing', 'run', 'checking'].includes(o.status)
   ).sort((a, b) => new Date(a.submitted_at) - new Date(b.submitted_at));
 
   if (!queue.length) { panel.style.display = 'none'; body.innerHTML = ''; return; }
@@ -3512,7 +3514,7 @@ async function adoptOrderManually(orderId){
   if (!o) return;
 
   const confirmed = await adminConfirm(
-    `تحويل الطلب ${escapeHtml(o.display_id || orderId.slice(0,8))} للمعالجة اليدوية؟\n\nسيظهر في قائمة المعالجة اليدوية ويمكنك رفع التقريرين (اقتباس${o.check_type === 'sim_ai' || o.check_type === 'both' ? ' + AI' : ''}) مباشرة.\n\nملاحظة: الفحوصات اللي اترد للعميل عند فشل الـ API — تقدر تعيد خصمه يدوياً من تاب المدفوعات لو حبيت.`,
+    `تحويل الطلب ${o.display_id || orderId.slice(0,8)} للمعالجة اليدوية؟\n\nسيظهر في قائمة المعالجة اليدوية ويمكنك رفع التقريرين (اقتباس${o.check_type === 'sim_ai' || o.check_type === 'both' ? ' + AI' : ''}) مباشرة.\n\nملاحظة: الفحوصات اللي اترد للعميل عند فشل الـ API — تقدر تعيد خصمه يدوياً من تاب المدفوعات لو حبيت.`,
     { icon: '🖐', confirmLabel: 'تولى يدوياً' }
   );
   if (!confirmed) return;
@@ -4929,9 +4931,7 @@ async function resendOrderToApi(orderId){
     const json = await res.json();
     if (!res.ok || !json.success) throw new Error(json.error || 'رفض المزوّد الطلب');
 
-    order.status = 'pending';
-    order.error_reason = null;
-    renderOrdersTable();
+    await loadOrders();
     await logAdminActivity('setting_change', order.user_id || null, '', `إعادة إرسال طلب للـ API: ${order.display_id || orderId.slice(0,8)}`);
     await adminAlert('✅ اتبعت الطلب تاني للفحص بنجاح', {icon:'✅'});
   } catch (err) {
@@ -4947,8 +4947,12 @@ async function deleteOrder(orderId){
     const { error: removeErr } = await supabaseClient.storage.from('order-source-files').remove([order.source_file_path]);
     if (removeErr) console.warn('deleteOrder: storage file removal failed (non-fatal):', removeErr.message);
   }
-  const { error } = await supabaseClient.from('orders').delete().eq('id', orderId);
+  const { data: deleted, error } = await supabaseClient.from('orders').delete().eq('id', orderId).select('id');
   if (error) { await adminAlert('فشل الحذف: ' + error.message, {icon:'❌', danger:true}); return; }
+  if (!deleted || deleted.length === 0) {
+    await adminAlert('ماتمش حذف الطلب: الصلاحية مش متاحة للحذف من الداشبورد.', {icon:'❌', danger:true});
+    return;
+  }
   allOrders = allOrders.filter(o => o.id !== orderId);
   renderOrdersTable();
   renderProblemOrdersList();
@@ -6764,49 +6768,13 @@ const PACK_EXPIRY_DAYS = {
 async function approvePendingPayment(paymentId, userId, credits, triggerBtn){
   if (triggerBtn) { triggerBtn.disabled = true; triggerBtn.textContent = '...'; }
   try {
-    // Fetch payment to get pack_id only — expiry starts from approval time (now)
-    const { data: payData } = await supabaseClient
-      .from('payments').select('pack_id').eq('id', paymentId).single();
-    const packId      = payData?.pack_id || null;
-    const approvedAt  = new Date();
-    const expiryDays  = packId ? (PACK_EXPIRY_DAYS[packId] ?? null) : null;
-    let expiresAt = null;
-    if (expiryDays) {
-      const d = new Date(approvedAt);
-      d.setDate(d.getDate() + expiryDays);
-      expiresAt = d.toISOString();
-    }
+    // The database claims the payment and grants its slots in one transaction (admin_approve_payment).
+    // A payment that is no longer pending is refused, so a second click never grants twice.
+    const { data, error } = await supabaseClient.rpc('admin_approve_payment', { p_payment_id: paymentId });
+    if (error) throw error;
+    if (!data || data.ok !== true) throw new Error('الدفعة مش معلقة (اتعالجت قبل كده)');
 
-    const { data: bal } = await supabaseClient
-      .from('wallet_transactions').select('balance_after')
-      .eq('user_id',userId).order('created_at',{ascending:false}).limit(1);
-    const balBefore = Number(bal?.[0]?.balance_after ?? 0);
-    const balAfter  = balBefore + credits;
-
-    // Claim the payment only while it is still pending: a second approval (double click,
-    // another admin, a stale list) updates nothing and is refused before any credit is written.
-    const { data: claimed, error: payErr } = await supabaseClient
-      .from('payments').update({status:'completed'}).eq('id',paymentId).eq('status','pending').select('id');
-    if (payErr) throw payErr;
-    if (!claimed || claimed.length === 0) throw new Error('الدفعة مش معلقة (اتعالجت قبل كده)');
-
-    const { error: txErr } = await supabaseClient
-      .from('wallet_transactions').insert({
-        user_id:userId, type:'credit', amount:credits,
-        balance_before:balBefore, balance_after:balAfter,
-        payment_id:paymentId,
-        expires_at: expiresAt,
-        description: expiresAt
-          ? `موافقة يدوية — ${packId} — تنتهي ${new Date(expiresAt).toLocaleDateString('ar-EG')}`
-          : 'موافقة يدوية من الأدمن'
-      });
-    if (txErr) {
-      // Put the payment back to pending so it is not marked completed without a credit.
-      await supabaseClient.from('payments').update({status:'pending'}).eq('id',paymentId).eq('status','completed');
-      throw txErr;
-    }
-
-    await logAdminActivity('manual_approve',userId,'','الموافقة على دفعة معلقة: '+paymentId);
+    await logAdminActivity('manual_approve', userId, '', 'الموافقة على دفعة معلقة: ' + paymentId);
     loadPendingPayments();
     loadCreditsTab();
   } catch(err) {

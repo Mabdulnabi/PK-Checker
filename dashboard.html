@@ -6030,9 +6030,11 @@ async function deleteOwnAccount(){
     // Step 2: remove the actual login account itself (needs service_role,
     // handled server-side by this edge function).
     const { data: sessionData } = await supabaseClient.auth.getSession();
+    const accessToken = sessionData?.session?.access_token;
+    if (!accessToken) throw new Error('انتهت الجلسة، سجّل الدخول تاني');
     const resp = await fetch(`${FN_BASE}/delete-own-account`, {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${sessionData.session.access_token}` },
+      headers: { 'Authorization': `Bearer ${accessToken}` },
     });
     if (!resp.ok) {
       const result = await resp.json().catch(() => ({}));
@@ -7754,7 +7756,7 @@ let handleTime = {};
 // uploaded custom icons only later (async), so that snapshot never picked
 // up custom uploads. A function that reads ICONS fresh on every call does.
 function statusIconFor(phase){
-  const map = { completed: 'check', processing: 'clock', pending: 'hourglass', uploading: 'hourglass', floating: 'hourglass', error: 'x', failed_invalid: 'x', rejected: 'x' };
+  const map = { completed: 'check', processing: 'clock', run: 'clock', checking: 'hourglass', pending: 'hourglass', uploading: 'hourglass', floating: 'hourglass', error: 'x', failed_invalid: 'x', rejected: 'x' };
   return ICONS[map[phase]] || '';
 }
 
@@ -7973,7 +7975,7 @@ function renderOrders(){
   
   // Update statistics (based on date-filtered set)
   const completed = dateFiltered.filter(o=>o.phase==='completed').length;
-  const pending = dateFiltered.filter(o=>['floating','uploading','pending','processing'].includes(o.phase)).length;
+  const pending = dateFiltered.filter(o=>['floating','uploading','pending','processing','run','checking'].includes(o.phase)).length;
   const rejected = dateFiltered.filter(o=>o.phase==='error' || o.phase==='failed_invalid' || o.phase==='rejected').length;
   document.getElementById('statCompleted').textContent = completed;
   document.getElementById('statPending').textContent = pending;
@@ -9632,7 +9634,7 @@ function maybeShowOnboarding(profileData){
   };
 
   function renderCard(){
-    const pane = document.getElementById('pane-orders');
+    const pane = document.getElementById('pane-new-check');
     if (!pane || document.getElementById('publicReviewCard')) return;
 
     const style = document.createElement('style');

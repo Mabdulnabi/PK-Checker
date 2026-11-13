@@ -162,6 +162,11 @@ Deno.serve(async (req: Request) => {
 
     await supabase.from("orders").update(updates).eq("id", orderId);
     if (internalStatus === "error") await saveProviderError(supabase, orderId, String(tsData.error ?? tsData.message ?? ""));
+    // An order that was waiting in "checking" and is now refused: give its slot back (same as the webhook).
+    if (internalStatus === "error" && (order as { status: string }).status === "checking") {
+      const { error: relErr } = await supabase.rpc("release_slot", { p_idempotency_key: `order:${orderId}` });
+      if (relErr) console.error("check-status: release_slot failed", relErr.message, orderId);
+    }
 
     return json({ success: true, polled: true, status: internalStatus, reports,
       ...(internalStatus === "error" ? { error: updates.error_reason } : {}) });
