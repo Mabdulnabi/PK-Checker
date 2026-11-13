@@ -3367,7 +3367,15 @@ const I18N = {
     chat_offline:"سنرد عليك في أقرب وقت", chat_upload_error:"تعذر رفع الملف، حاول مرة أخرى", chat_send_error:"تعذر إرسال الرسالة، حاول مرة أخرى",
     notif_title:"الإشعارات", notif_mark_all:"تحديد الكل كمقروء", notif_empty:"لا توجد إشعارات حالياً",
     user_profile:"حسابي", user_signout:"تسجيل الخروج",
-    phase_checking:"جاري التأكد من استلام الملف", phase_floating:"جاهز للإرسال", phase_uploading:"جاري الرفع", phase_pending:"في انتظار المعالجة", phase_processing:"قيد الفحص", phase_completed:"مكتمل", phase_error:"خطأ في الفحص", phase_failed_invalid:"ملف غير صالح", phase_rejected:"مرفوض",
+    phase_checking:"جاري التأكد من استلام الملف", phase_run:"تم الإرسال، جاري الفحص",
+    err_no_slots:"مفيش فحوصات كفاية في الباقة دي. اشحن باقة جديدة.",
+    err_check_failed:"تعذّر إتمام الفحص. الخانة اترجعت لرصيدك.",
+    err_provider_unavailable:"خدمة الفحص مش متاحة دلوقتي. جرّب بعد شوية، ومفيش فحص اتخصم.",
+    err_submit_failed:"تعذّر إرسال الملف للفحص. جرّب تاني بعد شوية.",
+    err_unconfirmed:"ماقدرناش نتأكد إن الملف وصل لخدمة الفحص، والخانة اترجعت لرصيدك.",
+    err_maintenance:"الخدمة متوقفة مؤقتاً للصيانة.",
+    err_cooldown:"الملف ده فشل قبل قليل. استنى دقيقة وجرّب تاني.",
+    err_generic:"حصلت مشكلة في الطلب.", phase_floating:"جاهز للإرسال", phase_uploading:"جاري الرفع", phase_pending:"في انتظار المعالجة", phase_processing:"قيد الفحص", phase_completed:"مكتمل", phase_error:"خطأ في الفحص", phase_failed_invalid:"ملف غير صالح", phase_rejected:"مرفوض",
     similarity:"اقتباس", ai:"AI", sim_only:"اقتباس فقط", sim_ai:"اقتباس + AI",
     col_order_id:"رقم الطلب", col_file:"اسم الملف", col_submitted:"وقت الإرسال", col_completed:"اكتمل", col_handle:"وقت المعالجة",
     stat_completed:"مكتمل", stat_pending:"قيد الانتظار", stat_rejected:"مرفوض",
@@ -3565,7 +3573,16 @@ const I18N = {
     chat_offline:"We'll reply as soon as we can", chat_upload_error:"Couldn't upload the file, please try again", chat_send_error:"Couldn't send the message, please try again",
     notif_title:"Notifications", notif_mark_all:"Mark all as read", notif_empty:"No notifications yet",
     user_profile:"My Account", user_signout:"Sign out",
-    phase_checking:"Confirming the file was received", phase_floating:"Ready to send", phase_uploading:"Uploading", phase_pending:"Awaiting processing", phase_processing:"Processing", phase_completed:"Completed", phase_error:"Check error", phase_failed_invalid:"Invalid file", phase_rejected:"Rejected",
+    phase_checking:"Confirming the file was received", phase_run:"Sent, checking in progress",
+    err_no_slots:"Not enough checks in this package. Please buy a new package.",
+    err_check_failed:"The check could not be completed. The check was returned to your balance.",
+    err_provider_unavailable:"The check service is unavailable right now. Please try again shortly. No check was used.",
+    err_submit_failed:"The file could not be sent for checking. Please try again shortly.",
+    err_unconfirmed:"We could not confirm the file reached the check service. The check was returned to your balance.",
+    err_maintenance:"The service is temporarily under maintenance.",
+    err_cooldown:"This file just failed. Please wait a minute and try again.",
+    err_generic:"Something went wrong with this order.",
+    phase_floating:"Ready to send", phase_uploading:"Uploading", phase_pending:"Awaiting processing", phase_processing:"Processing", phase_completed:"Completed", phase_error:"Check error", phase_failed_invalid:"Invalid file", phase_rejected:"Rejected",
     similarity:"Similarity", ai:"AI", sim_only:"Similarity only", sim_ai:"Similarity + AI",
     col_order_id:"Order ID", col_file:"File", col_submitted:"Submitted", col_completed:"Completed", col_handle:"Handle time",
     stat_completed:"Completed", stat_pending:"Pending", stat_rejected:"Rejected",
@@ -7074,7 +7091,9 @@ async function submitCheckToApi(orderId, file){
       // MAINTENANCE / NO_SLOTS come back with a message the customer can read.
       const userMessage = json.code === 'MAINTENANCE'
         ? withAvailIcon(json.reason, (currentLang === 'ar' ? json.message_ar : json.message_en) || t('slot_maint_default'))
-        : (json.code === 'NO_SLOTS' ? t('slot_none_msg') : null);
+        : (json.code === 'NO_SLOTS' ? t('slot_none_msg')
+        : (json.code === 'FILE_COOLDOWN' ? t('err_cooldown')
+        : (json.code === 'PROVIDER_UNAVAILABLE' ? t('err_provider_unavailable') : null)));
       return { ok: false, code: json.code, userMessage,
         error: json.error || json.code || (currentLang==='ar' ? 'رفض المزوّد الطلب' : 'Provider rejected the submission') };
     }
@@ -7757,7 +7776,20 @@ function getOrderDate(o){
   return new Date(o.phaseStart).toISOString().split('T')[0];
 }
 
-const ORDER_BADGE_CLASS = { checking:'badge-run', completed:'badge-ok', processing:'badge-run', pending:'badge-wait', uploading:'badge-wait', floating:'badge-wait', error:'badge-no', failed_invalid:'badge-no', rejected:'badge-no' };
+// Server error texts are stored in English; the customer sees them in their language.
+function localizeOrderError(reason){
+  if (!reason) return '';
+  const r = String(reason);
+  if (r === 'NO_SLOTS') return t('err_no_slots');
+  if (r.startsWith('MAINTENANCE')) return t('err_maintenance');
+  if (r.startsWith('The check could not be completed')) return t('err_check_failed');
+  if (r.startsWith('The check service is temporarily unavailable')) return t('err_provider_unavailable');
+  if (r.startsWith('The file could not be submitted')) return t('err_submit_failed');
+  if (r.startsWith('We could not confirm the file reached')) return t('err_unconfirmed');
+  return t('err_generic');
+}
+
+const ORDER_BADGE_CLASS = { run:'badge-run', checking:'badge-run', completed:'badge-ok', processing:'badge-run', pending:'badge-wait', uploading:'badge-wait', floating:'badge-wait', error:'badge-no', failed_invalid:'badge-no', rejected:'badge-no' };
 
 // Formats a timestamp as "Jun 25, 2026 03:57 AM" — using the viewer's own
 // device/browser timezone (not a fixed one), in 12-hour format with AM/PM.
@@ -7824,7 +7856,7 @@ function buildOrderRow(o){
 
   const badge = `<span class="badge ${ORDER_BADGE_CLASS[o.phase]}"><span class="dot"></span>${t('phase_'+o.phase)}</span>`;
   const errorReasonLine = (o.phase === 'error' || o.phase === 'failed_invalid' || o.phase === 'rejected') && o.errorReason
-    ? `<div class="order-error-reason">${escapeHtml(o.errorReason)}</div>` : '';
+    ? `<div class="order-error-reason">${escapeHtml(localizeOrderError(o.errorReason))}</div>` : '';
   const submittedLabel = formatOrderDate(o.phaseStart);
   const handle = handleTime[o.id];
   const ext = fileExtensionLabel(o.file);

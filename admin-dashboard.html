@@ -3153,6 +3153,19 @@ async function exportOverviewCSV(){
   URL.revokeObjectURL(a.href);
 }
 
+// Our own order errors are stored in English; the admin reads them in Arabic.
+function localizeAdminOrderError(reason){
+  if (!reason) return '';
+  const r = String(reason);
+  if (r === 'NO_SLOTS') return 'مفيش فحوصات كفاية في الباقة';
+  if (r.startsWith('MAINTENANCE')) return 'الخدمة متوقفة للصيانة';
+  if (r.startsWith('The check could not be completed')) return 'تعذّر إتمام الفحص (رجعت الخانة للعميل)';
+  if (r.startsWith('The check service is temporarily unavailable')) return 'خدمة الفحص مش متاحة (ماتخصمتش خانة)';
+  if (r.startsWith('The file could not be submitted')) return 'تعذّر إرسال الملف للمزوّد';
+  if (r.startsWith('We could not confirm the file reached')) return 'ماتأكدناش من وصول الملف (رجعت الخانة)';
+  return r;
+}
+
 function renderProblemOrdersList(){
   const problems = allOrders
     .filter(o => ['error','failed_invalid','rejected'].includes(o.status))
@@ -3167,7 +3180,7 @@ function renderProblemOrdersList(){
     <tbody>` + problems.map(o => {
     const p = profilesByUserId[o.user_id] || {};
     // The provider's own message first; our neutral message is only the fallback.
-    const shown = o.provider_error || o.error_reason;
+    const shown = o.provider_error || localizeAdminOrderError(o.error_reason);
     const reason = shown ? escapeHtml(shown) : (currentLang === 'ar' ? 'غير معروف' : 'Unknown');
     return `<tr>
       <td class="mono" style="font-size:10.5px;color:var(--muted);white-space:nowrap;">${escapeHtml(o.display_id||o.id.slice(0,8))}</td>
@@ -3204,7 +3217,9 @@ function setOrderFilter(f){
 }
 
 const ORDER_BADGE_CLASS = { completed:'badge-ok', processing:'badge-run', pending:'badge-run', uploading:'badge-wait', floating:'badge-wait', error:'badge-no', failed_invalid:'badge-no', rejected:'badge-no' };
-const ORDER_STATUS_KEY = { completed:'st_completed', processing:'st_processing', pending:'st_processing', uploading:'st_uploading', floating:'lbl_floating', error:'st_error', failed_invalid:'st_invalid', rejected:'st_rejected' };
+const ORDER_STATUS_KEY = { completed:'st_completed', processing:'st_processing', pending:'st_processing', uploading:'st_uploading', run:'st_run', checking:'st_checking', floating:'lbl_floating', error:'st_error', failed_invalid:'st_invalid', rejected:'st_rejected' };
+I18N.ar.st_run='تم الإرسال للمزوّد'; I18N.en.st_run='Sent to provider';
+I18N.ar.st_checking='جاري التأكد من الاستلام'; I18N.en.st_checking='Confirming receipt';
 I18N.ar.st_completed='مكتملة'; I18N.ar.st_processing='قيد التنفيذ'; I18N.ar.st_uploading='رفع الملف'; I18N.ar.st_error='خطأ'; I18N.ar.st_invalid='ملف غير صالح'; I18N.ar.st_rejected='مرفوض';
 I18N.en.st_completed='Completed'; I18N.en.st_processing='Processing'; I18N.en.st_uploading='Uploading'; I18N.en.st_error='Error'; I18N.en.st_invalid='Invalid file'; I18N.en.st_rejected='Rejected';
 I18N.ar.manual_queue_title='🖐 فحص يدوي'; I18N.ar.manual_queue_action='الإجراء';
