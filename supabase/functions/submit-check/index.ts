@@ -213,7 +213,7 @@ Deno.serve(async (req: Request) => {
     tsForm.append("webhook_url", `${SUPABASE_URL}/functions/v1/turnitin-webhook`);
 
     // TurniScan sometimes answers with an HTML error page instead of JSON. That means the provider
-    // is unavailable, not that the file was refused, so it is retried once and reported separately.
+    // is unavailable, not that the file was refused, so it is reported separately (never sent twice).
     type SubmitResult =
       | { ok: true; fileId: string }
       | { ok: false; unavailable: boolean; detail: string; providerMessage: string };
