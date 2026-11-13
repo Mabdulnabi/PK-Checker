@@ -4046,6 +4046,7 @@ function packValidityNote(p, tab){
 
 function selectPack(tab, id){
   currentPayRef = null;
+  currentPayId = null;
   const packs = tab === 'topup' ? TOPUP_PACKS : DAILY_PACKS;
   selectedPack = packs.find(p => p.id === id);
   selectedPack.tab = tab;
@@ -4117,15 +4118,15 @@ document.addEventListener('click', e=>{
   if(tab && tab.dataset.ptab) setPayTab(tab.dataset.ptab);
 });
 
-// Payment reference for lock gateways: the customer writes "Pkchecker PAY-XXXXXXX" in the transfer note.
+// Payment reference for lock gateways: the transfer note is "PKC-XXXXXXXX" (12 characters, within the
+// 20-character limit of the wallets). The 8 characters are the first 8 of the payment id, the same code
+// the customer sees in the payment history, so support can match the two directly.
 let currentPayRef = null;
+let currentPayId = null;
+function payCodeFromId(id){ return 'PKC-' + String(id).replace(/-/g, '').slice(0, 8).toUpperCase(); }
 function newPayReference(){
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const bytes = new Uint32Array(7);
-  crypto.getRandomValues(bytes);
-  let out = '';
-  for (const b of bytes) out += chars[b % chars.length];
-  return 'PAY-' + out;
+  currentPayId = crypto.randomUUID();
+  return payCodeFromId(currentPayId);
 }
 function copyPayText(text){
   try { navigator.clipboard.writeText(text); } catch (e) { console.error('copy failed', e); }
@@ -4154,7 +4155,7 @@ function renderLockBox(gateway, cfg){
   if (!currentPayRef) currentPayRef = newPayReference();
   const ar = currentLang === 'ar';
   const amt = packChargeAmount(selectedPack, false).toFixed(2);
-  const note = 'Pkchecker ' + currentPayRef;
+  const note = currentPayRef;
   box.style.display = '';
   box.innerHTML = `
     <div class="lock-card">
@@ -4429,9 +4430,11 @@ async function handleDynamicGatewayPurchase(gateway, cfg){
 async function createPendingPayment(gateway, amountForDb, isEgp, credits){
   const lockGateway = !!(PAYMENT_DETAILS[gateway] && PAYMENT_DETAILS[gateway].lock);
   const reference = lockGateway ? (currentPayRef || newPayReference()) : null;
+  const paymentId = lockGateway ? currentPayId : null;
   const { data: paymentRow, error: insertErr } = await supabaseClient
     .from('payments')
     .insert({
+      ...(paymentId ? { id: paymentId } : {}),
       reference: reference,
       user_id: PROKEYS_USER_ID,
       amount: amountForDb,
@@ -4448,6 +4451,7 @@ async function createPendingPayment(gateway, amountForDb, isEgp, credits){
   if (insertErr) throw insertErr;
   // The next attempt gets a fresh reference, so a payment row is never reused.
   currentPayRef = null;
+  currentPayId = null;
   if (lockGateway) renderLockBox(gateway, PAYMENT_DETAILS[gateway]);
   return paymentRow;
 }
@@ -5378,7 +5382,7 @@ function renderPaymentHistory(){
     // Same code format the admin dashboard uses for this payment, so a
     // customer reading their history can reference the exact same code
     // when contacting support — no separate numbering scheme to confuse.
-    const code = 'PAY-' + String(p.id).slice(0, 8).toUpperCase();
+    const code = payCodeFromId(p.id);
     const dt = new Date(p.created_at);
     const dateStr = fmtDayMonthYear(dt);
     const timeStr = dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
@@ -7558,6 +7562,7 @@ async function loadSlots(){
   _slotsLoaded = true;
   renderExpiryCard();
   renderWalletSlotCards();
+  renderWalletCapacity();
   buildSlotDropdown();
 }
 
@@ -8003,15 +8008,11 @@ function renderLastOrder(){
 function renderWalletCapacity(){
   const el = document.getElementById('walletCapacityHint');
   if(!el) return;
-  const bal = Math.floor(userBalance);
-  const SIM_COST = 10, BOTH_COST = 20;
-  const simCount  = Math.floor(bal / SIM_COST);
-  const bothCount = Math.floor(bal / BOTH_COST);
-  if(bal <= 0){ el.textContent = ''; return; }
-  const ar = currentLang === 'ar';
-  el.innerHTML = ar
-    ? `يكفي لـ <b style="color:#fff;">${simCount}</b> فحص اقتباس فقط &nbsp;·&nbsp; أو <b style="color:#fff;">${bothCount}</b> فحص اقتباس + AI`
-    : `Enough for <b style="color:#fff;">${simCount}</b> similarity checks &nbsp;·&nbsp; or <b style="color:#fff;">${bothCount}</b> similarity + AI checks`;
+  const total = totalSlots();
+  if(!_slotsLoaded || total <= 0){ el.textContent = ''; return; }
+  el.innerHTML = currentLang === 'ar'
+    ? `عندك <b style="color:#fff;">${total}</b> فحص متاح من باقاتك`
+    : `You have <b style="color:#fff;">${total}</b> checks available from your packages`;
 }
 /* ---------- Redeem code: single-use voucher that adds credits to the wallet ---------- */
 const REDEEM_ERROR_KEYS = {
@@ -9634,8 +9635,8 @@ function maybeShowOnboarding(profileData){
   };
 
   function renderCard(){
-    const pane = document.getElementById('pane-new-check');
-    if (!pane || document.getElementById('publicReviewCard')) return;
+    const anchor = document.getElementById('myFilesSection');
+    if (!anchor || document.getElementById('publicReviewCard')) return;
 
     const style = document.createElement('style');
     style.id = 'publicReviewStyle';
@@ -9675,7 +9676,7 @@ function maybeShowOnboarding(profileData){
         <button type="button" id="prcSubmit" disabled>${isAr() ? 'أرسل تقييمي' : 'Submit my review'}</button>
       </div>
     `;
-    pane.insertBefore(card, pane.firstChild);
+    anchor.insertAdjacentElement('afterend', card);
 
     const starEls = Array.from(card.querySelectorAll('#prcStars i'));
     function paint(n){

@@ -3200,10 +3200,22 @@ function renderProblemOrdersList(){
 }
 
 /* ---------------- ORDERS ---------------- */
+// Reads every row of a query in pages of 1000 (the API returns at most 1000 rows per request).
+async function fetchAllRows(makeQuery){
+  const rows = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await makeQuery().range(from, from + 999);
+    if (error) return { data: null, error };
+    rows.push(...(data || []));
+    if (!data || data.length < 1000) break;
+  }
+  return { data: rows, error: null };
+}
+
 async function loadOrders(){
   const [ordersRes, profilesRes] = await Promise.all([
-    supabaseClient.from('orders').select('*').order('submitted_at', { ascending: false }).limit(500),
-    supabaseClient.from('users_profile_numbered').select('user_id, full_name, email, pk_number, whatsapp, credits, avatar_url'),
+    fetchAllRows(() => supabaseClient.from('orders').select('*').order('submitted_at', { ascending: false })),
+    fetchAllRows(() => supabaseClient.from('users_profile_numbered').select('user_id, full_name, email, pk_number, whatsapp, credits, avatar_url').order('user_id')),
   ]);
   if (ordersRes.error) { console.error('loadOrders (orders) failed:', ordersRes.error); return; }
   if (profilesRes.error) { console.error('loadOrders (profiles) failed:', profilesRes.error); }
@@ -3380,7 +3392,7 @@ function renderOrdersTable(){
         ${(['error','failed_invalid'].includes(o.status) && o.source_file_path) ? `<button class="msg-btn" onclick="resendOrderToApi('${o.id}')" title="إعادة إرسال نفس الملف للفحص">🔁 إعادة إرسال</button>` : ''}
         ${(['error','failed_invalid'].includes(o.status) && o.processing_mode === 'api') ? `<button class="msg-btn" style="color:var(--blue-deep);border-color:var(--blue-light);" onclick="adoptOrderManually('${o.id}')" title="تولى الطلب يدوياً ورفع التقارير بنفسك">🖐 يدوي</button>` : ''}
       </td>
-      <td><button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);" onclick="deleteOrder('${o.id}')" title="حذف الأوردر">🗑</button></td>
+      <td>${(() => { const aged = o.submitted_at && (Date.now() - new Date(o.submitted_at).getTime()) >= 48*3600*1000; const hasFiles = !!(o.source_file_path || o.report_url || o.ai_report_url); const ok = aged && hasFiles; return `<button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);white-space:nowrap;" ${ok ? '' : 'disabled'} onclick="deleteOrderFiles('${o.id}')" title="${ok ? 'حذف الملفات (الطلب نفسه بيفضل)' : 'متاح بعد 48 ساعة من الطلب لو فيه ملفات'}">🗑 الملفات</button>`; })()}</td>
     </tr>`;
 
     return mainRow;
@@ -4940,25 +4952,44 @@ async function resendOrderToApi(orderId){
   }
 }
 
-async function deleteOrder(orderId){
-  // Delete source file from storage if present
+// Deletes only the files of an order (source copy and both reports), and only once the order is 48 hours old.
+// The order row stays, for billing history and the admin list.
+async function deleteOrderFiles(orderId){
   const order = allOrders.find(o => o.id === orderId);
-  if (order?.source_file_path) {
-    const { error: removeErr } = await supabaseClient.storage.from('order-source-files').remove([order.source_file_path]);
-    if (removeErr) console.warn('deleteOrder: storage file removal failed (non-fatal):', removeErr.message);
+  if (!order) return;
+  const aged = order.submitted_at && (Date.now() - new Date(order.submitted_at).getTime()) >= 48*3600*1000;
+  if (!aged) { await adminAlert('الملفات بتتحذف بعد 48 ساعة من الطلب بس.', {icon:'⚠️'}); return; }
+  const confirmed = await adminConfirm(`هتتحذف ملفات الطلب ${order.display_id || orderId.slice(0,8)} (الأصلي والتقارير). الطلب نفسه بيفضل. متأكد؟`, {icon:'🗑', danger:true, confirmLabel:'حذف الملفات'});
+  if (!confirmed) return;
+  try {
+    // Source copy
+    if (order.source_file_path) {
+      const { error } = await supabaseClient.storage.from('order-source-files').remove([order.source_file_path]);
+      if (error) throw error;
+    }
+    // Reports (both folders, whatever is stored)
+    const reportPaths = [];
+    for (const folder of ['sim-reports', 'ai-reports']) {
+      const { data: files, error: listErr } = await supabaseClient.storage.from('order-reports').list(`${folder}/${orderId}`, { limit: 100 });
+      if (listErr) throw listErr;
+      (files || []).forEach(f => { if (f.name) reportPaths.push(`${folder}/${orderId}/${f.name}`); });
+    }
+    if (reportPaths.length) {
+      const { error } = await supabaseClient.storage.from('order-reports').remove(reportPaths);
+      if (error) throw error;
+    }
+    const { error: updErr } = await supabaseClient.from('orders')
+      .update({ source_file_path: null, report_url: null, ai_report_url: null, purged_at: new Date().toISOString() })
+      .eq('id', orderId);
+    if (updErr) throw updErr;
+    const p = profilesByUserId[order.user_id];
+    await logAdminActivity('order_delete', order.user_id || null, p ? `PK${formatPkNumber(p.pk_number)}` : '', `حذف ملفات طلب: ${order.display_id || orderId.slice(0,8)}`);
+    await loadOrders();
+    await adminAlert('✅ اتحذفت الملفات، والطلب فضل في السجل', {icon:'✅'});
+  } catch (err) {
+    console.error('deleteOrderFiles failed:', err);
+    await adminAlert('تعذر حذف الملفات: ' + (err.message || err), {icon:'❌', danger:true});
   }
-  const { data: deleted, error } = await supabaseClient.from('orders').delete().eq('id', orderId).select('id');
-  if (error) { await adminAlert('فشل الحذف: ' + error.message, {icon:'❌', danger:true}); return; }
-  if (!deleted || deleted.length === 0) {
-    await adminAlert('ماتمش حذف الطلب: الصلاحية مش متاحة للحذف من الداشبورد.', {icon:'❌', danger:true});
-    return;
-  }
-  allOrders = allOrders.filter(o => o.id !== orderId);
-  renderOrdersTable();
-  renderProblemOrdersList();
-  const p = order ? profilesByUserId[order.user_id] : null;
-  await logAdminActivity('order_delete', order?.user_id || null, p ? `PK${formatPkNumber(p.pk_number)}` : '', `حذف طلب: ${order?.display_id || orderId.slice(0,8)}`);
-  await adminAlert('تم حذف الأوردر بنجاح.', {icon:'✅'});
 }
 
 /* ── 6. UI Design tab: force re-render if container empty ─────── */
