@@ -1024,7 +1024,7 @@
   .hist-date small{display:block;color:var(--muted);font-weight:600;font-size:11px;margin-top:2px;}
   .hist-empty{text-align:center;padding:26px;color:var(--muted);font-size:13px;font-family:'Cairo',sans-serif;}
   @media (max-width:760px){
-    .hist-thead,#histHead{display:none !important;}
+    .hist-thead,#histHead,#paymentHistoryHead{display:none !important;}
     .hist-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 12px;align-items:start;
       grid-template-areas:"act status" "item date" "change balance";}
     .hist-row > .hist-cell:nth-child(1){grid-area:act;align-items:flex-start;text-align:start;}
@@ -1106,8 +1106,15 @@
   .wplan-buy{margin-top:8px;width:100%;display:flex;align-items:center;justify-content:center;gap:6px;background:#2563EB;color:#fff;border:none;border-radius:12px;padding:12px;font-family:'Cairo',sans-serif;font-weight:800;font-size:13.5px;letter-spacing:.3px;cursor:pointer;}
   .wplan-buy:hover{background:#1D4ED8;}
   @media (max-width:1100px){ .wplan-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+  .wplan-swipe-hint{display:none;align-items:center;justify-content:center;gap:8px;margin:14px 14px 0;padding:8px 12px;border-radius:12px;background:#EEF4FF;border:1px solid #C7D7FE;color:#1D4ED8;font-family:'Cairo',sans-serif;font-size:12.5px;font-weight:700;}
+  .wplan-swipe-hint svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  [data-theme="dark"] .wplan-swipe-hint{background:rgba(37,99,235,.14);border-color:rgba(37,99,235,.35);color:#93C5FD;}
   @media (max-width:560px){
-    .wplan-grid{grid-template-columns:1fr;padding:14px;}
+    .wplan-swipe-hint{display:flex;}
+    .wplan-card .slider-arrow{display:none;}
+    .wplan-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;padding:18px 14px 14px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+    .wplan-grid::-webkit-scrollbar{display:none;}
+    .wplan-grid > .wplan-pack{flex:0 0 min(78%,300px);scroll-snap-align:start;}
     .wplan-switch{display:flex;width:100%;}
     .wplan-tab{flex:1;justify-content:center;padding:9px 8px;font-size:12.5px;}
     .wplan-auto{width:100%;justify-content:center;}
@@ -2387,6 +2394,7 @@
             </div>
             <span class="wplan-auto"><svg data-icon-key="plan_auto_icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg> <span data-i18n="plan_auto">Automated Instant Activation</span></span>
           </div>
+          <div class="wplan-swipe-hint" id="wplanSwipeHint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg><span data-i18n="wplan_swipe_hint">اسحب يمين وشمال عشان تشوف باقي الباقات</span></div>
           <div class="wplan-grid" id="topupSlider"></div>
         </div>
       </div>
@@ -2496,7 +2504,7 @@
         <h2 class="pack-section-title" data-i18n="payment_history_title">سجل المدفوعات</h2>
         <p class="pack-section-desc" data-i18n="payment_history_desc">كل عمليات الشحن اللي عملتها وحالتها</p>
       </div>
-      <div class="panel-block">
+      <div class="hist-card">
         <div class="hist-thead hist-row" id="paymentHistoryHead"></div>
         <div id="paymentHistoryBody"></div>
         <div id="paymentHistoryPagination"></div>
@@ -3269,7 +3277,7 @@ const I18N = {
     ct_sim:"اقتباس فقط", ct_both:"اقتباس + ذكاء اصطناعي",
     filters_label:"فلاتر الاقتباس (اختياري)", exclude_bib:"استبعاد المراجع", exclude_quotes:"استبعاد الاقتباسات المنصوصة", exclude_abstract:"استبعاد الملخص", exclude_citations:"استثناء الاقتباسات داخل النص", exclude_small_matches:"استبعاد التطابقات الصغيرة", words_unit:"كلمة",
     payment_title:"وسيلة الدفع", pay_auto:"تلقائي", pay_ref:"رقم مرجعي", vf_cash:"فودافون كاش",
-    payment_history_title:"سجل المدفوعات", payment_history_desc:"كل عمليات الشحن اللي عملتها وحالتها",
+    payment_history_title:"سجل المدفوعات", wplan_swipe_hint:"اسحب يمين وشمال عشان تشوف باقي الباقات", payment_history_desc:"كل عمليات الشحن اللي عملتها وحالتها",
     ph_col_code:"كود العملية", ph_col_method:"وسيلة الدفع", ph_col_amount:"القيمة", ph_col_credits:"الفحوصات", ph_col_pack:"اسم الباقة", ph_col_datetime:"التاريخ والوقت", ph_col_status:"الحالة",
     ph_status_completed:"مكتملة", ph_status_pending:"قيد المراجعة", ph_status_rejected:"مرفوضة", ph_empty:"لسه معملتش أي عملية شحن.",
     order_tx_title:"المعاملات", order_tx_desc:"عمليات خصم واسترداد الفحوصات على ملفات الفحص",
@@ -3475,7 +3483,7 @@ const I18N = {
     ct_sim:"Similarity only", ct_both:"Similarity + AI",
     filters_label:"Similarity filters (optional)", exclude_bib:"Exclude bibliography", exclude_quotes:"Exclude quoted text", exclude_abstract:"Exclude abstract", exclude_citations:"Exclude in-text citations", exclude_small_matches:"Exclude small matches", words_unit:"words",
     payment_title:"Payment method", pay_auto:"Automatic", pay_ref:"Reference number", vf_cash:"Vodafone Cash",
-    payment_history_title:"Payment History", payment_history_desc:"All your top-ups and their status",
+    payment_history_title:"Payment History", wplan_swipe_hint:"Swipe left and right to see more packages", payment_history_desc:"All your top-ups and their status",
     ph_col_code:"Transaction code", ph_col_method:"Payment method", ph_col_amount:"Amount", ph_col_credits:"Slots", ph_col_pack:"Package", ph_col_datetime:"Date & time", ph_col_status:"Status",
     ph_status_completed:"Completed", ph_status_pending:"Pending review", ph_status_rejected:"Rejected", ph_empty:"You haven't made any top-ups yet.",
     order_tx_title:"Transactions", order_tx_desc:"Slot debits and refunds on your check files",
