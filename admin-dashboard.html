@@ -889,7 +889,7 @@
           <div style="overflow-x:auto;">
           <table class="tbl">
             <thead><tr>
-              <th></th><th data-i18n="th_order">رقم الطلب</th><th data-i18n="th_user">المستخدم</th><th class="file-col" data-i18n="th_file">الملف</th><th data-i18n="th_status">الحالة</th><th data-i18n="th_sent">وقت الإرسال</th><th data-i18n="th_source">Source</th><th data-i18n="th_sim">الاقتباس</th><th data-i18n="th_ai">AI</th><th data-i18n="th_msg">رسالة</th><th data-i18n="th_resend">إعادة إرسال</th><th data-i18n="th_delete">حذف</th>
+              <th></th><th data-i18n="th_order">رقم الطلب</th><th data-i18n="th_user">المستخدم</th><th class="file-col" data-i18n="th_file">الملف</th><th data-i18n="th_status">الحالة</th><th data-i18n="th_sent">وقت الإرسال</th><th data-i18n="th_source">Source</th><th data-i18n="th_sim">الاقتباس</th><th data-i18n="th_ai">AI</th><th data-i18n="th_msg">رسالة</th><th data-i18n="th_resend">إعادة إرسال</th><th data-i18n="th_delivery">مدة التسليم</th>
             </tr></thead>
             <tbody id="ordersBody"></tbody>
           </table>
@@ -1468,7 +1468,7 @@ const I18N = {
     f_all:'الكل', f_floating:'معلّق', f_processing:'قيد التنفيذ', f_completed:'مكتملة', f_problem:'فيها مشكلة',
     search_ph:'بحث بالاسم / الإيميل / رقم الطلب...',
     th_order:'رقم الطلب', th_user:'المستخدم', th_file:'الملف', th_status:'الحالة', th_sent:'وقت الإرسال',
-    th_source:'المصدر', th_sim:'الاقتباس', th_ai:'AI', th_msg:'رسالة', th_resend:'إعادة إرسال', th_delete:'حذف', pg_rows_per_page:'عدد الصفوف',
+    th_source:'المصدر', th_sim:'الاقتباس', th_ai:'AI', th_msg:'رسالة', th_resend:'إعادة إرسال', th_delete:'حذف', th_delivery:'مدة التسليم', pg_rows_per_page:'عدد الصفوف',
     source_open:'فتح الملف', source_expired:'— (انتهت 24س)', link_open:'فتح', link_none:'—',
     send_msg:'✉ رسالة', edit_link:'تعديل اللينك',
     filter_showing:'بيعرض', reason_label:'السبب',
@@ -1584,7 +1584,7 @@ const I18N = {
     f_all:'All', f_floating:'Floating', f_processing:'Processing', f_completed:'Completed', f_problem:'Problem',
     search_ph:'Search by name / email / order ID...',
     th_order:'Order #', th_user:'User', th_file:'File', th_status:'Status', th_sent:'Submitted',
-    th_source:'Source', th_sim:'Similarity', th_ai:'AI', th_msg:'Message', th_resend:'Resend', th_delete:'Delete', pg_rows_per_page:'Rows per page',
+    th_source:'Source', th_sim:'Similarity', th_ai:'AI', th_msg:'Message', th_resend:'Resend', th_delete:'Delete', th_delivery:'Delivery time', pg_rows_per_page:'Rows per page',
     source_open:'Open file', source_expired:'— (expired 24h)', link_open:'Open', link_none:'—',
     send_msg:'✉ Message', edit_link:'Edit link',
     filter_showing:'Showing', reason_label:'Reason',
@@ -3394,7 +3394,7 @@ function renderOrdersTable(){
         ${(['error','failed_invalid'].includes(o.status) && o.source_file_path) ? `<button class="msg-btn" onclick="resendOrderToApi('${o.id}')" title="إعادة إرسال نفس الملف للفحص">🔁 إعادة إرسال</button>` : ''}
         ${(['error','failed_invalid'].includes(o.status) && o.processing_mode === 'api') ? `<button class="msg-btn" style="color:var(--blue-deep);border-color:var(--blue-light);" onclick="adoptOrderManually('${o.id}')" title="تولى الطلب يدوياً ورفع التقارير بنفسك">🖐 يدوي</button>` : ''}
       </td>
-      <td>${(() => { const aged = o.submitted_at && (Date.now() - new Date(o.submitted_at).getTime()) >= 48*3600*1000; const hasFiles = !!(o.source_file_path || o.report_url || o.ai_report_url); const ok = aged; return `<button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);white-space:nowrap;" ${ok ? '' : 'disabled'} onclick="deleteOrderFiles('${o.id}')" title="${ok ? (hasFiles ? 'حذف الملفات (الطلب نفسه بيفضل)' : 'الملفات اتحذفت تلقائياً بعد 48 ساعة') : 'متاح بعد 48 ساعة من الطلب'}">🗑 الملفات</button>`; })()}</td>
+      <td class="mono" style="font-size:11px;white-space:nowrap;">${deliveryTime(o)}</td>
     </tr>`;
 
     return mainRow;
@@ -3925,6 +3925,15 @@ function fmtDateTime(input){
   return fmtDate(d) + ' · ' + fmtTime(d);
 }
 function formatDate(dateStr){ return fmtDateTime(dateStr); }
+// Delivery time = completion minus processing start (same as the customer's handle time).
+function deliveryTime(o){
+  if (!o.completed_at) return '—';
+  const start = o.processing_started_at || o.sent_at || o.submitted_at;
+  if (!start) return '—';
+  const ms = new Date(o.completed_at) - new Date(start);
+  if (!(ms >= 0)) return '—';
+  return `${Math.floor(ms / 60000)}m ${Math.floor((ms % 60000) / 1000)}s`;
+}
 </script>
   <!-- CUSTOMER PROFILE POPUP -->
   <div class="profile-popup" id="profilePopup">
@@ -4985,49 +4994,6 @@ async function resendOrderToApi(orderId){
   }
 }
 
-// Deletes only the files of an order (source copy and both reports), and only once the order is 48 hours old.
-// The order row stays, for billing history and the admin list.
-async function deleteOrderFiles(orderId){
-  const order = allOrders.find(o => o.id === orderId);
-  if (!order) return;
-  const aged = order.submitted_at && (Date.now() - new Date(order.submitted_at).getTime()) >= 48*3600*1000;
-  if (!aged) { await adminAlert('الملفات بتتحذف بعد 48 ساعة من الطلب بس.', {icon:'⚠️'}); return; }
-  if (!order.source_file_path && !order.report_url && !order.ai_report_url) {
-    await adminAlert('الملفات اتحذفت بالفعل (الحذف التلقائي بعد 48 ساعة).', {icon:'ℹ️'});
-    return;
-  }
-  const confirmed = await adminConfirm(`هتتحذف ملفات الطلب ${order.display_id || orderId.slice(0,8)} (الأصلي والتقارير). الطلب نفسه بيفضل. متأكد؟`, {icon:'🗑', danger:true, confirmLabel:'حذف الملفات'});
-  if (!confirmed) return;
-  try {
-    // Source copy
-    if (order.source_file_path) {
-      const { error } = await supabaseClient.storage.from('order-source-files').remove([order.source_file_path]);
-      if (error) throw error;
-    }
-    // Reports (both folders, whatever is stored)
-    const reportPaths = [];
-    for (const folder of ['sim-reports', 'ai-reports']) {
-      const { data: files, error: listErr } = await supabaseClient.storage.from('order-reports').list(`${folder}/${orderId}`, { limit: 100 });
-      if (listErr) throw listErr;
-      (files || []).forEach(f => { if (f.name) reportPaths.push(`${folder}/${orderId}/${f.name}`); });
-    }
-    if (reportPaths.length) {
-      const { error } = await supabaseClient.storage.from('order-reports').remove(reportPaths);
-      if (error) throw error;
-    }
-    const { error: updErr } = await supabaseClient.from('orders')
-      .update({ source_file_path: null, report_url: null, ai_report_url: null, purged_at: new Date().toISOString() })
-      .eq('id', orderId);
-    if (updErr) throw updErr;
-    const p = profilesByUserId[order.user_id];
-    await logAdminActivity('order_delete', order.user_id || null, p ? `PK${formatPkNumber(p.pk_number)}` : '', `حذف ملفات طلب: ${order.display_id || orderId.slice(0,8)}`);
-    await loadOrders();
-    await adminAlert('✅ اتحذفت الملفات، والطلب فضل في السجل', {icon:'✅'});
-  } catch (err) {
-    console.error('deleteOrderFiles failed:', err);
-    await adminAlert('تعذر حذف الملفات: ' + (err.message || err), {icon:'❌', danger:true});
-  }
-}
 
 /* ── 6. UI Design tab: force re-render if container empty ─────── */
 // Patch initUIDesignTab to always re-render sections
