@@ -4016,7 +4016,7 @@ function buildPlanCard(p){
         ${feat(ar ? 'تسليم سريع فوري' : 'Fast Instant Delivery')}
         ${feat(ar ? 'يدعم ملفات حتى 50,000 كلمة' : 'Supports files up to 50,000 words')}
       </ul>
-      <button class="wplan-buy" type="button" onclick='selectPack("topup","${p.id}")'>${ar ? 'اشتري الآن' : 'BUY NOW'} <span aria-hidden="true">→</span></button>
+      <button class="wplan-buy" type="button" onclick='selectPack("topup","${p.id}")'><svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h9.9a1 1 0 0 0 1-.8L21 8H7"/><circle cx="10" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg>${ar ? 'اشتري الآن' : 'BUY NOW'}</button>
     </div>`;
 }
 
