@@ -1971,13 +1971,13 @@
         <div class="sid-chip sid-teal">
           <svg data-icon-key="tab_academic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>
         </div>
-        <span data-i18n="nav_academic">Academic Tools</span>
+        <span data-i18n="nav_academic">Academic Tools</span><span class="soon-badge">Soon</span>
       </div>
       <div class="navtab sidebar-item" data-tab="my-orders">
         <div class="sid-chip sid-teal">
           <svg data-icon-key="tab_my_orders" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
         </div>
-        <span data-i18n="nav_my_orders">طلباتي</span>
+        <span data-i18n="nav_my_orders">طلباتي</span><span class="soon-badge">Soon</span>
       </div>
       <div class="navtab sidebar-item" data-tab="support">
         <div class="sid-chip sid-orange">
@@ -2576,6 +2576,7 @@
 
     <style>
       .sid-teal{ color:#0d9488 !important; }
+      .soon-badge{ display:inline-block; margin-inline-start:6px; font-size:9.5px; font-weight:800; letter-spacing:.3px; padding:2px 7px; border-radius:20px; background:#fde68a; color:#92400e; vertical-align:middle; }
       .sid-teal{ background:#0d948818; color:#0d9488; }
       .sidebar-item[data-tab="academic"],.sidebar-item[data-tab="my-orders"]{ --tab-color:#0d9488; }
       .ac-wallet{ background:var(--paper); border:1px solid var(--paper-line); border-radius:16px; padding:18px 20px; margin-bottom:16px; }
@@ -3150,7 +3151,8 @@
   } catch (e) {}
 })();
 (function showCorrectTabImmediately(){
-  const savedTab = localStorage.getItem('prokeys-active-tab') || 'new-check';
+  const SOON_TABS = ['academic', 'my-orders']; // not open to customers yet
+  const savedTab = SOON_TABS.includes(localStorage.getItem('prokeys-active-tab')) ? 'new-check' : (localStorage.getItem('prokeys-active-tab') || 'new-check');
   document.querySelectorAll('.navtab[data-tab]').forEach(el => {
     el.classList.toggle('on', el.dataset.tab === savedTab);
   });
@@ -5353,6 +5355,10 @@ document.addEventListener('click', (e)=>{
    Old pane exits (pane-exiting, 0.22s), then new pane enters (pane-entering, 0.22s). */
 let _goTabLock = false;
 function goTab(tab, persist = true){
+  if (['academic', 'my-orders'].includes(tab)) { // coming soon: keep the customer on the current tab
+    toast('Soon', 'info');
+    return;
+  }
   if (tab === 'my-profile' && typeof renderPushCard === 'function') setTimeout(renderPushCard, 0);
   if(_goTabLock) return;
   const currentPane = document.querySelector('.tabpane[style*="block"]') ||
@@ -5503,7 +5509,7 @@ function renderPaymentHistory(){
 // back exactly where the customer was instead of jumping to New Check.
 const _tabScrollPositions = JSON.parse(localStorage.getItem('prokeys-scroll') || '{}');
 function restoreTabAndScroll(){
-  const savedTab = localStorage.getItem('prokeys-active-tab');
+  const savedTab = ['academic', 'my-orders'].includes(localStorage.getItem('prokeys-active-tab')) ? null : localStorage.getItem('prokeys-active-tab');
   if (savedTab && document.getElementById('pane-' + savedTab)) {
     document.querySelectorAll('.navtab[data-tab]').forEach(el => {
       el.classList.toggle('on', el.dataset.tab === savedTab);
@@ -10090,7 +10096,7 @@ function maybeShowOnboarding(profileData){
     <div class="mob-icon" data-icon-key="tab_academic">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>
     </div>
-    <span class="mob-label" data-i18n="nav_academic">Academic Tools</span>
+    <span class="mob-label" data-i18n="nav_academic">Academic Tools</span><span class="soon-badge">Soon</span>
   </div>
   <div class="mob-nav-item" data-tab="support" onclick="goTab('support')">
     <div class="mob-icon" data-icon-key="tab_support">
