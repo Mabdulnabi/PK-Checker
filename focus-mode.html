@@ -1,0 +1,750 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Focus Mode — PK Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface2:#1c2130;--border:#2a3142;
+  --text:#e6edf3;--muted:#7d8590;--accent:#0e7afe;--cyan:#00baf7;
+  --ok:#3fb950;--warn:#d29922;--danger:#e0445b;--purple:#a371f7;
+  --radius:12px;--font-mono:'IBM Plex Mono',monospace;
+}
+html,body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ── Layout ── */
+.app{display:grid;grid-template-columns:1fr;min-height:100vh}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30}
+.logo{font-size:16px;font-weight:800;color:var(--text)}
+.logo span{color:var(--accent)}
+.topbar-actions{display:flex;align-items:center;gap:10px}
+.icon-btn{width:34px;height:34px;border-radius:9px;border:1px solid var(--border);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .15s}
+.icon-btn:hover{background:var(--surface2);color:var(--text)}
+.icon-btn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.main-layout{display:grid;grid-template-columns:380px 1fr;min-height:calc(100vh - 53px);gap:0}
+@media(max-width:900px){.main-layout{grid-template-columns:1fr}}
+
+/* ── Left panel ── */
+.left-panel{border-left:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;gap:0;overflow-y:auto}
+.panel-section{border-bottom:1px solid var(--border);padding:16px}
+.section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:12px}
+
+/* ── Pomodoro ── */
+.pomodoro-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
+.pomo-modes{display:flex;gap:4px;background:var(--surface2);border:1px solid var(--border);padding:3px;border-radius:9px}
+.pomo-mode-btn{flex:1;padding:5px 10px;border-radius:7px;border:none;background:none;cursor:pointer;font-family:'Cairo',sans-serif;font-size:11px;font-weight:700;color:var(--muted);transition:all .15s;white-space:nowrap}
+.pomo-mode-btn.on{background:var(--accent);color:#fff}
+.ring-wrap{position:relative;width:170px;height:170px}
+.ring-wrap svg{width:100%;height:100%}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:8}
+.ring-prog{fill:none;stroke-width:8;stroke-linecap:round;transform-origin:center;transform:rotate(-90deg);transition:stroke-dashoffset .9s linear}
+.ring-time{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.ring-time .time{font-family:var(--font-mono);font-size:32px;font-weight:600;color:var(--text);letter-spacing:-.02em}
+.ring-time .mode-label{font-size:11px;color:var(--muted);font-weight:600}
+.pomo-controls{display:flex;gap:8px;align-items:center}
+.pomo-btn{width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.pomo-btn-play{background:var(--accent);color:#fff}
+.pomo-btn-play:hover{background:#0b5fc9}
+.pomo-btn-sm{background:var(--surface2);border:1px solid var(--border);color:var(--muted)}
+.pomo-btn-sm:hover{background:var(--border);color:var(--text)}
+.pomo-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
+.pomo-stat{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:8px 10px;text-align:center}
+.pomo-stat-val{font-family:var(--font-mono);font-size:18px;font-weight:600;color:var(--accent)}
+.pomo-stat-label{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* ── Search engines ── */
+.engine-tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.engine-tab{padding:5px 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:11px;font-weight:700;color:var(--muted);transition:all .15s;display:flex;align-items:center;gap:5px}
+.engine-tab.on{border-color:var(--accent);color:var(--accent);background:rgba(14,122,254,.1)}
+.search-row{display:flex;gap:8px}
+.search-box{flex:1;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface2);font-family:'Cairo',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .15s;direction:ltr}
+.search-box:focus{border-color:var(--accent)}
+.search-go{padding:9px 14px;border-radius:9px;background:var(--accent);color:#fff;border:none;cursor:pointer;font-weight:700;font-size:13px;transition:all .15s;white-space:nowrap;font-family:'Cairo',sans-serif}
+.search-go:hover{background:#0b5fc9}
+
+/* ── Calculator ── */
+.calc-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px}
+.calc-display{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:10px 14px;margin-bottom:10px;text-align:right}
+.calc-expr{font-family:var(--font-mono);font-size:11px;color:var(--muted);min-height:16px;word-break:break-all}
+.calc-val{font-family:var(--font-mono);font-size:24px;font-weight:600;color:var(--text);min-height:30px;overflow:hidden;text-overflow:ellipsis}
+.calc-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.calc-btn{padding:8px 4px;border-radius:7px;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;transition:all .12s;color:var(--text)}
+.calc-btn:hover{filter:brightness(1.2)}
+.calc-btn.num{background:#1e2736}
+.calc-btn.op{background:rgba(14,122,254,.2);color:var(--accent)}
+.calc-btn.fn{background:rgba(161,113,247,.2);color:var(--purple)}
+.calc-btn.eq{background:var(--accent);color:#fff;grid-column:span 1}
+.calc-btn.eq:hover{background:#0b5fc9}
+.calc-btn.clr{background:rgba(224,68,91,.2);color:var(--danger)}
+.calc-shift-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.calc-shift-btn{padding:4px 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:11px;font-weight:700;color:var(--muted);transition:all .15s}
+.calc-shift-btn.on{background:var(--purple);color:#fff;border-color:var(--purple)}
+
+/* ── Right panel ── */
+.right-panel{background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
+.tabs-bar{display:flex;gap:2px;padding:10px 16px 0;border-bottom:1px solid var(--border);background:var(--surface)}
+.tab{padding:8px 14px;border-radius:9px 9px 0 0;cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);transition:all .15s;border:1px solid transparent;border-bottom:none;white-space:nowrap}
+.tab.on{background:var(--bg);color:var(--text);border-color:var(--border);border-bottom-color:var(--bg)}
+.tab:hover:not(.on){color:var(--text)}
+.tab-content{flex:1;overflow:hidden;display:none}
+.tab-content.on{display:flex;flex-direction:column}
+
+/* ── Notes ── */
+.notes-toolbar{display:flex;gap:4px;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface);flex-wrap:wrap}
+.fmt-btn{width:28px;height:28px;border-radius:6px;border:none;background:none;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;transition:all .12s;font-family:'Space Grotesk',sans-serif}
+.fmt-btn:hover{background:var(--surface2);color:var(--text)}
+.fmt-btn.on{background:var(--accent);color:#fff}
+.fmt-sep{width:1px;background:var(--border);margin:4px 2px;align-self:stretch}
+.notes-area{flex:1;padding:16px;outline:none;font-family:'Cairo',sans-serif;font-size:14px;color:var(--text);line-height:1.75;overflow-y:auto;min-height:0}
+.notes-area:empty::before{content:attr(data-placeholder);color:var(--muted);pointer-events:none}
+.notes-footer{padding:8px 14px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
+
+/* ── Tasks board ── */
+.board-toolbar{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;gap:8px;background:var(--surface)}
+.add-task-inp{flex:1;padding:7px 11px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);font-family:'Cairo',sans-serif;font-size:13px;color:var(--text);outline:none}
+.add-task-inp:focus{border-color:var(--accent)}
+.add-task-btn{padding:7px 14px;border-radius:8px;background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700}
+.board-cols{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px;overflow-y:auto;min-height:0}
+.board-col{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);display:flex;flex-direction:column;min-height:200px}
+.col-head{padding:10px 12px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.col-count{background:var(--border);border-radius:20px;padding:1px 7px;font-size:10px;font-weight:700;color:var(--muted)}
+.col-todo .col-head{color:var(--muted)}
+.col-doing .col-head{color:var(--cyan)}
+.col-done .col-head{color:var(--ok)}
+.col-tasks{flex:1;padding:8px;display:flex;flex-direction:column;gap:6px;overflow-y:auto}
+.task-card{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:9px 11px;cursor:grab;transition:all .15s;user-select:none}
+.task-card:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.task-card.dragging{opacity:.4;cursor:grabbing}
+.task-card.drag-over{border-color:var(--cyan);background:rgba(0,186,247,.05)}
+.task-text{font-size:12px;line-height:1.5;color:var(--text)}
+.task-meta{display:flex;align-items:center;justify-content:space-between;margin-top:5px}
+.task-time{font-family:var(--font-mono);font-size:10px;color:var(--muted)}
+.task-del{width:18px;height:18px;border-radius:4px;border:none;background:none;cursor:pointer;color:var(--danger);opacity:0;transition:opacity .15s;display:flex;align-items:center;justify-content:center;font-size:10px}
+.task-card:hover .task-del{opacity:1}
+.col-drop-zone{flex:1;min-height:40px;border-radius:8px;transition:all .2s}
+.col-drop-zone.drag-active{background:rgba(14,122,254,.08);border:1.5px dashed var(--accent)}
+
+/* ── Sessions log ── */
+.sessions-list{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:0}
+.session-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:10px}
+.session-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.session-dot.work{background:var(--accent)}
+.session-dot.short{background:var(--ok)}
+.session-dot.long{background:var(--warn)}
+.session-info{flex:1}
+.session-label{font-size:12px;font-weight:700;color:var(--text)}
+.session-time{font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-top:2px}
+.session-dur{font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--muted)}
+.empty-sessions{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:20px;right:20px;padding:10px 16px;border-radius:11px;font-size:13px;font-weight:700;color:#fff;z-index:999;animation:fadeIn .25s ease;display:flex;align-items:center;gap:8px}
+.toast-ok{background:var(--ok)}
+.toast-info{background:var(--accent)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Responsive ── */
+@media(max-width:900px){
+  .board-cols{grid-template-columns:1fr}
+  .left-panel{max-height:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="topbar">
+    <div class="logo">PK<span>Checker</span> <span style="font-size:12px;font-weight:600;color:var(--muted);margin-right:8px">Focus Mode</span></div>
+    <div class="topbar-actions">
+      <button class="icon-btn" title="تبديل الكالكيولاتور" onclick="toggleCalc()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="14" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="10" y2="18"/><line x1="14" y1="18" x2="16" y2="18"/></svg>
+      </button>
+      <button class="icon-btn" id="fullscreen-btn" title="ملء الشاشة" onclick="toggleFullscreen()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <div class="main-layout">
+    <!-- Left panel -->
+    <div class="left-panel">
+
+      <!-- Pomodoro -->
+      <div class="panel-section">
+        <div class="section-label">مؤقت بومودورو</div>
+        <div class="pomodoro-wrap">
+          <div class="pomo-modes">
+            <button class="pomo-mode-btn on" onclick="setMode('work',this)">عمل</button>
+            <button class="pomo-mode-btn" onclick="setMode('short',this)">استراحة قصيرة</button>
+            <button class="pomo-mode-btn" onclick="setMode('long',this)">استراحة طويلة</button>
+          </div>
+          <div class="ring-wrap">
+            <svg viewBox="0 0 170 170">
+              <circle class="ring-bg" cx="85" cy="85" r="78"/>
+              <circle id="ring-prog" class="ring-prog" cx="85" cy="85" r="78" stroke="var(--accent)"
+                stroke-dasharray="490" stroke-dashoffset="0"/>
+            </svg>
+            <div class="ring-time">
+              <span class="time" id="timer-display">25:00</span>
+              <span class="mode-label" id="mode-label">وقت التركيز</span>
+            </div>
+          </div>
+          <div class="pomo-controls">
+            <button class="pomo-btn pomo-btn-sm" onclick="resetTimer()" title="إعادة">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.4"/></svg>
+            </button>
+            <button class="pomo-btn pomo-btn-play" id="play-btn" onclick="toggleTimer()">
+              <svg id="play-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <svg id="pause-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            </button>
+            <button class="pomo-btn pomo-btn-sm" onclick="skipSession()" title="تخطي">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+            </button>
+          </div>
+          <div class="pomo-stats">
+            <div class="pomo-stat">
+              <div class="pomo-stat-val" id="stat-sessions">0</div>
+              <div class="pomo-stat-label">جلسات اليوم</div>
+            </div>
+            <div class="pomo-stat">
+              <div class="pomo-stat-val" id="stat-minutes">0</div>
+              <div class="pomo-stat-label">دقيقة تركيز</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="panel-section">
+        <div class="section-label">بحث سريع</div>
+        <div class="engine-tabs" id="engine-tabs">
+          <button class="engine-tab on" onclick="selectEngine('google',this)">🔍 Google</button>
+          <button class="engine-tab" onclick="selectEngine('youtube',this)">▶️ YouTube</button>
+          <button class="engine-tab" onclick="selectEngine('chatgpt',this)">🤖 ChatGPT</button>
+          <button class="engine-tab" onclick="selectEngine('claude',this)">✨ Claude</button>
+          <button class="engine-tab" onclick="selectEngine('perplexity',this)">🔮 Perplexity</button>
+        </div>
+        <div class="search-row">
+          <input class="search-box" id="search-inp" placeholder="ابحث عن أي شيء…" dir="rtl"
+            onkeydown="if(event.key==='Enter')doSearch()"/>
+          <button class="search-go" onclick="doSearch()">بحث</button>
+        </div>
+      </div>
+
+      <!-- Calculator -->
+      <div class="panel-section" id="calc-section">
+        <div class="section-label">آلة حاسبة علمية</div>
+        <div class="calc-wrap">
+          <div class="calc-display">
+            <div class="calc-expr" id="calc-expr"></div>
+            <div class="calc-val" id="calc-val">0</div>
+          </div>
+          <div class="calc-shift-row">
+            <span style="font-size:10px;color:var(--muted)">وظائف علمية</span>
+            <button class="calc-shift-btn" id="shift-btn" onclick="toggleShift()">SHIFT</button>
+          </div>
+          <div class="calc-grid" id="calc-grid"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right panel -->
+    <div class="right-panel">
+      <div class="tabs-bar">
+        <button class="tab on" onclick="switchTab('notes',this)">📝 ملاحظات</button>
+        <button class="tab" onclick="switchTab('tasks',this)">✅ المهام</button>
+        <button class="tab" onclick="switchTab('sessions',this)">📊 السجل</button>
+      </div>
+
+      <!-- Notes tab -->
+      <div class="tab-content on" id="tab-notes">
+        <div class="notes-toolbar">
+          <button class="fmt-btn" onclick="fmt('bold')" title="Bold"><strong>B</strong></button>
+          <button class="fmt-btn" onclick="fmt('italic')" title="Italic"><em>I</em></button>
+          <button class="fmt-btn" onclick="fmt('underline')" title="Underline"><u>U</u></button>
+          <div class="fmt-sep"></div>
+          <button class="fmt-btn" onclick="fmt('insertUnorderedList')" title="قائمة">•</button>
+          <button class="fmt-btn" onclick="fmt('insertOrderedList')" title="قائمة مرقمة">1.</button>
+          <div class="fmt-sep"></div>
+          <button class="fmt-btn" onclick="fmt('formatBlock','h3')" title="عنوان">H</button>
+          <button class="fmt-btn" onclick="fmt('formatBlock','p')" title="فقرة">¶</button>
+          <div class="fmt-sep"></div>
+          <button class="fmt-btn" style="color:var(--danger)" onclick="if(confirm('مسح الملاحظات؟'))clearNotes()" title="مسح">✕</button>
+          <div style="margin-right:auto;display:flex;gap:6px">
+            <button class="fmt-btn" style="width:auto;padding:0 10px;color:var(--ok)" onclick="saveNotes()">حفظ</button>
+            <button class="fmt-btn" style="width:auto;padding:0 10px" onclick="exportNotes()">تصدير</button>
+          </div>
+        </div>
+        <div class="notes-area" id="notes-area" contenteditable="true"
+          data-placeholder="ابدأ الكتابة… الملاحظات تُحفظ تلقائيًا"></div>
+        <div class="notes-footer">
+          <span id="notes-words">0 كلمة</span>
+          <span id="notes-saved"></span>
+        </div>
+      </div>
+
+      <!-- Tasks tab -->
+      <div class="tab-content" id="tab-tasks">
+        <div class="board-toolbar">
+          <input class="add-task-inp" id="new-task-inp" placeholder="أضف مهمة جديدة…"
+            onkeydown="if(event.key==='Enter')addTask()"/>
+          <button class="add-task-btn" onclick="addTask()">+ إضافة</button>
+        </div>
+        <div class="board-cols">
+          <div class="board-col col-todo">
+            <div class="col-head">
+              للتنفيذ
+              <span class="col-count" id="count-todo">0</span>
+            </div>
+            <div class="col-tasks" id="col-todo" ondragover="onDragOver(event,'todo')" ondrop="onDrop(event,'todo')" ondragleave="onDragLeave(event)"></div>
+          </div>
+          <div class="board-col col-doing">
+            <div class="col-head">
+              جارٍ
+              <span class="col-count" id="count-doing">0</span>
+            </div>
+            <div class="col-tasks" id="col-doing" ondragover="onDragOver(event,'doing')" ondrop="onDrop(event,'doing')" ondragleave="onDragLeave(event)"></div>
+          </div>
+          <div class="board-col col-done">
+            <div class="col-head">
+              منجز
+              <span class="col-count" id="count-done">0</span>
+            </div>
+            <div class="col-tasks" id="col-done" ondragover="onDragOver(event,'done')" ondrop="onDrop(event,'done')" ondragleave="onDragLeave(event)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sessions tab -->
+      <div class="tab-content" id="tab-sessions">
+        <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:12px;font-weight:700;color:var(--text)">سجل الجلسات</span>
+          <button onclick="clearSessions()" style="padding:4px 10px;border-radius:7px;border:1px solid var(--border);background:none;cursor:pointer;font-size:11px;font-weight:700;color:var(--danger);font-family:Cairo,sans-serif">مسح</button>
+        </div>
+        <div class="sessions-list" id="sessions-list">
+          <div class="empty-sessions">لا توجد جلسات محفوظة بعد</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Pomodoro ──
+const MODES = {
+  work:  { label:'وقت التركيز',       mins:25, color:'var(--accent)' },
+  short: { label:'استراحة قصيرة',    mins:5,  color:'var(--ok)' },
+  long:  { label:'استراحة طويلة',    mins:15, color:'var(--warn)' },
+}
+let pomoMode = 'work'
+let totalSecs = 25 * 60
+let remainSecs = totalSecs
+let running = false
+let interval = null
+let pomoSessions = 0
+let totalWorkMins = 0
+let sessionLog = JSON.parse(localStorage.getItem('pk-focus-sessions') || '[]')
+let sessionStart = null
+
+const ring = document.getElementById('ring-prog')
+const C = 2 * Math.PI * 78  // circumference ≈ 490
+
+function setMode(m, btn) {
+  if (running) stopTimer()
+  pomoMode = m
+  document.querySelectorAll('.pomo-mode-btn').forEach(b => b.classList.remove('on'))
+  btn.classList.add('on')
+  totalSecs = MODES[m].mins * 60
+  remainSecs = totalSecs
+  ring.setAttribute('stroke', MODES[m].color)
+  updateDisplay()
+}
+
+function toggleTimer() {
+  if (running) stopTimer(); else startTimer()
+}
+
+function startTimer() {
+  running = true
+  sessionStart = Date.now()
+  document.getElementById('play-icon').style.display = 'none'
+  document.getElementById('pause-icon').style.display = ''
+  interval = setInterval(() => {
+    remainSecs--
+    updateDisplay()
+    if (remainSecs <= 0) {
+      clearInterval(interval)
+      running = false
+      onSessionEnd()
+    }
+  }, 1000)
+}
+
+function stopTimer() {
+  clearInterval(interval)
+  running = false
+  sessionStart = null
+  document.getElementById('play-icon').style.display = ''
+  document.getElementById('pause-icon').style.display = 'none'
+}
+
+function resetTimer() {
+  stopTimer()
+  remainSecs = totalSecs
+  updateDisplay()
+}
+
+function skipSession() {
+  if (running) onSessionEnd()
+  else resetTimer()
+}
+
+function onSessionEnd() {
+  document.getElementById('play-icon').style.display = ''
+  document.getElementById('pause-icon').style.display = 'none'
+  running = false
+
+  if (pomoMode === 'work') {
+    pomoSessions++
+    totalWorkMins += MODES.work.mins
+    document.getElementById('stat-sessions').textContent = pomoSessions
+    document.getElementById('stat-minutes').textContent = totalWorkMins
+    playChime()
+    logSession('work', MODES.work.mins)
+    toast(`جلسة #${pomoSessions} اكتملت 🎯`, 'info')
+  } else {
+    playChime()
+    logSession(pomoMode, MODES[pomoMode].mins)
+    toast('انتهت الاستراحة ⏰', 'info')
+  }
+
+  remainSecs = totalSecs
+  updateDisplay()
+}
+
+function logSession(type, mins) {
+  sessionLog.unshift({
+    type, mins,
+    time: new Date().toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' }),
+    date: new Date().toLocaleDateString('ar-EG', { weekday:'short', day:'numeric', month:'short' })
+  })
+  if (sessionLog.length > 50) sessionLog.pop()
+  localStorage.setItem('pk-focus-sessions', JSON.stringify(sessionLog))
+  renderSessions()
+}
+
+function updateDisplay() {
+  const m = String(Math.floor(remainSecs / 60)).padStart(2, '0')
+  const s = String(remainSecs % 60).padStart(2, '0')
+  document.getElementById('timer-display').textContent = `${m}:${s}`
+  document.getElementById('mode-label').textContent = MODES[pomoMode].label
+  const frac = remainSecs / totalSecs
+  ring.style.strokeDashoffset = C * frac
+}
+
+function playChime() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+    const notes = [523.25, 659.25, 783.99] // C5 E5 G5
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain); gain.connect(ctx.destination)
+      osc.frequency.value = freq
+      osc.type = 'sine'
+      gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.18)
+      gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + i * 0.18 + 0.03)
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.4)
+      osc.start(ctx.currentTime + i * 0.18)
+      osc.stop(ctx.currentTime + i * 0.18 + 0.45)
+    })
+  } catch(e) {}
+}
+
+function renderSessions() {
+  const el = document.getElementById('sessions-list')
+  if (!sessionLog.length) {
+    el.innerHTML = '<div class="empty-sessions">لا توجد جلسات محفوظة بعد</div>'
+    return
+  }
+  el.innerHTML = sessionLog.map(s => `
+    <div class="session-item">
+      <div class="session-dot ${s.type}"></div>
+      <div class="session-info">
+        <div class="session-label">${s.type === 'work' ? '🎯 جلسة تركيز' : s.type === 'short' ? '☕ استراحة قصيرة' : '🌴 استراحة طويلة'}</div>
+        <div class="session-time">${s.date} · ${s.time}</div>
+      </div>
+      <div class="session-dur">${s.mins} د</div>
+    </div>`).join('')
+}
+
+function clearSessions() {
+  if (!confirm('مسح سجل الجلسات؟')) return
+  sessionLog = []
+  localStorage.removeItem('pk-focus-sessions')
+  renderSessions()
+}
+
+updateDisplay()
+renderSessions()
+
+// ── Search ──
+const ENGINES = {
+  google:     q => `https://google.com/search?q=${encodeURIComponent(q)}`,
+  youtube:    q => `https://youtube.com/results?search_query=${encodeURIComponent(q)}`,
+  chatgpt:    q => `https://chatgpt.com/?q=${encodeURIComponent(q)}`,
+  claude:     q => `https://claude.ai/new?q=${encodeURIComponent(q)}`,
+  perplexity: q => `https://perplexity.ai/?q=${encodeURIComponent(q)}`,
+}
+let currentEngine = 'google'
+
+function selectEngine(key, btn) {
+  currentEngine = key
+  document.querySelectorAll('.engine-tab').forEach(b => b.classList.remove('on'))
+  btn.classList.add('on')
+}
+
+function doSearch() {
+  const q = document.getElementById('search-inp').value.trim()
+  if (!q) return
+  window.open(ENGINES[currentEngine](q), '_blank', 'noopener')
+  document.getElementById('search-inp').value = ''
+}
+
+// ── Calculator ──
+let calcExpr = ''
+let calcShift = false
+
+const CALC_BUTTONS = [
+  ['sin',  'cos',  'tan',  '(',  ')'],
+  ['ln',   'log',  '√',    'π',  'e'],
+  ['7',    '8',    '9',    '/',  '^'],
+  ['4',    '5',    '6',    '*',  '%'],
+  ['1',    '2',    '3',    '-',  'C'],
+  ['0',    '.',    '±',    '+',  '='],
+]
+const SHIFT_MAP = { sin:'asin', cos:'acos', tan:'atan', ln:'exp', log:'10^', '√':'x²' }
+const FN_KEYS = new Set(['sin','cos','tan','ln','log','√','π','e','asin','acos','atan','exp','10^','x²','C','±'])
+const OP_KEYS = new Set(['+','-','*','/','%','^','(',')'])
+
+function buildCalc() {
+  const grid = document.getElementById('calc-grid')
+  grid.innerHTML = CALC_BUTTONS.map(row => row.map(k => {
+    const display = calcShift && SHIFT_MAP[k] ? SHIFT_MAP[k] : k
+    const cls = k === '=' ? 'eq' : k === 'C' ? 'clr' : FN_KEYS.has(k) ? 'fn' : OP_KEYS.has(k) ? 'op' : 'num'
+    return `<button class="calc-btn ${cls}" onclick="calcPress('${k}')">${display}</button>`
+  }).join('')).join('')
+}
+
+function calcPress(k) {
+  const display = document.getElementById('calc-val')
+  const expr    = document.getElementById('calc-expr')
+  const key = calcShift && SHIFT_MAP[k] ? SHIFT_MAP[k] : k
+
+  if (key === 'C') { calcExpr = ''; display.textContent = '0'; expr.textContent = ''; return }
+  if (key === '=') {
+    try {
+      let e = calcExpr
+        .replace(/sin\(/g, 'Math.sin(').replace(/cos\(/g, 'Math.cos(').replace(/tan\(/g, 'Math.tan(')
+        .replace(/asin\(/g, 'Math.asin(').replace(/acos\(/g, 'Math.acos(').replace(/atan\(/g, 'Math.atan(')
+        .replace(/ln\(/g, 'Math.log(').replace(/log\(/g, 'Math.log10(').replace(/exp\(/g, 'Math.exp(')
+        .replace(/√\(/g,'Math.sqrt(').replace(/π/g,'Math.PI').replace(/e(?![+\-\d])/g,'Math.E')
+        .replace(/\^/g,'**').replace(/x²/g,'**2').replace(/10\^\(/g,'Math.pow(10,')
+      const result = Function('"use strict";return (' + e + ')')()
+      const pretty = isFinite(result) ? (+result.toFixed(10)).toString() : 'خطأ'
+      expr.textContent = calcExpr + ' ='
+      display.textContent = pretty
+      calcExpr = pretty
+    } catch { display.textContent = 'خطأ'; calcExpr = '' }
+    return
+  }
+  if (key === '±') {
+    if (calcExpr) calcExpr = calcExpr.startsWith('-') ? calcExpr.slice(1) : '-' + calcExpr
+    display.textContent = calcExpr || '0'
+    return
+  }
+  if (key === 'π') { calcExpr += 'π'; display.textContent = calcExpr; return }
+  if (key === 'e')  { calcExpr += 'e'; display.textContent = calcExpr; return }
+  if (['sin','cos','tan','asin','acos','atan','ln','log','exp','√','10^'].includes(key)) {
+    calcExpr += key + '('; display.textContent = calcExpr; return
+  }
+  if (key === 'x²') { calcExpr += '**2'; display.textContent = calcExpr; return }
+  calcExpr += key
+  display.textContent = calcExpr
+  expr.textContent = ''
+}
+
+function toggleShift() {
+  calcShift = !calcShift
+  document.getElementById('shift-btn').classList.toggle('on', calcShift)
+  buildCalc()
+}
+
+function toggleCalc() {
+  const s = document.getElementById('calc-section')
+  s.style.display = s.style.display === 'none' ? '' : 'none'
+}
+
+buildCalc()
+
+// ── Notes ──
+const notesArea = document.getElementById('notes-area')
+let notesTimer = null
+
+function fmt(cmd, val) {
+  document.execCommand(cmd, false, val || null)
+  notesArea.focus()
+}
+
+function saveNotes() {
+  localStorage.setItem('pk-notes', notesArea.innerHTML)
+  document.getElementById('notes-saved').textContent = 'محفوظ ✓'
+  setTimeout(() => document.getElementById('notes-saved').textContent = '', 2000)
+}
+
+function clearNotes() {
+  notesArea.innerHTML = ''
+  saveNotes()
+}
+
+function exportNotes() {
+  const text = notesArea.innerText
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = `notes-${new Date().toISOString().slice(0,10)}.txt`
+  a.click()
+}
+
+notesArea.addEventListener('input', () => {
+  const words = notesArea.innerText.trim().split(/\s+/).filter(w=>w).length
+  document.getElementById('notes-words').textContent = `${words} كلمة`
+  clearTimeout(notesTimer)
+  notesTimer = setTimeout(saveNotes, 1500)
+})
+
+const saved = localStorage.getItem('pk-notes')
+if (saved) notesArea.innerHTML = saved
+
+// ── Tasks ──
+let tasks = JSON.parse(localStorage.getItem('pk-tasks') || '[]')
+let dragId = null
+
+function addTask() {
+  const inp = document.getElementById('new-task-inp')
+  const text = inp.value.trim()
+  if (!text) return
+  tasks.push({ id: Date.now().toString(), text, status: 'todo', created: new Date().toISOString() })
+  inp.value = ''
+  saveTasks()
+  renderTasks()
+}
+
+function deleteTask(id) {
+  tasks = tasks.filter(t => t.id !== id)
+  saveTasks()
+  renderTasks()
+}
+
+function saveTasks() {
+  localStorage.setItem('pk-tasks', JSON.stringify(tasks))
+}
+
+function renderTasks() {
+  const cols = { todo:[], doing:[], done:[] }
+  tasks.forEach(t => (cols[t.status] || cols.todo).push(t))
+
+  for (const [col, list] of Object.entries(cols)) {
+    const el = document.getElementById(`col-${col}`)
+    if (!el) continue
+    el.innerHTML = list.map(t => `
+      <div class="task-card" draggable="true" id="task-${t.id}"
+        ondragstart="onDragStart(event,'${t.id}')"
+        ondragend="onDragEnd(event)">
+        <div class="task-text">${esc(t.text)}</div>
+        <div class="task-meta">
+          <span class="task-time">${new Date(t.created).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})}</span>
+          <button class="task-del" onclick="deleteTask('${t.id}')">✕</button>
+        </div>
+      </div>`).join('')
+    document.getElementById(`count-${col}`).textContent = list.length
+  }
+}
+
+function onDragStart(e, id) {
+  dragId = id
+  setTimeout(() => document.getElementById(`task-${id}`)?.classList.add('dragging'), 0)
+}
+
+function onDragEnd(e) {
+  if (dragId) document.getElementById(`task-${dragId}`)?.classList.remove('dragging')
+  dragId = null
+  document.querySelectorAll('.col-tasks').forEach(c => c.classList.remove('drag-active'))
+}
+
+function onDragOver(e, col) {
+  e.preventDefault()
+  document.getElementById(`col-${col}`)?.classList.add('drag-active')
+}
+
+function onDragLeave(e) {
+  e.currentTarget.classList.remove('drag-active')
+}
+
+function onDrop(e, col) {
+  e.preventDefault()
+  document.querySelectorAll('.col-tasks').forEach(c => c.classList.remove('drag-active'))
+  if (!dragId) return
+  const task = tasks.find(t => t.id === dragId)
+  if (task) { task.status = col; saveTasks(); renderTasks() }
+}
+
+renderTasks()
+
+// ── Tabs ──
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'))
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('on'))
+  btn.classList.add('on')
+  document.getElementById(`tab-${id}`).classList.add('on')
+}
+
+// ── Misc ──
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {})
+  } else {
+    document.exitFullscreen()
+  }
+}
+
+document.addEventListener('fullscreenchange', () => {
+  document.getElementById('fullscreen-btn').classList.toggle('on', !!document.fullscreenElement)
+})
+
+function toast(msg, type = 'ok') {
+  const el = document.createElement('div')
+  el.className = `toast toast-${type}`
+  el.textContent = msg
+  document.body.appendChild(el)
+  setTimeout(() => el.remove(), 3000)
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+}
+
+// keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.contentEditable === 'true') return
+  if (e.key === ' ') { e.preventDefault(); toggleTimer() }
+  if (e.key === 'r' || e.key === 'R') resetTimer()
+})
+</script>
+</body>
+</html>

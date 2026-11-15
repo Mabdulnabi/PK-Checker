@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>إدارة المتجر — PK Checker Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface2:#1c2130;--border:#2a3142;
+  --text:#e6edf3;--muted:#7d8590;--accent:#0e7afe;--cyan:#00baf7;
+  --ok:#3fb950;--warn:#d29922;--danger:#e0445b;
+  --navy:#1b2556;--radius:12px;--font-mono:'IBM Plex Mono',monospace;
+}
+html,body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── Admin layout ── */
+.admin-wrap{display:grid;grid-template-rows:auto 1fr;min-height:100vh}
+.admin-topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30}
+.admin-logo{font-size:16px;font-weight:800;color:var(--text)}
+.admin-logo span{color:var(--accent)}
+.admin-badge{font-size:10px;padding:3px 10px;border-radius:20px;background:rgba(224,68,91,.15);color:var(--danger);font-weight:700;border:1px solid rgba(224,68,91,.3);margin-right:10px}
+.theme-btn{padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:none;cursor:pointer;font-size:11px;font-weight:700;color:var(--muted);transition:all .15s;font-family:'Cairo',sans-serif}
+.theme-btn:hover{background:var(--surface2);color:var(--text)}
+
+/* ── Page ── */
+.admin-page{max-width:1200px;margin:0 auto;padding:24px 20px}
+.page-header{margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.page-title{font-size:20px;font-weight:800}
+.btn-primary{padding:9px 18px;border-radius:9px;background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px;transition:all .15s}
+.btn-primary:hover{background:#0b5fc9}
+.btn-secondary{padding:8px 14px;border-radius:9px;background:var(--surface2);color:var(--text);border:1px solid var(--border);cursor:pointer;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;transition:all .15s}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+.btn-danger{padding:6px 12px;border-radius:8px;background:rgba(224,68,91,.1);color:var(--danger);border:1px solid rgba(224,68,91,.3);cursor:pointer;font-family:'Cairo',sans-serif;font-size:11px;font-weight:700;transition:all .15s}
+.btn-danger:hover{background:rgba(224,68,91,.2)}
+
+/* ── Main tabs ── */
+.main-tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:20px;overflow-x:auto}
+.main-tab{padding:10px 18px;border:none;background:none;cursor:pointer;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;color:var(--muted);border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.main-tab.on{color:var(--accent);border-bottom-color:var(--accent)}
+.main-tab:hover:not(.on){color:var(--text)}
+.tab-pane{display:none}
+.tab-pane.on{display:block}
+
+/* ── Stats row ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;align-items:center;gap:12px}
+.stat-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.stat-val{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700}
+.stat-label{font-size:10px;color:var(--muted);margin-top:1px}
+@media(max-width:700px){.stats-row{grid-template-columns:1fr 1fr}}
+
+/* ── Search/filter bar ── */
+.bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.bar-search{flex:1;min-width:200px;position:relative}
+.bar-search svg{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.bar-inp{width:100%;padding:8px 34px 8px 12px;border:1px solid var(--border);border-radius:9px;background:var(--surface2);font-family:'Cairo',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s}
+.bar-inp:focus{border-color:var(--accent)}
+.bar-sel{padding:8px 12px;border:1px solid var(--border);border-radius:9px;background:var(--surface2);font-family:'Cairo',sans-serif;font-size:13px;color:var(--text);cursor:pointer;outline:none}
+.bar-sel:focus{border-color:var(--accent)}
+
+/* ── Table ── */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:var(--surface2);padding:10px 14px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);white-space:nowrap}
+tbody tr{border-top:1px solid var(--border);transition:background .12s}
+tbody tr:hover{background:var(--surface2)}
+td{padding:10px 14px;vertical-align:middle}
+.td-name{font-weight:700;color:var(--text);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.td-muted{color:var(--muted);font-size:12px}
+.td-mono{font-family:var(--font-mono);font-size:12px}
+.td-actions{display:flex;gap:6px;align-items:center}
+.pill{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;display:inline-block}
+.pill-ok{background:rgba(63,185,80,.15);color:var(--ok)}
+.pill-warn{background:rgba(210,153,34,.15);color:var(--warn)}
+.pill-err{background:rgba(224,68,91,.15);color:var(--danger)}
+.pill-info{background:rgba(14,122,254,.15);color:var(--accent)}
+.thumb{width:32px;height:32px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.thumb img{width:24px;height:24px;object-fit:contain}
+.thumb .ini{font-size:9px;font-weight:800;color:var(--muted)}
+.row-name{display:flex;align-items:center;gap:8px}
+.empty-row td{text-align:center;padding:40px;color:var(--muted)}
+
+/* ── Spinner ── */
+.spin{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Pagination ── */
+.pager{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
+.pager-btns{display:flex;gap:4px}
+.pager-btn{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:none;cursor:pointer;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;color:var(--muted);transition:all .12s;display:flex;align-items:center;justify-content:center}
+.pager-btn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.pager-btn:hover:not(.on){background:var(--surface2)}
+.pager-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ── Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);display:flex;align-items:flex-start;justify-content:center;z-index:50;padding:20px;overflow-y:auto}
+.modal-overlay.hidden{display:none}
+.modal{width:100%;max-width:680px;background:var(--surface);border-radius:16px;border:1px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,.5);margin:auto}
+.modal-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1;border-radius:16px 16px 0 0}
+.modal-title{font-size:14px;font-weight:800}
+.modal-close{width:28px;height:28px;border-radius:8px;border:none;background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.modal-close:hover{background:var(--border);color:var(--text)}
+.modal-tabs{display:flex;gap:1px;padding:12px 20px 0;border-bottom:1px solid var(--border);overflow-x:auto}
+.modal-tab{padding:7px 12px;border:none;background:none;cursor:pointer;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;color:var(--muted);border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.modal-tab.on{color:var(--accent);border-bottom-color:var(--accent)}
+.modal-body{padding:20px;display:flex;flex-direction:column;gap:14px}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;background:var(--surface);border-radius:0 0 16px 16px}
+
+/* ── Form ── */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.full{grid-column:span 2}
+.form-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.form-inp{padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface2);font-family:'Cairo',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;width:100%}
+.form-inp:focus{border-color:var(--accent)}
+textarea.form-inp{resize:vertical;min-height:80px}
+select.form-inp{cursor:pointer}
+.form-check{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;padding:6px 0}
+.form-check input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--accent)}
+.tags-inp-wrap{display:flex;gap:8px;flex-wrap:wrap;padding:8px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface2);min-height:42px;cursor:text}
+.tags-inp-wrap:focus-within{border-color:var(--accent)}
+.tag-chip{padding:3px 8px;border-radius:6px;background:rgba(14,122,254,.15);color:var(--accent);font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px}
+.tag-chip button{background:none;border:none;cursor:pointer;color:inherit;padding:0;font-size:11px;line-height:1}
+.tags-inp{border:none;background:none;outline:none;font-family:'Cairo',sans-serif;font-size:13px;color:var(--text);min-width:120px;padding:0}
+.section-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:4px;grid-column:span 2}
+.form-hint{font-size:11px;color:var(--muted);margin-top:2px}
+.rating-stars{display:flex;gap:4px;align-items:center}
+.star{font-size:18px;cursor:pointer;transition:transform .1s;line-height:1}
+.star:hover{transform:scale(1.2)}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:20px;right:20px;padding:10px 16px;border-radius:11px;font-size:13px;font-weight:700;color:#fff;z-index:999;animation:fadeIn .25s;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.toast-ok{background:var(--ok)}
+.toast-err{background:var(--danger)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Light theme override */
+[data-theme="light"]{
+  --bg:#f4f6fb;--surface:#fff;--surface2:#f0f3fa;--border:#e4e9f2;
+  --text:#1a2340;--muted:#6b7a99;
+}
+</style>
+</head>
+<body>
+<div class="admin-wrap">
+  <nav class="admin-topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="admin-logo">PK<span>Checker</span></div>
+      <span class="admin-badge">ADMIN</span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="theme-btn" onclick="toggleTheme()">🌗 ثيم</button>
+      <a href="store.html" class="theme-btn" style="text-decoration:none">👁 المتجر</a>
+    </div>
+  </nav>
+
+  <div class="admin-page">
+    <div class="page-header">
+      <div class="page-title">إدارة المتجر</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(14,122,254,.1)">🛒</div>
+        <div><div class="stat-val" id="stat-tools" style="color:var(--accent)">—</div><div class="stat-label">منتج</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(63,185,80,.1)">🏷️</div>
+        <div><div class="stat-val" id="stat-cats" style="color:var(--ok)">—</div><div class="stat-label">فئة</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(210,153,34,.1)">⭐</div>
+        <div><div class="stat-val" id="stat-reviews" style="color:var(--warn)">—</div><div class="stat-label">تقييم</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(224,68,91,.1)">📦</div>
+        <div><div class="stat-val" id="stat-oos" style="color:var(--danger)">—</div><div class="stat-label">نفد المخزون</div></div>
+      </div>
+    </div>
+
+    <!-- Main tabs -->
+    <div class="main-tabs">
+      <button class="main-tab on" onclick="switchMain('tools',this)">🛒 المنتجات</button>
+      <button class="main-tab" onclick="switchMain('cats',this)">🏷️ الفئات</button>
+      <button class="main-tab" onclick="switchMain('reviews',this)">⭐ التقييمات</button>
+    </div>
+
+    <!-- Tools tab -->
+    <div id="pane-tools" class="tab-pane on">
+      <div class="bar">
+        <div class="bar-search">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="bar-inp" id="tools-search" placeholder="بحث في المنتجات…" oninput="renderTools()"/>
+        </div>
+        <select class="bar-sel" id="tools-cat-filter" onchange="renderTools()">
+          <option value="">كل الفئات</option>
+        </select>
+        <select class="bar-sel" id="tools-status-filter" onchange="renderTools()">
+          <option value="">كل الحالات</option>
+          <option value="active">نشط</option>
+          <option value="inactive">غير نشط</option>
+          <option value="oos">نفد المخزون</option>
+        </select>
+        <button class="btn-primary" onclick="openToolModal(null)">+ منتج جديد</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>المنتج</th>
+              <th>الفئة</th>
+              <th>السعر</th>
+              <th>المدة</th>
+              <th>التقييم</th>
+              <th>الحالة</th>
+              <th>الترتيب</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tools-tbody">
+            <tr><td colspan="8" style="text-align:center;padding:30px"><div class="spin"></div></td></tr>
+          </tbody>
+        </table>
+        <div class="pager" id="tools-pager"></div>
+      </div>
+    </div>
+
+    <!-- Categories tab -->
+    <div id="pane-cats" class="tab-pane">
+      <div class="bar">
+        <div class="bar-search">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="bar-inp" id="cats-search" placeholder="بحث في الفئات…" oninput="renderCats()"/>
+        </div>
+        <button class="btn-primary" onclick="openCatModal(null)">+ فئة جديدة</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>الفئة</th><th>الـ Slug</th><th>الوصف</th><th>الترتيب</th><th></th></tr>
+          </thead>
+          <tbody id="cats-tbody">
+            <tr><td colspan="5" style="text-align:center;padding:30px"><div class="spin"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Reviews tab -->
+    <div id="pane-reviews" class="tab-pane">
+      <div class="bar">
+        <div class="bar-search">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="bar-inp" id="reviews-search" placeholder="بحث في التقييمات…" oninput="renderReviews()"/>
+        </div>
+        <select class="bar-sel" id="reviews-approved" onchange="renderReviews()">
+          <option value="">الكل</option>
+          <option value="true">معتمد</option>
+          <option value="false">قيد المراجعة</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>المستخدم</th><th>المنتج</th><th>التقييم</th><th>التعليق</th><th>التاريخ</th><th>الحالة</th><th></th></tr>
+          </thead>
+          <tbody id="reviews-tbody">
+            <tr><td colspan="7" style="text-align:center;padding:30px"><div class="spin"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tool Modal -->
+<div id="tool-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeToolModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="tool-modal-title">منتج جديد</div>
+      <button class="modal-close" onclick="closeToolModal()">✕</button>
+    </div>
+    <div class="modal-tabs">
+      <button class="modal-tab on" onclick="switchModalTab('basic',this)">الأساسي</button>
+      <button class="modal-tab" onclick="switchModalTab('pricing',this)">التسعير</button>
+      <button class="modal-tab" onclick="switchModalTab('media',this)">الوسائط</button>
+      <button class="modal-tab" onclick="switchModalTab('features',this)">المميزات</button>
+      <button class="modal-tab" onclick="switchModalTab('meta',this)">الإعدادات</button>
+    </div>
+
+    <!-- Basic -->
+    <div class="modal-body" id="mt-basic">
+      <div class="form-row">
+        <div class="form-group full">
+          <label class="form-label">اسم المنتج *</label>
+          <input class="form-inp" id="t-name" placeholder="مثال: Canva Pro"/>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">الوصف</label>
+          <textarea class="form-inp" id="t-description" rows="3" placeholder="وصف مختصر للمنتج…"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">الفئة *</label>
+          <select class="form-inp" id="t-category_id">
+            <option value="">اختر الفئة</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">تسمية التسليم</label>
+          <input class="form-inp" id="t-delivery_label" placeholder="مثال: حساب مشترك"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">مدة الاشتراك</label>
+          <input class="form-inp" id="t-duration_label" placeholder="مثال: شهر واحد"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">عدد الأيام</label>
+          <input class="form-inp" type="number" id="t-duration_days" placeholder="30"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pricing -->
+    <div class="modal-body hidden" id="mt-pricing">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">السعر بالجنيه *</label>
+          <input class="form-inp" type="number" id="t-price_egp" placeholder="0"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">سعر التجزئة (للعرض)</label>
+          <input class="form-inp" type="number" id="t-retail_price_egp" placeholder="0"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">السعر بالدولار</label>
+          <input class="form-inp" type="number" step="0.01" id="t-price_usd" placeholder="0.00"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Media -->
+    <div class="modal-body hidden" id="mt-media">
+      <div class="form-row">
+        <div class="form-group full">
+          <label class="form-label">رابط الصورة</label>
+          <input class="form-inp" id="t-image_url" placeholder="https://…" dir="ltr"/>
+          <span class="form-hint">رابط مباشر لصورة المنتج (PNG/SVG/WebP)</span>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">رابط الفيديو</label>
+          <input class="form-inp" id="t-video_url" placeholder="https://youtube.com/…" dir="ltr"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="modal-body hidden" id="mt-features">
+      <div class="form-group">
+        <label class="form-label">المميزات (اضغط Enter لإضافة)</label>
+        <div class="tags-inp-wrap" id="features-wrap" onclick="document.getElementById('features-inp').focus()">
+          <input class="tags-inp" id="features-inp" placeholder="أضف ميزة…" onkeydown="addFeature(event)"/>
+        </div>
+        <span class="form-hint">أضف مميزات المنتج ثم اضغط Enter أو Comma</span>
+      </div>
+    </div>
+
+    <!-- Meta -->
+    <div class="modal-body hidden" id="mt-meta">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">الترتيب</label>
+          <input class="form-inp" type="number" id="t-sort_order" value="0"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">التقييم</label>
+          <input class="form-inp" type="number" step="0.1" min="0" max="5" id="t-rating" value="5"/>
+        </div>
+        <div class="form-group full">
+          <label class="form-check">
+            <input type="checkbox" id="t-is_active" checked/>
+            منتج نشط (يظهر في المتجر)
+          </label>
+        </div>
+        <div class="form-group full">
+          <label class="form-check">
+            <input type="checkbox" id="t-is_out_of_stock"/>
+            نفد من المخزون
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeToolModal()">إلغاء</button>
+      <button class="btn-primary" id="save-tool-btn" onclick="saveTool()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Category Modal -->
+<div id="cat-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeCatModal()">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head">
+      <div class="modal-title" id="cat-modal-title">فئة جديدة</div>
+      <button class="modal-close" onclick="closeCatModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">اسم الفئة *</label>
+        <input class="form-inp" id="c-name" placeholder="مثال: تصميم"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Slug *</label>
+        <input class="form-inp" id="c-slug" placeholder="design" dir="ltr"/>
+        <span class="form-hint">معرف فريد للفئة (بالإنجليزية، بدون مسافات)</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">الوصف</label>
+        <textarea class="form-inp" id="c-description" rows="2"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">الترتيب</label>
+        <input class="form-inp" type="number" id="c-sort_order" value="0"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeCatModal()">إلغاء</button>
+      <button class="btn-primary" id="save-cat-btn" onclick="saveCat()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const { createClient } = supabase
+const sb = createClient(
+  'https://ixpgqhwausnfjphitsty.supabase.co',
+  'sb_publishable_Iz-TCMtlndecE5p-ypewuu_6pwitPTw'
+)
+
+let tools = [], cats = [], reviews = []
+let toolsPage = 1
+const PER_PAGE = 15
+let editingToolId = null
+let editingCatId = null
+let currentFeatures = []
+
+// ── Load data ──
+async function loadAll() {
+  const [t, c, r] = await Promise.all([
+    sb.from('shop_tools').select('*').order('sort_order'),
+    sb.from('shop_categories').select('*').order('sort_order'),
+    sb.from('tool_reviews').select('*').order('created_at', { ascending: false }),
+  ])
+  tools   = t.data || []
+  cats    = c.data || []
+  reviews = r.data || []
+  updateStats()
+  buildCatFilter()
+  renderTools()
+  renderCats()
+  renderReviews()
+}
+
+function updateStats() {
+  document.getElementById('stat-tools').textContent   = tools.length
+  document.getElementById('stat-cats').textContent    = cats.length
+  document.getElementById('stat-reviews').textContent = reviews.length
+  document.getElementById('stat-oos').textContent     = tools.filter(t => t.is_out_of_stock).length
+}
+
+function buildCatFilter() {
+  const sel = document.getElementById('tools-cat-filter')
+  const catSel = document.getElementById('t-category_id')
+  sel.innerHTML = '<option value="">كل الفئات</option>' + cats.map(c => `<option value="${c.slug}">${c.name}</option>`).join('')
+  catSel.innerHTML = '<option value="">اختر الفئة</option>' + cats.map(c => `<option value="${c.id}">${c.name}</option>`).join('')
+}
+
+// ── Tools ──
+function renderTools() {
+  const q       = document.getElementById('tools-search').value.toLowerCase()
+  const catF    = document.getElementById('tools-cat-filter').value
+  const statusF = document.getElementById('tools-status-filter').value
+
+  let list = tools.filter(t => {
+    if (q && !t.name?.toLowerCase().includes(q)) return false
+    if (catF && t.category_slug !== catF) return false
+    if (statusF === 'active'   && !t.is_active) return false
+    if (statusF === 'inactive' && t.is_active)  return false
+    if (statusF === 'oos'      && !t.is_out_of_stock) return false
+    return true
+  })
+
+  const total = Math.max(1, Math.ceil(list.length / PER_PAGE))
+  if (toolsPage > total) toolsPage = 1
+  const paged = list.slice((toolsPage-1)*PER_PAGE, toolsPage*PER_PAGE)
+  const tbody = document.getElementById('tools-tbody')
+
+  if (!list.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="8">لا توجد منتجات</td></tr>'
+    document.getElementById('tools-pager').innerHTML = ''
+    return
+  }
+
+  tbody.innerHTML = paged.map(t => {
+    const cat    = cats.find(c => c.id === t.category_id)
+    const status = t.is_out_of_stock ? 'oos' : t.is_active ? 'active' : 'inactive'
+    const statusLabel = status === 'oos' ? 'نفد المخزون' : status === 'active' ? 'نشط' : 'غير نشط'
+    const statusClass = status === 'oos' ? 'pill-warn' : status === 'active' ? 'pill-ok' : 'pill-err'
+    const img = t.image_url
+      ? `<img src="${esc(t.image_url)}" onerror="this.style.display='none'">`
+      : `<span class="ini">${(t.name||'').slice(0,2).toUpperCase()}</span>`
+
+    return `<tr>
+      <td><div class="row-name"><div class="thumb">${img}</div><span class="td-name">${esc(t.name)}</span></div></td>
+      <td class="td-muted">${cat?.name || t.category_slug || '—'}</td>
+      <td class="td-mono">${Number(t.price_egp||0).toLocaleString()} EGP</td>
+      <td class="td-muted">${esc(t.duration_label||'—')}</td>
+      <td class="td-mono">⭐ ${t.rating||'—'}</td>
+      <td><span class="pill ${statusClass}">${statusLabel}</span></td>
+      <td class="td-mono">${t.sort_order??'—'}</td>
+      <td>
+        <div class="td-actions">
+          <button class="btn-secondary" onclick="openToolModal('${t.id}')">تعديل</button>
+          <button class="btn-danger" onclick="deleteTool('${t.id}','${esc(t.name)}')">حذف</button>
+        </div>
+      </td>
+    </tr>`
+  }).join('')
+
+  // pager
+  if (total <= 1) { document.getElementById('tools-pager').innerHTML = ''; return }
+  let phtml = `<span>${list.length} منتج</span><div class="pager-btns">`
+  phtml += `<button class="pager-btn" onclick="toolsGoPage(${toolsPage-1})" ${toolsPage===1?'disabled':''}>‹</button>`
+  for (let i=1;i<=total;i++) phtml += `<button class="pager-btn ${i===toolsPage?'on':''}" onclick="toolsGoPage(${i})">${i}</button>`
+  phtml += `<button class="pager-btn" onclick="toolsGoPage(${toolsPage+1})" ${toolsPage===total?'disabled':''}>›</button></div>`
+  document.getElementById('tools-pager').innerHTML = phtml
+}
+
+function toolsGoPage(p) { toolsPage = p; renderTools() }
+
+function openToolModal(id) {
+  editingToolId = id
+  const tool = id ? tools.find(t => t.id === id) : null
+  document.getElementById('tool-modal-title').textContent = tool ? 'تعديل: ' + tool.name : 'منتج جديد'
+  currentFeatures = [...(tool?.features || [])]
+  renderFeatures()
+
+  const fields = ['name','description','delivery_label','duration_label','price_egp','retail_price_egp','price_usd','image_url','video_url','sort_order','rating','duration_days']
+  fields.forEach(f => {
+    const el = document.getElementById('t-' + f)
+    if (el) el.value = tool?.[f] ?? ''
+  })
+  const catEl = document.getElementById('t-category_id')
+  catEl.innerHTML = '<option value="">اختر الفئة</option>' + cats.map(c => `<option value="${c.id}" ${tool?.category_id===c.id?'selected':''}>${c.name}</option>`).join('')
+  document.getElementById('t-is_active').checked      = tool?.is_active ?? true
+  document.getElementById('t-is_out_of_stock').checked = tool?.is_out_of_stock ?? false
+
+  switchModalTab('basic', document.querySelector('.modal-tab'))
+  document.getElementById('tool-modal').classList.remove('hidden')
+}
+
+function closeToolModal() {
+  document.getElementById('tool-modal').classList.add('hidden')
+  editingToolId = null
+}
+
+async function saveTool() {
+  const btn = document.getElementById('save-tool-btn')
+  const name  = document.getElementById('t-name').value.trim()
+  const catId = document.getElementById('t-category_id').value
+  if (!name) { toast('اسم المنتج مطلوب', 'err'); return }
+
+  const payload = {
+    name,
+    description:       document.getElementById('t-description').value.trim() || null,
+    category_id:       catId || null,
+    category_slug:     cats.find(c=>c.id===catId)?.slug || '',
+    delivery_label:    document.getElementById('t-delivery_label').value.trim() || null,
+    duration_label:    document.getElementById('t-duration_label').value.trim() || null,
+    duration_days:     parseInt(document.getElementById('t-duration_days').value) || 0,
+    price_egp:         parseFloat(document.getElementById('t-price_egp').value) || 0,
+    retail_price_egp:  parseFloat(document.getElementById('t-retail_price_egp').value) || null,
+    price_usd:         parseFloat(document.getElementById('t-price_usd').value) || null,
+    image_url:         document.getElementById('t-image_url').value.trim() || null,
+    video_url:         document.getElementById('t-video_url').value.trim() || null,
+    sort_order:        parseInt(document.getElementById('t-sort_order').value) || 0,
+    rating:            parseFloat(document.getElementById('t-rating').value) || 5,
+    is_active:         document.getElementById('t-is_active').checked,
+    is_out_of_stock:   document.getElementById('t-is_out_of_stock').checked,
+    features:          currentFeatures,
+  }
+
+  btn.disabled = true; btn.textContent = 'جاري الحفظ…'
+  const { error } = editingToolId
+    ? await sb.from('shop_tools').update(payload).eq('id', editingToolId)
+    : await sb.from('shop_tools').insert(payload)
+  btn.disabled = false; btn.textContent = 'حفظ'
+
+  if (error) { toast('خطأ: ' + error.message, 'err'); return }
+  toast(editingToolId ? 'تم تحديث المنتج ✓' : 'تم إضافة المنتج ✓', 'ok')
+  closeToolModal()
+  loadAll()
+}
+
+async function deleteTool(id, name) {
+  if (!confirm(`حذف "${name}"?`)) return
+  const { error } = await sb.from('shop_tools').delete().eq('id', id)
+  if (error) { toast('خطأ: ' + error.message, 'err'); return }
+  toast('تم الحذف ✓', 'ok')
+  loadAll()
+}
+
+// ── Features ──
+function renderFeatures() {
+  const wrap = document.getElementById('features-wrap')
+  const chips = currentFeatures.map((f,i) =>
+    `<div class="tag-chip">${esc(f)}<button onclick="removeFeature(${i})">✕</button></div>`
+  ).join('')
+  wrap.innerHTML = chips + `<input class="tags-inp" id="features-inp" placeholder="أضف ميزة…" onkeydown="addFeature(event)"/>`
+}
+
+function addFeature(e) {
+  if (e.key !== 'Enter' && e.key !== ',') return
+  e.preventDefault()
+  const val = e.target.value.trim().replace(/,$/, '')
+  if (val && !currentFeatures.includes(val)) { currentFeatures.push(val); renderFeatures() }
+  else e.target.value = ''
+}
+
+function removeFeature(i) {
+  currentFeatures.splice(i, 1)
+  renderFeatures()
+}
+
+// ── Categories ──
+function renderCats() {
+  const q = document.getElementById('cats-search').value.toLowerCase()
+  const list = cats.filter(c => !q || c.name?.toLowerCase().includes(q) || c.slug?.includes(q))
+  const tbody = document.getElementById('cats-tbody')
+  if (!list.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="5">لا توجد فئات</td></tr>'; return
+  }
+  tbody.innerHTML = list.map(c => `<tr>
+    <td class="td-name">${esc(c.name)}</td>
+    <td class="td-mono">${esc(c.slug)}</td>
+    <td class="td-muted">${esc(c.description||'—')}</td>
+    <td class="td-mono">${c.sort_order??'—'}</td>
+    <td>
+      <div class="td-actions">
+        <button class="btn-secondary" onclick="openCatModal('${c.id}')">تعديل</button>
+        <button class="btn-danger" onclick="deleteCat('${c.id}','${esc(c.name)}')">حذف</button>
+      </div>
+    </td>
+  </tr>`).join('')
+}
+
+function openCatModal(id) {
+  editingCatId = id
+  const cat = id ? cats.find(c => c.id === id) : null
+  document.getElementById('cat-modal-title').textContent = cat ? 'تعديل: ' + cat.name : 'فئة جديدة'
+  document.getElementById('c-name').value        = cat?.name || ''
+  document.getElementById('c-slug').value        = cat?.slug || ''
+  document.getElementById('c-description').value = cat?.description || ''
+  document.getElementById('c-sort_order').value  = cat?.sort_order ?? 0
+  document.getElementById('cat-modal').classList.remove('hidden')
+}
+
+function closeCatModal() {
+  document.getElementById('cat-modal').classList.add('hidden')
+  editingCatId = null
+}
+
+async function saveCat() {
+  const btn  = document.getElementById('save-cat-btn')
+  const name = document.getElementById('c-name').value.trim()
+  const slug = document.getElementById('c-slug').value.trim()
+  if (!name || !slug) { toast('الاسم والـ Slug مطلوبان', 'err'); return }
+  const payload = {
+    name, slug,
+    description: document.getElementById('c-description').value.trim() || null,
+    sort_order:  parseInt(document.getElementById('c-sort_order').value) || 0,
+  }
+  btn.disabled = true; btn.textContent = 'جاري الحفظ…'
+  const { error } = editingCatId
+    ? await sb.from('shop_categories').update(payload).eq('id', editingCatId)
+    : await sb.from('shop_categories').insert(payload)
+  btn.disabled = false; btn.textContent = 'حفظ'
+  if (error) { toast('خطأ: ' + error.message, 'err'); return }
+  toast(editingCatId ? 'تم التحديث ✓' : 'تم الإضافة ✓', 'ok')
+  closeCatModal()
+  loadAll()
+}
+
+async function deleteCat(id, name) {
+  if (!confirm(`حذف "${name}"?`)) return
+  const { error } = await sb.from('shop_categories').delete().eq('id', id)
+  if (error) { toast('خطأ: ' + error.message, 'err'); return }
+  toast('تم الحذف ✓', 'ok')
+  loadAll()
+}
+
+// ── Reviews ──
+function renderReviews() {
+  const q        = document.getElementById('reviews-search').value.toLowerCase()
+  const approved = document.getElementById('reviews-approved').value
+  let list = reviews.filter(r => {
+    if (q && !(r.reviewer_name||'').toLowerCase().includes(q) && !(r.comment||'').toLowerCase().includes(q)) return false
+    if (approved === 'true'  && !r.is_approved) return false
+    if (approved === 'false' && r.is_approved)  return false
+    return true
+  })
+  const tbody = document.getElementById('reviews-tbody')
+  if (!list.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="7">لا توجد تقييمات</td></tr>'; return
+  }
+  tbody.innerHTML = list.map(r => {
+    const tool = tools.find(t => t.id === r.tool_id)
+    const stars = '⭐'.repeat(Math.round(r.rating||0))
+    return `<tr>
+      <td class="td-name">${esc(r.reviewer_name||'مجهول')}</td>
+      <td class="td-muted">${tool?.name ? esc(tool.name) : '—'}</td>
+      <td>${stars} ${r.rating}</td>
+      <td class="td-muted" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.comment||'—')}</td>
+      <td class="td-muted">${new Date(r.created_at).toLocaleDateString('ar-EG')}</td>
+      <td><span class="pill ${r.is_approved?'pill-ok':'pill-warn'}">${r.is_approved?'معتمد':'انتظار'}</span></td>
+      <td>
+        <div class="td-actions">
+          ${!r.is_approved ? `<button class="btn-secondary" onclick="approveReview('${r.id}')">اعتماد</button>` : ''}
+          <button class="btn-danger" onclick="deleteReview('${r.id}')">حذف</button>
+        </div>
+      </td>
+    </tr>`
+  }).join('')
+}
+
+async function approveReview(id) {
+  const { error } = await sb.from('tool_reviews').update({ is_approved: true }).eq('id', id)
+  if (error) { toast('خطأ', 'err'); return }
+  toast('تم الاعتماد ✓', 'ok'); loadAll()
+}
+
+async function deleteReview(id) {
+  if (!confirm('حذف التقييم؟')) return
+  const { error } = await sb.from('tool_reviews').delete().eq('id', id)
+  if (error) { toast('خطأ', 'err'); return }
+  toast('تم الحذف ✓', 'ok'); loadAll()
+}
+
+// ── UI helpers ──
+function switchMain(id, btn) {
+  document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('on'))
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('on'))
+  btn.classList.add('on')
+  document.getElementById(`pane-${id}`).classList.add('on')
+}
+
+function switchModalTab(id, btn) {
+  document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('on'))
+  document.querySelectorAll('[id^="mt-"]').forEach(p => p.classList.add('hidden'))
+  if (btn) btn.classList.add('on')
+  else document.querySelector('.modal-tab').classList.add('on')
+  const el = document.getElementById(`mt-${id}`)
+  if (el) el.classList.remove('hidden')
+}
+
+function toggleTheme() {
+  const root = document.documentElement
+  root.setAttribute('data-theme', root.getAttribute('data-theme') === 'light' ? '' : 'light')
+}
+
+function toast(msg, type = 'ok') {
+  const el = document.createElement('div')
+  el.className = `toast toast-${type}`
+  el.textContent = msg
+  document.body.appendChild(el)
+  setTimeout(() => el.remove(), 3000)
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')
+}
+
+loadAll()
+</script>
+</body>
+</html>
