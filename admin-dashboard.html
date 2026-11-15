@@ -1493,6 +1493,7 @@
             <span style="font-size:12px;color:var(--muted);">عرض</span>
             <select id="cbPageSize" onchange="cbSetPageSize(this.value)" style="padding:4px 8px;border:1px solid var(--paper-line);border-radius:7px;font-size:12px;background:var(--paper);color:var(--ink);cursor:pointer;">
               <option value="5">5</option>
+              <option value="5">5</option>
               <option value="10" selected>10</option>
               <option value="20">20</option>
             </select>
@@ -4047,7 +4048,7 @@ function renderPaginationBar(key, containerId, totalItems){
       <div class="pg-size">
         <span data-i18n="pg_rows_per_page">عدد الصفوف</span>
         <select onchange="_pgSetSize('${key}', this.value)">
-          ${[10,20,30,50].map(n=>`<option value="${n}" ${st.pageSize===n?'selected':''}>${n}</option>`).join('')}
+          ${[5,10,20,30,50].map(n=>`<option value="${n}" ${st.pageSize===n?'selected':''}>${n}</option>`).join('')}
         </select>
       </div>
       <div class="pg-nav">
