@@ -5840,7 +5840,7 @@ async function loadCreditsTab(){
   const [payRes, adjRes, packRes, legacyRes, usageRes, redeemRes] = await Promise.all([
     supabaseClient.from('payments').select('id, user_id, pack_id, gateway, amount, currency, status, created_at, verified_at, reference').in('status', ['completed', 'pending', 'rejected']).order('created_at', { ascending: false }).limit(1000),
     supabaseClient.from('admin_slot_adjustments').select('*').order('created_at', { ascending: false }).limit(1000),
-    supabaseClient.from('slot_packages').select('id, legacy_pack_id, slots, name_ar, name_en'),
+    supabaseClient.from('slot_packages').select('id, legacy_pack_id, slots, price_egp, name_ar, name_en'),
     supabaseClient.from('wallet_transactions').select('*').in('type', ['admin_credit', 'admin_debit']).order('created_at', { ascending: false }).limit(500),
     // Every check that took a slot (reserved). Released reservations were refunded, so they are not listed.
     supabaseClient.from('slot_usages').select('id, user_id, slot_type, order_id, status, created_at').eq('status', 'reserved').order('created_at', { ascending: false }).limit(1000),
@@ -5857,7 +5857,7 @@ async function loadCreditsTab(){
 
   const packByKey = {};
   (packRes.data || []).forEach(pk => {
-    const info = { slots: Number(pk.slots), name: currentLang === 'ar' ? pk.name_ar : pk.name_en };
+    const info = { slots: Number(pk.slots), price: Number(pk.price_egp), name: currentLang === 'ar' ? pk.name_ar : pk.name_en };
     packByKey[pk.legacy_pack_id || pk.id] = info;
     packByKey[pk.id] = info;
   });
@@ -5912,11 +5912,15 @@ async function loadCreditsTab(){
   (redeemRes.data || []).forEach(c => {
     const pr = profileOf(c.redeemed_by);
     const pack = packByKey[c.package_id] || null;
+    const credits = Number(c.credits) || 0;
+    // Package codes: credits are checks. Old codes without a package: 20 credits = 1 check, valued at 5 EGP per credit.
+    const checks = pack ? credits : Math.round(credits / 20);
+    const value = pack && pack.slots ? (pack.price / pack.slots) * credits : credits * 5;
     rows.push({
       code: c.code, user_id: c.redeemed_by, pk_number: pr.pk_number, full_name: pr.full_name || '—',
-      plan: pack ? pack.name : (currentLang === 'ar' ? 'كود خصم' : 'Voucher'),
-      method: 'redeem', amount_paid: null, currency: null,
-      slots: Number(c.credits) || 0, kind: 'redeem', created_at: c.redeemed_at,
+      plan: pack ? pack.name : (currentLang === 'ar' ? 'كود خصم (قديم)' : 'Voucher (old)'),
+      method: 'redeem', amount_paid: Math.round(value * 100) / 100, currency: 'EGP',
+      slots: checks, kind: 'redeem', created_at: c.redeemed_at,
     });
   });
   rows.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -5956,7 +5960,7 @@ function renderCreditsTable(rows){
     const msgBtn = r.user_id ? `<button class="msg-btn" onclick="composeMessage('${r.user_id}','${pkStr}')">✉</button>` : '';
     return `<tr class="${ROW[r.kind] || ''}">
       <td data-label="${escapeHtml(t('cr_col_txcode'))}" class="mono" style="font-size:10px;color:var(--muted);">${escapeHtml(r.code)}</td>
-      <td data-label="${escapeHtml(t('pay_col_customer'))}"><b style="font-size:12px;">${escapeHtml(r.full_name)}</b><br>${clickablePk(r.user_id, r.pk_number)}</td>
+      <td data-label="${escapeHtml(t('pay_col_customer'))}"><b style="font-size:12px;">${escapeHtml(r.full_name)}</b><br>${r.pk_number != null ? clickablePk(r.user_id, r.pk_number) : '<span style="color:var(--muted);">—</span>'}</td>
       <td data-label="${escapeHtml(t('cr_col_plan'))}" style="font-size:11.5px;">${escapeHtml(r.plan)}</td>
       <td data-label="${escapeHtml(t('cr_col_amount'))}" style="font-size:11.5px;"><b>${escapeHtml(amt || '—')}</b>${gw ? `<br><small style="color:var(--muted);">${escapeHtml(gw)}</small>` : ''}</td>
       <td data-label="${escapeHtml(t('cr_col_credits'))}" style="font-weight:800;color:${n < 0 ? 'var(--danger)' : 'var(--ok)'};">${escapeHtml(slotTxt)}</td>
