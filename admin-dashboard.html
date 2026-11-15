@@ -5856,6 +5856,21 @@ async function loadCreditsTab(){
     return;
   }
 
+  // Profiles for exactly the customers in this log (not the shared cache, which may not be loaded yet).
+  const logUserIds = [...new Set([
+    ...(payRes.data || []).map(x => x.user_id),
+    ...(adjRes.data || []).map(x => x.user_id),
+    ...(legacyRes.data || []).map(x => x.user_id),
+    ...(usageRes.data || []).map(x => x.user_id),
+    ...(redeemRes.data || []).map(x => x.redeemed_by),
+  ].filter(Boolean))];
+  const localProfiles = {};
+  for (let i = 0; i < logUserIds.length; i += 200) {
+    const { data: profs } = await supabaseClient.from('users_profile_numbered')
+      .select('user_id, full_name, pk_number').in('user_id', logUserIds.slice(i, i + 200));
+    (profs || []).forEach(p => { localProfiles[p.user_id] = p; });
+  }
+
   const packByKey = {};
   (packRes.data || []).forEach(pk => {
     const info = { slots: Number(pk.slots), price: Number(pk.price_egp), name: currentLang === 'ar' ? pk.name_ar : pk.name_en };
@@ -5863,7 +5878,7 @@ async function loadCreditsTab(){
     packByKey[pk.id] = info;
   });
   const logCode = (prefix, id) => 'LOG-' + String(prefix || '') + String(id).replace(/-/g, '').slice(0, 8).toUpperCase();
-  const profileOf = (uid) => profilesByUserId[uid] || {};
+  const profileOf = (uid) => localProfiles[uid] || profilesByUserId[uid] || {};
 
   const rows = [];
   (payRes.data || []).forEach(p => {
