@@ -816,13 +816,13 @@
         <div class="side-item" data-tab="orders" onclick="switchTab('orders')"><span class="ic" data-icon-key="admin_nav_orders">▤</span><span data-i18n="nav_orders">الطلبات</span></div>
         <div class="side-item" data-tab="payments" onclick="switchTab('payments')"><span class="ic" data-icon-key="admin_nav_payments">💳</span><span data-i18n="nav_payments">المدفوعات</span></div>
         <div class="side-item" data-tab="accounts" onclick="switchTab('accounts')"><span class="ic" data-icon-key="admin_nav_accounts">👤</span><span data-i18n="nav_accounts">إدارة الحسابات</span></div>
-        <div class="side-item" data-tab="uidesign" onclick="switchTab('uidesign')"><span class="ic" data-icon-key="admin_nav_uidesign">🎨</span><span data-i18n="nav_uidesign">تصميم الواجهة</span></div>
-        <div class="side-item" data-tab="broadcast" onclick="switchTab('broadcast')"><span class="ic" data-icon-key="admin_nav_broadcast">📢</span><span data-i18n="nav_broadcast">رسائل جماعية</span></div>
-        <div class="side-item" data-tab="activity" onclick="switchTab('activity')"><span class="ic" data-icon-key="admin_nav_activity">📋</span><span data-i18n="nav_activity">سجل النشاط</span></div>
         <div class="side-item" data-tab="slots" onclick="switchTab('slots')"><span class="ic" data-icon-key="admin_nav_checks">🎫</span><span data-i18n="nav_slots">الباقات</span></div>
-        <div class="side-item" data-tab="backup" onclick="switchTab('backup')"><span class="ic" data-icon-key="admin_nav_backup">💾</span><span data-i18n="nav_backup">النسخ الاحتياطي</span></div>
+        <div class="side-item" data-tab="broadcast" onclick="switchTab('broadcast')"><span class="ic" data-icon-key="admin_nav_broadcast">📢</span><span data-i18n="nav_broadcast">رسائل جماعية</span></div>
         <div class="side-item" data-tab="chat" onclick="switchTab('chat')"><span class="ic" data-icon-key="admin_nav_chat">💬</span><span data-i18n="nav_chat">الشات المباشر</span><span class="side-badge" id="chatSideBadge" style="display:none;"></span></div>
         <div class="side-item" data-tab="tickets" onclick="switchTab('tickets')"><span class="ic" data-icon-key="admin_nav_tickets">🎫</span><span data-i18n="nav_tickets">تذاكر الدعم</span><span class="side-badge" id="ticketsSideBadge" style="display:none;"></span></div>
+        <div class="side-item" data-tab="uidesign" onclick="switchTab('uidesign')"><span class="ic" data-icon-key="admin_nav_uidesign">🎨</span><span data-i18n="nav_uidesign">تصميم الواجهة</span></div>
+        <div class="side-item" data-tab="activity" onclick="switchTab('activity')"><span class="ic" data-icon-key="admin_nav_activity">📋</span><span data-i18n="nav_activity">سجل النشاط</span></div>
+        <div class="side-item" data-tab="backup" onclick="switchTab('backup')"><span class="ic" data-icon-key="admin_nav_backup">💾</span><span data-i18n="nav_backup">النسخ الاحتياطي</span></div>
       </div>
       <!-- Check settings — inline toggles (replaces the old dedicated tab) -->
       <div class="side-divider"></div>
@@ -845,6 +845,14 @@
           <span data-i18n="cs_toggle_sim">اقتباس فقط</span>
           <label class="side-toggle-sw">
             <input type="checkbox" id="csSimOnly" onchange="onCsToggle()">
+            <span class="side-toggle-slider"></span>
+          </label>
+        </div>
+        <!-- Slot validity: ON = packages expire by their days; OFF = lifetime for packages bought from now on -->
+        <div class="side-toggle-row" id="slotValiditySideRow" title="">
+          <span>⏳ صلاحية الباقات: <b id="slotValidityLbl">بالأيام</b></span>
+          <label class="side-toggle-sw">
+            <input type="checkbox" id="slotValidityToggle" onchange="toggleSlotValidity(this)">
             <span class="side-toggle-slider"></span>
           </label>
         </div>
@@ -1250,18 +1258,6 @@
       <!-- CREDITS TAB -->
 
       <div class="tabpane" id="tab-slots">
-        <!-- Slot validity switch: ON = packages expire by their days; OFF = lifetime for packages bought from now on -->
-        <div class="cr-form-card" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
-          <div>
-            <h3 style="margin:0 0 4px">⏳ صلاحية الفحوصات</h3>
-            <div id="slotValidityNote" style="font-size:12px;color:var(--muted)"></div>
-          </div>
-          <label style="display:flex;align-items:center;gap:8px;font-weight:700;cursor:pointer;">
-            <input type="checkbox" id="slotValidityToggle" onchange="toggleSlotValidity(this)" style="width:18px;height:18px;">
-            <span id="slotValidityLbl">بالأيام</span>
-          </label>
-        </div>
-
         <div class="tab-card" id="availCard" style="margin-bottom:16px;padding:18px 20px;">
           <div style="font-weight:800;font-size:15px;margin-bottom:4px;">🛰️ حالة خدمة الفحص</div>
           <div class="sub" style="margin-bottom:12px;">التحكم في توفر الفحص للعملاء. الرسائل بتظهر للعميل تلقائياً حسب الحالة.</div>
@@ -1476,14 +1472,13 @@
                 <th>PK</th>
                 <th data-i18n="cr_col_name">الاسم</th>
                 <th data-i18n="usr_col_email">الإيميل</th>
-                <th data-i18n="usr_col_whatsapp">واتساب</th>
                 <th data-i18n="usr_col_credits">الفحوصات الحالي</th>
                 <th data-i18n="usr_col_completed">أوردرات مكتملة</th>
                 <th data-i18n="usr_col_joined">تاريخ الانضمام</th>
                 <th></th>
                 <th></th>
               </tr></thead>
-              <tbody id="usersBody"><tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px;" data-i18n="loading_ellipsis">جاري التحميل...</td></tr></tbody>
+              <tbody id="usersBody"><tr><td colspan="8"style="text-align:center;color:var(--muted);padding:20px;" data-i18n="loading_ellipsis">جاري التحميل...</td></tr></tbody>
             </table>
             <div id="usersPagination"></div>
           </div>
@@ -2072,9 +2067,17 @@ function applyPermissionGating(){
       if (item) item.style.display = 'none';
     }
   });
-  if (!canUse('manage_settings')) {
-    const toggles = document.getElementById('csSideToggles');
-    if (toggles) toggles.style.display = 'none';
+  // Sidebar toggles: service/API/sim need manage_settings; the package validity row needs manage_credits.
+  const toggles = document.getElementById('csSideToggles');
+  if (toggles) {
+    const canSettings = canUse('manage_settings');
+    toggles.querySelectorAll('.side-toggle-row').forEach(row => {
+      if (row.id === 'slotValiditySideRow') return;
+      row.style.display = canSettings ? '' : 'none';
+    });
+    const validityRow = document.getElementById('slotValiditySideRow');
+    if (validityRow) validityRow.style.display = canUse('manage_credits') ? '' : 'none';
+    if (!canSettings && !canUse('manage_credits')) toggles.style.display = 'none';
   }
   // Within the merged Payments tab, an admin with only manage_credits (not
   // manage_payment_gateways) sees the credits section but not the gateway
@@ -2101,6 +2104,7 @@ function startApp(){
   renderSideAdminAvatar();
   applyI18n();
   applyPermissionGating();
+  if (currentAdmin?.isSuperAdmin || canUse('manage_credits')) loadSlotValidityToggle();
   loadUIConfigData().then(() => { applyAdminOwnIcons(); applyFavicon(); }).catch(err => console.warn('loadUIConfigData failed (non-fatal):', err));
   initCheckSettings();
   loadOverview();
@@ -3486,11 +3490,24 @@ function _renderOnlineUsers(){
   renderPaginationBar('onlineUsers', 'onlineUsersPagination', users.length);
 }
 
-function _openChatForOnlineUser(userId){
+// Opens the live chat with this customer, creating the conversation first if none exists yet
+// (same upsert the customer's own chat uses).
+async function _openChatForOnlineUser(userId){
+  const profile = profilesByUserId[userId] || {};
+  const { data: convo, error } = await supabaseClient
+    .from('chat_conversations')
+    .upsert({
+      user_id: userId,
+      user_name: profile.full_name || null,
+      user_pk_number: profile.pk_number ?? null,
+    }, { onConflict: 'user_id' })
+    .select()
+    .single();
+  if (error || !convo) { await adminAlert('فشل فتح المحادثة: ' + (error?.message || ''), {icon:'❌', danger:true}); return; }
+  if (!conversations.find(c => c.id === convo.id)) conversations.unshift(convo);
   switchTab('chat');
-  // Find an existing conversation with this user and open it
-  const convo = (conversations || []).find(c => c.user_id === userId);
-  if (convo) setTimeout(() => openConversation(convo.id), 150);
+  renderChatSidebar();
+  openConversation(convo.id);
 }
 
 // One order row, the same for the Orders tab and the Today table.
@@ -5482,7 +5499,6 @@ function liveRateNote(){
 }
 
 async function loadSlotPackages(){
-  loadSlotValidityToggle();
   await refreshLiveRate();
   const tbody = document.getElementById('slotPackagesBody');
   const { data, error } = await supabaseClient
@@ -5803,10 +5819,10 @@ async function loadRedeemCodes(){
 // Slot validity switch: ON = packages expire by their days; OFF = packages bought from now on are lifetime.
 function updateSlotValidityNote(){
   const on = document.getElementById('slotValidityToggle')?.checked;
-  const note = document.getElementById('slotValidityNote');
+  const row = document.getElementById('slotValiditySideRow');
   const lbl = document.getElementById('slotValidityLbl');
   if (lbl) lbl.textContent = on ? 'بالأيام' : 'مدى الحياة';
-  if (note) note.textContent = on
+  if (row) row.title = on
     ? 'كل باقة بتاخد صلاحيتها بالأيام (زي ما هي). الباقات الجديدة بتنتهي في موعدها.'
     : 'الباقات اللي تتشترى من دلوقتي مدى الحياة، والعميل بيشوف "صلاحية مدى الحياة". الباقات اللي اتشترت قبل كده مش بتتغير.';
 }
@@ -6690,7 +6706,7 @@ async function loadUsersTab(){
 function renderUsersTable(rows){
   if (!rows.length) {
     document.getElementById('usersBody').innerHTML =
-      `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px;">${t('usr_empty')}</td></tr>`;
+      `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px;">${t('usr_empty')}</td></tr>`;
     document.getElementById('usersPagination').innerHTML = '';
     return;
   }
@@ -6702,7 +6718,6 @@ function renderUsersTable(rows){
       <td class="mono" style="color:var(--blue-deep);font-weight:800;">${pk}</td>
       <td><b style="font-size:12px;">${escapeHtml(r.full_name)}</b></td>
       <td style="font-size:11.5px;color:var(--muted);">${escapeHtml(r.email)}</td>
-      <td style="font-size:12px;">${escapeHtml(r.whatsapp)}</td>
       <td style="font-weight:700;color:var(--blue-deep);">${r.credits}</td>
       <td style="text-align:center;">${r.completed}</td>
       <td style="font-size:11px;color:var(--muted);">${r.joined ? formatDate(r.joined).split(/[,،]/)[0] : '—'}</td>
