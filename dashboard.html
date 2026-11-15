@@ -2727,6 +2727,111 @@
       .acw-row .d{ color:var(--ac-sub); font-size:11.5px; }
       .acw-amt{ font-family:'Space Grotesk',sans-serif; font-weight:800; }
       .acw-amt.plus{ color:#059669; } .acw-amt.minus{ color:#ef4444; }
+      /* Sub-tabs: full width, mobile friendly */
+      .ac-subtabs{ width:100%; }
+      .ac-subtab{ flex:1; padding:12px 10px; font-size:14px; }
+      @media (max-width:640px){
+        .ac-subtab{ padding:10px 4px; font-size:12.5px; }
+        .ac-h{ font-size:17px; }
+        .ac-cat{ width:96px; } .ac-cat-img{ width:96px; height:96px; }
+        .ac-cat-arrow, .ac-filterbar .ac-sep{ display:none; }
+        .ac-banner{ border-radius:12px; }
+      }
+
+      /* Checkout */
+      .ck-back-store{ background:none; border:none; color:var(--ac-gold); font-weight:800; font-family:'Cairo',sans-serif; font-size:13.5px; cursor:pointer; padding:0; margin-bottom:12px; }
+      .ck-steps{ display:flex; align-items:center; margin:0 0 20px; overflow-x:auto; }
+      .ck-step{ display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:12px; border:1px solid var(--ac-line); background:var(--ac-card); color:var(--ac-sub); font-weight:800; font-size:13px; white-space:nowrap; }
+      .ck-step i{ font-style:normal; font-size:12px; }
+      .ck-step.on{ background:var(--ac-gold); border-color:var(--ac-gold); color:#fff; }
+      .ck-step.done{ background:#10b981; border-color:#10b981; color:#fff; }
+      .ck-line{ flex:1; min-width:24px; height:2px; background:var(--ac-line); }
+      .ck-line.done{ background:#10b981; }
+      .ck-grid{ display:grid; grid-template-columns:minmax(0,1fr) 380px; gap:28px; align-items:start; }
+      @media (max-width:900px){ .ck-grid{ grid-template-columns:1fr; } }
+      .ck-card{ background:var(--ac-card); border:1px solid var(--ac-line); border-radius:18px; padding:28px 30px; box-shadow:0 2px 12px rgba(17,24,39,.04); }
+      @media (max-width:640px){ .ck-card{ padding:20px 16px; } }
+      .ck-h{ font-size:20px; font-weight:800; color:var(--ac-ink); margin:0 0 18px; }
+      .ck-sub{ color:var(--ac-sub); font-size:13.5px; margin:-8px 0 18px; }
+      .ck-item{ display:flex; align-items:center; gap:14px; background:rgba(148,163,184,.08); border-radius:14px; padding:16px; margin-bottom:16px; }
+      .ck-logo{ width:48px; height:48px; border-radius:50%; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#fff; border:1px solid var(--ac-line); font-weight:900; color:#9ca3af; flex:none; }
+      .ck-logo img{ width:100%; height:100%; object-fit:cover; }
+      .ck-logo.lg{ width:56px; height:56px; }
+      .ck-item-txt{ flex:1; min-width:0; }
+      .ck-item-txt b{ display:block; color:var(--ac-ink); font-size:15.5px; }
+      .ck-item-txt small, .ck-sum-item small{ color:var(--ac-sub); font-size:12.5px; }
+      .ck-item-price{ font-family:'Space Grotesk',sans-serif; font-weight:800; color:var(--ac-gold); font-size:18px; white-space:nowrap; }
+      .ck-row{ display:flex; justify-content:space-between; gap:10px; padding:10px 0; font-size:13.5px; color:var(--ac-sub); border-bottom:1px solid var(--ac-line); }
+      .ck-row.ok{ color:#10b981; }
+      .ck-row.total{ color:var(--ac-ink); font-weight:800; border-bottom:none; }
+      .ck-row.total span:last-child{ color:var(--ac-gold); font-family:'Space Grotesk',sans-serif; }
+      .ck-row.big{ font-size:17px; }
+      .ck-row.muted{ border-bottom:none; border-top:1px solid var(--ac-line); }
+      .ck-row.muted b{ color:var(--ac-ink); }
+      .ck-coupon{ display:flex; gap:10px; margin-top:14px; }
+      .ck-coupon input{ flex:1; min-width:0; padding:12px 14px; border:1px solid var(--ac-line); border-radius:12px; background:rgba(148,163,184,.08); font-family:'Cairo',sans-serif; font-size:13.5px; color:var(--ac-ink); outline:none; }
+      .ck-coupon button{ padding:0 20px; border:none; border-radius:12px; background:rgba(148,163,184,.18); font-weight:800; color:var(--ac-ink); cursor:pointer; font-family:'Cairo',sans-serif; }
+      .ck-msg{ margin-top:8px; font-size:12.5px; font-weight:700; }
+      .ck-msg.ok{ color:#10b981; } .ck-msg.err{ color:#ef4444; }
+      .ck-main{ width:100%; margin-top:16px; padding:15px; border:none; border-radius:12px; background:var(--ac-gold); color:#fff; font-family:'Cairo',sans-serif; font-size:15.5px; font-weight:800; cursor:pointer; }
+      .ck-main:disabled{ opacity:.6; cursor:wait; }
+      .ck-back{ width:100%; margin-top:12px; padding:11px; border:1px solid var(--ac-line); border-radius:12px; background:transparent; color:var(--ac-sub); font-weight:800; cursor:pointer; font-family:'Cairo',sans-serif; }
+      .ck-opt{ width:100%; display:flex; align-items:center; gap:14px; padding:18px; border-radius:16px; border:2px solid var(--ac-line); background:var(--ac-card); text-align:start; cursor:pointer; margin-bottom:12px; font-family:'Cairo',sans-serif; }
+      .ck-opt.gold{ border-color:var(--ac-gold); background:rgba(212,147,10,.05); }
+      .ck-opt-ic{ width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; background:rgba(148,163,184,.12); flex:none; }
+      .ck-opt.gold .ck-opt-ic{ background:rgba(212,147,10,.12); }
+      .ck-opt b{ display:block; color:var(--ac-ink); font-size:15px; }
+      .ck-opt small{ color:var(--ac-sub); font-size:12.5px; }
+      .ck-opt em{ font-style:normal; font-weight:800; color:var(--ac-gold); }
+      .ck-side{ display:flex; flex-direction:column; gap:16px; }
+      .ck-side .ck-card{ padding:22px 24px; }
+      .ck-sum-title{ font-size:11.5px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--ac-sub); margin-bottom:14px; }
+      .ck-sum-item{ display:flex; align-items:center; gap:12px; padding-bottom:14px; border-bottom:1px solid var(--ac-line); margin-bottom:4px; }
+      .ck-sum-item b{ display:block; color:var(--ac-ink); font-size:14px; }
+      .ck-help{ display:flex; align-items:center; gap:12px; padding:16px 18px; border-radius:16px; border:1px solid #bbf7d0; background:linear-gradient(135deg,#f0fdf4,#ecfdf5); color:#16a34a; cursor:pointer; text-align:start; font-family:'Cairo',sans-serif; }
+      .ck-help b{ display:block; font-size:14px; } .ck-help small{ font-size:12px; }
+      [data-theme="dark"] .ck-help{ background:rgba(16,185,129,.08); border-color:rgba(16,185,129,.3); }
+      .ck-done{ text-align:center; padding:20px 0; }
+      .ck-done-ic{ width:80px; height:80px; border-radius:50%; background:#ecfdf5; color:#10b981; font-size:36px; display:flex; align-items:center; justify-content:center; margin:0 auto 18px; }
+      .ck-done h3{ font-size:22px; color:var(--ac-ink); margin:0 0 8px; }
+      .ck-done p{ color:var(--ac-sub); font-size:14px; margin:0 0 6px; }
+
+      /* My orders: notification and card dates */
+      .aco-notice{ display:flex; align-items:center; gap:12px; margin:16px 0 0; padding:14px 18px; border-radius:14px; border:1px solid #bfdbfe; background:#eff6ff; color:#2563eb; }
+      [data-theme="dark"] .aco-notice{ background:rgba(37,99,235,.1); border-color:rgba(96,165,250,.3); }
+      .aco-notice .t{ flex:1; min-width:0; }
+      .aco-notice b{ display:block; color:var(--ac-ink); font-size:14px; }
+      .aco-notice span{ font-size:12.5px; color:var(--ac-sub); }
+      .aco-notice-view{ border:none; background:#3b82f6; color:#fff; border-radius:10px; padding:8px 16px; font-weight:800; cursor:pointer; font-family:'Cairo',sans-serif; white-space:nowrap; }
+      .aco-notice-x{ border:none; background:none; color:var(--ac-sub); font-size:20px; cursor:pointer; }
+      .aco-dates{ display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; font-size:12px; color:var(--ac-sub); margin-top:-4px; }
+      .aco-dates .end{ color:#ef4444; }
+
+      /* Credentials popup (rendered at the end of <body>) */
+      .acm-overlay{ position:fixed; inset:0; background:rgba(15,23,42,.45); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; z-index:9999; padding:16px; }
+      .acm-box{ width:100%; max-width:450px; border-radius:24px; overflow:hidden; background:#f3f4f6; box-shadow:0 30px 80px rgba(0,0,0,.35); font-family:'Cairo',sans-serif; }
+      [data-theme="dark"] .acm-box{ background:#111827; }
+      .acm-head{ display:flex; align-items:center; gap:14px; padding:22px 24px; background:linear-gradient(120deg,#0b0b0f,#2a1d05); color:#fff; }
+      .acm-logo{ width:48px; height:48px; border-radius:12px; background:rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; overflow:hidden; font-weight:800; flex:none; }
+      .acm-logo img{ width:100%; height:100%; object-fit:cover; }
+      .acm-title{ flex:1; min-width:0; }
+      .acm-title b{ font-size:17px; }
+      .acm-meta{ display:flex; align-items:center; gap:8px; margin-top:4px; font-size:12px; color:rgba(255,255,255,.6); flex-wrap:wrap; }
+      .acm-badge{ padding:2px 8px; border-radius:99px; font-weight:800; font-size:11px; }
+      .acm-badge.bad{ background:rgba(239,68,68,.25); color:#fca5a5; }
+      .acm-badge.ok{ background:rgba(16,185,129,.25); color:#6ee7b7; }
+      .acm-x{ width:30px; height:30px; border-radius:50%; border:none; background:rgba(255,255,255,.12); color:#fff; font-size:18px; cursor:pointer; flex:none; }
+      .acm-body{ padding:16px 24px 24px; }
+      .acm-lbl{ font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:#9ca3af; margin:12px 0 6px; }
+      .acm-field{ display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:12px 14px; }
+      [data-theme="dark"] .acm-field{ background:#1f2937; border-color:#374151; }
+      .acm-field code{ flex:1; font-size:14.5px; color:#111827; word-break:break-all; }
+      [data-theme="dark"] .acm-field code{ color:#f3f4f6; }
+      .acm-ic{ width:32px; height:32px; border-radius:9px; border:none; background:#e5e7eb; cursor:pointer; font-size:14px; flex:none; }
+      [data-theme="dark"] .acm-ic{ background:#374151; color:#fff; }
+      .acm-foot{ text-align:center; font-size:12.5px; color:#9ca3af; margin:16px 0 14px; }
+      .acm-btn{ width:100%; padding:14px; border:none; border-radius:14px; background:linear-gradient(135deg,#d4930a,#f59e0b); color:#1f1300; font-weight:800; font-size:15px; cursor:pointer; font-family:'Cairo',sans-serif; }
+
     </style>
     <div class="tabpane" id="pane-academic" style="display:none;">
       <div class="ac-subtabs" id="acSubtabs"></div>
@@ -2755,6 +2860,7 @@
       </div>
       <div id="acViewOrders" style="display:none;">
         <div class="aco-kpis" id="acoKpis"></div>
+        <div id="acoNotice"></div>
         <div class="aco-head"><h3 id="acoTitle"></h3><span id="acoCount"></span></div>
         <div class="ac-filterbar" style="margin-top:0;">
           <div class="ac-search">
@@ -2765,6 +2871,7 @@
         </div>
         <div class="aco-grid" id="acoGrid"></div>
       </div>
+      <div id="acViewCheckout" style="display:none;"></div>
       <div id="acViewWallet" style="display:none;">
         <div class="acw-card"><div><small id="acwLbl"></small><b><span id="acwBal">0.00</span> <span style="font-size:16px;" id="acwCur"></span></b></div><div class="acw-note" id="acwNote"></div></div>
         <div class="aco-head"><h3 id="acwTxTitle"></h3></div>
@@ -4364,6 +4471,13 @@ function gatewayPriceText(pack, gateway){
 }
 function refreshGatewayPrice(gateway){
   if (!selectedPack || !gateway) return;
+  if (selectedPack.store) { // Academic Tools checkout order
+    const o = document.getElementById('walletPriceOut');
+    if (o) o.innerHTML = gatewayPriceText(selectedPack, gateway);
+    const sm = document.getElementById('walletPackSummary');
+    if (sm) sm.textContent = `${selectedPack.label} (${gatewayPriceText(selectedPack, gateway)})`;
+    return;
+  }
   const out = document.getElementById('walletPriceOut');
   if (out) out.innerHTML = `${gatewayPriceText(selectedPack, gateway)} <small>${packValidityNote(selectedPack, selectedPack.tab)}</small>`;
   const sum = document.getElementById('walletPackSummary');
@@ -4552,6 +4666,7 @@ async function checkEasykashPayment(paymentId){
       easykashPendingPaymentId = null;
       const ar = currentLang === 'ar';
       easykashStatusUI('idle');
+      if (selectedPack && selectedPack.store) { await acCheckoutPaid(); return; } // Academic Tools checkout order
       await appAlert(
         ar
           ? '✅ تم استلام طلب الشحن!\n\nسيتم مراجعة الدفعة وإضافة الفحوصات لرصيدك فور موافقة الأدمن.'
@@ -4717,6 +4832,12 @@ async function callVerifyEdgeFunction(cfg, paymentRow, refValue){
 // Step 3: handles both outcomes of a returned verify-edge-function result —
 // verified (credit the wallet) or not verified (show the specific reason).
 async function handleVerificationResult(json, credits){
+  if (json.verified && selectedPack && selectedPack.store) { // Academic Tools checkout order
+    const inp = document.getElementById('walletTxidInput');
+    if (inp) inp.value = '';
+    await acCheckoutPaid();
+    return;
+  }
   if (json.verified) {
     // Payment verified — awaiting admin approval before credits are added
     document.getElementById('walletTxidInput').value = '';
@@ -5491,6 +5612,7 @@ function goTab(tab, persist = true){
     toast('Soon', 'info');
     return;
   }
+  if (tab !== 'academic' && typeof acUnmountPayBlock === 'function') acUnmountPayBlock();
   if (tab === 'my-profile' && typeof renderPushCard === 'function') setTimeout(renderPushCard, 0);
   if(_goTabLock) return;
   const currentPane = document.querySelector('.tabpane[style*="block"]') ||
@@ -7429,7 +7551,7 @@ function acLogo(p){
 function renderAcShell(){
   const tabs = [['store', hx('🛍️ المتجر', '🛍️ Store')], ['orders', hx('📦 طلباتي', '📦 My orders')], ['wallet', hx('💳 المحفظة', '💳 Wallet')]];
   document.getElementById('acSubtabs').innerHTML = tabs.map(([k, l]) =>
-    `<button class="ac-subtab${acS.view === k ? ' on' : ''}" onclick="acSub('${k}')">${l}</button>`).join('');
+    `<button class="ac-subtab${acS.view === k || (acS.view === 'checkout' && k === 'store') ? ' on' : ''}" onclick="acSub('${k}')">${l}</button>`).join('');
   document.getElementById('acCatsTitle').textContent = hx('بتدور على إيه؟ 🤔', 'What are you looking for? 🤔');
   document.getElementById('acSearch').placeholder = hx('ابحث...', 'Search...');
   document.getElementById('acoSearch').placeholder = hx('ابحث في الاشتراكات...', 'Search subscriptions...');
@@ -7445,13 +7567,16 @@ function renderAcShell(){
 }
 
 function acSub(view){
+  if (view === 'checkout' && !acCk) view = 'store';
+  if (view !== 'checkout') acUnmountPayBlock();
   acS.view = view;
-  [['store', 'acViewStore'], ['orders', 'acViewOrders'], ['wallet', 'acViewWallet']].forEach(([k, id]) => {
+  [['store', 'acViewStore'], ['orders', 'acViewOrders'], ['wallet', 'acViewWallet'], ['checkout', 'acViewCheckout']].forEach(([k, id]) => {
     document.getElementById(id).style.display = k === view ? 'block' : 'none';
   });
   renderAcShell();
   if (view === 'orders') loadAcOrders();
   if (view === 'wallet') loadAcWallet();
+  if (view === 'checkout') renderAcCheckout();
 }
 
 async function loadAcademic(){
@@ -7603,24 +7728,18 @@ async function acDoBuy(planId, label, price){
   toast(hx('تم الشراء بنجاح', 'Purchase successful'), 'success');
   return true;
 }
-async function acBuy(planId){
-  const pl = acS.plans.find(x => x.id === planId);
-  if (!pl) return;
-  const p = acS.prods.find(x => x.id === pl.product_id) || {};
-  if (await acDoBuy(planId, `${acName(p)} — ${acDur(pl.duration_days)}`, pl.price_egp)) { await loadAcademic(); acSub('orders'); }
-}
-async function acRenew(orderId){
+function acBuy(planId){ acOpenCheckout(planId); }
+function acRenew(orderId){
   const o = acOrders.find(x => x.id === orderId);
-  const pl = o && acS.plans.find(x => x.id === o.plan_id);
-  if (!o || !o.plan_id) { toast(hx('الباقة دي مش متاحة للتجديد', 'This plan is not available for renewal'), 'error'); return; }
-  if (await acDoBuy(o.plan_id, `${o.product_name} — ${o.plan_name}`, pl ? pl.price_egp : o.price_egp)) { await loadAcademic(); acSub('orders'); }
+  if (!o || !o.plan_id || !acS.plans.some(x => x.id === o.plan_id)) { toast(hx('الباقة دي مش متاحة للتجديد', 'This plan is not available for renewal'), 'error'); return; }
+  acOpenCheckout(o.plan_id);
 }
 
 /* My orders */
 async function loadAcOrders(){
   const { data, error } = await supabaseClient.from('store_orders').select('*').order('created_at', { ascending: false });
   if (error) { toast(hx('تعذر تحميل الطلبات', 'Could not load orders'), 'error'); return; }
-  acOrders = data || [];
+  acOrders = (data || []).filter(o => o.status !== 'pending_payment');
   acOrderProds = {};
   acS.prods.forEach(p => { acOrderProds[p.id] = p; });
   const missing = [...new Set(acOrders.map(o => o.product_id).filter(id => id && !acOrderProds[id]))];
@@ -7681,6 +7800,7 @@ function renderAcKpis(){
 
 function renderAcOrders(){
   renderAcKpis();
+  renderAcNotice();
   const q = (document.getElementById('acoSearch').value || '').trim().toLowerCase();
   const chips = [['all', hx('الكل', 'All')], ['shared', hx('مشترك', 'Shared')], ['private', hx('خاص', 'Private')],
                  ['soon', hx('قرب ينتهي', 'Expiring Soon')], ['expired', hx('منتهي', 'Expired')]];
@@ -7705,7 +7825,8 @@ function acoCardHtml(o){
     : `<span class="aco-days ${left <= 7 ? 'bad' : 'ok'}">✓ ${hx(`${left} يوم`, `${left} days`)}</span>`;
   const stBadge = st === 'delivered' ? `<span class="aco-st">📦 ${hx('تم التسليم', 'Delivered')}</span>` : '';
   const pct = left === null ? 0 : (left <= 0 ? 100 : Math.max(2, Math.min(100, left / (o.duration_days || 1) * 100)));
-  const barColor = left !== null && left <= 0 ? '#ef4444' : (left !== null && left <= 7 ? '#f59e0b' : '#34d399');
+  const share = left === null ? 0 : left / (o.duration_days || 1);
+  const barColor = left !== null && left <= 0 ? '#ef4444' : (share > 0.5 ? '#10b981' : share > 0.2 ? '#f59e0b' : '#ef4444');
   const stateBtn = {
     ordered: `<button class="aco-state ordered" disabled>⏳ ${hx('تم الطلب — في انتظار التسليم', 'Ordered — waiting for delivery')}</button>`,
     delivered: `<button class="aco-state delivered" onclick="acoCreds('${o.id}')">📦 ${hx('اتسلم — افتح البيانات', 'Delivered — open your credentials')}</button>`,
@@ -7718,8 +7839,8 @@ function acoCardHtml(o){
     <div class="aco-top"><div class="acp-logo">${acLogo(p || { name_en: o.product_name })}</div><div class="aco-badges">${daysBadge}${stBadge}</div></div>
     <div class="aco-name">${escapeHtml(p ? acName(p) : o.product_name)}</div>
     ${o.end_date
-      ? `<div class="aco-exp">🕒 ${hx('ينتهي', 'Expires')} ${acDate(o.end_date)}</div>`
-      : `<div class="aco-exp" style="color:var(--ac-sub)">🕒 ${hx('التاريخ بيتحدد عند التسليم', 'Date is set on delivery')}</div>`}
+      ? `<div class="aco-dates"><span>📦 ${hx('اتسلم', 'Delivered')} ${acDate(o.deliver_at)}</span><span class="end">🕒 ${hx('ينتهي', 'Expires')} ${acDate(o.end_date)}</span></div>`
+      : `<div class="aco-dates"><span>🕒 ${hx('التاريخ بيتحدد عند التسليم', 'Dates are set on delivery')}</span></div>`}
     <div class="aco-bar"><i style="width:${pct}%;background:${barColor}"></i></div>
     ${stateBtn}
     <div class="aco-actions">
@@ -7753,12 +7874,7 @@ async function acoCreds(id){
   if (error) { toast(hx('تعذر فتح البيانات', 'Could not open the credentials'), 'error'); return; }
   if (!data) { toast(hx('البيانات مش متاحة لسه', 'Credentials are not available yet'), 'info'); return; }
   if (!o.viewed_at) { o.viewed_at = new Date().toISOString(); renderAcOrders(); }
-  const box = document.getElementById('acoPanel_' + id);
-  if (!box) return;
-  const rows = Object.entries(data).filter(([, v]) => v !== null && v !== '');
-  box.dataset.mode = 'creds';
-  box.innerHTML = rows.map(([k, v]) => `<div class="aco-cred"><span>${escapeHtml(k)}</span><code dir="ltr">${escapeHtml(String(v))}</code>
-    <button class="aco-copy" data-v="${escapeHtml(String(v))}" onclick="acCopy(this)">${hx('نسخ', 'Copy')}</button></div>`).join('');
+  acOpenCredModal(o, data);
 }
 function acCopy(btn){ navigator.clipboard?.writeText(btn.dataset.v).then(() => toast(hx('اتنسخ', 'Copied'), 'success')); }
 
@@ -7777,6 +7893,293 @@ async function loadAcWallet(){
     return `<div class="acw-row"><div><div class="t">${kinds[r.kind] || r.kind}${note}</div><div class="d">${fmtDateTime(r.created_at)}</div></div>
       <div class="acw-amt ${plus ? 'plus' : 'minus'}">${plus ? '+' : ''}${acMoney(r.amount_egp)}</div></div>`;
   }).join('') : `<div class="ac-empty">${hx('مفيش حركات لسه', 'No activity yet')}</div>`;
+}
+
+/* ── Academic Tools: checkout (Order details → Payment → Done) ─────────────── */
+let acCk = null;
+const acUsd = egp => (Math.ceil(Number(egp || 0) / exchangeRate * 100) / 100).toFixed(2);
+
+function acOpenCheckout(planId){
+  const plan = acS.plans.find(x => x.id === planId);
+  const prod = plan && acS.prods.find(x => x.id === plan.product_id);
+  if (!plan || !prod) { toast(hx('الباقة دي مش متاحة دلوقتي', 'This plan is not available now'), 'error'); return; }
+  acUnmountPayBlock();
+  acCk = { plan, prod, step: 'details', coupon: '', pct: 0, couponMsg: '', orderId: null, total: Number(plan.price_egp), discount: 0, busy: false };
+  acSub('checkout');
+}
+
+function acCkPreview(){
+  const list = Number(acCk.plan.price_egp);
+  const total = acCk.pct > 0 ? Math.round(list * (100 - acCk.pct) / 100) : list;
+  return { list, total, discount: list - total };
+}
+
+function acStepper(){
+  const steps = [['details', hx('تفاصيل الطلب', 'Order Details')], ['payment', hx('الدفع', 'Payment')], ['done', hx('تم', 'Done')]];
+  const cur = acCk.step === 'choice' ? 'payment' : acCk.step;
+  const idx = steps.findIndex(s => s[0] === cur);
+  return `<div class="ck-steps">${steps.map(([k, l], i) => {
+    const cls = i < idx || cur === 'done' ? 'done' : (i === idx ? 'on' : '');
+    const mark = cls === 'done' ? '✓' : i + 1;
+    return `${i ? `<span class="ck-line${i <= idx ? ' done' : ''}"></span>` : ''}<span class="ck-step ${cls}"><i>${mark}</i>${l}</span>`;
+  }).join('')}</div>`;
+}
+
+function acCkSummary(v){
+  return `<div class="ck-side">
+    <div class="ck-card">
+      <div class="ck-sum-title">${hx('ملخص الطلب', 'Order summary')}</div>
+      <div class="ck-sum-item"><div class="ck-logo">${acLogo(acCk.prod)}</div>
+        <div><b>${escapeHtml(acName(acCk.prod))}</b><small>${acDur(acCk.plan.duration_days)}</small></div></div>
+      <div class="ck-row"><span>${hx('السعر', 'Price')}</span><span>${acMoney(v.list)}</span></div>
+      ${v.discount > 0 ? `<div class="ck-row ok"><span>${hx('الخصم', 'Discount')} (${acCk.pct}%)</span><span dir="ltr">-${acMoney(v.discount)}</span></div>` : ''}
+      <div class="ck-row total"><span>${hx('الإجمالي', 'Total')}</span><span>${acMoney(v.total)}</span></div>
+      <div class="ck-row muted"><span>${hx('المبلغ بالدولار', 'Amount (USD)')}</span><b dir="ltr">$${acUsd(v.total)} USDT</b></div>
+    </div>
+    <button class="ck-help" onclick="acCkHelp()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>
+      <div><b>${hx('محتاج مساعدة؟', 'Need help?')}</b><small>${hx('كلمنا على الشات المباشر', 'Chat with us on live chat')}</small></div>
+    </button>
+  </div>`;
+}
+function acCkHelp(){ if (typeof toggleChat === 'function') toggleChat(); }
+
+function renderAcCheckout(){
+  const box = document.getElementById('acViewCheckout');
+  if (!acCk || !box) return;
+  const v = acCk.orderId ? { list: Number(acCk.plan.price_egp), total: acCk.total, discount: acCk.discount } : acCkPreview();
+  let main = '';
+  if (acCk.step === 'details') {
+    main = `<h3 class="ck-h">${hx('تفاصيل الطلب', 'Order Details')}</h3>
+      <div class="ck-item"><div class="ck-logo lg">${acLogo(acCk.prod)}</div>
+        <div class="ck-item-txt"><b>${escapeHtml(acName(acCk.prod))}</b><small>${acDur(acCk.plan.duration_days)}</small></div>
+        <span class="ck-item-price">${acMoney(v.list)}</span></div>
+      <div class="ck-row"><span>${hx('السعر الأصلي', 'Original Price')}</span><span>${acMoney(v.list)}</span></div>
+      ${v.discount > 0 ? `<div class="ck-row ok"><span>${hx('الخصم', 'Discount')} (${acCk.pct}%)</span><span dir="ltr">-${acMoney(v.discount)}</span></div>` : ''}
+      <div class="ck-row total big"><span>${hx('الإجمالي', 'Total')}</span><span>${acMoney(v.total)}</span></div>
+      <div class="ck-coupon">
+        <input id="ckCoupon" dir="ltr" value="${escapeHtml(acCk.coupon)}" placeholder="${hx('كود الخصم (اختياري)', 'Coupon code (optional)')}" oninput="this.value=this.value.toUpperCase()">
+        <button onclick="acCkApplyCoupon()">${hx('تطبيق', 'Apply')}</button>
+      </div>
+      ${acCk.couponMsg ? `<div class="ck-msg ${acCk.pct > 0 ? 'ok' : 'err'}">${acCk.couponMsg}</div>` : ''}
+      <button class="ck-main" ${acCk.busy ? 'disabled' : ''} onclick="acCkContinue()">${acCk.busy ? hx('جاري التجهيز...', 'Preparing...') : hx('متابعة ←', 'Continue →')}</button>`;
+  } else if (acCk.step === 'choice') {
+    main = `<h3 class="ck-h">${hx('تحب تدفع إزاي؟', 'How would you like to pay?')}</h3>
+      <p class="ck-sub">${hx('رصيد محفظة المتجر كفاية للطلب ده.', 'Your store wallet balance covers this order.')}</p>
+      <button class="ck-opt gold" ${acCk.busy ? 'disabled' : ''} onclick="acCkPayWallet()"><span class="ck-opt-ic">💰</span>
+        <div><b>${hx('الدفع من المحفظة', 'Pay from wallet')}</b><small>${hx('الرصيد المتاح', 'Available balance')}: <em>${acMoney(acS.wallet)}</em></small></div></button>
+      <button class="ck-opt" onclick="acCkGoPayment()"><span class="ck-opt-ic">💳</span>
+        <div><b>${hx('الدفع المباشر', 'Pay directly')}</b><small>${hx('فودافون كاش، إنستاباي، كريبتو...', 'Vodafone Cash, InstaPay, Crypto...')}</small></div></button>
+      <button class="ck-back" onclick="acCkBackToDetails()">${hx('رجوع', 'Back')}</button>`;
+  } else if (acCk.step === 'payment') {
+    main = `<h3 class="ck-h">${hx('اختار وسيلة الدفع', 'Choose payment method')}</h3>
+      <div id="acPayMount"></div>
+      <button class="ck-back" onclick="acCkBackToDetails()">${hx('رجوع', 'Back')}</button>`;
+  } else {
+    const sub = acCk.prod.delivery_type === 'instant'
+      ? hx('الاشتراك اتضاف لحسابك وتقدر تستخدمه دلوقتي.', 'Subscription added to your account. You can start using it now.')
+      : hx('الطلب اتأكد وهيتسلملك في أقرب وقت.', 'Your order is confirmed and will be delivered shortly.');
+    main = `<div class="ck-done"><div class="ck-done-ic">✓</div>
+      <h3>${hx('تم تأكيد الدفع! 🎉', 'Payment Confirmed! 🎉')}</h3><p>${sub}</p>
+      <button class="ck-main" style="max-width:320px;" onclick="acCkFinish()">${hx('عرض طلباتي 📋', 'View My Orders 📋')}</button></div>`;
+  }
+  box.innerHTML = `<button class="ck-back-store" onclick="acCkExit()">${hx('→ رجوع للمتجر', '← Back to store')}</button>
+    ${acStepper()}
+    <div class="ck-grid"><div class="ck-card ck-main-card">${main}</div>${acCkSummary(v)}</div>`;
+  if (acCk.step === 'payment') acMountPayBlock();
+}
+
+async function acCkApplyCoupon(){
+  const code = (document.getElementById('ckCoupon').value || '').trim().toUpperCase();
+  acCk.coupon = code;
+  if (!code) { acCk.pct = 0; acCk.couponMsg = ''; renderAcCheckout(); return; }
+  const { data, error } = await supabaseClient.rpc('store_coupon_check', { p_code: code });
+  if (error || !data?.valid) {
+    acCk.pct = 0;
+    acCk.couponMsg = hx('✗ كود الخصم مش صالح', '✗ Invalid coupon code');
+  } else {
+    acCk.pct = Number(data.percent);
+    acCk.couponMsg = hx(`✓ تم تطبيق الكوبون — خصم ${acCk.pct}%`, `✓ Coupon applied — ${acCk.pct}% off`);
+  }
+  renderAcCheckout();
+}
+
+async function acCkContinue(){
+  if (acCk.busy) return;
+  acCk.busy = true; renderAcCheckout();
+  const { data, error } = await supabaseClient.rpc('store_create_order', { p_plan_id: acCk.plan.id, p_coupon: acCk.pct > 0 ? acCk.coupon : null });
+  acCk.busy = false;
+  if (error) {
+    const m = error.message || '';
+    toast(m.includes('invalid_coupon') ? hx('كود الخصم مش صالح', 'Invalid coupon code')
+      : m.includes('out_of_stock') ? hx('الباقة خلصت حالياً', 'This plan is out of stock')
+      : hx('تعذر تجهيز الطلب، حاول تاني', 'Could not prepare the order, please try again'), 'error');
+    renderAcCheckout();
+    return;
+  }
+  acCk.orderId = data.order_id;
+  acCk.total = Number(data.total);
+  acCk.discount = Number(data.discount);
+  if (acCk.total <= 0) { await acCkPayWallet(); return; }
+  const { data: wal } = await supabaseClient.from('store_wallet').select('balance_egp').maybeSingle();
+  acS.wallet = Number(wal?.balance_egp || 0);
+  acCk.step = acS.wallet >= acCk.total ? 'choice' : 'payment';
+  renderAcCheckout();
+}
+
+async function acCkPayWallet(){
+  if (acCk.busy) return;
+  acCk.busy = true;
+  const { error } = await supabaseClient.rpc('store_pay_order', { p_order_id: acCk.orderId });
+  acCk.busy = false;
+  if (error) {
+    const m = error.message || '';
+    if (m.includes('insufficient_balance')) { toast(hx('رصيد المحفظة مش كفاية', 'Not enough wallet balance'), 'error'); acCk.step = 'payment'; renderAcCheckout(); return; }
+    toast(m.includes('out_of_stock') ? hx('الباقة خلصت حالياً', 'This plan is out of stock') : hx('فشل الدفع، حاول تاني', 'Payment failed, please try again'), 'error');
+    renderAcCheckout();
+    return;
+  }
+  acCkDone();
+}
+
+function acCkGoPayment(){ acCk.step = 'payment'; renderAcCheckout(); }
+function acCkBackToDetails(){ acUnmountPayBlock(); acCk.step = 'details'; acCk.orderId = null; renderAcCheckout(); }
+function acCkExit(){ acUnmountPayBlock(); acCk = null; acSub('store'); }
+function acCkFinish(){ acCk = null; acSub('orders'); }
+function acCkDone(){
+  acUnmountPayBlock();
+  acCk.step = 'done';
+  renderAcCheckout();
+  if (typeof launchConfetti === 'function') launchConfetti();
+  loadAcademic();
+}
+
+// Gateway payments reuse the Wallet tab's payment block (same 3 tabs and gateways). The block is
+// moved into the checkout while it is open, with the order as the "pack" (pack_id store-order:<id>).
+let acPayHome = null;
+function acMountPayBlock(){
+  const blk = document.getElementById('walletPayBlock');
+  const mount = document.getElementById('acPayMount');
+  if (!blk || !mount || !acCk || !acCk.orderId) return;
+  if (!acPayHome) acPayHome = { parent: blk.parentNode, next: blk.nextSibling, margin: blk.style.marginTop };
+  mount.appendChild(blk);
+  blk.style.display = 'block';
+  blk.style.marginTop = '0';
+  selectedPack = {
+    id: 'store-order:' + acCk.orderId, priceEgp: acCk.total, credits: 0, bonus: 0, tab: 'store', store: true,
+    label: `${acName(acCk.prod)} — ${acDur(acCk.plan.duration_days)}`,
+  };
+  currentPayRef = null;
+  currentPayId = null;
+  if (typeof refreshPayTabs === 'function') refreshPayTabs();
+  const card = document.querySelector('#walletPayGrid .paycard.on');
+  if (card) renderPaymentDetails(card.dataset.pay);
+}
+function acUnmountPayBlock(){
+  const blk = document.getElementById('walletPayBlock');
+  if (blk && acPayHome && blk.parentNode !== acPayHome.parent) {
+    acPayHome.parent.insertBefore(blk, acPayHome.next && acPayHome.next.parentNode === acPayHome.parent ? acPayHome.next : null);
+  }
+  if (blk && acPayHome) { blk.style.display = 'none'; blk.style.marginTop = acPayHome.margin; }
+  if (typeof selectedPack !== 'undefined' && selectedPack && selectedPack.store) selectedPack = null;
+}
+
+// Called by the existing payment code once a store payment is verified.
+async function acCheckoutPaid(){
+  if (!acCk || !acCk.orderId) { toast(hx('تم استلام الدفع', 'Payment received'), 'success'); return; }
+  const { data } = await supabaseClient.from('store_orders').select('status').eq('id', acCk.orderId).maybeSingle();
+  if (data && data.status !== 'pending_payment') { acCkDone(); return; }
+  await appAlert(hx(
+    'الدفع وصل واتضاف لرصيد محفظة المتجر، بس الطلب ماكملش (ممكن الباقة تكون خلصت). تواصل مع الدعم.',
+    'Your payment arrived and was added to your store wallet, but the order could not be completed (the plan may be out of stock). Please contact support.'),
+    { icon: 'warning' });
+}
+
+/* My orders: order notification under the cards */
+function renderAcNotice(){
+  const box = document.getElementById('acoNotice');
+  if (!box) return;
+  let dismissed = [];
+  try { dismissed = JSON.parse(localStorage.getItem('pk-ac-notice-dismissed') || '[]'); } catch (e) { dismissed = []; }
+  const o = acOrders.find(x => !dismissed.includes(x.id)
+    && ['ordered', 'delivered', 'active'].includes(acOrderState(x))
+    && (Date.now() - new Date(x.created_at).getTime()) < 14 * 86400000);
+  if (!o) { box.innerHTML = ''; return; }
+  const st = acOrderState(o);
+  const ordered = st === 'ordered';
+  const title = ordered ? hx('تم استلام طلبك ⏳', 'Order received ⏳') : hx('تم تفعيل الاشتراك ✅', 'Subscription activated ✅');
+  const body = ordered
+    ? hx(`طلب ${o.product_name} بيتجهز وهيتسلملك قريب.`, `Your ${o.product_name} order is being prepared and will be delivered soon.`)
+    : hx(`اشتراك ${o.product_name} شغال لحد ${acDate(o.end_date)}.`, `Your ${o.product_name} subscription is active until ${acDate(o.end_date)}.`);
+  box.innerHTML = `<div class="aco-notice">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+    <div class="t"><b>${title}</b><span>${escapeHtml(body)}</span></div>
+    ${ordered ? '' : `<button class="aco-notice-view" onclick="acoCreds('${o.id}')">${hx('عرض ←', 'View →')}</button>`}
+    <button class="aco-notice-x" onclick="acoDismissNotice('${o.id}')" aria-label="Close">×</button>
+  </div>`;
+}
+function acoDismissNotice(id){
+  let d = [];
+  try { d = JSON.parse(localStorage.getItem('pk-ac-notice-dismissed') || '[]'); } catch (e) { d = []; }
+  d.push(id);
+  localStorage.setItem('pk-ac-notice-dismissed', JSON.stringify(d.slice(-50)));
+  renderAcNotice();
+}
+
+/* Credentials popup */
+function acOpenCredModal(o, data){
+  acCloseCredModal();
+  const p = acOrderProds[o.product_id];
+  const left = o.end_date ? acDaysLeft(o.end_date) : null;
+  const rows = Object.entries(data || {}).filter(([, v]) => v !== null && v !== '');
+  const mask = v => '•'.repeat(Math.min(12, Math.max(6, String(v).length)));
+  const field = ([k, v], i) => {
+    const pwd = /pass/i.test(k);
+    return `<div class="acm-lbl">${escapeHtml(k)}</div>
+      <div class="acm-field"><code dir="ltr" id="acmV${i}" data-v="${escapeHtml(String(v))}" data-masked="${pwd ? 1 : 0}">${pwd ? mask(v) : escapeHtml(String(v))}</code>
+        ${pwd ? `<button class="acm-ic" onclick="acmToggle(${i})" title="${hx('إظهار', 'Show')}">👁</button>` : ''}
+        <button class="acm-ic" onclick="acmCopy(${i})" title="${hx('نسخ', 'Copy')}">⧉</button></div>`;
+  };
+  const badge = left === null ? '' : (left <= 0
+    ? `<span class="acm-badge bad">${hx(`${left} يوم`, `${left}d left`)}</span>`
+    : `<span class="acm-badge ok">${hx(`باقي ${left} يوم`, `${left}d left`)}</span>`);
+  const renew = left !== null && left <= 7 && o.plan_id;
+  const el = document.createElement('div');
+  el.id = 'acCredModal';
+  el.className = 'acm-overlay';
+  el.onclick = e => { if (e.target === el) acCloseCredModal(); };
+  el.innerHTML = `<div class="acm-box" role="dialog" aria-modal="true">
+    <div class="acm-head">
+      <div class="acm-logo">${acLogo(p || { name_en: o.product_name })}</div>
+      <div class="acm-title"><b>${escapeHtml(p ? acName(p) : o.product_name)}</b>
+        <div class="acm-meta">${badge}<span>${escapeHtml(o.plan_name)} · ${acDur(o.duration_days)}</span></div></div>
+      <button class="acm-x" onclick="acCloseCredModal()" aria-label="Close">×</button>
+    </div>
+    <div class="acm-body">
+      ${rows.map(field).join('')}
+      <div class="acm-foot">${o.deliver_at ? `${hx('اتسلم', 'Delivered')} ${acDate(o.deliver_at)}` : ''}${o.end_date ? ` · ${hx('ينتهي', 'Ends')} ${acDate(o.end_date)}` : ''}</div>
+      <button class="acm-btn" onclick="${renew ? `acCloseCredModal();acRenew('${o.id}')` : 'acmCopyAll()'}">${renew ? `🔥 ${hx('جدد الآن', 'Renew Now')}` : `⧉ ${hx('نسخ كل البيانات', 'Copy all details')}`}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(el);
+  el._rows = rows;
+}
+function acCloseCredModal(){ document.getElementById('acCredModal')?.remove(); }
+function acmToggle(i){
+  const el = document.getElementById('acmV' + i);
+  if (!el) return;
+  const masked = el.dataset.masked === '1';
+  el.textContent = masked ? el.dataset.v : '•'.repeat(Math.min(12, Math.max(6, el.dataset.v.length)));
+  el.dataset.masked = masked ? '0' : '1';
+}
+function acmCopy(i){
+  const el = document.getElementById('acmV' + i);
+  if (el) navigator.clipboard?.writeText(el.dataset.v).then(() => toast(hx('اتنسخ', 'Copied'), 'success'));
+}
+function acmCopyAll(){
+  const m = document.getElementById('acCredModal');
+  if (!m || !m._rows) return;
+  navigator.clipboard?.writeText(m._rows.map(([k, v]) => `${k}: ${v}`).join('\n')).then(() => toast(hx('اتنسخ', 'Copied'), 'success'));
 }
 
 async function loadMyHistory(){

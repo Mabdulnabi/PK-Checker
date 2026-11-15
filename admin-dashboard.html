@@ -1369,6 +1369,18 @@
         </div>
 
         <div class="tab-card st-card">
+          <div class="st-title">🏷️ أكواد الخصم (Checkout)</div>
+          <div class="st-row">
+            <input id="stCpCode" dir="ltr" placeholder="الكود (مثلاً SAVE20)" style="max-width:170px;text-transform:uppercase;">
+            <input id="stCpPct" type="number" min="1" max="100" placeholder="نسبة الخصم %" style="max-width:130px;">
+            <input id="stCpMax" type="number" min="1" placeholder="أقصى عدد استخدام (اختياري)" style="max-width:210px;">
+            <span class="st-lbl">ينتهي</span><input id="stCpExp" type="date">
+            <button class="btn btn-primary" onclick="addStoreCoupon()">+ كود</button>
+          </div>
+          <div style="overflow-x:auto;"><table class="data-tbl" id="stCpTbl"></table></div>
+        </div>
+
+        <div class="tab-card st-card">
           <div class="st-title">💳 رصيد محفظة المتجر</div>
           <div class="st-row">
             <input id="stWalPk" type="number" min="1" placeholder="كود PK" style="max-width:130px;">
@@ -6147,6 +6159,7 @@ async function loadStoreAdmin(){
   document.getElementById('stBnInterval').value = (set.data?.banner_interval_ms || 5000) / 1000;
   renderStoreAdmin();
   loadStoreSubs();
+  loadStoreCoupons();
 }
 
 async function updateStoreRow(table, id, patch){
@@ -6484,6 +6497,40 @@ async function deliverStoreSub(id){
   if (error) return adminAlert('فشل التسليم: ' + error.message, {icon:'❌', danger:true});
   await logAdminActivity('setting_change', null, '', 'تسليم اشتراك متجر');
   loadStoreSubs();
+}
+
+/* Coupons used at checkout (percent off) */
+async function loadStoreCoupons(){
+  const tbl = document.getElementById('stCpTbl');
+  const { data, error } = await supabaseClient.from('store_coupons').select('*').order('created_at', { ascending: false });
+  if (error) { tbl.innerHTML = `<tr><td style="color:var(--danger);">${stEsc(error.message)}</td></tr>`; return; }
+  tbl.innerHTML = '<thead><tr><th>الكود</th><th>الخصم</th><th>الاستخدام</th><th>ينتهي</th><th>الحالة</th><th></th></tr></thead><tbody>'
+    + ((data || []).length ? data.map(c => `<tr>
+        <td dir="ltr"><b>${stEsc(c.code)}</b></td><td>${c.percent_off}%</td>
+        <td>${c.used_count}${c.max_uses ? ' / ' + c.max_uses : ''}</td>
+        <td>${c.expires_at ? fmtDateTime(c.expires_at) : '—'}</td><td>${c.active ? 'مفعّل' : 'موقوف'}</td>
+        <td><button class="msg-btn" onclick="toggleStoreCoupon('${stEsc(c.code)}', ${!c.active})">${c.active ? 'إيقاف' : 'تفعيل'}</button></td></tr>`).join('')
+      : stEmpty(6, 'مفيش أكواد لسه')) + '</tbody>';
+}
+async function addStoreCoupon(){
+  const code = document.getElementById('stCpCode').value.trim().toUpperCase();
+  const pct = parseInt(document.getElementById('stCpPct').value, 10);
+  const max = parseInt(document.getElementById('stCpMax').value, 10) || null;
+  const exp = document.getElementById('stCpExp').value;
+  if (!/^[A-Z0-9_-]{2,40}$/.test(code)) return adminAlert('الكود لازم يكون حروف إنجليزي وأرقام بس (من 2 لـ 40)', {icon:'⚠️'});
+  if (!(pct >= 1 && pct <= 100)) return adminAlert('نسبة الخصم لازم تكون من 1 لـ 100', {icon:'⚠️'});
+  const { error } = await supabaseClient.from('store_coupons').insert({
+    code, percent_off: pct, max_uses: max, expires_at: exp ? new Date(exp + 'T23:59:59').toISOString() : null,
+  });
+  if (error) return adminAlert('فشل الحفظ: ' + (error.code === '23505' ? 'الكود ده موجود قبل كده' : error.message), {icon:'❌', danger:true});
+  ['stCpCode', 'stCpPct', 'stCpMax', 'stCpExp'].forEach(id => { document.getElementById(id).value = ''; });
+  await logAdminActivity('setting_change', null, '', `كود خصم متجر: ${code} (${pct}%)`);
+  loadStoreCoupons();
+}
+async function toggleStoreCoupon(code, on){
+  const { error } = await supabaseClient.from('store_coupons').update({ active: on }).eq('code', code);
+  if (error) return adminAlert('فشل التحديث: ' + error.message, {icon:'❌', danger:true});
+  loadStoreCoupons();
 }
 
 /* Wallet: add or deduct by customer PK */
