@@ -123,6 +123,44 @@ async function saveProviderError(client: any, orderId: string, message: string) 
   if (error) console.error("provider_error not saved:", error.message);
 }
 
+
+// ---- API credit log (provider balance around each submission and each result) ----
+// Balance = TurniScan account balance (available_credits). Never blocks a check: any failure is logged and skipped.
+async function providerBalance(): Promise<number | null> {
+  try {
+    const res = await fetch(`${TURNISCAN_BASE}/account/balance`, {
+      headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` },
+      signal: AbortSignal.timeout(8000),
+    });
+    const d = await res.json();
+    const n = Number(d?.available_credits);
+    return res.ok && Number.isFinite(n) ? n : null;
+  } catch (e) {
+    console.error("api-credit: balance unavailable", e);
+    return null;
+  }
+}
+
+// deno-lint-ignore no-explicit-any
+async function logApiCredit(client: any, orderId: string, event: string, before: number | null, after: number | null, note: string) {
+  let slots: number | null = null;
+  try {
+    const { count } = await client.from("slot_usages").select("id", { count: "exact", head: true })
+      .eq("order_id", orderId).eq("status", "reserved");
+    slots = count ?? null;
+  } catch { slots = null; }
+  const { error } = await client.from("api_credit_log").insert({
+    order_id: orderId,
+    event,
+    api_before: before,
+    api_after: after,
+    api_delta: before != null && after != null ? after - before : null,
+    slots_reserved: slots,
+    note: note.slice(0, 200),
+  });
+  if (error) console.error("api_credit_log insert failed:", error.message);
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
@@ -264,7 +302,14 @@ Deno.serve(async (req: Request) => {
     };
 
     // One send only: a second send could create a second check at the provider.
+    const apiBefore = await providerBalance();
     const result = await sendToProvider();
+    const apiAfter = await providerBalance();
+    const apiNote = result.ok ? "accepted"
+      : result.ambiguous ? "outcome unknown"
+      : result.unavailable ? "provider unavailable"
+      : "provider refused";
+    await logApiCredit(admin, orderId, "submit", apiBefore, apiAfter, apiNote);
 
     if (!result.ok && result.ambiguous) {
       // We do not know whether the provider got the file (timeout or dropped connection).

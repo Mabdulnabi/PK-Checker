@@ -97,6 +97,44 @@ async function saveProviderError(client: any, orderId: string, message: string) 
   if (error) console.error("provider_error not saved:", error.message);
 }
 
+
+// ---- API credit log (provider balance around each submission and each result) ----
+// Balance = TurniScan account balance (available_credits). Never blocks a check: any failure is logged and skipped.
+async function providerBalance(): Promise<number | null> {
+  try {
+    const res = await fetch(`${TURNISCAN_BASE}/account/balance`, {
+      headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` },
+      signal: AbortSignal.timeout(8000),
+    });
+    const d = await res.json();
+    const n = Number(d?.available_credits);
+    return res.ok && Number.isFinite(n) ? n : null;
+  } catch (e) {
+    console.error("api-credit: balance unavailable", e);
+    return null;
+  }
+}
+
+// deno-lint-ignore no-explicit-any
+async function logApiCredit(client: any, orderId: string, event: string, before: number | null, after: number | null, note: string) {
+  let slots: number | null = null;
+  try {
+    const { count } = await client.from("slot_usages").select("id", { count: "exact", head: true })
+      .eq("order_id", orderId).eq("status", "reserved");
+    slots = count ?? null;
+  } catch { slots = null; }
+  const { error } = await client.from("api_credit_log").insert({
+    order_id: orderId,
+    event,
+    api_before: before,
+    api_after: after,
+    api_delta: before != null && after != null ? after - before : null,
+    slots_reserved: slots,
+    note: note.slice(0, 200),
+  });
+  if (error) console.error("api_credit_log insert failed:", error.message);
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return new Response("Method Not Allowed", { status: 405 });
 
@@ -192,6 +230,14 @@ Deno.serve(async (req: Request) => {
     return new Response("Internal Server Error", { status: 500 });
   }
   console.log("webhook: order", customId, "->", internalStatus);
+  if (internalStatus === "completed" || internalStatus === "error") {
+    const { data: last } = await supabase.from("api_credit_log").select("api_after")
+      .order("created_at", { ascending: false }).limit(1).maybeSingle();
+    const prev = last?.api_after != null ? Number(last.api_after) : null;
+    const apiNow = await providerBalance();
+    await logApiCredit(supabase, customId, internalStatus === "completed" ? "completed" : "failed",
+      prev, apiNow, internalStatus === "completed" ? "report ready" : "provider reported failure");
+  }
   // An order that was waiting in "checking" (unknown outcome) and is now refused by the provider: give the slot back.
   if (internalStatus === "error" && order.status === "checking") {
     const { error: relErr } = await supabase.rpc("release_slot", { p_idempotency_key: `order:${customId}` });

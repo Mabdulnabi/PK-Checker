@@ -289,6 +289,36 @@
   .source-link{color:var(--blue-deep);font-size:11px;cursor:pointer;text-decoration:underline;}
   .file-link{color:var(--blue-deep);text-decoration:underline;text-underline-offset:3px;}
   .chip-sep{display:inline-block;width:1px;height:22px;background:var(--paper-line);margin:0 4px;align-self:center;}
+
+  /* Premium cards: soft colour wash, glow, lift on hover */
+  .kpi{background:linear-gradient(150deg,#ffffff 0%,#eef4ff 100%);border:1px solid #dbe6fb;box-shadow:0 12px 32px -14px rgba(37,99,235,.38);transition:transform .2s ease,box-shadow .2s ease;}
+  .kpi:hover{transform:translateY(-2px);box-shadow:0 18px 40px -14px rgba(37,99,235,.5);}
+  .kpi::before{content:"";position:absolute;right:-34px;bottom:-40px;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(14,122,254,.22),transparent 70%);pointer-events:none;}
+  .kpi .icon{background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;box-shadow:0 8px 18px -8px rgba(37,99,235,.75);}
+  .kpi .num{color:var(--navy);text-shadow:0 1px 0 rgba(255,255,255,.6);}
+  .kpi-row > .kpi:not(.gold):nth-child(3){background:linear-gradient(150deg,#ffffff 0%,#e0f6fe 100%);border-color:#bfe8f9;}
+  .kpi-row > .kpi:not(.gold):nth-child(4){background:linear-gradient(150deg,#ffffff 0%,#ddf8ee 100%);border-color:#b7ebd5;}
+  .kpi-row > .kpi:not(.gold):nth-child(5){background:linear-gradient(150deg,#ffffff 0%,#fff1e0 100%);border-color:#fcd9a8;}
+  .kpi-row > .kpi:not(.gold):nth-child(6){background:linear-gradient(150deg,#ffffff 0%,#f0e9ff 100%);border-color:#d9c8fb;}
+  .kpi-row > .kpi:not(.gold):nth-child(3) .icon{background:linear-gradient(135deg,#0ea5e9,#06b6d4);}
+  .kpi-row > .kpi:not(.gold):nth-child(4) .icon{background:linear-gradient(135deg,#10b981,#059669);}
+  .kpi-row > .kpi:not(.gold):nth-child(5) .icon{background:linear-gradient(135deg,#f59e0b,#f97316);}
+  .kpi-row > .kpi:not(.gold):nth-child(6) .icon{background:linear-gradient(135deg,#8b5cf6,#6366f1);}
+  .kpi.gold{background:linear-gradient(145deg,#1B2556 0%,#2A3A78 100%);border-color:rgba(255,255,255,.12);box-shadow:0 12px 32px -14px rgba(27,37,86,.6);}
+  [data-theme="dark"] .kpi{background:linear-gradient(150deg,rgba(26,26,46,.96) 0%,rgba(22,33,62,.96) 100%);border-color:rgba(92,124,250,.25);box-shadow:0 12px 32px -14px rgba(0,0,0,.6);}
+  [data-theme="dark"] .kpi .num{color:var(--ink);text-shadow:none;}
+  [data-theme="dark"] .kpi-row > .kpi:not(.gold):nth-child(3){background:linear-gradient(150deg,rgba(26,26,46,.96),rgba(0,188,212,.18));}
+  [data-theme="dark"] .kpi-row > .kpi:not(.gold):nth-child(4){background:linear-gradient(150deg,rgba(26,26,46,.96),rgba(102,187,106,.18));}
+  [data-theme="dark"] .kpi-row > .kpi:not(.gold):nth-child(5){background:linear-gradient(150deg,rgba(26,26,46,.96),rgba(255,167,38,.16));}
+  [data-theme="dark"] .kpi-row > .kpi:not(.gold):nth-child(6){background:linear-gradient(150deg,rgba(26,26,46,.96),rgba(139,92,246,.2));}
+  /* Row accents: every admin table row gets a coloured edge, by status */
+  table.tbl tbody td:first-child,table.data-tbl tbody td:first-child,table.prob-tbl tbody td:first-child{border-inline-start:3px solid var(--blue) !important;}
+  table.tbl tbody tr.row-ok td:first-child{border-inline-start-color:#0E9F6E !important;}
+  table.tbl tbody tr.row-run td:first-child{border-inline-start-color:#2563eb !important;}
+  table.tbl tbody tr.row-warn td:first-child{border-inline-start-color:#E8A20B !important;}
+  table.tbl tbody tr.row-bad td:first-child{border-inline-start-color:#E11D48 !important;}
+  table.tbl tbody tr.row-bad{background:linear-gradient(90deg,#fff5f7 0%,var(--paper) 40%);}
+  table.tbl tbody tr.row-warn{background:linear-gradient(90deg,#fff9ec 0%,var(--paper) 40%);}
   .kpi-row-wide{grid-template-columns:repeat(2,minmax(0,1fr));}
   .kpi-period .lbl{margin-bottom:6px;}
   .kpi-periods{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
@@ -718,6 +748,10 @@
     table.orders-tbl tbody td:nth-child(8){grid-area:act;}
     table.orders-tbl td.file-col{min-width:0;}
     table.orders-tbl td:nth-child(4),table.orders-tbl td:nth-child(5){align-items:flex-start;}
+    table.orders-tbl tbody tr.row-ok{border-inline-start:3px solid #0E9F6E;}
+    table.orders-tbl tbody tr.row-run{border-inline-start:3px solid #2563eb;}
+    table.orders-tbl tbody tr.row-bad{border-inline-start:3px solid #E11D48;}
+    table.orders-tbl tbody tr.row-warn{border-inline-start:3px solid #E8A20B;}
   }
 </style>
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
@@ -828,15 +862,12 @@
       <div class="tabpane on" id="tab-overview">
         <div class="main-head">
           <div><h1 data-i18n="overview_title">نظرة عامة</h1><div class="sub" id="overviewSub" data-i18n="overview_sub">أداء المنصة</div></div>
-          <button class="btn btn-outline" onclick="exportOverviewCSV()" data-i18n="export_csv">⬇ تصدير CSV</button>
         </div>
 
         <div class="section-title" data-i18n="sec_credits">الفحوصات والطلبات الآن</div>
         <div class="kpi-row">
           <div class="kpi gold"><div class="icon">💳</div><div class="num" id="kpiApiCredits">—</div><div class="lbl" data-i18n="lbl_api_credits">الفحوصات المتبقي في الـ API</div></div>
           <div class="kpi"><div class="icon">📅</div><div class="num" id="kpiValidity" style="font-size:20px;">—</div><div class="kpi-subcaption" id="kpiValidityDays"></div><div class="lbl" data-i18n="lbl_validity">صلاحية الفحوصات (API)</div></div>
-          <div class="kpi ok"><div class="icon">✓</div><div class="num" id="kpiCompleted">—</div><div class="lbl" data-i18n="lbl_completed">مكتملة (كل الوقت)</div></div>
-          <div class="kpi"><div class="icon">👥</div><div class="num" id="kpiUsers">—</div><div class="lbl" data-i18n="lbl_users">عدد المستخدمين</div></div>
           <div class="kpi kpi-period">
             <div class="icon">🧾</div>
             <div class="num" id="kpiOrdersNum">—</div>
@@ -860,6 +891,7 @@
               <button type="button" data-p="year" onclick="setKpiPeriod('rev','year')" data-i18n="lbl_year">السنة</button>
             </div>
           </div>
+          <div class="kpi"><div class="icon">👥</div><div class="num" id="kpiUsers">—</div><div class="lbl" data-i18n="lbl_users">عدد المستخدمين</div></div>
         </div>
 
         <!-- TODAY ORDERS: same table as the Orders tab, only today's orders -->
@@ -871,6 +903,18 @@
               <tbody id="todayOrdersBody"></tbody>
             </table>
           </div>
+        </div>
+
+        <!-- API CREDIT LOG: provider balance before and after each submission and result -->
+        <div class="section-title"><span data-i18n="api_log_title">API credit log</span> <span class="online-count-badge" id="apiLogCount">0</span></div>
+        <div class="panel">
+          <div style="overflow-x:auto;">
+            <table class="tbl">
+              <thead><tr><th data-i18n="api_log_time">الوقت</th><th data-i18n="api_log_order">الطلب</th><th data-i18n="api_log_event">الحدث</th><th data-i18n="api_log_before">API قبل</th><th data-i18n="api_log_after">API بعد</th><th data-i18n="api_log_delta">الفرق</th><th data-i18n="api_log_slots">Slots محجوزة</th><th data-i18n="api_log_note">ملاحظة</th></tr></thead>
+              <tbody id="apiLogBody"></tbody>
+            </table>
+          </div>
+          <div id="apiLogPagination"></div>
         </div>
 
         <!-- Online Users realtime panel -->
@@ -898,7 +942,7 @@
         </div>
 
         <div class="panel">
-          <div class="panel-head"><h3 data-i18n="problem_orders_title">طلبات فيها مشكلة (آخر 10)</h3></div>
+          <div class="panel-head"><h3 data-i18n="problem_orders_title">طلبات فيها مشكلة (آخر 5)</h3><button class="btn btn-outline" onclick="clearProblemLog()" data-i18n="problem_clear_btn" title="يفضّي السجل، والمشاكل الجديدة بتظهر بعد كده">🗑 تفضية السجل</button></div>
           <div id="problemOrdersList"><div class="q-item" data-i18n="no_data">لا يوجد</div></div>
         </div>
 
@@ -1516,7 +1560,7 @@ const I18N = {
     lbl_validity:'صلاحية الفحوصات (API)', lbl_api_credits:'الفحوصات المتبقي في الـ API', lbl_floating:'معلّق', lbl_processing:'قيد التنفيذ',
     lbl_completed:'مكتملة (كل الوقت)', lbl_problem:'طلبات فيها مشكلة', lbl_stuck:'طلبات عالقة', lbl_users:'عدد المستخدمين',
     lbl_today:'اليوم', lbl_week:'الأسبوع', lbl_month:'الشهر', lbl_year:'السنة',
-    problem_orders_title:'طلبات فيها مشكلة (آخر 10)', no_data:'لا يوجد',
+    problem_orders_title:'طلبات فيها مشكلة (آخر 5)', no_data:'لا يوجد', problem_clear_btn:'🗑 تفضية السجل',
     export_csv:'⬇ تصدير CSV',
     orders_title:'الطلبات', orders_sub:'كل طلبات كل العملاء',
     f_all:'الكل', f_floating:'معلّق', f_processing:'قيد التنفيذ', f_completed:'مكتملة', f_problem:'فيها مشكلة',
@@ -1587,7 +1631,7 @@ const I18N = {
     rc_err_generic:'فشل توليد الأكواد', rc_err_load:'تعذر تحميل الأكواد', rc_new_title:'تم توليد {n} كود، كل كود بـ {c} slot',
     rc_copy_all:'📋 نسخ الكل', rc_copied:'تم نسخ الأكواد ✅', rc_col_code:'الكود', rc_col_credits:'الفحوصات',
     rc_col_status:'الحالة', rc_col_created:'تاريخ الإنشاء', rc_status_unused:'متاح', rc_status_used:'مستخدم', rc_empty:'لا توجد أكواد بعد',
-    nav_slots:'الباقات', today_orders_title:'Today orders', kpi_orders_count:'عدد الطلبات', kpi_revenue:'الإيرادات',
+    nav_slots:'الباقات', today_orders_title:'Today orders', api_log_title:'سجل API credit', api_log_time:'الوقت', api_log_order:'الطلب', api_log_event:'الحدث', api_log_before:'API قبل', api_log_after:'API بعد', api_log_delta:'الفرق', api_log_slots:'Slots محجوزة', api_log_note:'ملاحظة', kpi_orders_count:'عدد الطلبات', kpi_revenue:'الإيرادات',
     slt_title:'🎫 باقات الفحوصات', slt_subtitle:'الباقات اللي بتظهر للعملاء في الموقع، وكل باقة بتتحدد بنوع الفحص وعدد الفحوصات وصلاحيتها',
     slt_new_btn:'+ باقة جديدة', slt_empty:'مفيش باقات لسه', slt_err_load:'تعذر تحميل الباقات',
     slt_col_name:'الاسم', slt_col_type:'النوع', slt_col_slots:'الفحوصات', slt_col_price:'السعر', slt_col_expiry:'الصلاحية', slt_col_status:'الحالة', slt_col_actions:'إجراءات',
@@ -1632,7 +1676,7 @@ const I18N = {
     lbl_validity:'API credit validity', lbl_api_credits:'Remaining API credits', lbl_floating:'Floating', lbl_processing:'Processing',
     lbl_completed:'Completed (all time)', lbl_problem:'Problem orders', lbl_stuck:'Stuck orders', lbl_users:'Total users',
     lbl_today:'Today', lbl_week:'Week', lbl_month:'Month', lbl_year:'Year',
-    problem_orders_title:'Problem orders (last 10)', no_data:'None',
+    problem_orders_title:'Problem orders (last 5)', no_data:'None', problem_clear_btn:'🗑 Clear log',
     export_csv:'⬇ Export CSV',
     orders_title:'Orders', orders_sub:'All orders from all customers',
     f_all:'All', f_floating:'Floating', f_processing:'Processing', f_completed:'Completed', f_problem:'Problem',
@@ -1703,7 +1747,7 @@ const I18N = {
     rc_err_generic:'Failed to generate codes', rc_err_load:'Could not load codes', rc_new_title:'{n} codes generated, {c} slots each',
     rc_copy_all:'📋 Copy all', rc_copied:'Codes copied ✅', rc_col_code:'Code', rc_col_credits:'Checks',
     rc_col_status:'Status', rc_col_created:'Created', rc_status_unused:'Unused', rc_status_used:'Used', rc_empty:'No codes yet',
-    nav_slots:'Packages', today_orders_title:'Today orders', kpi_orders_count:'Order count', kpi_revenue:'Revenue',
+    nav_slots:'Packages', today_orders_title:'Today orders', api_log_title:'API credit log', api_log_time:'Time', api_log_order:'Order', api_log_event:'Event', api_log_before:'API before', api_log_after:'API after', api_log_delta:'Change', api_log_slots:'Slots reserved', api_log_note:'Note', kpi_orders_count:'Order count', kpi_revenue:'Revenue',
     slt_title:'🎫 Slot packages', slt_subtitle:'Packages customers see on the site. Each one has a check type, a number of slots and a validity period.',
     slt_new_btn:'+ New package', slt_empty:'No packages yet', slt_err_load:'Could not load packages',
     slt_col_name:'Name', slt_col_type:'Type', slt_col_slots:'Checks', slt_col_price:'Price', slt_col_expiry:'Validity', slt_col_status:'Status', slt_col_actions:'Actions',
@@ -3109,7 +3153,6 @@ function renderOverviewStatusKpis(orders, usersCount){
     if (o.status === 'processing') return ageMs > 1 * 3600 * 1000;
     return false;
   }).length;
-  document.getElementById('kpiCompleted').textContent = completed;
   document.getElementById('kpiUsers').textContent = usersCount;
   return { floating, processing, completed, problem };
 }
@@ -3161,6 +3204,7 @@ async function loadOverview(){
 
   // Problem orders list (need order + user info, so reuse loadOrders' data if available)
   if (allOrders.length === 0) await loadOrders(); else { renderProblemOrdersList(); renderTodayOrders(); }
+  loadApiLog();
 
   // Revenue analysis section (merged into Overview from the old standalone Revenue tab)
   initRevenueTab(wallet);
@@ -3215,26 +3259,6 @@ async function loadApiCredits(){
   }
 }
 
-async function exportOverviewCSV(){
-  if (!lastOverviewSnapshot) { await adminAlert(currentLang === 'ar' ? 'لسه البيانات مبتحملتش' : 'Data not loaded yet', {icon:'⚠️'}); return; }
-  const s = lastOverviewSnapshot;
-  const rows = [
-    [t('csv_period'), t('csv_orders'), t('csv_revenue')],
-    [t('lbl_today'), s.ordersToday, currentCurrency === 'USD' ? (s.revToday/50).toFixed(2) : s.revToday],
-    [t('lbl_week'),  s.ordersWeek,  currentCurrency === 'USD' ? (s.revWeek/50).toFixed(2)  : s.revWeek],
-    [t('lbl_month'), s.ordersMonth, currentCurrency === 'USD' ? (s.revMonth/50).toFixed(2) : s.revMonth],
-    [t('lbl_year'),  s.ordersYear,  currentCurrency === 'USD' ? (s.revYear/50).toFixed(2)  : s.revYear],
-    [], [t('lbl_floating'), s.floating], [t('lbl_processing'), s.processing],
-    [t('lbl_completed'), s.completed], [t('lbl_problem'), s.problem], [t('lbl_users'), s.usersCount],
-  ];
-  const csv = '\uFEFF' + rows.map(r => r.map(c => `"${String(c ?? '').replace(/"/g,'""')}"`).join(',')).join('\r\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `prokeys-overview-${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
 
 // Our own order errors are stored in English; the admin reads them in Arabic.
 function localizeAdminOrderError(reason){
@@ -3250,11 +3274,20 @@ function localizeAdminOrderError(reason){
   return r;
 }
 
+function problemCutoff(){
+  try { const v = localStorage.getItem('prokeys-problem-cutoff'); return v ? new Date(v) : null; } catch (e) { return null; }
+}
+// Clears the problem list for this browser: only the list is cleared, orders are not touched.
+function clearProblemLog(){
+  try { localStorage.setItem('prokeys-problem-cutoff', new Date().toISOString()); } catch (e) {}
+  renderProblemOrdersList();
+}
 function renderProblemOrdersList(){
   const problems = allOrders
     .filter(o => ['error','failed_invalid','rejected'].includes(o.status))
     .sort((a,b) => new Date(b.submitted_at) - new Date(a.submitted_at))
-    .slice(0, 10);
+    .filter(o => !problemCutoff() || new Date(o.submitted_at) > problemCutoff())
+    .slice(0, 5);
   const el = document.getElementById('problemOrdersList');
   if (problems.length === 0) { el.innerHTML = `<div class="q-item">${t('no_data')}</div>`; return; }
   el.innerHTML = `<div class="prob-wrap"><table class="tbl prob-tbl">
@@ -3438,7 +3471,10 @@ function buildAdminOrderRow(o){
     : fileName;
   const delivery = deliveryTime(o);
   const submittedCell = `${formatDate(o.submitted_at)}${delivery !== '—' ? `<div style="margin-top:4px;"><span class="badge badge-ok" title="${currentLang==='ar'?'مدة التسليم':'Delivery time'}">⏱ ${delivery}</span></div>` : ''}`;
-  return `<tr>
+  const rowCls = o.status === 'completed' ? 'row-ok'
+    : ['error','rejected','failed_invalid'].includes(o.status) ? 'row-bad'
+    : ['run','processing','pending','checking','uploading','floating'].includes(o.status) ? 'row-run' : '';
+  return `<tr class="${rowCls}">
     <td class="mono" style="font-size:11px;">${escapeHtml(o.display_id || o.id.slice(0,8))} <span class="copy-btn" data-clipboard-text="${escapeHtml(o.display_id || o.id.slice(0,8))}" title="نسخ">📋</span></td>
     <td class="u-cell">${userCell}</td>
     <td class="file-col">${fileCell}<br>${checkTypeBadge(o.check_type)}${filterBadges(o)}</td>
@@ -3451,6 +3487,54 @@ function buildAdminOrderRow(o){
       ${(['error','failed_invalid'].includes(o.status) && o.processing_mode === 'api') ? `<button class="msg-btn" style="color:var(--blue-deep);border-color:var(--blue-light);" onclick="adoptOrderManually('${o.id}')" title="تولى الطلب يدوياً ورفع التقارير بنفسك">🖐 يدوي</button>` : ''}
     </td>
   </tr>`;
+}
+
+// API credit log: rows with the provider balance before and after each event.
+let _apiLogRows = [];
+async function loadApiLog(){
+  const { data, error } = await supabaseClient.from('api_credit_log').select('*')
+    .order('created_at', { ascending: false }).limit(1000);
+  if (error) { console.error('loadApiLog failed:', error); return; }
+  _apiLogRows = data || [];
+  renderApiLog();
+}
+function renderApiLog(){
+  const body = document.getElementById('apiLogBody');
+  if (!body) return;
+  const ar = currentLang === 'ar';
+  const cnt = document.getElementById('apiLogCount');
+  if (cnt) cnt.textContent = _apiLogRows.length;
+  if (!_apiLogRows.length) {
+    body.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px;">${ar ? 'مفيش سجل بعد' : 'No log entries yet'}</td></tr>`;
+    document.getElementById('apiLogPagination').innerHTML = '';
+    return;
+  }
+  const orderById = {};
+  (allOrders || []).forEach(o => { orderById[o.id] = o.display_id || String(o.id).slice(0, 8); });
+  const pageList = paginateList('apilog', _apiLogRows, renderApiLog);
+  const EVENT = { submit: ar ? 'إرسال للمزود' : 'Sent to provider', completed: ar ? 'اكتمل' : 'Completed', failed: ar ? 'فشل' : 'Failed' };
+  body.innerHTML = pageList.map(r => {
+    const delta = r.api_delta != null ? Number(r.api_delta) : null;
+    const slots = r.slots_reserved;
+    // Flags: charged on a refused or failed check, more than one check charged, or more than one slot reserved.
+    let cls = '', flag = '';
+    if (r.event === 'submit' && delta != null && delta < 0 && r.note !== 'accepted') { cls = 'row-bad'; flag = ar ? 'اتخصم رغم إن الفحص ماتقبلش' : 'Charged although refused'; }
+    else if (delta != null && delta <= -2) { cls = 'row-warn'; flag = ar ? 'اتخصم أكتر من فحص' : 'More than one check charged'; }
+    else if (slots != null && slots > 1) { cls = 'row-warn'; flag = ar ? 'أكتر من slot محجوز' : 'More than one slot reserved'; }
+    const deltaTxt = delta == null ? '—' : (delta > 0 ? '+' : '') + delta;
+    const dt = new Date(r.created_at);
+    return `<tr class="${cls}">
+      <td style="font-size:11px;white-space:nowrap;">${fmtDate(dt)}<div style="color:var(--muted);font-size:10.5px;">${fmtTime(dt)}</div></td>
+      <td class="mono" style="font-size:11px;">${escapeHtml(orderById[r.order_id] || (r.order_id ? String(r.order_id).slice(0, 8) : '—'))}</td>
+      <td style="font-size:11.5px;">${escapeHtml(EVENT[r.event] || r.event)}</td>
+      <td class="mono">${r.api_before != null ? Number(r.api_before) : '—'}</td>
+      <td class="mono">${r.api_after != null ? Number(r.api_after) : '—'}</td>
+      <td class="mono" style="font-weight:800;color:${delta != null && delta < 0 ? 'var(--danger)' : 'var(--ok)'};">${deltaTxt}</td>
+      <td class="mono">${slots != null ? slots : '—'}</td>
+      <td style="font-size:11px;">${flag ? `<b style="color:var(--danger);">${escapeHtml(flag)}</b><br>` : ''}<span style="color:var(--muted);">${escapeHtml(r.note || '')}</span></td>
+    </tr>`;
+  }).join('');
+  renderPaginationBar('apilog', 'apiLogPagination', _apiLogRows.length);
 }
 
 // Today table: the orders submitted today (local day), same columns as the Orders tab.
