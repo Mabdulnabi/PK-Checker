@@ -1820,6 +1820,100 @@ const I18N = {
     cs_toggle_service:'Service enabled', cs_toggle_api:'API enabled', cs_toggle_sim:'Similarity only',
   },
 };
+// ── Text switcher ────────────────────────────────────────────────────────────
+// Static Arabic labels that are not in the key table above. In English mode the matching text
+// nodes, placeholders and titles are swapped; in Arabic mode the English versions are swapped back.
+// Content rendered later by JS is caught by the observer below.
+const TXT_AR_EN = {
+  'إدارة الحسابات':'Account management','وضع ليلي':'Dark mode','إضافة فحص':'Add check','تفعيل الإشعارات':'Enable notifications',
+  'المستخدمون الأونلاين':'Online users','كود العميل':'Customer code','دخل منذ':'Online since','لا يوجد مستخدمون أونلاين حالياً':'No users online right now',
+  '🖐 فحص يدوي':'🖐 Manual check','🙋 استلام':'🙋 Claim','تحويل لـ...':'Transfer to...','إضافة':'Add',
+  '🔴 عاجلة':'🔴 Urgent','🟠 مرتفعة':'🟠 High','🟡 عادية':'🟡 Normal','⚪ منخفضة':'⚪ Low',
+  'تصميم واجهة المستخدم':'User interface design','تعديل كل نص وأيقونة تظهر للعملاء — بيتحفظ تلقائي':'Edit every text and icon customers see — saved automatically',
+  '↩ إعادة الضبط':'↩ Reset','موضوع الرسالة':'Message subject','(للأدمن فقط — لا يظهر للعملاء)':'(Admins only — not shown to customers)','الموضوع':'Subject',
+  '🛰️ حالة خدمة الفحص':'🛰️ Check service status','التحكم في توفر الفحص للعملاء. الرسائل بتظهر للعميل تلقائياً حسب الحالة.':'Control check availability for customers. Messages show to customers automatically based on status.',
+  '🛠️ الخدمة كلها (المفتاح الرئيسي)':'🛠️ Whole service (master switch)','🔍 فحص Plagiarism + AI':'🔍 Plagiarism + AI check','📄 فحص Plagiarism Only':'📄 Plagiarism only check',
+  'الحد الأدنى لقبول الفحص (فحوصات متاحة عند المزود)':'Minimum to accept a check (checks available at the provider)','حفظ حالة الخدمة':'Save service status',
+  'الربح الحقيقي (USD)':'Real profit (USD)','تعديل رصيد عميل':'Adjust customer balance','أكواد الخصم':'Discount codes',
+  'أضف أو اخصم فحوصات من عميل، بالباقة أو من شراء محدد.':'Add or deduct checks for a customer, by package or by a specific purchase.',
+  'الباقة بتحدد نوع الفحص وصلاحيته.':'The package sets the check type and its validity.','شراء محدد للعميل':'Specific purchase for the customer','(اختياري)':'(optional)',
+  '— حسب نوع الباقة (الأقرب انتهاءً) —':'— by package type (soonest to expire) —','لو اخترت شراء، الباقة بتتقفل والعدد بيبقى فحوصات.':'If you pick a purchase, the package is locked and the count becomes checks.',
+  'تمديد الشراء حتى تاريخ':'Extend the purchase until date','تمديد':'Extend','عدد الباقات':'Number of packages','الفحوصات الحالي':'Current checks',
+  '🔒 النسخ الاحتياطي للفحص':'🔒 Check backup','عرض':'Show','صف في الصفحة':'rows per page','لا توجد محادثات بعد':'No conversations yet','(معدّلة)':'(edited)',
+  'العميل بيكتب دلوقتي...':'Customer is typing now...','مفيش ملاحظات لسه.':'No notes yet.',
+  'مفيش ردود جاهزة لسه — دوس "إدارة الردود الجاهزة" تحت عشان تضيف.':'No canned replies yet — tap "Manage canned replies" below to add one.',
+  'مفيش ردود جاهزة لسه.':'No canned replies yet.','لا توجد تذاكر بعد':'No tickets yet','🔁 إعادة إرسال':'🔁 Resend','🖐 يدوي':'🖐 Manual',
+  '✅ قبول':'✅ Accept','❌ رفض':'❌ Reject','ملف العميل':'Customer file','✏️ تعديل الرسالة الجماعية':'✏️ Edit broadcast',
+  '💾 حفظ وتحديث للعملاء':'💾 Save and update for customers','تكلفة الفحص عند المزوّد (USD)':'Check cost at provider (USD)',
+  '📋 اختر رد جاهز':'📋 Pick a canned reply','⚙ إدارة الردود الجاهزة':'⚙ Manage canned replies','إدارة الردود الجاهزة':'Manage canned replies',
+  '+ إضافة':'+ Add','إغلاق':'Close','صلاحيات:':'Permissions:','تم':'Done','تغيير باسورد:':'Change password:','تحديث':'Update',
+  'ملفي الشخصي':'My profile','؟':'?','الاسم (يظهر لك في اللوحة)':'Name (shown to you on the dashboard)','العنوان الظاهر للعميل في التذاكر والشات':'Title shown to customers in tickets and chat',
+  '🔒 تغيير الباسورد':'🔒 Change password','تحديث الباسورد':'Update password','إضافة مستخدم جديد':'Add new user','إضافة أدمن جديد':'Add new admin',
+  'الصلاحيات:':'Permissions:','إضافة وسيلة دفع':'Add payment method','💡 أيقونة/شعار وسيلة الدفع تتعدل من تاب "تصميم الواجهة" فقط.':'💡 The payment method icon/logo is edited only from the "User interface design" tab.',
+  'QR (اختياري)':'QR (optional)','📂 رفع':'📂 Upload','🗑 حذف الـQR':'🗑 Delete QR','يظهر بادج "تلقائي"':'Show the "Automatic" badge',
+  '🔑 بيانات API (للتحقق التلقائي)':'🔑 API details (automatic verification)','سيب أي حقل فاضي لو مش عايز تغيّره — قيمته الحالية هتفضل زي ما هي.':'Leave any field empty if you don\'t want to change it — its current value stays as it is.',
+  '⚡ تعديل فحوصات العميل':'⚡ Adjust customer checks','أضف أو اخصم بالباقة، أو على شراء محدد للعميل':'Add or deduct by package, or on a specific customer purchase',
+  'طي/فتح القائمة':'Collapse/expand menu','لما تقفله، العميل هيشوف رسالة إيقاف مؤقت':'When you turn it off, the customer sees a temporary-pause message',
+  'يفضّي السجل، والمشاكل الجديدة بتظهر بعد كده':'Clears the log; new problems appear after this','رجوع':'Back','استلام المحادثة':'Claim conversation',
+  'حذف المحادثة بالكامل':'Delete entire conversation','ملاحظات داخلية':'Internal notes','اكتب ملاحظة داخلية (تظهر للأدمن بس)...':'Write an internal note (admins only)...',
+  'ردود جاهزة':'Canned replies','🔍 ابحث عن كلمة أو مفتاح...':'🔍 Search for a word or key...','مثال: إشعار صيانة / عرض خاص / تحديث سياسة...':'e.g. Maintenance notice / Special offer / Policy update...',
+  'ابحث...':'Search...','نسخ':'Copy','إعادة إرسال نفس الملف للفحص':'Resend the same file for checking','تولى الطلب يدوياً ورفع التقارير بنفسك':'Handle the order manually and upload the reports yourself',
+  'رفع ملف الاقتباس':'Upload similarity file','رفع ملف الـ AI':'Upload AI file','عرض ملف العميل':'View customer file','عنوان مختصر (مثلاً: ترحيب)':'Short title (e.g. Welcome)',
+  'نص الرد الجاهز':'Canned reply text','الباسورد الجديد (8 حروف على الأقل)':'New password (at least 8 characters)','مثال: فريق الدعم، محمد من فريق برو كيز':'e.g. Support team, Mohamed from the PK Checker team',
+  'الاسم الكامل':'Full name','باسورد (8 حروف على الأقل)':'Password (at least 8 characters)','واتساب (اختياري، مع كود الدولة)':'WhatsApp (optional, with country code)',
+  'تليفون (اختياري، مع كود الدولة)':'Phone (optional, with country code)','عدد الباقات (اختياري)':'Number of packages (optional)','اسم وسيلة الدفع':'Payment method name',
+  'أصغر':'Smaller','أكبر':'Larger','UID / رقم / عنوان المحفظة':'UID / number / wallet address','تسمية الحقل (عربي)':'Field label (Arabic)','تعليمات الدفع (عربي)':'Payment instructions (Arabic)',
+};
+const TXT_EN_AR = Object.fromEntries(Object.entries(TXT_AR_EN).map(([a, e]) => [e, a]));
+function _swapAdminText(v){
+  const k = v.trim();
+  if (!k) return v;
+  const r = (currentLang === 'en' ? TXT_AR_EN : TXT_EN_AR)[k];
+  return r === undefined ? v : v.replace(k, () => r);
+}
+function localizeAdminText(root){
+  const base = root || document.body;
+  const w = document.createTreeWalker(base, NodeFilter.SHOW_TEXT);
+  for (let n = w.nextNode(); n; n = w.nextNode()) {
+    const nv = _swapAdminText(n.nodeValue);
+    if (nv !== n.nodeValue) n.nodeValue = nv;
+  }
+  const els = base.nodeType === 1 ? [base, ...base.querySelectorAll('[placeholder],[title]')] : base.querySelectorAll?.('[placeholder],[title]') || [];
+  els.forEach(el => ['placeholder', 'title'].forEach(a => {
+    if (el.hasAttribute && el.hasAttribute(a)) {
+      const v = el.getAttribute(a), nv = _swapAdminText(v);
+      if (nv !== v) el.setAttribute(a, nv);
+    }
+  }));
+}
+let _txtObserver = null;
+function startAdminTextLocalizer(){
+  if (_txtObserver) return;
+  const opts = { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['placeholder', 'title'] };
+  _txtObserver = new MutationObserver(muts => {
+    _txtObserver.disconnect();
+    try {
+      for (const m of muts) {
+        if (m.type === 'characterData') {
+          const nv = _swapAdminText(m.target.nodeValue);
+          if (nv !== m.target.nodeValue) m.target.nodeValue = nv;
+        } else if (m.type === 'attributes') {
+          const v = m.target.getAttribute(m.attributeName), nv = _swapAdminText(v || '');
+          if (v && nv !== v) m.target.setAttribute(m.attributeName, nv);
+        } else {
+          m.addedNodes.forEach(nd => {
+            if (nd.nodeType === 3) { const nv = _swapAdminText(nd.nodeValue); if (nv !== nd.nodeValue) nd.nodeValue = nv; }
+            else if (nd.nodeType === 1) localizeAdminText(nd);
+          });
+        }
+      }
+    } finally {
+      _txtObserver.observe(document.body, opts);
+    }
+  });
+  _txtObserver.observe(document.body, opts);
+}
+
 function t(key){ return I18N[currentLang][key] || key; }
 
 function applyI18n(){
@@ -1829,6 +1923,8 @@ function applyI18n(){
   document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.getAttribute('data-i18n-ph')); });
   document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.getAttribute('data-i18n-title')); });
   document.getElementById('langSwitchLabel').textContent = currentLang === 'ar' ? 'EN' : 'AR';
+  localizeAdminText(document.body);
+  startAdminTextLocalizer();
   document.getElementById('currencySwitchLabel').textContent = currentCurrency === 'EGP' ? 'USD' : 'EGP';
   const darkBtn = document.getElementById('darkToggleBtn');
   if (darkBtn) {
