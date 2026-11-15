@@ -288,6 +288,19 @@
   .edit-link-btn:hover{color:var(--blue-deep);}
   .source-link{color:var(--blue-deep);font-size:11px;cursor:pointer;text-decoration:underline;}
   .file-link{color:var(--blue-deep);text-decoration:underline;text-underline-offset:3px;}
+  .chip-sep{display:inline-block;width:1px;height:22px;background:var(--paper-line);margin:0 4px;align-self:center;}
+  .kpi-row-wide{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .kpi-period .lbl{margin-bottom:6px;}
+  .kpi-periods{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+  .kpi-periods .num{font-size:17px;}
+  .kpi-periods .lbl{font-size:10px;margin-bottom:0;}
+  @media (max-width:860px){
+    .kpi-row-wide{grid-template-columns:1fr !important;}
+    .kpi-periods{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .profile-popup{width:100vw !important;max-width:100vw;}
+    .profile-popup-body{padding:16px;}
+    .profile-popup-head{padding:16px;}
+  }
   .file-link:hover{color:var(--blue);}
   .source-none{color:var(--muted);font-size:11px;}
 
@@ -775,43 +788,39 @@
         <div class="kpi-row">
           <div class="kpi gold"><div class="icon">💳</div><div class="num" id="kpiApiCredits">—</div><div class="lbl" data-i18n="lbl_api_credits">الفحوصات المتبقي في الـ API</div></div>
           <div class="kpi"><div class="icon">📅</div><div class="num" id="kpiValidity" style="font-size:20px;">—</div><div class="kpi-subcaption" id="kpiValidityDays"></div><div class="lbl" data-i18n="lbl_validity">صلاحية الفحوصات (API)</div></div>
-          <div class="kpi"><div class="icon">⚙️</div><div class="num" id="kpiProcessing">—</div><div class="lbl" data-i18n="lbl_processing">قيد التنفيذ</div></div>
           <div class="kpi ok"><div class="icon">✓</div><div class="num" id="kpiCompleted">—</div><div class="lbl" data-i18n="lbl_completed">مكتملة (كل الوقت)</div></div>
-          <div class="kpi danger" id="kpiStuckCard" style="cursor:pointer;" onclick="switchTab('orders')" title="طلبات عالقة فترة طويلة"><div class="icon">⏱️</div><div class="num" id="kpiStuck">—</div><div class="lbl" data-i18n="lbl_stuck">طلبات عالقة</div></div>
           <div class="kpi"><div class="icon">👥</div><div class="num" id="kpiUsers">—</div><div class="lbl" data-i18n="lbl_users">عدد المستخدمين</div></div>
         </div>
 
-        <div class="section-title" data-i18n="sec_orders_count">عدد الطلبات</div>
-        <div class="kpi-row">
-          <div class="kpi"><div class="num" id="kpiOrdersToday">—</div><div class="lbl" data-i18n="lbl_today">اليوم</div></div>
-          <div class="kpi"><div class="num" id="kpiOrdersWeek">—</div><div class="lbl" data-i18n="lbl_week">الأسبوع</div></div>
-          <div class="kpi"><div class="num" id="kpiOrdersMonth">—</div><div class="lbl" data-i18n="lbl_month">الشهر</div></div>
-          <div class="kpi"><div class="num" id="kpiOrdersYear">—</div><div class="lbl" data-i18n="lbl_year">السنة</div></div>
-        </div>
-
-        <div class="section-title" data-i18n="sec_revenue">الإيرادات (من شحن المحفظة)</div>
-        <div class="kpi-row">
-          <div class="kpi"><div class="num" id="kpiRevToday">—</div><div class="lbl" data-i18n="lbl_today">اليوم</div></div>
-          <div class="kpi"><div class="num" id="kpiRevWeek">—</div><div class="lbl" data-i18n="lbl_week">الأسبوع</div></div>
-          <div class="kpi"><div class="num" id="kpiRevMonth">—</div><div class="lbl" data-i18n="lbl_month">الشهر</div></div>
-          <div class="kpi"><div class="num" id="kpiRevYear">—</div><div class="lbl" data-i18n="lbl_year">السنة</div></div>
-        </div>
-
-        <!-- Detailed revenue analysis (merged in from the old standalone Revenue tab) -->
-        <div class="section-title" style="font-size:12.5px;color:var(--muted);margin-top:-4px;" data-i18n="rev_detail_title">تحليل تفصيلي</div>
-        <div class="chart-grid">
-          <!-- Daily Revenue Bar Chart -->
-          <div class="chart-card">
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
-              <h3 data-i18n="rev_daily_chart">الإيراد اليومي</h3>
-              <select id="dailyRangeSel" onchange="renderDailyChart(_revPayments, +this.value)" style="padding:6px 10px;border:1px solid var(--line, #cbd5e1);border-radius:8px;font-size:13px;"></select>
+        <div class="kpi-row kpi-row-wide">
+          <div class="kpi kpi-period">
+            <div class="lbl" data-i18n="kpi_orders_count">Order count</div>
+            <div class="kpi-periods">
+              <div><div class="num" id="kpiOrdersToday">—</div><div class="lbl" data-i18n="lbl_today">اليوم</div></div>
+              <div><div class="num" id="kpiOrdersWeek">—</div><div class="lbl" data-i18n="lbl_week">الأسبوع</div></div>
+              <div><div class="num" id="kpiOrdersMonth">—</div><div class="lbl" data-i18n="lbl_month">الشهر</div></div>
+              <div><div class="num" id="kpiOrdersYear">—</div><div class="lbl" data-i18n="lbl_year">السنة</div></div>
             </div>
-            <div class="chart-canvas-wrap"><canvas id="dailyRevenueChart"></canvas></div>
           </div>
-          <!-- Pack Sales Pie Chart -->
-          <div class="chart-card">
-            <h3 data-i18n="rev_pack_chart">أكثر الباقات مبيعاً</h3>
-            <div class="chart-canvas-wrap"><canvas id="packSalesChart"></canvas></div>
+          <div class="kpi kpi-period">
+            <div class="lbl" data-i18n="kpi_revenue">Revenue</div>
+            <div class="kpi-periods">
+              <div><div class="num" id="kpiRevToday">—</div><div class="lbl" data-i18n="lbl_today">اليوم</div></div>
+              <div><div class="num" id="kpiRevWeek">—</div><div class="lbl" data-i18n="lbl_week">الأسبوع</div></div>
+              <div><div class="num" id="kpiRevMonth">—</div><div class="lbl" data-i18n="lbl_month">الشهر</div></div>
+              <div><div class="num" id="kpiRevYear">—</div><div class="lbl" data-i18n="lbl_year">السنة</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TODAY ORDERS: same table as the Orders tab, only today's orders -->
+        <div class="section-title"><span data-i18n="today_orders_title">Today orders</span> <span class="online-count-badge" id="todayOrdersCount">0</span></div>
+        <div class="panel">
+          <div style="overflow-x:auto;">
+            <table class="tbl">
+              <thead><tr><th data-i18n="th_order">رقم الطلب</th><th data-i18n="th_user">المستخدم</th><th class="file-col" data-i18n="th_file">الملف</th><th data-i18n="th_sim">الاقتباس</th><th data-i18n="th_ai">AI</th><th data-i18n="th_status">الحالة</th><th data-i18n="th_sent">وقت الإرسال</th><th data-i18n="th_resend">إعادة إرسال</th></tr></thead>
+              <tbody id="todayOrdersBody"></tbody>
+            </table>
           </div>
         </div>
 
@@ -843,6 +852,24 @@
           <div class="panel-head"><h3 data-i18n="problem_orders_title">طلبات فيها مشكلة (آخر 10)</h3></div>
           <div id="problemOrdersList"><div class="q-item" data-i18n="no_data">لا يوجد</div></div>
         </div>
+
+        <!-- Detailed revenue analysis (merged in from the old standalone Revenue tab) -->
+        <div class="chart-grid">
+          <!-- Daily Revenue Bar Chart -->
+          <div class="chart-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+              <h3 data-i18n="rev_daily_chart">الإيراد اليومي</h3>
+              <select id="dailyRangeSel" onchange="renderDailyChart(_revPayments, +this.value)" style="padding:6px 10px;border:1px solid var(--line, #cbd5e1);border-radius:8px;font-size:13px;"></select>
+            </div>
+            <div class="chart-canvas-wrap"><canvas id="dailyRevenueChart"></canvas></div>
+          </div>
+          <!-- Pack Sales Pie Chart -->
+          <div class="chart-card">
+            <h3 data-i18n="rev_pack_chart">أكثر الباقات مبيعاً</h3>
+            <div class="chart-canvas-wrap"><canvas id="packSalesChart"></canvas></div>
+          </div>
+        </div>
+
       </div>
 
       <!-- ORDERS -->
@@ -866,17 +893,6 @@
           </div>
         </div>
 
-        <!-- ORDER ADVANCED FILTERS -->
-        <div class="order-filters" id="orderAdvFilters">
-          <span class="filter-label" data-i18n="filter_checktype_lbl">نوع الفحص:</span>
-          <select id="ordFilterType" onchange="applyOrderFilters()">
-            <option value="" data-i18n="f_all">الكل</option>
-            <option value="both" data-i18n="ord_ct_both">اقتباس + AI</option>
-            <option value="similarity" data-i18n="ord_ct_sim">اقتباس فقط</option>
-          </select>
-          <button class="btn-export" onclick="exportOrdersCSV()" data-i18n="export_csv_short">⬇ CSV</button>
-          <button class="btn-reset-filter" onclick="resetOrderFilters()" data-i18n="reset_filters_btn">إعادة تعيين</button>
-        </div>
         <!-- Export range for users/credits -->
         <div class="filter-row">
           <div class="chip on" data-f="all" onclick="setOrderFilter('all')" data-i18n="f_all">الكل</div>
@@ -884,15 +900,17 @@
           <div class="chip" data-f="processing" onclick="setOrderFilter('processing')" data-i18n="f_processing">قيد التنفيذ</div>
           <div class="chip" data-f="completed" onclick="setOrderFilter('completed')" data-i18n="f_completed">مكتملة</div>
           <div class="chip" data-f="problem" onclick="setOrderFilter('problem')" data-i18n="f_problem">فيها مشكلة</div>
+          <span class="chip-sep"></span>
+          <div class="chip chip-ct on" data-ct="" onclick="setOrderTypeFilter('')" data-i18n="f_all">الكل</div>
+          <div class="chip chip-ct" data-ct="both" onclick="setOrderTypeFilter('both')" data-i18n="ord_ct_both">اقتباس + AI</div>
+          <div class="chip chip-ct" data-ct="sim_only" onclick="setOrderTypeFilter('sim_only')" data-i18n="ord_ct_sim">اقتباس فقط</div>
           <input type="text" class="search-box" id="orderSearch" data-i18n-ph="search_ph" placeholder="بحث بالاسم / الإيميل / رقم الطلب..." oninput="renderOrdersTable()">
         </div>
         <div class="filter-badge-row" id="filterBadgeRow"></div>
         <div class="panel">
           <div style="overflow-x:auto;">
           <table class="tbl">
-            <thead><tr>
-              <th></th><th data-i18n="th_order">رقم الطلب</th><th data-i18n="th_user">المستخدم</th><th class="file-col" data-i18n="th_file">الملف</th><th data-i18n="th_status">الحالة</th><th data-i18n="th_sent">وقت الإرسال</th><th data-i18n="th_delivery">مدة التسليم</th><th data-i18n="th_sim">الاقتباس</th><th data-i18n="th_ai">AI</th><th data-i18n="th_msg">رسالة</th><th data-i18n="th_resend">إعادة إرسال</th>
-            </tr></thead>
+            <thead><tr><th data-i18n="th_order">رقم الطلب</th><th data-i18n="th_user">المستخدم</th><th class="file-col" data-i18n="th_file">الملف</th><th data-i18n="th_sim">الاقتباس</th><th data-i18n="th_ai">AI</th><th data-i18n="th_status">الحالة</th><th data-i18n="th_sent">وقت الإرسال</th><th data-i18n="th_resend">إعادة إرسال</th></tr></thead>
             <tbody id="ordersBody"></tbody>
           </table>
           </div>
@@ -1450,6 +1468,7 @@ let currentAdmin = null;
 let allOrders = [];
 let profilesByUserId = {};
 let orderFilter = 'all';
+let orderTypeFilter = ''; // '', 'both' (sim + AI) or 'sim_only'
 let currentLang = (localStorage.getItem('prokeys-admin-lang') === 'en') ? 'en' : 'ar';
 let currentCurrency = (localStorage.getItem('prokeys-admin-currency') === 'USD') ? 'USD' : 'EGP';
 let overviewRefreshTimer = null;
@@ -1535,7 +1554,7 @@ const I18N = {
     rc_err_generic:'فشل توليد الأكواد', rc_err_load:'تعذر تحميل الأكواد', rc_new_title:'تم توليد {n} كود، كل كود بـ {c} slot',
     rc_copy_all:'📋 نسخ الكل', rc_copied:'تم نسخ الأكواد ✅', rc_col_code:'الكود', rc_col_credits:'الفحوصات',
     rc_col_status:'الحالة', rc_col_created:'تاريخ الإنشاء', rc_status_unused:'متاح', rc_status_used:'مستخدم', rc_empty:'لا توجد أكواد بعد',
-    nav_slots:'الباقات',
+    nav_slots:'الباقات', today_orders_title:'Today orders', kpi_orders_count:'عدد الطلبات', kpi_revenue:'الإيرادات',
     slt_title:'🎫 باقات الفحوصات', slt_subtitle:'الباقات اللي بتظهر للعملاء في الموقع، وكل باقة بتتحدد بنوع الفحص وعدد الفحوصات وصلاحيتها',
     slt_new_btn:'+ باقة جديدة', slt_empty:'مفيش باقات لسه', slt_err_load:'تعذر تحميل الباقات',
     slt_col_name:'الاسم', slt_col_type:'النوع', slt_col_slots:'الفحوصات', slt_col_price:'السعر', slt_col_expiry:'الصلاحية', slt_col_status:'الحالة', slt_col_actions:'إجراءات',
@@ -1651,7 +1670,7 @@ const I18N = {
     rc_err_generic:'Failed to generate codes', rc_err_load:'Could not load codes', rc_new_title:'{n} codes generated, {c} slots each',
     rc_copy_all:'📋 Copy all', rc_copied:'Codes copied ✅', rc_col_code:'Code', rc_col_credits:'Checks',
     rc_col_status:'Status', rc_col_created:'Created', rc_status_unused:'Unused', rc_status_used:'Used', rc_empty:'No codes yet',
-    nav_slots:'Packages',
+    nav_slots:'Packages', today_orders_title:'Today orders', kpi_orders_count:'Order count', kpi_revenue:'Revenue',
     slt_title:'🎫 Slot packages', slt_subtitle:'Packages customers see on the site. Each one has a check type, a number of slots and a validity period.',
     slt_new_btn:'+ New package', slt_empty:'No packages yet', slt_err_load:'Could not load packages',
     slt_col_name:'Name', slt_col_type:'Type', slt_col_slots:'Checks', slt_col_price:'Price', slt_col_expiry:'Validity', slt_col_status:'Status', slt_col_actions:'Actions',
@@ -3005,14 +3024,16 @@ function renderOverviewOrderKpis(orders, ranges){
 // Net profit = revenue from wallet top-ups - API cost per completed check
 // (sim_only: cost 0 → full profit; sim_ai/both: cost 32.5 EGP each)
 function renderOverviewRevenueKpis(orders, wallet, ranges){
-  const revToday = sumPaymentsEgp(wallet, ranges.startOfToday) + sumRedeem('revenue_egp', ranges.startOfToday);
-  const revWeek  = sumPaymentsEgp(wallet, ranges.startOfWeek)  + sumRedeem('revenue_egp', ranges.startOfWeek);
-  const revMonth = sumPaymentsEgp(wallet, ranges.startOfMonth) + sumRedeem('revenue_egp', ranges.startOfMonth);
-  const revYear  = sumPaymentsEgp(wallet, ranges.startOfYear)  + sumRedeem('revenue_egp', ranges.startOfYear);
-  const profToday = calcLedgerProfit(ranges.startOfToday) + sumRedeem('profit_egp', ranges.startOfToday);
-  const profWeek  = calcLedgerProfit(ranges.startOfWeek)  + sumRedeem('profit_egp', ranges.startOfWeek);
-  const profMonth = calcLedgerProfit(ranges.startOfMonth) + sumRedeem('profit_egp', ranges.startOfMonth);
-  const profYear  = calcLedgerProfit(ranges.startOfYear)  + sumRedeem('profit_egp', ranges.startOfYear);
+  // Revenue = completed payments (confirmed on the site) + redeemed vouchers, at their value.
+  // Profit = revenue - the package's provider cost per check.
+  const revToday = sumSales('revenue_egp', ranges.startOfToday);
+  const revWeek  = sumSales('revenue_egp', ranges.startOfWeek);
+  const revMonth = sumSales('revenue_egp', ranges.startOfMonth);
+  const revYear  = sumSales('revenue_egp', ranges.startOfYear);
+  const profToday = sumSales('profit_egp', ranges.startOfToday);
+  const profWeek  = sumSales('profit_egp', ranges.startOfWeek);
+  const profMonth = sumSales('profit_egp', ranges.startOfMonth);
+  const profYear  = sumSales('profit_egp', ranges.startOfYear);
   document.getElementById('kpiRevToday').innerHTML = `${formatMoney(revToday)}<div style="font-size:10px;color:var(--ok);">${t('profit_label')}: ${formatMoney(profToday)}</div>`;
   document.getElementById('kpiRevWeek').innerHTML  = `${formatMoney(revWeek)}<div style="font-size:10px;color:var(--ok);">${t('profit_label')}: ${formatMoney(profWeek)}</div>`;
   document.getElementById('kpiRevMonth').innerHTML = `${formatMoney(revMonth)}<div style="font-size:10px;color:var(--ok);">${t('profit_label')}: ${formatMoney(profMonth)}</div>`;
@@ -3033,9 +3054,7 @@ function renderOverviewStatusKpis(orders, usersCount){
     if (o.status === 'processing') return ageMs > 1 * 3600 * 1000;
     return false;
   }).length;
-  document.getElementById('kpiProcessing').textContent = processing;
   document.getElementById('kpiCompleted').textContent = completed;
-  document.getElementById('kpiStuck').textContent = stuck;
   document.getElementById('kpiUsers').textContent = usersCount;
   return { floating, processing, completed, problem };
 }
@@ -3057,8 +3076,8 @@ async function loadOverview(){
   // Checks come from the order ledger, so removed order rows still count.
   const { data: ledgerRows } = await supabaseClient.from('order_ledger').select('created_at,status,revenue_egp,cost_egp,profit_egp,check_type');
   _ledgerRows = ledgerRows || [];
-  const { data: redeemRows } = await supabaseClient.rpc('admin_redeem_ledger');
-  _redeemRows = redeemRows || [];
+  const { data: salesRows } = await supabaseClient.rpc('admin_sales_ledger');
+  _salesRows = salesRows || [];
   const doneOrders = _ledgerRows.filter(r => r.status === 'completed').map(r => ({ submitted_at: r.created_at }));
   const usersCount = profilesRes.count ?? '—';
 
@@ -3086,7 +3105,7 @@ async function loadOverview(){
   };
 
   // Problem orders list (need order + user info, so reuse loadOrders' data if available)
-  if (allOrders.length === 0) await loadOrders(); else renderProblemOrdersList();
+  if (allOrders.length === 0) await loadOrders(); else { renderProblemOrdersList(); renderTodayOrders(); }
 
   // Revenue analysis section (merged into Overview from the old standalone Revenue tab)
   initRevenueTab(wallet);
@@ -3231,11 +3250,17 @@ async function loadOrders(){
   (profilesRes.data || []).forEach(p => { profilesByUserId[p.user_id] = p; });
   renderOrdersTable();
   renderProblemOrdersList();
+  renderTodayOrders();
 }
 
+function setOrderTypeFilter(v){
+  orderTypeFilter = v;
+  document.querySelectorAll('.chip-ct').forEach(c => c.classList.toggle('on', c.dataset.ct === v));
+  renderOrdersTable();
+}
 function setOrderFilter(f){
   orderFilter = f;
-  document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.f === f));
+  document.querySelectorAll('.chip[data-f]').forEach(c => c.classList.toggle('on', c.dataset.f === f));
   renderOrdersTable();
 }
 
@@ -3343,6 +3368,52 @@ function _openChatForOnlineUser(userId){
   if (convo) setTimeout(() => openConversation(convo.id), 150);
 }
 
+// One order row, the same for the Orders tab and the Today table.
+// Columns: order no., user, file (link when the file is still stored), Similarity, AI, status,
+// submitted (with the delivery time badge under it), resend.
+function buildAdminOrderRow(o){
+  const p = profilesByUserId[o.user_id];
+  const userCell = p
+    ? `<b class="mono" style="color:var(--blue-deep);font-size:11.5px;">${clickablePk(o.user_id, p.pk_number)}</b>`
+    : `<b style="color:var(--danger);" class="mono" title="${escapeHtml(o.user_id||'')}">${(o.user_id||'').slice(0,8)}…</b><span style="color:var(--danger);font-size:10.5px;">${currentLang==='ar'?'بروفايل غير موجود':'No profile'}</span>`;
+  const badgeClass = ORDER_BADGE_CLASS[o.status] || 'badge-wait';
+  const badgeLabel = t(ORDER_STATUS_KEY[o.status]) || o.status;
+  const fileName = escapeHtml(o.file_name || '—');
+  const fileCell = o.source_file_path
+    ? `<a href="#" class="file-link" onclick="event.preventDefault();openSourceFile('${o.id}')">${fileName}</a>`
+    : fileName;
+  const delivery = deliveryTime(o);
+  const submittedCell = `${formatDate(o.submitted_at)}${delivery !== '—' ? `<div style="margin-top:4px;"><span class="badge badge-ok" title="${currentLang==='ar'?'مدة التسليم':'Delivery time'}">⏱ ${delivery}</span></div>` : ''}`;
+  return `<tr>
+    <td class="mono" style="font-size:11px;">${escapeHtml(o.display_id || o.id.slice(0,8))} <span class="copy-btn" data-clipboard-text="${escapeHtml(o.display_id || o.id.slice(0,8))}" title="نسخ">📋</span></td>
+    <td class="u-cell">${userCell}</td>
+    <td class="file-col">${fileCell}<br>${checkTypeBadge(o.check_type)}${filterBadges(o)}</td>
+    <td style="white-space:nowrap;padding:6px 8px;">${reportButton(o, 'sim')}</td>
+    <td style="white-space:nowrap;padding:6px 8px;">${reportButton(o, 'ai')}</td>
+    <td><span class="badge ${badgeClass}"><span class="dot"></span>${badgeLabel}</span></td>
+    <td style="font-size:11px;color:var(--muted);">${submittedCell}</td>
+    <td style="white-space:nowrap;">
+      ${(['error','failed_invalid'].includes(o.status) && o.source_file_path) ? `<button class="msg-btn" onclick="resendOrderToApi('${o.id}')" title="إعادة إرسال نفس الملف للفحص">🔁 إعادة إرسال</button>` : ''}
+      ${(['error','failed_invalid'].includes(o.status) && o.processing_mode === 'api') ? `<button class="msg-btn" style="color:var(--blue-deep);border-color:var(--blue-light);" onclick="adoptOrderManually('${o.id}')" title="تولى الطلب يدوياً ورفع التقارير بنفسك">🖐 يدوي</button>` : ''}
+    </td>
+  </tr>`;
+}
+
+// Today table: the orders submitted today (local day), same columns as the Orders tab.
+function renderTodayOrders(){
+  const body = document.getElementById('todayOrdersBody');
+  if (!body) return;
+  const start = new Date(); start.setHours(0, 0, 0, 0);
+  const list = (allOrders || [])
+    .filter(o => o.submitted_at && new Date(o.submitted_at) >= start)
+    .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at));
+  const cnt = document.getElementById('todayOrdersCount');
+  if (cnt) cnt.textContent = list.length;
+  body.innerHTML = list.length
+    ? list.map(buildAdminOrderRow).join('')
+    : `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px;">${currentLang==='ar'?'مفيش طلبات النهارده لسه':'No orders today yet'}</td></tr>`;
+}
+
 function renderOrdersTable(){
   const search = (document.getElementById('orderSearch').value || '').trim().toLowerCase();
   let list = allOrders;
@@ -3350,6 +3421,8 @@ function renderOrdersTable(){
   else if (orderFilter === 'processing') list = list.filter(o => ['run','processing'].includes(o.status));
   else if (orderFilter === 'completed') list = list.filter(o => o.status === 'completed');
   else if (orderFilter === 'problem') list = list.filter(o => ['error','rejected'].includes(o.status));
+  if (orderTypeFilter === 'both') list = list.filter(o => o.check_type === 'both' || o.check_type === 'sim_ai');
+  else if (orderTypeFilter === 'sim_only') list = list.filter(o => o.check_type === 'sim_only');
 
   if (search) {
     list = list.filter(o => {
@@ -3369,38 +3442,7 @@ function renderOrdersTable(){
 
   const pageList = paginateList('orders', list, renderOrdersTable);
 
-  document.getElementById('ordersBody').innerHTML = pageList.map(o => {
-    const p = profilesByUserId[o.user_id];
-    const pkStr = p ? `PK${formatPkNumber(p.pk_number)}` : `…${escapeHtml((o.user_id||'').slice(-6))}`;
-    const userCell = p
-      ? `<b class="mono" style="color:var(--blue-deep);font-size:11.5px;">${clickablePk(o.user_id, p.pk_number)}</b>`
-      : `<b style="color:var(--danger);" class="mono" title="${escapeHtml(o.user_id||'')}">${(o.user_id||'').slice(0,8)}…</b><span style="color:var(--danger);font-size:10.5px;">${currentLang==='ar'?'بروفايل غير موجود':'No profile'}</span>`;
-    const badgeClass = ORDER_BADGE_CLASS[o.status] || 'badge-wait';
-    const badgeLabel = t(ORDER_STATUS_KEY[o.status]) || o.status;
-    const fileName = escapeHtml(o.file_name || '—');
-    const fileCell = o.source_file_path
-      ? `<a href="#" class="file-link" onclick="event.preventDefault();openSourceFile('${o.id}')">${fileName}</a>`
-      : fileName;
-
-    const mainRow = `<tr>
-      <td>📄</td>
-      <td class="mono" style="font-size:11px;">${escapeHtml(o.display_id || o.id.slice(0,8))} <span class="copy-btn" data-clipboard-text="${escapeHtml(o.display_id || o.id.slice(0,8))}" title="نسخ">📋</span></td>
-      <td class="u-cell">${userCell}</td>
-      <td class="file-col">${fileCell}<br>${checkTypeBadge(o.check_type)}${filterBadges(o)}</td>
-      <td><span class="badge ${badgeClass}"><span class="dot"></span>${badgeLabel}</span></td>
-      <td style="font-size:11px;color:var(--muted);">${formatDate(o.submitted_at)}</td>
-      <td class="mono" style="font-size:11px;white-space:nowrap;">${deliveryTime(o)}</td>
-      <td style="white-space:nowrap;padding:6px 8px;">${reportButton(o, 'sim')}</td>
-      <td style="white-space:nowrap;padding:6px 8px;">${reportButton(o, 'ai')}</td>
-      <td>${o.user_id ? `<button class="msg-btn" data-a="${escapeHtml(o.user_id)}" data-b="${escapeHtml(o.display_id || o.id.slice(0,8))}" onclick="runWithData(this, composeMessage)" title="${t('send_msg')}">✉</button>` : ''}</td>
-      <td style="white-space:nowrap;">
-        ${(['error','failed_invalid'].includes(o.status) && o.source_file_path) ? `<button class="msg-btn" onclick="resendOrderToApi('${o.id}')" title="إعادة إرسال نفس الملف للفحص">🔁 إعادة إرسال</button>` : ''}
-        ${(['error','failed_invalid'].includes(o.status) && o.processing_mode === 'api') ? `<button class="msg-btn" style="color:var(--blue-deep);border-color:var(--blue-light);" onclick="adoptOrderManually('${o.id}')" title="تولى الطلب يدوياً ورفع التقارير بنفسك">🖐 يدوي</button>` : ''}
-      </td>
-    </tr>`;
-
-    return mainRow;
-  }).join('');
+  document.getElementById('ordersBody').innerHTML = pageList.map(buildAdminOrderRow).join('');
 
   renderPaginationBar('orders', 'ordersPagination', list.length);
   renderManualQueue();
@@ -4913,15 +4955,15 @@ function sumPaymentsEgp(list, since){
 }
 
 let _ledgerRows = [];
-let _redeemRows = []; // redeemed vouchers: revenue_egp / cost_egp / profit_egp per redeemed_at
-function sumRedeem(field, since){
-  return _redeemRows
-    .filter(r => new Date(r.redeemed_at) >= since)
+let _salesRows = []; // one row per sale: completed payments + redeemed vouchers (admin_sales_ledger)
+function sumSales(field, since){
+  return _salesRows
+    .filter(r => new Date(r.at) >= since)
     .reduce((s, r) => s + Number(r[field] || 0), 0);
 }
-// Revenue of a period: wallet/payment top-ups plus redeemed vouchers at their value.
+// Revenue of a period, in EGP (also used by the daily chart).
 function sumRevenueAll(since){
-  return sumPaymentsEgp(_revPayments, since) + sumRedeem('revenue_egp', since);
+  return sumSales('revenue_egp', since);
 }
 // Profit of successful checks since a date, from the ledger (revenue per check minus its API cost).
 function calcLedgerProfit(since){
@@ -6707,6 +6749,7 @@ async function loadProfileData(userId, pkStr){
   const typeLbl   = { plag_ai: 'اقتباس + AI', plag_only: 'اقتباس فقط' };
 
   body.innerHTML = `
+    <div style="margin-bottom:14px;"><button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="composeMessage('${escapeHtml(userId)}','${escapeHtml(pkLabel)}')">✉ ${currentLang==='ar'?'مراسلة العميل':'Message customer'}</button></div>
     <div class="profile-stat-grid">
       <div class="profile-stat"><div class="val">${balance}</div><div class="lbl">رصيد حالي (فحص)</div></div>
       <div class="profile-stat"><div class="val">${allOrds.length}</div><div class="lbl">إجمالي الأوردرات</div></div>
@@ -6871,20 +6914,6 @@ function downloadCSV(filename, rows, headers){
   a.click();
 }
 
-function exportOrdersCSV(){
-  const from = document.getElementById('ordFilterFrom')?.value;
-  const to   = document.getElementById('ordFilterTo')?.value;
-  let rows = window.allOrders || [];
-  if(from) rows = rows.filter(o=>o.created_at>=from);
-  if(to)   rows = rows.filter(o=>o.created_at<=to+'T23:59:59');
-  downloadCSV('prokeys_orders.csv',
-    rows.map(o=>[o.display_id||o.id,
-      profilesByUserId[o.user_id]?.full_name||'',
-      o.check_type||'',o.status||'',
-      o.created_at?.split('T')[0]||'']),
-    ['رقم الطلب','اسم العميل','نوع الفحص','الحالة','التاريخ']
-  );
-}
 
 function exportUsersCSV(){
   downloadCSV('prokeys_users.csv',
@@ -7400,44 +7429,6 @@ function qaSendBroadcast(){
   switchTab('broadcast');
 }
 
-/* ================================================================
-   FEATURE 9: ORDER FILTERS (Advanced)
-   ================================================================ */
-function applyOrderFilters(){
-  renderOrdersTable();
-}
-
-function resetOrderFilters(){
-  const from = document.getElementById('ordFilterFrom');
-  const to   = document.getElementById('ordFilterTo');
-  const type = document.getElementById('ordFilterType');
-  if(from) from.value='';
-  if(to)   to.value='';
-  if(type) type.value='';
-  renderOrdersTable();
-}
-
-// Patch renderOrdersTable to apply advanced filters
-const _origRenderOrders = window.renderOrdersTable;
-window.renderOrdersTable = function(){
-  const from = document.getElementById('ordFilterFrom')?.value;
-  const to   = document.getElementById('ordFilterTo')?.value;
-  const type = document.getElementById('ordFilterType')?.value;
-  if(from||to||type){
-    // Temporarily filter allOrders
-    const orig = window.allOrders;
-    window.allOrders = (orig||[]).filter(o=>{
-      if(from && o.created_at < from) return false;
-      if(to   && o.created_at > to+'T23:59:59') return false;
-      if(type && o.check_type !== type) return false;
-      return true;
-    });
-    if(typeof _origRenderOrders==='function') _origRenderOrders();
-    window.allOrders = orig;
-  } else {
-    if(typeof _origRenderOrders==='function') _origRenderOrders();
-  }
-};
 
 /* ================================================================
    FEATURE 10: DARK MODE
