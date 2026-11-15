@@ -3249,7 +3249,19 @@ function getOverviewDateRanges(now){
 }
 
 // Period cards (Order count, Revenue): all four periods are computed, the card shows the selected one.
-const _kpiPeriod = { orders: 'today', rev: 'today' };
+// The period picked on the Order count and Revenue cards is remembered on this device until changed.
+const KPI_PERIOD_KEY = 'prokeys-admin-kpi-period';
+const KPI_PERIODS = ['today', 'week', 'month', 'year'];
+const _kpiPeriod = (() => {
+  const saved = (() => { try { return JSON.parse(localStorage.getItem(KPI_PERIOD_KEY) || '{}'); } catch { return {}; } })();
+  const pick = v => KPI_PERIODS.includes(v) ? v : 'today';
+  return { orders: pick(saved.orders), rev: pick(saved.rev) };
+})();
+function _paintKpiSegs(){
+  ['orders', 'rev'].forEach(kind =>
+    document.querySelectorAll(`.kpi-seg[data-kind="${kind}"] button`).forEach(b => b.classList.toggle('on', b.dataset.p === _kpiPeriod[kind])));
+}
+_paintKpiSegs();
 const _periodVals = { orders: {}, rev: {}, profit: {} };
 function paintPeriodCard(kind){
   const p = _kpiPeriod[kind];
@@ -3265,7 +3277,8 @@ function paintPeriodCard(kind){
   document.querySelectorAll(`.kpi-seg[data-kind="${kind}"] button`).forEach(b => b.classList.toggle('on', b.dataset.p === p));
 }
 function setKpiPeriod(kind, p){
-  _kpiPeriod[kind] = p;
+  _kpiPeriod[kind] = KPI_PERIODS.includes(p) ? p : 'today';
+  try { localStorage.setItem(KPI_PERIOD_KEY, JSON.stringify(_kpiPeriod)); } catch {}
   paintPeriodCard(kind);
 }
 function renderOverviewOrderKpis(orders, ranges){
