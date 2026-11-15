@@ -1969,13 +1969,13 @@
       </div>
       <div class="navtab sidebar-item" data-tab="academic">
         <div class="sid-chip sid-teal">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>
+          <svg data-icon-key="tab_academic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>
         </div>
         <span data-i18n="nav_academic">Academic Tools</span>
       </div>
       <div class="navtab sidebar-item" data-tab="my-orders">
         <div class="sid-chip sid-teal">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+          <svg data-icon-key="tab_my_orders" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
         </div>
         <span data-i18n="nav_my_orders">طلباتي</span>
       </div>
@@ -3254,7 +3254,7 @@ const ICONS = {
 const ICON_SIZE_MAP = {
   logo_dashboard:'52px',
   header_notif:'18px', header_notif_dark:'18px', header_lightmode:'18px', header_darkmode:'18px', header_tour:'18px', header_tour_dark:'18px', header_profile:'16px', header_signout:'16px',
-  tab_home:'18px', tab_new_check:'18px', tab_orders:'18px', tab_wallet:'18px', tab_support:'18px',
+  tab_home:'18px', tab_new_check:'18px', tab_orders:'18px', tab_wallet:'18px', tab_support:'18px', tab_academic:'24px', tab_my_orders:'24px',
   home_watch:'15px', home_g1:'20px', home_g2:'20px', home_g3:'20px',
   nc_balance:'18px', nc_floating:'18px', nc_api_active:'18px', nc_api_maintenance:'18px', nc_completed:'18px', redeem_code_icon:'18px',
   nc_upload:'20px', nc_options:'16px', nc_payment:'16px',
@@ -10087,7 +10087,7 @@ function maybeShowOnboarding(profileData){
     <span class="mob-label" data-i18n="nav_my_history">السجل</span>
   </div>
   <div class="mob-nav-item" data-tab="academic" onclick="goTab('academic')">
-    <div class="mob-icon">
+    <div class="mob-icon" data-icon-key="tab_academic">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>
     </div>
     <span class="mob-label" data-i18n="nav_academic">Academic Tools</span>
