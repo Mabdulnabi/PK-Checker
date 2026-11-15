@@ -5979,7 +5979,7 @@ function renderCreditsTable(rows){
       <td data-label="PK" class="mono" style="color:var(--blue-deep);font-weight:700;white-space:nowrap;">${r.pk_number != null ? clickablePk(r.user_id, r.pk_number) : '—'}</td>
       <td data-label="${escapeHtml(t('cr_col_name'))}"><b style="font-size:12px;">${escapeHtml(r.full_name)}</b></td>
       <td data-label="${escapeHtml(t('cr_col_plan'))}" style="font-size:11.5px;">${escapeHtml(r.plan)}</td>
-      <td data-label="${escapeHtml(t('cr_col_amount'))}" style="font-size:11.5px;"><b>${escapeHtml(amt || '—')}</b>${gw ? `<br><small style="color:var(--muted);">${escapeHtml(gw)}</small>` : ''}</td>
+      <td data-label="${escapeHtml(t('cr_col_amount'))}" style="font-size:11.5px;">${amt ? `<b>${escapeHtml(amt)}</b>` : `<span style="color:var(--muted);font-size:11px;">${ar ? 'بدون دفع' : 'No payment'}</span>`}${gw ? `<br><small style="color:var(--muted);">${escapeHtml(gw)}</small>` : ''}</td>
       <td data-label="${escapeHtml(t('cr_col_credits'))}" style="font-weight:800;color:${n < 0 ? 'var(--danger)' : 'var(--ok)'};">${escapeHtml(slotTxt)}</td>
       <td data-label="${escapeHtml(t('cr_col_type'))}"><span class="${tcls}">${escapeHtml(tlbl)}</span></td>
       <td data-label="${escapeHtml(t('cr_col_date'))}" style="font-size:11px;color:var(--muted);">${formatDate(r.created_at)}</td>
