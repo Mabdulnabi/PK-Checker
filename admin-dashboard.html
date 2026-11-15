@@ -850,7 +850,7 @@
         </div>
         <!-- Slot validity: ON = packages expire by their days; OFF = lifetime for packages bought from now on -->
         <div class="side-toggle-row" id="slotValiditySideRow" title="">
-          <span>⏳ صلاحية الباقات: <b id="slotValidityLbl">بالأيام</b></span>
+          <span data-i18n="side_lifetime_validity">صلاحية مدى الحياة</span>
           <label class="side-toggle-sw">
             <input type="checkbox" id="slotValidityToggle" onchange="toggleSlotValidity(this)">
             <span class="side-toggle-slider"></span>
@@ -1641,6 +1641,7 @@ const I18N = {
     cr_col_amount:'المبلغ', cr_col_credits:'الفحوصات', cr_col_type:'النوع', cr_col_date:'التاريخ',
     usr_title:'👥 المستخدمون', usr_subtitle:'جميع بيانات عملاء المنصة', usr_search_ph:'🔍 ابحث باسم أو إيميل أو PK أو واتساب...',
     usr_add_btn:'+ إضافة مستخدم', adm_col_password:'الباسورد', adm_col_permissions:'الصلاحيات',
+    side_lifetime_validity:'صلاحية مدى الحياة',
     usr_col_email:'الإيميل', usr_col_whatsapp:'واتساب', usr_col_credits:'الفحوصات الحالية', usr_col_completed:'أوردرات مكتملة', usr_col_joined:'تاريخ الانضمام',
     cs_title:'⚙️ إعدادات الفحص', cs_subtitle:'تحكم في خدمات الفحص المتاحة للعملاء',
     cs_card1_title:'🔴 استقبال الطلبات', cs_card1_desc:'لما تقفل الخدمة، العميل هيشوف رسالة إيقاف مؤقت ومش هيقدر يبعت أي طلب جديد. الطلبات الموجودة مش بتتأثر.',
@@ -1757,6 +1758,7 @@ const I18N = {
     cr_col_amount:'Amount', cr_col_credits:'Checks', cr_col_type:'Type', cr_col_date:'Date',
     usr_title:'👥 Users', usr_subtitle:'All platform customer data', usr_search_ph:'🔍 Search by name, email, PK, or WhatsApp...',
     usr_add_btn:'+ Add User', adm_col_password:'Password', adm_col_permissions:'Permissions',
+    side_lifetime_validity:'Lifetime validity',
     usr_col_email:'Email', usr_col_whatsapp:'WhatsApp', usr_col_credits:'Current slots', usr_col_completed:'Completed orders', usr_col_joined:'Joined',
     cs_title:'⚙️ Check Settings', cs_subtitle:'Control the check services available to customers',
     cs_card1_title:'🔴 Accepting requests', cs_card1_desc:"When you turn the service off, customers will see a temporary-pause message and won't be able to submit new requests. Existing orders are unaffected.",
@@ -2540,8 +2542,9 @@ function startEditChatMessage(msgId){
 async function deleteChatMessage(msgId){
   const confirmed = await adminConfirm('هتحذف الرسالة دي نهائيًا (هتتحذف عند العميل كمان). متأكد؟', {icon:'⚠️', danger:true, confirmLabel:'حذف'});
   if (!confirmed) return;
-  const { error } = await supabaseClient.from('chat_messages').delete().eq('id', msgId);
+  const { data: gone, error } = await supabaseClient.from('chat_messages').delete().eq('id', msgId).select('id');
   if (error) { await adminAlert('فشل الحذف: ' + error.message, {icon:'❌', danger:true}); return; }
+  if (!gone || gone.length === 0) { await adminAlert('الرسالة متتمسحتش — الصلاحية مش متفعّلة في قاعدة البيانات', {icon:'❌', danger:true}); return; }
   openMessages = openMessages.filter(m => m.id !== msgId);
   renderChatThread();
 }
@@ -2549,8 +2552,9 @@ async function deleteEntireChat(){
   if (!openConversationId) return;
   const confirmed = await adminConfirm('هتحذف كل رسائل المحادثة دي نهائيًا لكل الطرفين. العملية لا يمكن التراجع عنها. متأكد؟', {icon:'⚠️', danger:true, confirmLabel:'حذف المحادثة بالكامل'});
   if (!confirmed) return;
-  const { error } = await supabaseClient.from('chat_messages').delete().eq('conversation_id', openConversationId);
+  const { data: gone, error } = await supabaseClient.from('chat_messages').delete().eq('conversation_id', openConversationId).select('id');
   if (error) { await adminAlert('فشل الحذف: ' + error.message, {icon:'❌', danger:true}); return; }
+  if (!gone || gone.length === 0) { await adminAlert('المحادثة متتمسحتش — الصلاحية مش متفعّلة في قاعدة البيانات', {icon:'❌', danger:true}); return; }
   openMessages = [];
   renderChatThread();
   await logAdminActivity('setting_change', null, '', 'حذف محادثة شات بالكامل');
@@ -5816,34 +5820,40 @@ async function loadRedeemCodes(){
 }
 
 
-// Slot validity switch: ON = packages expire by their days; OFF = packages bought from now on are lifetime.
+// Lifetime validity switch. Checked (green) = lifetime for packages bought from now on.
+// Unchecked = each package expires by its own days. The DB flag is slot_expiry_enabled (the inverse).
 function updateSlotValidityNote(){
-  const on = document.getElementById('slotValidityToggle')?.checked;
+  const lifetime = !!document.getElementById('slotValidityToggle')?.checked;
+  const ar = currentLang === 'ar';
   const row = document.getElementById('slotValiditySideRow');
-  const lbl = document.getElementById('slotValidityLbl');
-  if (lbl) lbl.textContent = on ? 'بالأيام' : 'مدى الحياة';
-  if (row) row.title = on
-    ? 'كل باقة بتاخد صلاحيتها بالأيام (زي ما هي). الباقات الجديدة بتنتهي في موعدها.'
-    : 'الباقات اللي تتشترى من دلوقتي مدى الحياة، والعميل بيشوف "صلاحية مدى الحياة". الباقات اللي اتشترت قبل كده مش بتتغير.';
+  if (row) row.title = lifetime
+    ? (ar ? 'الباقات اللي تتشترى من دلوقتي مدى الحياة. الباقات اللي اتشترت قبل كده مش بتتغير.'
+          : 'Packages bought from now on are lifetime. Packages bought before this are unchanged.')
+    : (ar ? 'كل باقة بتاخد صلاحيتها حسب مدتها.'
+          : 'Each package expires after its own validity period.');
 }
 async function loadSlotValidityToggle(){
   const { data } = await supabaseClient.from('check_settings').select('slot_expiry_enabled').single();
   const el = document.getElementById('slotValidityToggle');
   if (!el) return;
-  el.checked = data ? data.slot_expiry_enabled !== false : true;
+  el.checked = data ? data.slot_expiry_enabled === false : false;
   updateSlotValidityNote();
 }
 async function toggleSlotValidity(el){
-  const wantOn = el.checked;
-  const ok = await adminConfirm(wantOn
-    ? 'هتتفعّل الصلاحية بالأيام، والباقات الجديدة هتنتهي في موعدها. متأكد؟'
-    : 'هتتقفل الصلاحية، والباقات اللي تتشتري من دلوقتي هتبقى مدى الحياة. الباقات اللي اتشترت قبل كده مش هتتغير. متأكد؟',
-    { icon: wantOn ? '✅' : '⚠️', danger: !wantOn, confirmLabel: wantOn ? 'تفعيل الصلاحية' : 'قفل الصلاحية' });
-  if (!ok) { el.checked = !wantOn; return; }
-  const { error } = await supabaseClient.rpc('admin_set_slot_validity', { p_enabled: wantOn });
-  if (error) { el.checked = !wantOn; await adminAlert('فشل الحفظ: ' + error.message, {icon:'❌', danger:true}); return; }
+  const ar = currentLang === 'ar';
+  const goLifetime = el.checked;
+  const ok = await adminConfirm(goLifetime
+    ? (ar ? 'الباقات الجديدة هتبقى مدى الحياة. الباقات اللي اتشترت قبل كده مش هتتغير. متأكد؟'
+          : 'New packages will be lifetime. Packages bought before this stay unchanged. Are you sure?')
+    : (ar ? 'كل باقة هتاخد صلاحيتها حسب مدتها. متأكد؟'
+          : 'Each package will expire after its own validity period. Are you sure?'),
+    { icon: goLifetime ? '♾️' : '⏳', danger: false,
+      confirmLabel: goLifetime ? (ar ? 'تفعيل مدى الحياة' : 'Enable lifetime') : (ar ? 'حسب المدة' : 'Use validity days') });
+  if (!ok) { el.checked = !goLifetime; return; }
+  const { error } = await supabaseClient.rpc('admin_set_slot_validity', { p_enabled: !goLifetime });
+  if (error) { el.checked = !goLifetime; await adminAlert((ar ? 'فشل الحفظ: ' : 'Save failed: ') + error.message, {icon:'❌', danger:true}); return; }
   updateSlotValidityNote();
-  await logAdminActivity('setting_change', null, '', 'صلاحية الفحوصات: ' + (wantOn ? 'بالأيام' : 'مدى الحياة'));
+  await logAdminActivity('setting_change', null, '', 'Package validity: ' + (goLifetime ? 'lifetime' : 'by days'));
 }
 
 async function loadCreditsTab(){
