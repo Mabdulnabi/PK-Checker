@@ -816,6 +816,7 @@
         <div class="side-item" data-tab="orders" onclick="switchTab('orders')"><span class="ic" data-icon-key="admin_nav_orders">▤</span><span data-i18n="nav_orders">الطلبات</span></div>
         <div class="side-item" data-tab="payments" onclick="switchTab('payments')"><span class="ic" data-icon-key="admin_nav_payments">💳</span><span data-i18n="nav_payments">المدفوعات</span></div>
         <div class="side-item" data-tab="accounts" onclick="switchTab('accounts')"><span class="ic" data-icon-key="admin_nav_accounts">👤</span><span data-i18n="nav_accounts">إدارة الحسابات</span></div>
+        <div class="side-item" data-tab="store" onclick="switchTab('store')"><span class="ic" data-icon-key="admin_nav_store">🛍️</span><span>المتجر</span></div>
         <div class="side-item" data-tab="slots" onclick="switchTab('slots')"><span class="ic" data-icon-key="admin_nav_checks">🎫</span><span data-i18n="nav_slots">الباقات</span></div>
         <div class="side-item" data-tab="broadcast" onclick="switchTab('broadcast')"><span class="ic" data-icon-key="admin_nav_broadcast">📢</span><span data-i18n="nav_broadcast">رسائل جماعية</span></div>
         <div class="side-item" data-tab="chat" onclick="switchTab('chat')"><span class="ic" data-icon-key="admin_nav_chat">💬</span><span data-i18n="nav_chat">الشات المباشر</span><span class="side-badge" id="chatSideBadge" style="display:none;"></span></div>
@@ -1257,6 +1258,74 @@
       </div>
 
       <!-- CREDITS TAB -->
+
+      <div class="tabpane" id="tab-store" style="display:none;">
+        <div class="sec-head"><h2>🛍️ المتجر (Academic Tools)</h2></div>
+
+        <div class="tab-card" style="margin-bottom:16px;padding:18px 20px;">
+          <div style="font-weight:800;font-size:15px;margin-bottom:10px;">📂 التصنيفات والمنتجات</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+            <input id="stCatSlug" placeholder="slug (ai-tools)" style="max-width:150px;">
+            <input id="stCatAr" placeholder="الاسم بالعربي">
+            <input id="stCatEn" placeholder="Name in English">
+            <button class="btn btn-outline" onclick="saveStoreCategory()">+ تصنيف</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-bottom:10px;">
+            <input id="stpNameAr" placeholder="اسم المنتج بالعربي">
+            <input id="stpNameEn" placeholder="Product name in English">
+            <select id="stpCat"></select>
+            <select id="stpType">
+              <option value="instant">⚡ توصيل فوري (مخزون)</option>
+              <option value="subscription">🕒 اشتراك (تسليم يدوي)</option>
+            </select>
+            <input id="stpDescAr" placeholder="الوصف بالعربي">
+            <input id="stpDescEn" placeholder="Description in English">
+            <input id="stpImage" placeholder="رابط الصورة (اختياري)">
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-bottom:12px;"><button class="btn btn-primary" onclick="saveStoreProduct()">حفظ المنتج</button></div>
+          <div style="overflow-x:auto;"><table class="data-tbl" id="stProdTbl"></table></div>
+        </div>
+
+        <div class="tab-card" style="margin-bottom:16px;padding:18px 20px;">
+          <div style="font-weight:800;font-size:15px;margin-bottom:10px;">📋 الباقات</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:10px;">
+            <select id="stPlanProd" onchange="renderStorePlanTable()"></select>
+            <input id="stPlanAr" placeholder="اسم الباقة بالعربي">
+            <input id="stPlanEn" placeholder="Plan name in English">
+            <input id="stPlanPrice" type="number" min="0" step="0.01" placeholder="السعر (ج.م)">
+            <input id="stPlanDays" type="number" min="1" placeholder="المدة (أيام)">
+            <input id="stPlanGuar" type="number" min="0" placeholder="الضمان (أيام)">
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-bottom:12px;"><button class="btn btn-primary" onclick="saveStorePlan()">+ باقة</button></div>
+          <div style="overflow-x:auto;"><table class="data-tbl" id="stPlanTbl"></table></div>
+        </div>
+
+        <div class="tab-card" style="margin-bottom:16px;padding:18px 20px;">
+          <div style="font-weight:800;font-size:15px;margin-bottom:10px;">🔐 المخزون (توصيل فوري)</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
+            <select id="stStockPlan" onchange="loadStoreStock()" style="min-width:240px;"></select>
+            <span id="stStockCount" style="font-size:12.5px;color:var(--muted);font-weight:700;"></span>
+          </div>
+          <textarea id="stStockLines" rows="5" dir="ltr" placeholder="email@example.com | password | note (one per line)" style="width:100%;font-family:monospace;font-size:12px;"></textarea>
+          <div style="display:flex;justify-content:flex-end;margin:8px 0 12px;"><button class="btn btn-primary" onclick="uploadStoreStock()">رفع المخزون</button></div>
+          <div style="overflow-x:auto;"><table class="data-tbl" id="stStockTbl"></table></div>
+        </div>
+
+        <div class="tab-card" style="margin-bottom:16px;padding:18px 20px;">
+          <div style="font-weight:800;font-size:15px;margin-bottom:10px;">🕒 اشتراكات في انتظار التسليم</div>
+          <div id="stSubList"></div>
+        </div>
+
+        <div class="tab-card" style="padding:18px 20px;">
+          <div style="font-weight:800;font-size:15px;margin-bottom:10px;">💳 رصيد محفظة Academic Tools</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <input id="stWalPk" type="number" min="1" placeholder="كود PK" style="max-width:130px;">
+            <input id="stWalAmt" type="number" step="0.01" placeholder="المبلغ (+ إضافة / - خصم)" style="max-width:200px;">
+            <input id="stWalNote" placeholder="ملاحظة" style="flex:1;min-width:160px;">
+            <button class="btn btn-primary" onclick="adjustStoreWallet()">تنفيذ</button>
+          </div>
+        </div>
+      </div>
 
       <div class="tabpane" id="tab-slots">
         <div class="tab-card" id="availCard" style="margin-bottom:16px;padding:18px 20px;">
@@ -2170,7 +2239,7 @@ function canUse(perm){
 const TAB_PERMISSION_MAP = {
   orders:'manage_orders', uidesign:'manage_ui_design', broadcast:'manage_broadcasts',
   activity:'view_activity_log', payments:'manage_credits', slots:'manage_credits', accounts:'manage_users',
-  chat:'manage_chat', tickets:'manage_tickets',
+  chat:'manage_chat', tickets:'manage_tickets', store:'manage_store',
   backup:'manage_backup',
 };
 function applyPermissionGating(){
@@ -3194,6 +3263,7 @@ function switchTab(tab){
   if (tab === 'uidesign') initUIDesignTab();
   if (tab === 'payments') { initCreditsTab(); initPayGatewaysTab(); }
   if (tab === 'slots') initSlotsTab();
+  if (tab === 'store') initStoreTab();
   if (tab === 'broadcast') initBroadcastTab();
   if (tab === 'activity') initActivityTab();
   if (tab === 'accounts') { initUsersTab(); initAdminMgmtTab(); }
@@ -5981,6 +6051,242 @@ async function toggleSlotValidity(el){
   await logAdminActivity('setting_change', null, '', 'Package validity: ' + (goLifetime ? 'lifetime' : 'by days'));
 }
 
+/* ── Academic Tools store (admin) ───────────────────────────────────────── */
+const stS = { cats: [], prods: [], plans: [], stock: {} };
+const stEsc = s => escapeHtml(String(s ?? ''));
+const stProdById = id => stS.prods.find(p => p.id === id);
+const stPN = p => `${p.name_ar} / ${p.name_en}`;
+
+function initStoreTab(){ loadStoreAdmin(); }
+
+async function loadStoreAdmin(){
+  const [c, p, pl, st] = await Promise.all([
+    supabaseClient.from('store_categories').select('*').order('sort_order'),
+    supabaseClient.from('store_products').select('*').order('sort_order'),
+    supabaseClient.from('store_plans').select('*').order('sort_order'),
+    supabaseClient.rpc('store_plan_stock'),
+  ]);
+  const err = c.error || p.error || pl.error || st.error;
+  if (err) { await adminAlert('تعذر تحميل المتجر: ' + err.message, {icon:'❌', danger:true}); return; }
+  stS.cats = c.data || [];
+  stS.prods = p.data || [];
+  stS.plans = pl.data || [];
+  stS.stock = {};
+  (st.data || []).forEach(s => { stS.stock[s.plan_id] = s; });
+  renderStoreAdmin();
+  loadStoreSubs();
+}
+
+function renderStoreAdmin(){
+  document.getElementById('stpCat').innerHTML = '<option value="">— بدون تصنيف —</option>'
+    + stS.cats.map(c => `<option value="${c.id}">${stEsc(c.name_ar)} / ${stEsc(c.name_en)}</option>`).join('');
+  const prevProd = document.getElementById('stPlanProd').value;
+  document.getElementById('stPlanProd').innerHTML = stS.prods.map(p => `<option value="${p.id}">${stEsc(stPN(p))}</option>`).join('');
+  if (prevProd && stS.prods.some(p => p.id === prevProd)) document.getElementById('stPlanProd').value = prevProd;
+
+  const instantPlans = stS.plans.filter(pl => stProdById(pl.product_id)?.delivery_type === 'instant');
+  const prevStock = document.getElementById('stStockPlan').value;
+  document.getElementById('stStockPlan').innerHTML = instantPlans.length
+    ? instantPlans.map(pl => `<option value="${pl.id}">${stEsc(stProdById(pl.product_id).name_ar)} — ${stEsc(pl.name_ar)}</option>`).join('')
+    : '<option value="">— مفيش باقات توصيل فوري —</option>';
+  if (prevStock && instantPlans.some(pl => pl.id === prevStock)) document.getElementById('stStockPlan').value = prevStock;
+
+  document.getElementById('stProdTbl').innerHTML = '<thead><tr><th>المنتج</th><th>التصنيف</th><th>النوع</th><th>الحالة</th><th></th></tr></thead><tbody>'
+    + (stS.prods.length ? stS.prods.map(p => {
+        const cat = stS.cats.find(c => c.id === p.category_id);
+        return `<tr><td><b>${stEsc(stPN(p))}</b></td><td>${cat ? stEsc(cat.name_ar) : '—'}</td>
+          <td>${p.delivery_type === 'instant' ? '⚡ فوري' : '🕒 اشتراك'}</td><td>${p.active ? 'مفعّل' : 'موقوف'}</td>
+          <td><button class="msg-btn" onclick="toggleStoreProduct('${p.id}', ${!p.active})">${p.active ? 'إيقاف' : 'تفعيل'}</button></td></tr>`;
+      }).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--muted);">مفيش منتجات لسه</td></tr>') + '</tbody>';
+
+  renderStorePlanTable();
+  loadStoreStock();
+}
+
+function renderStorePlanTable(){
+  const pid = document.getElementById('stPlanProd').value;
+  const rows = stS.plans.filter(pl => pl.product_id === pid);
+  document.getElementById('stPlanTbl').innerHTML = '<thead><tr><th>الباقة</th><th>السعر</th><th>المدة</th><th>الضمان</th><th>المخزون</th><th>الحالة</th><th></th></tr></thead><tbody>'
+    + (rows.length ? rows.map(pl => {
+        const s = stS.stock[pl.id];
+        return `<tr><td>${stEsc(pl.name_ar)} / ${stEsc(pl.name_en)}</td>
+          <td>${Number(pl.price_egp).toLocaleString('en-US')} ج.م</td><td>${pl.duration_days} يوم</td><td>${pl.guarantee_days} يوم</td>
+          <td>${s ? `${s.available} متاح · ${s.sold} مباع` : '—'}</td><td>${pl.active ? 'مفعّل' : 'موقوف'}</td>
+          <td><button class="msg-btn" onclick="toggleStorePlan('${pl.id}', ${!pl.active})">${pl.active ? 'إيقاف' : 'تفعيل'}</button></td></tr>`;
+      }).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--muted);">مفيش باقات للمنتج ده</td></tr>') + '</tbody>';
+}
+
+async function saveStoreCategory(){
+  const slug = document.getElementById('stCatSlug').value.trim();
+  const ar = document.getElementById('stCatAr').value.trim();
+  const en = document.getElementById('stCatEn').value.trim();
+  if (!slug || !ar || !en) return adminAlert('اكتب الـ slug والاسم بالعربي والإنجليزي', {icon:'⚠️'});
+  const { error } = await supabaseClient.from('store_categories').insert({ slug, name_ar: ar, name_en: en, sort_order: stS.cats.length + 1 });
+  if (error) return adminAlert('فشل الحفظ: ' + error.message, {icon:'❌', danger:true});
+  ['stCatSlug','stCatAr','stCatEn'].forEach(id => { document.getElementById(id).value = ''; });
+  loadStoreAdmin();
+}
+
+async function saveStoreProduct(){
+  const nameAr = document.getElementById('stpNameAr').value.trim();
+  const nameEn = document.getElementById('stpNameEn').value.trim();
+  if (!nameAr || !nameEn) return adminAlert('اكتب اسم المنتج بالعربي والإنجليزي', {icon:'⚠️'});
+  const payload = {
+    name_ar: nameAr,
+    name_en: nameEn,
+    category_id: document.getElementById('stpCat').value || null,
+    delivery_type: document.getElementById('stpType').value,
+    description_ar: document.getElementById('stpDescAr').value.trim() || null,
+    description_en: document.getElementById('stpDescEn').value.trim() || null,
+    image_url: document.getElementById('stpImage').value.trim() || null,
+    active: true,
+    sort_order: stS.prods.length + 1,
+  };
+  const { error } = await supabaseClient.from('store_products').insert(payload);
+  if (error) return adminAlert('فشل الحفظ: ' + error.message, {icon:'❌', danger:true});
+  ['stpNameAr','stpNameEn','stpDescAr','stpDescEn','stpImage'].forEach(id => { document.getElementById(id).value = ''; });
+  await logAdminActivity('setting_change', null, '', 'منتج متجر جديد: ' + nameEn);
+  loadStoreAdmin();
+}
+
+async function toggleStoreProduct(id, on){
+  const { error } = await supabaseClient.from('store_products').update({ active: on }).eq('id', id);
+  if (error) return adminAlert('فشل التحديث: ' + error.message, {icon:'❌', danger:true});
+  loadStoreAdmin();
+}
+
+async function saveStorePlan(){
+  const pid = document.getElementById('stPlanProd').value;
+  const ar = document.getElementById('stPlanAr').value.trim();
+  const en = document.getElementById('stPlanEn').value.trim();
+  const price = Number(document.getElementById('stPlanPrice').value);
+  const days = parseInt(document.getElementById('stPlanDays').value, 10);
+  const guar = parseInt(document.getElementById('stPlanGuar').value, 10) || 0;
+  if (!pid) return adminAlert('اختار منتج الأول', {icon:'⚠️'});
+  if (!ar || !en) return adminAlert('اكتب اسم الباقة بالعربي والإنجليزي', {icon:'⚠️'});
+  if (!(price >= 0) || !(days > 0)) return adminAlert('السعر لازم يكون 0 أو أكتر، والمدة يوم أو أكتر', {icon:'⚠️'});
+  const { error } = await supabaseClient.from('store_plans').insert({
+    product_id: pid, name_ar: ar, name_en: en, price_egp: price, duration_days: days, guarantee_days: guar,
+    active: true, sort_order: stS.plans.length + 1,
+  });
+  if (error) return adminAlert('فشل الحفظ: ' + error.message, {icon:'❌', danger:true});
+  ['stPlanAr','stPlanEn','stPlanPrice','stPlanDays','stPlanGuar'].forEach(id => { document.getElementById(id).value = ''; });
+  loadStoreAdmin();
+}
+
+async function toggleStorePlan(id, on){
+  const { error } = await supabaseClient.from('store_plans').update({ active: on }).eq('id', id);
+  if (error) return adminAlert('فشل التحديث: ' + error.message, {icon:'❌', danger:true});
+  loadStoreAdmin();
+}
+
+/* Stock: lines are "email | password | note" (note optional) */
+async function loadStoreStock(){
+  const pid = document.getElementById('stStockPlan').value;
+  const tbl = document.getElementById('stStockTbl');
+  const cnt = document.getElementById('stStockCount');
+  if (!pid) { tbl.innerHTML = ''; cnt.textContent = ''; return; }
+  const s = stS.stock[pid] || { available: 0, sold: 0 };
+  cnt.textContent = `متاح: ${s.available} · مباع: ${s.sold}`;
+  const { data, error } = await supabaseClient.rpc('store_admin_list_stock', { p_plan_id: pid });
+  if (error) { tbl.innerHTML = `<tr><td style="color:var(--danger);">${stEsc(error.message)}</td></tr>`; return; }
+  tbl.innerHTML = '<thead><tr><th>الإيميل</th><th>الباسورد</th><th>الحالة</th><th>التاريخ</th><th></th></tr></thead><tbody>'
+    + ((data || []).length ? data.map(r => `<tr>
+        <td dir="ltr">${stEsc(r.email)}</td>
+        <td dir="ltr"><button class="msg-btn" data-v="${stEsc(r.password)}" onclick="stRevealPwd(this)">•••••• 👁</button></td>
+        <td>${r.status === 'available' ? 'متاح' : 'مباع'}</td>
+        <td>${fmtDateTime(r.sold_at || r.created_at)}</td>
+        <td>${r.status === 'available' ? `<button class="msg-btn" style="color:var(--danger);" onclick="deleteStoreStock('${r.id}')">🗑</button>` : ''}</td>
+      </tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--muted);">مفيش مخزون</td></tr>') + '</tbody>';
+}
+
+function stRevealPwd(btn){ btn.textContent = btn.dataset.v || '—'; }
+
+async function uploadStoreStock(){
+  const pid = document.getElementById('stStockPlan').value;
+  if (!pid) return adminAlert('اختار باقة الأول', {icon:'⚠️'});
+  const lines = document.getElementById('stStockLines').value.split('\n').map(l => l.trim()).filter(Boolean);
+  if (!lines.length) return adminAlert('اكتب سطر واحد على الأقل', {icon:'⚠️'});
+  const items = [], bad = [];
+  lines.forEach((l, i) => {
+    const [email = '', password = '', ...rest] = l.split('|').map(x => x.trim());
+    if (!email || !password) bad.push(i + 1);
+    else items.push({ email, password, note: rest.join(' | ') });
+  });
+  if (bad.length) return adminAlert('سطور ناقصة (لازم إيميل وباسورد): ' + bad.join(', '), {icon:'⚠️', danger:true});
+  const { data, error } = await supabaseClient.rpc('store_admin_add_stock', { p_plan_id: pid, p_items: items });
+  if (error) return adminAlert('فشل الرفع: ' + error.message, {icon:'❌', danger:true});
+  document.getElementById('stStockLines').value = '';
+  await logAdminActivity('setting_change', null, '', `رفع مخزون متجر: ${data} عنصر`);
+  await loadStoreAdmin();
+  adminAlert(`✅ اتضاف ${data} عنصر`, {icon:'✅'});
+}
+
+async function deleteStoreStock(id){
+  const ok = await adminConfirm('هتتحذف الحسابة دي من المخزون. متأكد؟', {icon:'⚠️', danger:true, confirmLabel:'حذف'});
+  if (!ok) return;
+  const { data, error } = await supabaseClient.rpc('store_admin_delete_stock', { p_item_id: id });
+  if (error) return adminAlert('فشل الحذف: ' + error.message, {icon:'❌', danger:true});
+  if (!data) return adminAlert('الحسابة اتباعت قبل كده ومينفعش تتحذف', {icon:'⚠️'});
+  await logAdminActivity('setting_change', null, '', 'حذف عنصر من مخزون المتجر');
+  loadStoreAdmin();
+}
+
+/* Subscriptions waiting for delivery: lines "key: value" */
+async function loadStoreSubs(){
+  const box = document.getElementById('stSubList');
+  const { data, error } = await supabaseClient.from('store_orders').select('*')
+    .eq('delivery_type', 'subscription').eq('status', 'paid').order('created_at');
+  if (error) { box.innerHTML = `<div style="color:var(--danger);">${stEsc(error.message)}</div>`; return; }
+  box.innerHTML = (data || []).length ? data.map(o => `<div style="border:1px solid var(--paper-line);border-radius:12px;padding:12px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <b>${stEsc(o.product_name)} · ${stEsc(o.plan_name)}</b>
+        <span style="font-size:11.5px;color:var(--muted);">${fmtDateTime(o.created_at)} · ${Number(o.price_egp).toLocaleString('en-US')} ج.م</span>
+      </div>
+      <textarea id="sd_${o.id}" rows="3" dir="ltr" placeholder="email: x@example.com&#10;password: ...&#10;note: ..." style="width:100%;margin-top:8px;font-family:monospace;font-size:12px;"></textarea>
+      <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:8px;flex-wrap:wrap;">
+        <label style="font-size:12px;color:var(--muted);">وقت التسليم (فاضي = دلوقتي)</label>
+        <input type="datetime-local" id="sdt_${o.id}">
+        <button class="btn btn-primary" onclick="deliverStoreSub('${o.id}')">تسليم</button>
+      </div>
+    </div>`).join('') : '<div style="color:var(--muted);text-align:center;padding:14px;">مفيش اشتراكات مستنية</div>';
+}
+
+async function deliverStoreSub(id){
+  const raw = document.getElementById('sd_' + id).value.trim();
+  const details = {};
+  raw.split('\n').forEach(l => { const i = l.indexOf(':'); if (i > 0) details[l.slice(0, i).trim()] = l.slice(i + 1).trim(); });
+  if (!Object.keys(details).length) return adminAlert('اكتب بيانات التسليم بالشكل key: value', {icon:'⚠️'});
+  const dt = document.getElementById('sdt_' + id).value;
+  const when = dt ? new Date(dt).toISOString() : null;
+  const { error } = await supabaseClient.rpc('store_admin_deliver_subscription', { p_order_id: id, p_details: details, p_deliver_at: when });
+  if (error) return adminAlert('فشل التسليم: ' + error.message, {icon:'❌', danger:true});
+  await logAdminActivity('setting_change', null, '', 'تسليم اشتراك متجر');
+  loadStoreSubs();
+}
+
+/* Wallet: add or deduct by customer PK */
+async function adjustStoreWallet(){
+  const pk = parseInt(document.getElementById('stWalPk').value, 10);
+  const amt = Number(document.getElementById('stWalAmt').value);
+  const note = document.getElementById('stWalNote').value.trim();
+  if (!pk || !amt) return adminAlert('اكتب كود PK ومبلغ', {icon:'⚠️'});
+  if (!note) return adminAlert('اكتب سبب التعديل', {icon:'⚠️'});
+  const { data: prof, error: pe } = await supabaseClient.from('users_profile_numbered')
+    .select('user_id, full_name, pk_number').eq('pk_number', pk).maybeSingle();
+  if (pe || !prof) return adminAlert('مفيش عميل بالكود ده', {icon:'⚠️'});
+  const who = prof.full_name || ('PK' + formatPkNumber(pk));
+  const ok = await adminConfirm(`${amt > 0 ? 'إضافة' : 'خصم'} ${Math.abs(amt)} ج.م ${amt > 0 ? 'لـ' : 'من'} ${who}؟`,
+    {icon: amt > 0 ? '✅' : '⚠️', danger: amt < 0});
+  if (!ok) return;
+  const { data, error } = await supabaseClient.rpc('store_admin_wallet_adjust', { p_user_id: prof.user_id, p_amount: amt, p_note: note });
+  if (error) return adminAlert('فشل: ' + error.message, {icon:'❌', danger:true});
+  await logAdminActivity('setting_change', prof.user_id, 'PK' + formatPkNumber(pk), `محفظة المتجر: ${amt} ج.م — ${note}`);
+  document.getElementById('stWalAmt').value = '';
+  document.getElementById('stWalNote').value = '';
+  adminAlert(`✅ الرصيد الجديد: ${Number(data).toLocaleString('en-US')} ج.م`, {icon:'✅'});
+}
+
 async function loadCreditsTab(){
   await loadSlotData();
   document.getElementById('creditsBody').innerHTML =
@@ -6350,6 +6656,7 @@ const PERMISSION_LIST = [
   {key:'view_activity_log', label_ar:'سجل النشاط', label_en:'Activity Log'},
   {key:'view_revenue', label_ar:'الإيرادات', label_en:'Revenue'},
   {key:'manage_backup', label_ar:'النسخ الاحتياطي', label_en:'Backup & Restore'},
+  {key:'manage_store', label_ar:'المتجر (Academic Tools)', label_en:'Academic Tools store'},
 ];
 
 let allAdmins = [];

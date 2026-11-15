@@ -1967,6 +1967,18 @@
         </div>
         <span data-i18n="nav_my_history">السجل</span>
       </div>
+      <div class="navtab sidebar-item" data-tab="academic">
+        <div class="sid-chip sid-teal">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>
+        </div>
+        <span data-i18n="nav_academic">Academic Tools</span>
+      </div>
+      <div class="navtab sidebar-item" data-tab="my-orders">
+        <div class="sid-chip sid-teal">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+        </div>
+        <span data-i18n="nav_my_orders">طلباتي</span>
+      </div>
       <div class="navtab sidebar-item" data-tab="support">
         <div class="sid-chip sid-orange">
           <!-- ph-headset duotone -->
@@ -2560,6 +2572,78 @@
         <div class="hist-thead hist-row" id="histHead"></div>
         <div id="histRows"></div>
       </div>
+    </div>
+
+    <style>
+      .sid-teal{ color:#0d9488 !important; }
+      .sid-teal{ background:#0d948818; color:#0d9488; }
+      .sidebar-item[data-tab="academic"],.sidebar-item[data-tab="my-orders"]{ --tab-color:#0d9488; }
+      .ac-wallet{ background:var(--paper); border:1px solid var(--paper-line); border-radius:16px; padding:18px 20px; margin-bottom:16px; }
+      .ac-wlbl{ font-size:12px; color:var(--muted); font-weight:700; }
+      .ac-wbal{ font-family:'Space Grotesk',sans-serif; font-size:28px; font-weight:700; color:var(--navy); }
+      .ac-wbal small{ font-size:13px; color:var(--muted); }
+      .ac-cats{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+      .ac-chip{ padding:7px 14px; border-radius:30px; border:1.5px solid var(--paper-line); background:var(--paper); cursor:pointer; font-family:'Cairo',sans-serif; font-size:12px; font-weight:700; color:var(--navy); }
+      .ac-chip.on{ background:var(--blue); color:#fff; border-color:var(--blue); }
+      .ac-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; }
+      .ac-card{ background:var(--paper); border:1px solid var(--paper-line); border-radius:16px; padding:16px; cursor:pointer; display:flex; flex-direction:column; gap:10px; }
+      .ac-card:hover{ border-color:var(--blue); }
+      .ac-card-top{ display:flex; flex-direction:column; gap:6px; }
+      .ac-name{ font-weight:800; color:var(--navy); font-size:15px; }
+      .ac-tag{ align-self:flex-start; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:20px; background:var(--blue-wash); color:var(--blue-deep); }
+      .ac-desc{ font-size:12.5px; color:var(--muted); line-height:1.6; min-height:20px; }
+      .ac-desc-long{ font-size:13.5px; color:var(--muted); line-height:1.7; margin:10px 0 16px; }
+      .ac-foot{ display:flex; justify-content:space-between; align-items:flex-end; margin-top:auto; }
+      .ac-foot small{ display:block; font-size:10.5px; color:var(--muted); }
+      .ac-foot b{ font-family:'Space Grotesk',sans-serif; color:var(--navy); font-size:17px; }
+      .ac-stock{ font-size:11px; font-weight:700; color:var(--muted); }
+      .ac-back{ background:none; border:none; color:var(--blue); font-weight:700; font-family:'Cairo',sans-serif; cursor:pointer; padding:0; margin-bottom:12px; }
+      .ac-detail-head{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+      .ac-detail-head h3{ margin:0; color:var(--navy); font-size:20px; }
+      .ac-plans{ display:flex; flex-direction:column; gap:10px; }
+      .ac-plan{ background:var(--paper); border:1px solid var(--paper-line); border-radius:14px; padding:14px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+      .ac-plan-name{ font-weight:800; color:var(--navy); }
+      .ac-plan-meta{ font-size:11.5px; color:var(--muted); margin-top:3px; }
+      .ac-plan-buy{ display:flex; align-items:center; gap:12px; }
+      .ac-plan-buy b{ font-family:'Space Grotesk',sans-serif; color:var(--navy); font-size:17px; }
+      .ac-buy{ background:var(--blue); color:#fff; border:none; border-radius:10px; padding:9px 14px; font-family:'Cairo',sans-serif; font-weight:700; font-size:12.5px; cursor:pointer; }
+      .ac-buy:disabled{ background:var(--paper-line); color:var(--muted); cursor:not-allowed; }
+      .ac-buy.small{ padding:6px 12px; font-size:11.5px; margin-top:8px; }
+      .ac-msg{ margin-top:12px; font-size:12.5px; font-weight:700; }
+      .ac-msg.err{ color:var(--danger); }
+      .ac-empty{ grid-column:1/-1; text-align:center; color:var(--muted); padding:26px; font-size:13px; }
+      .ac-sec{ margin:18px 0 10px; color:var(--navy); font-size:14px; }
+      .ac-subs{ display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:12px; }
+      .ac-sub{ background:var(--paper); border:1px solid var(--paper-line); border-radius:14px; padding:14px 16px; display:flex; justify-content:space-between; gap:10px; }
+      .ac-sub-end{ text-align:end; }
+      .ac-badge{ display:inline-block; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; background:var(--blue-wash); color:var(--blue-deep); }
+      .ac-badge.ok{ background:#dcfce7; color:#166534; }
+      .ac-order{ background:var(--paper); border:1px solid var(--paper-line); border-radius:14px; padding:14px 16px; margin-bottom:10px; }
+      .ac-order-top{ display:flex; justify-content:space-between; gap:10px; align-items:center; font-size:14px; color:var(--navy); }
+      .ac-cred{ margin-top:10px; display:flex; flex-direction:column; gap:6px; }
+      .ac-cred-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; background:var(--blue-wash); border-radius:10px; padding:8px 10px; font-size:12.5px; }
+      .ac-cred-row span{ font-weight:700; color:var(--navy); min-width:70px; }
+      .ac-cred-row code{ flex:1; word-break:break-all; color:var(--navy); }
+      .ac-copy{ background:#fff; border:1px solid var(--paper-line); border-radius:8px; padding:4px 10px; font-size:11px; font-weight:700; cursor:pointer; color:var(--blue); font-family:'Cairo',sans-serif; }
+    </style>
+    <div class="tabpane" id="pane-academic" style="display:none;">
+      <div class="sec-head"><h2 data-i18n="ac_title">Academic Tools</h2></div>
+      <div class="ac-wallet">
+        <div class="ac-wlbl" data-i18n="ac_wallet">رصيد Academic Tools</div>
+        <div class="ac-wbal"><span id="acWallet">0.00</span> <small data-i18n="ac_egp">ج.م</small></div>
+      </div>
+      <div id="acListView">
+        <div class="ac-cats" id="acCats"></div>
+        <div class="ac-grid" id="acGrid"></div>
+      </div>
+      <div id="acDetailView" style="display:none;"></div>
+    </div>
+    <div class="tabpane" id="pane-my-orders" style="display:none;">
+      <div class="sec-head"><h2 data-i18n="nav_my_orders">طلباتي</h2></div>
+      <h4 class="ac-sec" data-i18n="ac_active_subs">الاشتراكات النشطة</h4>
+      <div class="ac-subs" id="myActiveSubs"></div>
+      <h4 class="ac-sec" data-i18n="ac_all_orders">كل الطلبات</h4>
+      <div id="myOrdersList"></div>
     </div>
 
     <div class="tabpane" id="pane-support" style="display:none;">
@@ -3199,6 +3283,7 @@ function applyCustomIcons(){
 const I18N = {
   ar: {
     loading_ellipsis:"جاري التحميل...", lifetime_validity:"صلاحية مدى الحياة", profile_save_ok:"تم حفظ التغييرات", profile_pass_short:"كلمة المرور قصيرة (6 أحرف على الأقل)", profile_pass_error:"تعذر تغيير كلمة المرور",
+    nav_academic:"Academic Tools", nav_my_orders:"طلباتي", ac_title:"Academic Tools", ac_wallet:"رصيد Academic Tools", ac_egp:"ج.م", ac_active_subs:"الاشتراكات النشطة", ac_all_orders:"كل الطلبات",
     nav_home:"الرئيسية", nav_new_check:"فحص جديد", nav_orders:"ملفاتي", nav_wallet:"المحفظة", nav_my_history:"السجل", plan_ai_tab:"فحص إقتباس + AI", plan_only_tab:"فحص إقتباس فقط", plan_soon:"قريباً", plan_title:"فحص Turnitin Plag + AI", plan_pill:"تقرير Plag + AI", plan_auto:"تفعيل فوري تلقائي", nav_support:"الدعم", nav_my_profile:"حسابي",
     sup_lang:"اللغة", sup_currency:"العملة", sup_settings:"الإعدادات",
     profile_modal_title:"الملف الشخصي", profile_save_btn:"حفظ", profile_cancel_btn:"إلغاء",
@@ -3405,6 +3490,7 @@ const I18N = {
   },
   en: {
     loading_ellipsis:"Loading...", lifetime_validity:"Lifetime validity", profile_save_ok:"Changes saved", profile_pass_short:"Password too short (at least 6 characters)", profile_pass_error:"Could not change the password",
+    nav_academic:"Academic Tools", nav_my_orders:"My orders", ac_title:"Academic Tools", ac_wallet:"Academic Tools balance", ac_egp:"EGP", ac_active_subs:"Active subscriptions", ac_all_orders:"All orders",
     nav_home:"Home", nav_new_check:"New Check", nav_orders:"My orders", nav_wallet:"Wallet", nav_my_history:"History", plan_ai_tab:"Plag + AI Report", plan_only_tab:"Only Plag Report", plan_soon:"Soon", plan_title:"Turnitin Plag + AI Check", plan_pill:"PLAG + AI REPORT", plan_auto:"Automated Instant Activation", nav_support:"Support", nav_my_profile:"My Account",
     sup_lang:"Language", sup_currency:"Currency", sup_settings:"Settings",
     profile_modal_title:"Account Settings", profile_save_btn:"Save", profile_cancel_btn:"Cancel",
@@ -5295,6 +5381,8 @@ function goTab(tab, persist = true){
     (document.querySelector('.main-wrap')||window).scrollTo({top:0,behavior:'smooth'});
     if(tab === 'wallet'){ loadPaymentHistory(); }
     if(tab === 'my-history'){ loadMyHistory(); }
+    if(tab === 'academic'){ loadAcademic(); }
+    if(tab === 'my-orders'){ loadMyOrders(); }
     if(tab === 'my-profile'){ openMyProfileTab(); }
     return;
   }
@@ -5318,6 +5406,8 @@ function goTab(tab, persist = true){
     (document.querySelector('.main-wrap')||window).scrollTo({top:0,behavior:'smooth'});
     if(tab === 'wallet'){ loadPaymentHistory(); }
     if(tab === 'my-history'){ loadMyHistory(); }
+    if(tab === 'academic'){ loadAcademic(); }
+    if(tab === 'my-orders'){ loadMyOrders(); }
     if(tab === 'my-profile'){ openMyProfileTab(); }
   }, {once:true});
 }
@@ -7181,6 +7271,200 @@ const HIST_ICON_FILE = '<svg data-icon-key="hist_icon_scan" viewBox="0 0 24 24" 
 const HIST_ICON_REDEEM = '<svg data-icon-key="hist_icon_redeem" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3a3 3 0 0 0 0 6v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a3 3 0 0 0 0-6z"/><path d="M14 6v12"/></svg>';
 const HIST_ICON_MIGRATED = '<svg data-icon-key="hist_icon_migrated" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M10 13h4"/></svg>';
 const HIST_ICON_ADMIN = '<svg data-icon-key="hist_icon_admin" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v8h14v-8M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>';
+
+/* ── Academic Tools: catalog, wallet buy, my orders ───────────────────────── */
+const acS = { cats: [], prods: [], plans: [], stock: {}, catId: 'all', openId: null };
+const acName = r => (currentLang === 'ar' ? r.name_ar : r.name_en);
+const acMoney = v => `${Number(v).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ${hx('ج.م', 'EGP')}`;
+
+async function loadAcademic(){
+  const [cats, prods, plans, stock, wal] = await Promise.all([
+    supabaseClient.from('store_categories').select('*').eq('active', true).order('sort_order'),
+    supabaseClient.from('store_products').select('*').eq('active', true).order('sort_order'),
+    supabaseClient.from('store_plans').select('*').eq('active', true).order('sort_order'),
+    supabaseClient.rpc('store_plan_stock'),
+    supabaseClient.from('store_wallet').select('balance_egp').maybeSingle(),
+  ]);
+  if (cats.error || prods.error || plans.error) { toast(hx('تعذر تحميل المتجر', 'Could not load the store'), 'error'); return; }
+  acS.cats = cats.data || [];
+  acS.prods = prods.data || [];
+  acS.plans = plans.data || [];
+  acS.stock = {};
+  (stock.data || []).forEach(s => { acS.stock[s.plan_id] = s.available; });
+  const bal = Number(wal.data?.balance_egp || 0);
+  document.getElementById('acWallet').textContent = bal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  renderAcList();
+}
+
+function acPlansOf(pid){ return acS.plans.filter(p => p.product_id === pid); }
+function acStockOf(pid){ return acPlansOf(pid).reduce((s, p) => s + (acS.stock[p.id] || 0), 0); }
+function acDeliveryLbl(p){
+  return p.delivery_type === 'instant' ? hx('⚡ توصيل فوري', '⚡ Instant delivery') : hx('🕒 تفعيل بعد الطلب', '🕒 Activated after order');
+}
+function acSetCat(id){ acS.catId = id; renderAcList(); }
+function acOpen(id){ acS.openId = id; renderAcList(); }
+function acBack(){ acS.openId = null; renderAcList(); }
+
+function renderAcList(){
+  if (acS.openId) return renderAcDetail();
+  document.getElementById('acListView').style.display = 'block';
+  document.getElementById('acDetailView').style.display = 'none';
+  const chips = [{ id: 'all', n: hx('الكل', 'All') }, ...acS.cats.map(c => ({ id: c.id, n: acName(c) }))];
+  document.getElementById('acCats').innerHTML = chips.map(c =>
+    `<button class="ac-chip${acS.catId === c.id ? ' on' : ''}" onclick="acSetCat('${c.id}')">${escapeHtml(c.n)}</button>`).join('');
+  const list = acS.prods.filter(p => acS.catId === 'all' || p.category_id === acS.catId);
+  document.getElementById('acGrid').innerHTML = list.length
+    ? list.map(acCardHtml).join('')
+    : `<div class="ac-empty">${hx('مفيش منتجات في القسم ده', 'No products in this category')}</div>`;
+}
+
+function acCardHtml(p){
+  const plans = acPlansOf(p.id);
+  const from = plans.length ? Math.min(...plans.map(x => Number(x.price_egp))) : null;
+  let stockTxt;
+  if (p.delivery_type === 'instant') {
+    const n = acStockOf(p.id);
+    stockTxt = n > 0 ? hx(`متوفر (${n})`, `In stock (${n})`) : hx('خلص حالياً', 'Out of stock');
+  } else {
+    stockTxt = hx('متاح بالطلب', 'On request');
+  }
+  const desc = (currentLang === 'ar' ? p.description_ar : p.description_en) || '';
+  return `<div class="ac-card" onclick="acOpen('${p.id}')">
+    <div class="ac-card-top"><div class="ac-name">${escapeHtml(acName(p))}</div><span class="ac-tag">${acDeliveryLbl(p)}</span></div>
+    <div class="ac-desc">${escapeHtml(desc)}</div>
+    <div class="ac-foot">
+      <div><small>${hx('يبدأ من', 'From')}</small><b>${from !== null ? acMoney(from) : '—'}</b></div>
+      <span class="ac-stock">${stockTxt}</span>
+    </div>
+  </div>`;
+}
+
+function renderAcDetail(){
+  const p = acS.prods.find(x => x.id === acS.openId);
+  if (!p) { acS.openId = null; return renderAcList(); }
+  document.getElementById('acListView').style.display = 'none';
+  const d = document.getElementById('acDetailView');
+  d.style.display = 'block';
+  const desc = (currentLang === 'ar' ? p.description_ar : p.description_en) || '';
+  const plans = acPlansOf(p.id);
+  d.innerHTML = `
+    <button class="ac-back" onclick="acBack()">${hx('← رجوع للمنتجات', '← Back to products')}</button>
+    <div class="ac-detail-head"><h3>${escapeHtml(acName(p))}</h3><span class="ac-tag">${acDeliveryLbl(p)}</span></div>
+    <p class="ac-desc-long">${escapeHtml(desc)}</p>
+    <div class="ac-plans">${plans.length ? plans.map(pl => acPlanHtml(p, pl)).join('') : `<div class="ac-empty">${hx('مفيش باقات متاحة', 'No plans available')}</div>`}</div>
+    <div id="acBuyMsg" class="ac-msg"></div>`;
+}
+
+function acPlanHtml(p, pl){
+  const isInstant = p.delivery_type === 'instant';
+  const avail = isInstant ? (acS.stock[pl.id] || 0) : null;
+  const blocked = isInstant && avail <= 0;
+  const stockLine = isInstant
+    ? `<div class="ac-plan-meta">${blocked ? hx('خلص حالياً', 'Out of stock') : hx(`متاح: ${avail}`, `Available: ${avail}`)}</div>`
+    : '';
+  return `<div class="ac-plan">
+    <div class="ac-plan-info">
+      <div class="ac-plan-name">${escapeHtml(acName(pl))}</div>
+      <div class="ac-plan-meta">${hx('المدة', 'Duration')}: ${pl.duration_days} ${hx('يوم', 'days')} · ${hx('الضمان', 'Guarantee')}: ${pl.guarantee_days} ${hx('يوم', 'days')}</div>
+      ${stockLine}
+    </div>
+    <div class="ac-plan-buy">
+      <b>${acMoney(pl.price_egp)}</b>
+      <button class="ac-buy" ${blocked ? 'disabled' : ''} onclick="acBuy('${pl.id}')">${hx('اشتري من المحفظة', 'Buy from wallet')}</button>
+    </div>
+  </div>`;
+}
+
+async function acBuy(planId){
+  const pl = acS.plans.find(x => x.id === planId);
+  if (!pl) return;
+  const ok = confirm(hx(
+    `تأكيد شراء ${acName(pl)} بـ ${acMoney(pl.price_egp)} من المحفظة؟`,
+    `Buy ${acName(pl)} for ${acMoney(pl.price_egp)} from your wallet?`));
+  if (!ok) return;
+  const { error } = await supabaseClient.rpc('store_buy', { p_plan_id: planId });
+  const msgEl = document.getElementById('acBuyMsg');
+  if (error) {
+    const m = error.message || '';
+    const text = m.includes('insufficient_balance') ? hx('رصيد المحفظة مش كفاية', 'Not enough wallet balance')
+      : m.includes('out_of_stock') ? hx('الباقة خلصت حالياً', 'This plan is out of stock')
+      : hx('فشلت عملية الشراء، حاول تاني', 'Purchase failed, please try again');
+    if (msgEl) { msgEl.textContent = text; msgEl.className = 'ac-msg err'; }
+    toast(text, 'error');
+    return;
+  }
+  toast(hx('تم الشراء بنجاح', 'Purchase successful'), 'success');
+  await loadAcademic();
+  goTab('my-orders');
+}
+
+/* My orders: active subscriptions with their end dates, and all orders with details when due */
+let acOrders = [];
+async function loadMyOrders(){
+  const { data, error } = await supabaseClient.from('store_orders').select('*').order('created_at', { ascending: false });
+  if (error) { toast(hx('تعذر تحميل الطلبات', 'Could not load orders'), 'error'); return; }
+  acOrders = data || [];
+  renderMyOrders();
+}
+
+function renderMyOrders(){
+  const now = new Date();
+  const subs = acOrders.filter(o => o.status !== 'refunded' && (o.delivery_type === 'subscription' || o.end_date));
+  const active = subs.filter(o => !o.end_date || new Date(o.end_date) > now);
+  document.getElementById('myActiveSubs').innerHTML = active.length
+    ? active.map(o => {
+        if (!o.end_date) return subCardHtml(o, hx('في انتظار التسليم', 'Awaiting delivery'), null);
+        const days = Math.max(0, Math.ceil((new Date(o.end_date) - now) / 86400000));
+        return subCardHtml(o, hx(`باقي ${days} يوم`, `${days} days left`), o.end_date);
+      }).join('')
+    : `<div class="ac-empty">${hx('مفيش اشتراكات نشطة', 'No active subscriptions')}</div>`;
+  document.getElementById('myOrdersList').innerHTML = acOrders.length
+    ? acOrders.map(orderCardHtml).join('')
+    : `<div class="ac-empty">${hx('مفيش طلبات لسه', 'No orders yet')}</div>`;
+}
+
+function subCardHtml(o, badge, endIso){
+  return `<div class="ac-sub">
+    <div><b>${escapeHtml(o.product_name)}</b><div class="ac-plan-meta">${escapeHtml(o.plan_name)}</div></div>
+    <div class="ac-sub-end"><span class="ac-badge ok">${badge}</span>
+      ${endIso ? `<div class="ac-plan-meta">${hx('ينتهي', 'Ends')}: ${fmtDateTime(endIso)}</div>` : ''}</div>
+  </div>`;
+}
+
+function orderCardHtml(o){
+  const now = new Date();
+  const due = o.deliver_at && new Date(o.deliver_at) <= now;
+  const refunded = o.status === 'refunded';
+  const st = refunded ? hx('مسترجع', 'Refunded')
+    : o.deliver_at ? hx('تم التسليم', 'Delivered')
+    : hx('في انتظار التسليم', 'Awaiting delivery');
+  const scheduled = (o.deliver_at && !due)
+    ? `<div class="ac-plan-meta">${hx('التفاصيل هتتفتح', 'Details open')}: ${fmtDateTime(o.deliver_at)}</div>` : '';
+  return `<div class="ac-order">
+    <div class="ac-order-top"><div><b>${escapeHtml(o.product_name)}</b> · ${escapeHtml(o.plan_name)}</div><span class="ac-badge">${st}</span></div>
+    <div class="ac-plan-meta">${fmtDateTime(o.created_at)} · ${acMoney(o.price_egp)}</div>
+    ${scheduled}
+    ${due && !refunded ? `<button class="ac-buy small" onclick="acShowDetails('${o.id}')">${hx('عرض التفاصيل', 'Show details')}</button><div id="acDet_${o.id}"></div>` : ''}
+  </div>`;
+}
+
+async function acShowDetails(id){
+  const box = document.getElementById('acDet_' + id);
+  if (!box) return;
+  if (box.dataset.open) { box.innerHTML = ''; box.dataset.open = ''; return; }
+  const { data, error } = await supabaseClient.rpc('store_my_order_details', { p_order_id: id });
+  if (error) { toast(hx('تعذر فتح التفاصيل', 'Could not open details'), 'error'); return; }
+  if (!data) { box.innerHTML = `<div class="ac-plan-meta">${hx('التفاصيل مش متاحة لسه', 'Details not available yet')}</div>`; return; }
+  const rows = Object.entries(data).filter(([, v]) => v !== null && v !== '');
+  box.dataset.open = '1';
+  box.innerHTML = `<div class="ac-cred">${rows.map(([k, v]) =>
+    `<div class="ac-cred-row"><span>${escapeHtml(k)}</span><code dir="ltr">${escapeHtml(String(v))}</code>
+      <button class="ac-copy" onclick="acCopy(this)" data-v="${escapeHtml(String(v))}">${hx('نسخ', 'Copy')}</button></div>`).join('')}</div>`;
+}
+
+function acCopy(btn){
+  navigator.clipboard?.writeText(btn.dataset.v).then(() => toast(hx('اتنسخ', 'Copied'), 'success'));
+}
 
 async function loadMyHistory(){
   const { data, error } = await supabaseClient.rpc('my_history');
@@ -9801,6 +10085,12 @@ function maybeShowOnboarding(profileData){
   <div class="mob-nav-item" data-tab="my-history" onclick="goTab('my-history')">
     <div class="mob-icon" data-icon-key="tab_my_history"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="24" height="24"><path d="M128,40a88,88,0,1,0,88,88A88.1,88.1,0,0,0,128,40Zm0,160a72,72,0,1,1,72-72A72.08,72.08,0,0,1,128,200Z" opacity="0.2"/><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm-8-48A95.44,95.44,0,0,0,61.57,58.32L45.5,42.24a8,8,0,0,0-11.31,11.32l16.07,16.07A96,96,0,1,0,128,32Z"/></svg></div>
     <span class="mob-label" data-i18n="nav_my_history">السجل</span>
+  </div>
+  <div class="mob-nav-item" data-tab="academic" onclick="goTab('academic')">
+    <div class="mob-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>
+    </div>
+    <span class="mob-label" data-i18n="nav_academic">Academic Tools</span>
   </div>
   <div class="mob-nav-item" data-tab="support" onclick="goTab('support')">
     <div class="mob-icon" data-icon-key="tab_support">
