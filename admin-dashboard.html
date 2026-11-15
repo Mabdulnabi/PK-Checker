@@ -1260,17 +1260,48 @@
       <!-- CREDITS TAB -->
 
       <div class="tabpane" id="tab-store">
+        <style>
+          #tab-store .st-card{ margin-bottom:16px; padding:18px 20px; }
+          #tab-store .st-title{ font-weight:800; font-size:15px; margin-bottom:10px; }
+          #tab-store .st-row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:10px; }
+          #tab-store .st-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:8px; margin-bottom:6px; }
+          #tab-store .st-lbl{ font-size:12px; color:var(--muted); font-weight:700; }
+          #tab-store .st-chk{ display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; padding:6px 10px; border:1px solid var(--paper-line); border-radius:9px; cursor:pointer; }
+          #tab-store .st-thumb{ width:44px; height:44px; border-radius:10px; object-fit:cover; border:1px solid var(--paper-line); background:#fff; }
+          #tab-store .st-pill{ display:inline-block; padding:2px 8px; border-radius:99px; font-size:10.5px; font-weight:800; color:#fff; margin:1px; }
+        </style>
         <div class="sec-head"><h2>🛍️ المتجر (Academic Tools)</h2></div>
 
-        <div class="tab-card" style="margin-bottom:16px;padding:18px 20px;">
-          <div style="font-weight:800;font-size:15px;margin-bottom:10px;">📂 التصنيفات والمنتجات</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-            <input id="stCatSlug" placeholder="slug (ai-tools)" style="max-width:150px;">
+        <div class="tab-card st-card">
+          <div class="st-title">🖼️ البانر المتحرك (المقاس 1200×280)</div>
+          <div class="st-row">
+            <span class="st-lbl">مدة كل صورة (ثواني)</span>
+            <input id="stBnInterval" type="number" min="1.5" max="60" step="0.5" style="max-width:110px;">
+            <button class="btn btn-outline" onclick="saveStoreBannerInterval()">حفظ المدة</button>
+          </div>
+          <div class="st-row">
+            <input id="stBnFile" type="file" accept="image/*">
+            <input id="stBnLink" dir="ltr" placeholder="https://... (رابط عند الضغط، اختياري)" style="flex:1;min-width:220px;">
+            <button class="btn btn-primary" onclick="addStoreBanner()">+ رفع بانر</button>
+          </div>
+          <div style="overflow-x:auto;"><table class="data-tbl" id="stBnTbl"></table></div>
+        </div>
+
+        <div class="tab-card st-card">
+          <div class="st-title">📂 التصنيفات</div>
+          <div class="st-row">
+            <input id="stCatSlug" dir="ltr" placeholder="slug (ai-tools)" style="max-width:150px;">
             <input id="stCatAr" placeholder="الاسم بالعربي">
             <input id="stCatEn" placeholder="Name in English">
-            <button class="btn btn-outline" onclick="saveStoreCategory()">+ تصنيف</button>
+            <span class="st-lbl">الصورة</span><input id="stCatFile" type="file" accept="image/*">
+            <button class="btn btn-primary" onclick="saveStoreCategory()">+ تصنيف</button>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-bottom:10px;">
+          <div style="overflow-x:auto;"><table class="data-tbl" id="stCatTbl"></table></div>
+        </div>
+
+        <div class="tab-card st-card">
+          <div class="st-title" id="stpFormTitle">📦 منتج جديد</div>
+          <div class="st-grid">
             <input id="stpNameAr" placeholder="اسم المنتج بالعربي">
             <input id="stpNameEn" placeholder="Product name in English">
             <select id="stpCat"></select>
@@ -1278,50 +1309,71 @@
               <option value="instant">⚡ توصيل فوري (مخزون)</option>
               <option value="subscription">🕒 اشتراك (تسليم يدوي)</option>
             </select>
+            <select id="stpAcc">
+              <option value="private">🔒 خاص (Private)</option>
+              <option value="shared">👥 مشترك (Shared)</option>
+            </select>
             <input id="stpDescAr" placeholder="الوصف بالعربي">
             <input id="stpDescEn" placeholder="Description in English">
-            <input id="stpImage" placeholder="رابط الصورة (اختياري)">
+            <input id="stpRating" type="number" min="0" max="5" step="0.1" placeholder="التقييم (0 - 5)">
+            <input id="stpRatingCount" type="number" min="0" placeholder="عدد التقييمات">
+            <div><span class="st-lbl">اللوجو</span> <input id="stpLogo" type="file" accept="image/*"></div>
           </div>
-          <div style="display:flex;justify-content:flex-end;margin-bottom:12px;"><button class="btn btn-primary" onclick="saveStoreProduct()">حفظ المنتج</button></div>
+          <div class="st-title" style="font-size:13px;margin-top:10px;">🏷️ البادجات اللي بتظهر على الكارت</div>
+          <div class="st-row">
+            <label class="st-chk"><input type="checkbox" id="stpShowOff" checked> نسبة الخصم (% OFF)</label>
+            <label class="st-chk"><input type="checkbox" id="stpShowDel" checked> نوع التوصيل (INSTANT)</label>
+            <label class="st-chk"><input type="checkbox" id="stpShowStock" checked> المتبقي من المخزون (left)</label>
+            <input id="stpBadgeText" placeholder="بادج إضافي (مثلاً HOT)" style="max-width:170px;">
+            <input id="stpBadgeColor" type="color" value="#8b5cf6" title="لون البادج الإضافي" style="width:44px;height:36px;padding:2px;">
+          </div>
+          <div class="st-row" style="justify-content:flex-end;">
+            <button class="btn btn-outline" id="stpCancelBtn" style="display:none;" onclick="resetStoreProductForm()">إلغاء التعديل</button>
+            <button class="btn btn-primary" onclick="saveStoreProduct()">حفظ المنتج</button>
+          </div>
           <div style="overflow-x:auto;"><table class="data-tbl" id="stProdTbl"></table></div>
         </div>
 
-        <div class="tab-card" style="margin-bottom:16px;padding:18px 20px;">
-          <div style="font-weight:800;font-size:15px;margin-bottom:10px;">📋 الباقات</div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:10px;">
+        <div class="tab-card st-card">
+          <div class="st-title" id="stPlanFormTitle">📋 باقة جديدة</div>
+          <div class="st-grid">
             <select id="stPlanProd" onchange="renderStorePlanTable()"></select>
             <input id="stPlanAr" placeholder="اسم الباقة بالعربي">
             <input id="stPlanEn" placeholder="Plan name in English">
             <input id="stPlanPrice" type="number" min="0" step="0.01" placeholder="السعر (ج.م)">
-            <input id="stPlanDays" type="number" min="1" placeholder="المدة (أيام)">
+            <input id="stPlanOld" type="number" min="0" step="0.01" placeholder="السعر الرسمي قبل الخصم (اختياري)">
+            <input id="stPlanDays" type="number" min="1" placeholder="المدة (أيام) — 30 / 365">
             <input id="stPlanGuar" type="number" min="0" placeholder="الضمان (أيام)">
           </div>
-          <div style="display:flex;justify-content:flex-end;margin-bottom:12px;"><button class="btn btn-primary" onclick="saveStorePlan()">+ باقة</button></div>
+          <div class="st-row" style="justify-content:flex-end;">
+            <button class="btn btn-outline" id="stPlanCancelBtn" style="display:none;" onclick="resetStorePlanForm()">إلغاء التعديل</button>
+            <button class="btn btn-primary" onclick="saveStorePlan()">حفظ الباقة</button>
+          </div>
           <div style="overflow-x:auto;"><table class="data-tbl" id="stPlanTbl"></table></div>
         </div>
 
-        <div class="tab-card" style="margin-bottom:16px;padding:18px 20px;">
-          <div style="font-weight:800;font-size:15px;margin-bottom:10px;">🔐 المخزون (توصيل فوري)</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
+        <div class="tab-card st-card">
+          <div class="st-title">🔐 المخزون (توصيل فوري)</div>
+          <div class="st-row">
             <select id="stStockPlan" onchange="loadStoreStock()" style="min-width:240px;"></select>
-            <span id="stStockCount" style="font-size:12.5px;color:var(--muted);font-weight:700;"></span>
+            <span id="stStockCount" class="st-lbl"></span>
           </div>
-          <textarea id="stStockLines" rows="5" dir="ltr" placeholder="email@example.com | password | note (one per line)" style="width:100%;font-family:monospace;font-size:12px;"></textarea>
-          <div style="display:flex;justify-content:flex-end;margin:8px 0 12px;"><button class="btn btn-primary" onclick="uploadStoreStock()">رفع المخزون</button></div>
+          <textarea id="stStockLines" rows="5" dir="ltr" placeholder="email@example.com | password | note   (سطر لكل حساب)" style="width:100%;font-family:monospace;font-size:12px;"></textarea>
+          <div class="st-row" style="justify-content:flex-end;margin-top:8px;"><button class="btn btn-primary" onclick="uploadStoreStock()">رفع المخزون</button></div>
           <div style="overflow-x:auto;"><table class="data-tbl" id="stStockTbl"></table></div>
         </div>
 
-        <div class="tab-card" style="margin-bottom:16px;padding:18px 20px;">
-          <div style="font-weight:800;font-size:15px;margin-bottom:10px;">🕒 اشتراكات في انتظار التسليم</div>
+        <div class="tab-card st-card">
+          <div class="st-title">🕒 اشتراكات في انتظار التسليم</div>
           <div id="stSubList"></div>
         </div>
 
-        <div class="tab-card" style="padding:18px 20px;">
-          <div style="font-weight:800;font-size:15px;margin-bottom:10px;">💳 رصيد محفظة Academic Tools</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div class="tab-card st-card">
+          <div class="st-title">💳 رصيد محفظة المتجر</div>
+          <div class="st-row">
             <input id="stWalPk" type="number" min="1" placeholder="كود PK" style="max-width:130px;">
             <input id="stWalAmt" type="number" step="0.01" placeholder="المبلغ (+ إضافة / - خصم)" style="max-width:200px;">
-            <input id="stWalNote" placeholder="ملاحظة" style="flex:1;min-width:160px;">
+            <input id="stWalNote" placeholder="سبب التعديل" style="flex:1;min-width:160px;">
             <button class="btn btn-primary" onclick="adjustStoreWallet()">تنفيذ</button>
           </div>
         </div>
@@ -6055,38 +6107,86 @@ async function toggleSlotValidity(el){
 }
 
 /* ── Academic Tools store (admin) ───────────────────────────────────────── */
-const stS = { cats: [], prods: [], plans: [], stock: {} };
+const stS = { cats: [], prods: [], plans: [], stock: {}, banners: [], editProd: null, editPlan: null };
 const stEsc = s => escapeHtml(String(s ?? ''));
 const stProdById = id => stS.prods.find(p => p.id === id);
 const stPN = p => `${p.name_ar} / ${p.name_en}`;
+const stMoney = v => `${Number(v || 0).toLocaleString('en-US', { maximumFractionDigits: 2 })} ج.م`;
+const stEmpty = (cols, txt) => `<tr><td colspan="${cols}" style="text-align:center;color:var(--muted);">${txt}</td></tr>`;
 
 function initStoreTab(){ loadStoreAdmin(); }
 
+// Uploads an image to the public store-assets bucket and returns its URL.
+async function stUpload(file, folder){
+  if (!file) return null;
+  if (!/^image\//.test(file.type)) throw new Error('الملف لازم يكون صورة');
+  const ext = ((file.name.split('.').pop() || 'png').toLowerCase().replace(/[^a-z0-9]/g, '')) || 'png';
+  const path = `${folder}/${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { error } = await supabaseClient.storage.from('store-assets').upload(path, file, { upsert: false, contentType: file.type });
+  if (error) throw error;
+  return supabaseClient.storage.from('store-assets').getPublicUrl(path).data.publicUrl;
+}
+
 async function loadStoreAdmin(){
-  const [c, p, pl, st] = await Promise.all([
+  const [c, p, pl, st, bn, set] = await Promise.all([
     supabaseClient.from('store_categories').select('*').order('sort_order'),
     supabaseClient.from('store_products').select('*').order('sort_order'),
     supabaseClient.from('store_plans').select('*').order('sort_order'),
     supabaseClient.rpc('store_plan_stock'),
+    supabaseClient.from('store_banners').select('*').order('sort_order'),
+    supabaseClient.from('store_settings').select('*').eq('id', 1).maybeSingle(),
   ]);
-  const err = c.error || p.error || pl.error || st.error;
+  const err = c.error || p.error || pl.error || st.error || bn.error;
   if (err) { await adminAlert('تعذر تحميل المتجر: ' + err.message, {icon:'❌', danger:true}); return; }
   stS.cats = c.data || [];
   stS.prods = p.data || [];
   stS.plans = pl.data || [];
+  stS.banners = bn.data || [];
   stS.stock = {};
   (st.data || []).forEach(s => { stS.stock[s.plan_id] = s; });
+  document.getElementById('stBnInterval').value = (set.data?.banner_interval_ms || 5000) / 1000;
   renderStoreAdmin();
   loadStoreSubs();
 }
 
+async function updateStoreRow(table, id, patch){
+  const { error } = await supabaseClient.from(table).update(patch).eq('id', id);
+  if (error) return adminAlert('فشل التحديث: ' + error.message, {icon:'❌', danger:true});
+  loadStoreAdmin();
+}
+
 function renderStoreAdmin(){
+  // Banners
+  document.getElementById('stBnTbl').innerHTML = '<thead><tr><th>الصورة</th><th>الرابط</th><th>الترتيب</th><th>الحالة</th><th></th></tr></thead><tbody>'
+    + (stS.banners.length ? stS.banners.map(b => `<tr>
+        <td><img src="${stEsc(b.image_url)}" alt="" style="width:200px;aspect-ratio:1200/280;object-fit:cover;border-radius:8px;"></td>
+        <td dir="ltr" style="font-size:11px;max-width:220px;word-break:break-all;">${stEsc(b.link_url || '—')}</td>
+        <td><input type="number" value="${b.sort_order}" style="width:64px;" onchange="updateStoreRow('store_banners','${b.id}',{sort_order:parseInt(this.value,10)||0})"></td>
+        <td>${b.active ? 'مفعّل' : 'موقوف'}</td>
+        <td style="white-space:nowrap;"><button class="msg-btn" onclick="updateStoreRow('store_banners','${b.id}',{active:${!b.active}})">${b.active ? 'إيقاف' : 'تفعيل'}</button>
+          <button class="msg-btn" style="color:var(--danger);" onclick="deleteStoreBanner('${b.id}')">🗑</button></td></tr>`).join('')
+      : stEmpty(5, 'مفيش بانرات لسه')) + '</tbody>';
+
+  // Categories
+  document.getElementById('stCatTbl').innerHTML = '<thead><tr><th>الصورة</th><th>الاسم</th><th>slug</th><th>الترتيب</th><th>الحالة</th><th></th></tr></thead><tbody>'
+    + (stS.cats.length ? stS.cats.map(c => `<tr>
+        <td>${c.image_url ? `<img class="st-thumb" src="${stEsc(c.image_url)}" alt="">` : '—'}</td>
+        <td><b>${stEsc(c.name_ar)}</b> / ${stEsc(c.name_en)}</td><td dir="ltr">${stEsc(c.slug)}</td>
+        <td><input type="number" value="${c.sort_order}" style="width:64px;" onchange="updateStoreRow('store_categories','${c.id}',{sort_order:parseInt(this.value,10)||0})"></td>
+        <td>${c.active ? 'مفعّل' : 'موقوف'}</td>
+        <td style="white-space:nowrap;">
+          <label class="msg-btn" style="cursor:pointer;">🖼️ صورة<input type="file" accept="image/*" style="display:none;" onchange="changeStoreCatImage('${c.id}', this)"></label>
+          <button class="msg-btn" onclick="updateStoreRow('store_categories','${c.id}',{active:${!c.active}})">${c.active ? 'إيقاف' : 'تفعيل'}</button></td></tr>`).join('')
+      : stEmpty(6, 'مفيش تصنيفات لسه')) + '</tbody>';
+
+  // Selects
+  const prevCat = document.getElementById('stpCat').value;
   document.getElementById('stpCat').innerHTML = '<option value="">— بدون تصنيف —</option>'
     + stS.cats.map(c => `<option value="${c.id}">${stEsc(c.name_ar)} / ${stEsc(c.name_en)}</option>`).join('');
+  if (prevCat) document.getElementById('stpCat').value = prevCat;
   const prevProd = document.getElementById('stPlanProd').value;
   document.getElementById('stPlanProd').innerHTML = stS.prods.map(p => `<option value="${p.id}">${stEsc(stPN(p))}</option>`).join('');
   if (prevProd && stS.prods.some(p => p.id === prevProd)) document.getElementById('stPlanProd').value = prevProd;
-
   const instantPlans = stS.plans.filter(pl => stProdById(pl.product_id)?.delivery_type === 'instant');
   const prevStock = document.getElementById('stStockPlan').value;
   document.getElementById('stStockPlan').innerHTML = instantPlans.length
@@ -6094,13 +6194,25 @@ function renderStoreAdmin(){
     : '<option value="">— مفيش باقات توصيل فوري —</option>';
   if (prevStock && instantPlans.some(pl => pl.id === prevStock)) document.getElementById('stStockPlan').value = prevStock;
 
-  document.getElementById('stProdTbl').innerHTML = '<thead><tr><th>المنتج</th><th>التصنيف</th><th>النوع</th><th>الحالة</th><th></th></tr></thead><tbody>'
+  // Products
+  document.getElementById('stProdTbl').innerHTML = '<thead><tr><th></th><th>المنتج</th><th>التصنيف</th><th>النوع</th><th>التقييم</th><th>البادجات</th><th>الحالة</th><th></th></tr></thead><tbody>'
     + (stS.prods.length ? stS.prods.map(p => {
         const cat = stS.cats.find(c => c.id === p.category_id);
-        return `<tr><td><b>${stEsc(stPN(p))}</b></td><td>${cat ? stEsc(cat.name_ar) : '—'}</td>
-          <td>${p.delivery_type === 'instant' ? '⚡ فوري' : '🕒 اشتراك'}</td><td>${p.active ? 'مفعّل' : 'موقوف'}</td>
-          <td><button class="msg-btn" onclick="toggleStoreProduct('${p.id}', ${!p.active})">${p.active ? 'إيقاف' : 'تفعيل'}</button></td></tr>`;
-      }).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--muted);">مفيش منتجات لسه</td></tr>') + '</tbody>';
+        const badges = [
+          p.show_discount ? '<span class="st-pill" style="background:#ef4444;">% OFF</span>' : '',
+          p.show_delivery ? '<span class="st-pill" style="background:#10b981;">DELIVERY</span>' : '',
+          p.show_stock ? '<span class="st-pill" style="background:#f97316;">LEFT</span>' : '',
+          p.custom_badge_text ? `<span class="st-pill" style="background:${/^#[0-9a-f]{3,8}$/i.test(p.custom_badge_color || '') ? p.custom_badge_color : '#6366f1'};">${stEsc(p.custom_badge_text)}</span>` : '',
+        ].join('');
+        return `<tr>
+          <td>${p.image_url ? `<img class="st-thumb" src="${stEsc(p.image_url)}" alt="">` : '—'}</td>
+          <td><b>${stEsc(stPN(p))}</b></td><td>${cat ? stEsc(cat.name_ar) : '—'}</td>
+          <td>${p.delivery_type === 'instant' ? '⚡ فوري' : '🕒 اشتراك'} · ${p.account_type === 'shared' ? 'مشترك' : 'خاص'}</td>
+          <td>${Number(p.rating).toFixed(1)} (${p.rating_count})</td><td>${badges || '—'}</td>
+          <td>${p.active ? 'مفعّل' : 'موقوف'}</td>
+          <td style="white-space:nowrap;"><button class="msg-btn" onclick="editStoreProduct('${p.id}')">✏️ تعديل</button>
+            <button class="msg-btn" onclick="updateStoreRow('store_products','${p.id}',{active:${!p.active}})">${p.active ? 'إيقاف' : 'تفعيل'}</button></td></tr>`;
+      }).join('') : stEmpty(8, 'مفيش منتجات لسه')) + '</tbody>';
 
   renderStorePlanTable();
   loadStoreStock();
@@ -6109,77 +6221,184 @@ function renderStoreAdmin(){
 function renderStorePlanTable(){
   const pid = document.getElementById('stPlanProd').value;
   const rows = stS.plans.filter(pl => pl.product_id === pid);
-  document.getElementById('stPlanTbl').innerHTML = '<thead><tr><th>الباقة</th><th>السعر</th><th>المدة</th><th>الضمان</th><th>المخزون</th><th>الحالة</th><th></th></tr></thead><tbody>'
+  document.getElementById('stPlanTbl').innerHTML = '<thead><tr><th>الباقة</th><th>السعر</th><th>السعر الرسمي</th><th>المدة</th><th>الضمان</th><th>المخزون</th><th>الحالة</th><th></th></tr></thead><tbody>'
     + (rows.length ? rows.map(pl => {
         const s = stS.stock[pl.id];
         return `<tr><td>${stEsc(pl.name_ar)} / ${stEsc(pl.name_en)}</td>
-          <td>${Number(pl.price_egp).toLocaleString('en-US')} ج.م</td><td>${pl.duration_days} يوم</td><td>${pl.guarantee_days} يوم</td>
+          <td>${stMoney(pl.price_egp)}</td><td>${pl.old_price_egp ? stMoney(pl.old_price_egp) : '—'}</td>
+          <td>${pl.duration_days} يوم</td><td>${pl.guarantee_days} يوم</td>
           <td>${s ? `${s.available} متاح · ${s.sold} مباع` : '—'}</td><td>${pl.active ? 'مفعّل' : 'موقوف'}</td>
-          <td><button class="msg-btn" onclick="toggleStorePlan('${pl.id}', ${!pl.active})">${pl.active ? 'إيقاف' : 'تفعيل'}</button></td></tr>`;
-      }).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--muted);">مفيش باقات للمنتج ده</td></tr>') + '</tbody>';
+          <td style="white-space:nowrap;"><button class="msg-btn" onclick="editStorePlan('${pl.id}')">✏️ تعديل</button>
+            <button class="msg-btn" onclick="updateStoreRow('store_plans','${pl.id}',{active:${!pl.active}})">${pl.active ? 'إيقاف' : 'تفعيل'}</button></td></tr>`;
+      }).join('') : stEmpty(8, 'مفيش باقات للمنتج ده')) + '</tbody>';
 }
 
+/* Banners */
+async function saveStoreBannerInterval(){
+  const secs = Number(document.getElementById('stBnInterval').value);
+  if (!(secs >= 1.5 && secs <= 60)) return adminAlert('المدة لازم تكون بين 1.5 و 60 ثانية', {icon:'⚠️'});
+  const { error } = await supabaseClient.from('store_settings').update({ banner_interval_ms: Math.round(secs * 1000) }).eq('id', 1);
+  if (error) return adminAlert('فشل الحفظ: ' + error.message, {icon:'❌', danger:true});
+  adminAlert('✅ اتحفظت مدة البانر', {icon:'✅'});
+}
+async function addStoreBanner(){
+  const file = document.getElementById('stBnFile').files[0];
+  const link = document.getElementById('stBnLink').value.trim();
+  if (!file) return adminAlert('اختار صورة البانر الأول (1200×280)', {icon:'⚠️'});
+  if (link && !/^https?:\/\//i.test(link)) return adminAlert('الرابط لازم يبدأ بـ https://', {icon:'⚠️'});
+  try {
+    const url = await stUpload(file, 'banners');
+    const { error } = await supabaseClient.from('store_banners').insert({ image_url: url, link_url: link || null, sort_order: stS.banners.length + 1 });
+    if (error) throw error;
+  } catch (e) { return adminAlert('فشل رفع البانر: ' + (e.message || e), {icon:'❌', danger:true}); }
+  document.getElementById('stBnFile').value = '';
+  document.getElementById('stBnLink').value = '';
+  await logAdminActivity('setting_change', null, '', 'إضافة بانر للمتجر');
+  loadStoreAdmin();
+}
+// Removes the banner from the store only. The image file stays in storage.
+async function deleteStoreBanner(id){
+  const ok = await adminConfirm('هيتشال البانر ده من المتجر (الصورة نفسها بتفضل محفوظة). متأكد؟', {icon:'⚠️', danger:true, confirmLabel:'إزالة'});
+  if (!ok) return;
+  const { error } = await supabaseClient.from('store_banners').delete().eq('id', id);
+  if (error) return adminAlert('فشل الإزالة: ' + error.message, {icon:'❌', danger:true});
+  loadStoreAdmin();
+}
+
+/* Categories */
 async function saveStoreCategory(){
   const slug = document.getElementById('stCatSlug').value.trim();
   const ar = document.getElementById('stCatAr').value.trim();
   const en = document.getElementById('stCatEn').value.trim();
   if (!slug || !ar || !en) return adminAlert('اكتب الـ slug والاسم بالعربي والإنجليزي', {icon:'⚠️'});
-  const { error } = await supabaseClient.from('store_categories').insert({ slug, name_ar: ar, name_en: en, sort_order: stS.cats.length + 1 });
-  if (error) return adminAlert('فشل الحفظ: ' + error.message, {icon:'❌', danger:true});
-  ['stCatSlug','stCatAr','stCatEn'].forEach(id => { document.getElementById(id).value = ''; });
+  try {
+    const image_url = await stUpload(document.getElementById('stCatFile').files[0], 'categories');
+    const { error } = await supabaseClient.from('store_categories').insert({ slug, name_ar: ar, name_en: en, image_url, sort_order: stS.cats.length + 1 });
+    if (error) throw error;
+  } catch (e) { return adminAlert('فشل الحفظ: ' + (e.message || e), {icon:'❌', danger:true}); }
+  ['stCatSlug', 'stCatAr', 'stCatEn', 'stCatFile'].forEach(id => { document.getElementById(id).value = ''; });
   loadStoreAdmin();
 }
+async function changeStoreCatImage(id, input){
+  try {
+    const url = await stUpload(input.files[0], 'categories');
+    if (url) await updateStoreRow('store_categories', id, { image_url: url });
+  } catch (e) { adminAlert('فشل رفع الصورة: ' + (e.message || e), {icon:'❌', danger:true}); }
+}
 
+/* Products */
+function resetStoreProductForm(){
+  stS.editProd = null;
+  ['stpNameAr', 'stpNameEn', 'stpDescAr', 'stpDescEn', 'stpRating', 'stpRatingCount', 'stpLogo', 'stpBadgeText'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('stpCat').value = '';
+  document.getElementById('stpType').value = 'instant';
+  document.getElementById('stpAcc').value = 'private';
+  ['stpShowOff', 'stpShowDel', 'stpShowStock'].forEach(id => { document.getElementById(id).checked = true; });
+  document.getElementById('stpBadgeColor').value = '#8b5cf6';
+  document.getElementById('stpFormTitle').textContent = '📦 منتج جديد';
+  document.getElementById('stpCancelBtn').style.display = 'none';
+}
+function editStoreProduct(id){
+  const p = stProdById(id);
+  if (!p) return;
+  stS.editProd = id;
+  document.getElementById('stpNameAr').value = p.name_ar || '';
+  document.getElementById('stpNameEn').value = p.name_en || '';
+  document.getElementById('stpCat').value = p.category_id || '';
+  document.getElementById('stpType').value = p.delivery_type;
+  document.getElementById('stpAcc').value = p.account_type || 'private';
+  document.getElementById('stpDescAr').value = p.description_ar || '';
+  document.getElementById('stpDescEn').value = p.description_en || '';
+  document.getElementById('stpRating').value = p.rating ?? '';
+  document.getElementById('stpRatingCount').value = p.rating_count ?? '';
+  document.getElementById('stpLogo').value = '';
+  document.getElementById('stpShowOff').checked = !!p.show_discount;
+  document.getElementById('stpShowDel').checked = !!p.show_delivery;
+  document.getElementById('stpShowStock').checked = !!p.show_stock;
+  document.getElementById('stpBadgeText').value = p.custom_badge_text || '';
+  document.getElementById('stpBadgeColor').value = /^#[0-9a-f]{6}$/i.test(p.custom_badge_color || '') ? p.custom_badge_color : '#8b5cf6';
+  document.getElementById('stpFormTitle').textContent = '✏️ تعديل: ' + p.name_en;
+  document.getElementById('stpCancelBtn').style.display = '';
+  document.getElementById('stpFormTitle').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
 async function saveStoreProduct(){
   const nameAr = document.getElementById('stpNameAr').value.trim();
   const nameEn = document.getElementById('stpNameEn').value.trim();
   if (!nameAr || !nameEn) return adminAlert('اكتب اسم المنتج بالعربي والإنجليزي', {icon:'⚠️'});
+  const rating = document.getElementById('stpRating').value === '' ? 5 : Number(document.getElementById('stpRating').value);
+  const ratingCount = parseInt(document.getElementById('stpRatingCount').value, 10) || 0;
+  if (!(rating >= 0 && rating <= 5)) return adminAlert('التقييم لازم يكون بين 0 و 5', {icon:'⚠️'});
   const payload = {
     name_ar: nameAr,
     name_en: nameEn,
     category_id: document.getElementById('stpCat').value || null,
     delivery_type: document.getElementById('stpType').value,
+    account_type: document.getElementById('stpAcc').value,
     description_ar: document.getElementById('stpDescAr').value.trim() || null,
     description_en: document.getElementById('stpDescEn').value.trim() || null,
-    image_url: document.getElementById('stpImage').value.trim() || null,
-    active: true,
-    sort_order: stS.prods.length + 1,
+    rating,
+    rating_count: ratingCount,
+    show_discount: document.getElementById('stpShowOff').checked,
+    show_delivery: document.getElementById('stpShowDel').checked,
+    show_stock: document.getElementById('stpShowStock').checked,
+    custom_badge_text: document.getElementById('stpBadgeText').value.trim() || null,
+    custom_badge_color: document.getElementById('stpBadgeColor').value,
   };
-  const { error } = await supabaseClient.from('store_products').insert(payload);
-  if (error) return adminAlert('فشل الحفظ: ' + error.message, {icon:'❌', danger:true});
-  ['stpNameAr','stpNameEn','stpDescAr','stpDescEn','stpImage'].forEach(id => { document.getElementById(id).value = ''; });
-  await logAdminActivity('setting_change', null, '', 'منتج متجر جديد: ' + nameEn);
+  try {
+    const logo = await stUpload(document.getElementById('stpLogo').files[0], 'products');
+    if (logo) payload.image_url = logo;
+    const q = stS.editProd
+      ? supabaseClient.from('store_products').update(payload).eq('id', stS.editProd)
+      : supabaseClient.from('store_products').insert({ ...payload, active: true, sort_order: stS.prods.length + 1 });
+    const { error } = await q;
+    if (error) throw error;
+  } catch (e) { return adminAlert('فشل الحفظ: ' + (e.message || e), {icon:'❌', danger:true}); }
+  await logAdminActivity('setting_change', null, '', (stS.editProd ? 'تعديل منتج متجر: ' : 'منتج متجر جديد: ') + nameEn);
+  resetStoreProductForm();
   loadStoreAdmin();
 }
 
-async function toggleStoreProduct(id, on){
-  const { error } = await supabaseClient.from('store_products').update({ active: on }).eq('id', id);
-  if (error) return adminAlert('فشل التحديث: ' + error.message, {icon:'❌', danger:true});
-  loadStoreAdmin();
+/* Plans */
+function resetStorePlanForm(){
+  stS.editPlan = null;
+  ['stPlanAr', 'stPlanEn', 'stPlanPrice', 'stPlanOld', 'stPlanDays', 'stPlanGuar'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('stPlanFormTitle').textContent = '📋 باقة جديدة';
+  document.getElementById('stPlanCancelBtn').style.display = 'none';
 }
-
+function editStorePlan(id){
+  const pl = stS.plans.find(x => x.id === id);
+  if (!pl) return;
+  stS.editPlan = id;
+  document.getElementById('stPlanProd').value = pl.product_id;
+  document.getElementById('stPlanAr').value = pl.name_ar || '';
+  document.getElementById('stPlanEn').value = pl.name_en || '';
+  document.getElementById('stPlanPrice').value = pl.price_egp;
+  document.getElementById('stPlanOld').value = pl.old_price_egp ?? '';
+  document.getElementById('stPlanDays').value = pl.duration_days;
+  document.getElementById('stPlanGuar').value = pl.guarantee_days;
+  document.getElementById('stPlanFormTitle').textContent = '✏️ تعديل باقة: ' + pl.name_en;
+  document.getElementById('stPlanCancelBtn').style.display = '';
+  document.getElementById('stPlanFormTitle').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
 async function saveStorePlan(){
   const pid = document.getElementById('stPlanProd').value;
   const ar = document.getElementById('stPlanAr').value.trim();
   const en = document.getElementById('stPlanEn').value.trim();
   const price = Number(document.getElementById('stPlanPrice').value);
+  const oldRaw = document.getElementById('stPlanOld').value;
+  const old = oldRaw === '' ? null : Number(oldRaw);
   const days = parseInt(document.getElementById('stPlanDays').value, 10);
   const guar = parseInt(document.getElementById('stPlanGuar').value, 10) || 0;
   if (!pid) return adminAlert('اختار منتج الأول', {icon:'⚠️'});
   if (!ar || !en) return adminAlert('اكتب اسم الباقة بالعربي والإنجليزي', {icon:'⚠️'});
   if (!(price >= 0) || !(days > 0)) return adminAlert('السعر لازم يكون 0 أو أكتر، والمدة يوم أو أكتر', {icon:'⚠️'});
-  const { error } = await supabaseClient.from('store_plans').insert({
-    product_id: pid, name_ar: ar, name_en: en, price_egp: price, duration_days: days, guarantee_days: guar,
-    active: true, sort_order: stS.plans.length + 1,
-  });
+  if (old !== null && !(old >= 0)) return adminAlert('السعر الرسمي لازم يكون رقم موجب', {icon:'⚠️'});
+  const payload = { product_id: pid, name_ar: ar, name_en: en, price_egp: price, old_price_egp: old, duration_days: days, guarantee_days: guar };
+  const { error } = stS.editPlan
+    ? await supabaseClient.from('store_plans').update(payload).eq('id', stS.editPlan)
+    : await supabaseClient.from('store_plans').insert({ ...payload, active: true, sort_order: stS.plans.length + 1 });
   if (error) return adminAlert('فشل الحفظ: ' + error.message, {icon:'❌', danger:true});
-  ['stPlanAr','stPlanEn','stPlanPrice','stPlanDays','stPlanGuar'].forEach(id => { document.getElementById(id).value = ''; });
-  loadStoreAdmin();
-}
-
-async function toggleStorePlan(id, on){
-  const { error } = await supabaseClient.from('store_plans').update({ active: on }).eq('id', id);
-  if (error) return adminAlert('فشل التحديث: ' + error.message, {icon:'❌', danger:true});
+  resetStorePlanForm();
   loadStoreAdmin();
 }
 
@@ -6200,9 +6419,8 @@ async function loadStoreStock(){
         <td>${r.status === 'available' ? 'متاح' : 'مباع'}</td>
         <td>${fmtDateTime(r.sold_at || r.created_at)}</td>
         <td>${r.status === 'available' ? `<button class="msg-btn" style="color:var(--danger);" onclick="deleteStoreStock('${r.id}')">🗑</button>` : ''}</td>
-      </tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--muted);">مفيش مخزون</td></tr>') + '</tbody>';
+      </tr>`).join('') : stEmpty(5, 'مفيش مخزون')) + '</tbody>';
 }
-
 function stRevealPwd(btn){ btn.textContent = btn.dataset.v || '—'; }
 
 async function uploadStoreStock(){
@@ -6226,11 +6444,11 @@ async function uploadStoreStock(){
 }
 
 async function deleteStoreStock(id){
-  const ok = await adminConfirm('هتتحذف الحسابة دي من المخزون. متأكد؟', {icon:'⚠️', danger:true, confirmLabel:'حذف'});
+  const ok = await adminConfirm('الحساب ده هيتشال من المخزون. متأكد؟', {icon:'⚠️', danger:true, confirmLabel:'حذف'});
   if (!ok) return;
   const { data, error } = await supabaseClient.rpc('store_admin_delete_stock', { p_item_id: id });
   if (error) return adminAlert('فشل الحذف: ' + error.message, {icon:'❌', danger:true});
-  if (!data) return adminAlert('الحسابة اتباعت قبل كده ومينفعش تتحذف', {icon:'⚠️'});
+  if (!data) return adminAlert('الحساب ده اتباع قبل كده ومينفعش يتشال', {icon:'⚠️'});
   await logAdminActivity('setting_change', null, '', 'حذف عنصر من مخزون المتجر');
   loadStoreAdmin();
 }
@@ -6244,7 +6462,7 @@ async function loadStoreSubs(){
   box.innerHTML = (data || []).length ? data.map(o => `<div style="border:1px solid var(--paper-line);border-radius:12px;padding:12px;margin-bottom:10px;">
       <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
         <b>${stEsc(o.product_name)} · ${stEsc(o.plan_name)}</b>
-        <span style="font-size:11.5px;color:var(--muted);">${fmtDateTime(o.created_at)} · ${Number(o.price_egp).toLocaleString('en-US')} ج.م</span>
+        <span style="font-size:11.5px;color:var(--muted);">${fmtDateTime(o.created_at)} · ${stMoney(o.price_egp)}</span>
       </div>
       <textarea id="sd_${o.id}" rows="3" dir="ltr" placeholder="email: x@example.com&#10;password: ...&#10;note: ..." style="width:100%;margin-top:8px;font-family:monospace;font-size:12px;"></textarea>
       <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:8px;flex-wrap:wrap;">

@@ -1973,12 +1973,6 @@
         </div>
         <span data-i18n="nav_academic">Academic Tools</span><span class="soon-badge">Soon</span>
       </div>
-      <div class="navtab sidebar-item" data-tab="my-orders">
-        <div class="sid-chip sid-teal">
-          <svg data-icon-key="tab_my_orders" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
-        </div>
-        <span data-i18n="nav_my_orders">طلباتي</span><span class="soon-badge">Soon</span>
-      </div>
       <div class="navtab sidebar-item" data-tab="support">
         <div class="sid-chip sid-orange">
           <!-- ph-headset duotone -->
@@ -2576,6 +2570,8 @@
 
     <style>
       .sid-teal{ color:#0d9488 !important; }
+      .sid-teal{ background:#0d948818; color:#0d9488; }
+      .sidebar-item[data-tab="academic"]{ --tab-color:#0d9488; }
       .soon-badge{
         display:inline-flex; align-items:center; flex-shrink:0; white-space:nowrap; margin-inline-start:4px; vertical-align:middle;
         padding:0 6px; border-radius:999px; border:1px solid rgba(14,122,254,.22);
@@ -2586,74 +2582,194 @@
       .navtab .soon-badge{ max-width:100%; }
       .navtab > span:not(.soon-badge){ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
       .mob-nav-item .soon-badge{ margin-inline-start:0; margin-top:1px; font-size:6.5px; padding:0 4px; }
-      .sid-teal{ background:#0d948818; color:#0d9488; }
-      .sidebar-item[data-tab="academic"],.sidebar-item[data-tab="my-orders"]{ --tab-color:#0d9488; }
-      .ac-wallet{ background:var(--paper); border:1px solid var(--paper-line); border-radius:16px; padding:18px 20px; margin-bottom:16px; }
-      .ac-wlbl{ font-size:12px; color:var(--muted); font-weight:700; }
-      .ac-wbal{ font-family:'Space Grotesk',sans-serif; font-size:28px; font-weight:700; color:var(--navy); }
-      .ac-wbal small{ font-size:13px; color:var(--muted); }
-      .ac-cats{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
-      .ac-chip{ padding:7px 14px; border-radius:30px; border:1.5px solid var(--paper-line); background:var(--paper); cursor:pointer; font-family:'Cairo',sans-serif; font-size:12px; font-weight:700; color:var(--navy); }
-      .ac-chip.on{ background:var(--blue); color:#fff; border-color:var(--blue); }
-      .ac-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; }
-      .ac-card{ background:var(--paper); border:1px solid var(--paper-line); border-radius:16px; padding:16px; cursor:pointer; display:flex; flex-direction:column; gap:10px; }
-      .ac-card:hover{ border-color:var(--blue); }
-      .ac-card-top{ display:flex; flex-direction:column; gap:6px; }
-      .ac-name{ font-weight:800; color:var(--navy); font-size:15px; }
-      .ac-tag{ align-self:flex-start; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:20px; background:var(--blue-wash); color:var(--blue-deep); }
-      .ac-desc{ font-size:12.5px; color:var(--muted); line-height:1.6; min-height:20px; }
-      .ac-desc-long{ font-size:13.5px; color:var(--muted); line-height:1.7; margin:10px 0 16px; }
-      .ac-foot{ display:flex; justify-content:space-between; align-items:flex-end; margin-top:auto; }
-      .ac-foot small{ display:block; font-size:10.5px; color:var(--muted); }
-      .ac-foot b{ font-family:'Space Grotesk',sans-serif; color:var(--navy); font-size:17px; }
-      .ac-stock{ font-size:11px; font-weight:700; color:var(--muted); }
-      .ac-back{ background:none; border:none; color:var(--blue); font-weight:700; font-family:'Cairo',sans-serif; cursor:pointer; padding:0; margin-bottom:12px; }
-      .ac-detail-head{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-      .ac-detail-head h3{ margin:0; color:var(--navy); font-size:20px; }
-      .ac-plans{ display:flex; flex-direction:column; gap:10px; }
-      .ac-plan{ background:var(--paper); border:1px solid var(--paper-line); border-radius:14px; padding:14px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
-      .ac-plan-name{ font-weight:800; color:var(--navy); }
-      .ac-plan-meta{ font-size:11.5px; color:var(--muted); margin-top:3px; }
-      .ac-plan-buy{ display:flex; align-items:center; gap:12px; }
-      .ac-plan-buy b{ font-family:'Space Grotesk',sans-serif; color:var(--navy); font-size:17px; }
-      .ac-buy{ background:var(--blue); color:#fff; border:none; border-radius:10px; padding:9px 14px; font-family:'Cairo',sans-serif; font-weight:700; font-size:12.5px; cursor:pointer; }
-      .ac-buy:disabled{ background:var(--paper-line); color:var(--muted); cursor:not-allowed; }
-      .ac-buy.small{ padding:6px 12px; font-size:11.5px; margin-top:8px; }
-      .ac-msg{ margin-top:12px; font-size:12.5px; font-weight:700; }
-      .ac-msg.err{ color:var(--danger); }
-      .ac-empty{ grid-column:1/-1; text-align:center; color:var(--muted); padding:26px; font-size:13px; }
-      .ac-sec{ margin:18px 0 10px; color:var(--navy); font-size:14px; }
-      .ac-subs{ display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:12px; }
-      .ac-sub{ background:var(--paper); border:1px solid var(--paper-line); border-radius:14px; padding:14px 16px; display:flex; justify-content:space-between; gap:10px; }
-      .ac-sub-end{ text-align:end; }
-      .ac-badge{ display:inline-block; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; background:var(--blue-wash); color:var(--blue-deep); }
-      .ac-badge.ok{ background:#dcfce7; color:#166534; }
-      .ac-order{ background:var(--paper); border:1px solid var(--paper-line); border-radius:14px; padding:14px 16px; margin-bottom:10px; }
-      .ac-order-top{ display:flex; justify-content:space-between; gap:10px; align-items:center; font-size:14px; color:var(--navy); }
-      .ac-cred{ margin-top:10px; display:flex; flex-direction:column; gap:6px; }
-      .ac-cred-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; background:var(--blue-wash); border-radius:10px; padding:8px 10px; font-size:12.5px; }
-      .ac-cred-row span{ font-weight:700; color:var(--navy); min-width:70px; }
-      .ac-cred-row code{ flex:1; word-break:break-all; color:var(--navy); }
-      .ac-copy{ background:#fff; border:1px solid var(--paper-line); border-radius:8px; padding:4px 10px; font-size:11px; font-weight:700; cursor:pointer; color:var(--blue); font-family:'Cairo',sans-serif; }
+
+      /* Academic Tools: shared */
+      #pane-academic{ --ac-gold:#d4930a; --ac-gold2:#e8a317; --ac-card:#fff; --ac-line:#eceef3; --ac-ink:#111827; --ac-sub:#6b7280; }
+      [data-theme="dark"] #pane-academic{ --ac-card:#141c2f; --ac-line:rgba(255,255,255,.08); --ac-ink:#f3f4f6; --ac-sub:#9ca3af; }
+      .ac-subtabs{ display:flex; gap:6px; background:var(--ac-card); border:1px solid var(--ac-line); border-radius:14px; padding:5px; margin-bottom:18px; width:max-content; max-width:100%; overflow-x:auto; }
+      .ac-subtab{ border:none; background:transparent; padding:8px 18px; border-radius:10px; font-family:'Cairo',sans-serif; font-weight:700; font-size:13px; color:var(--ac-sub); cursor:pointer; white-space:nowrap; }
+      .ac-subtab.on{ background:var(--ac-gold); color:#fff; box-shadow:0 4px 12px rgba(212,147,10,.3); }
+      .ac-h{ font-size:20px; font-weight:800; color:var(--ac-ink); margin:22px 0 14px; }
+      .ac-empty{ grid-column:1/-1; text-align:center; color:var(--ac-sub); padding:34px; font-size:13px; }
+
+      /* Banner 1200x280 */
+      .ac-banner{ position:relative; border-radius:18px; overflow:hidden; aspect-ratio:1200/280; background:var(--ac-line); }
+      .ac-banner-track{ display:flex; height:100%; transition:transform .6s ease; }
+      .ac-banner-slide{ flex:0 0 100%; height:100%; }
+      .ac-banner-slide img{ width:100%; height:100%; object-fit:cover; display:block; }
+      .ac-bn-arrow{ position:absolute; top:50%; transform:translateY(-50%); width:34px; height:34px; border-radius:50%; border:none; background:rgba(17,24,39,.35); color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+      .ac-bn-arrow.prev{ left:12px; } .ac-bn-arrow.next{ right:12px; }
+      .ac-bn-dots{ position:absolute; bottom:10px; left:50%; transform:translateX(-50%); display:flex; gap:6px; }
+      .ac-bn-dots i{ width:7px; height:7px; border-radius:99px; background:rgba(255,255,255,.55); cursor:pointer; transition:width .3s; }
+      .ac-bn-dots i.on{ width:22px; background:#fff; }
+
+      /* Categories */
+      .ac-cats-wrap{ position:relative; }
+      .ac-cats{ display:flex; gap:22px; overflow-x:auto; scroll-behavior:smooth; padding:4px 2px 8px; scrollbar-width:none; }
+      .ac-cats::-webkit-scrollbar{ display:none; }
+      .ac-cat{ flex:0 0 auto; width:125px; text-align:center; cursor:pointer; background:none; border:none; padding:0; font-family:'Cairo',sans-serif; }
+      .ac-cat-img{ width:125px; height:125px; border-radius:16px; overflow:hidden; background:var(--ac-line); display:flex; align-items:center; justify-content:center; font-size:34px; border:2px solid transparent; transition:transform .2s; }
+      .ac-cat-img img{ width:100%; height:100%; object-fit:cover; }
+      .ac-cat:hover .ac-cat-img{ transform:translateY(-3px); }
+      .ac-cat.on .ac-cat-img{ border-color:var(--ac-gold); }
+      .ac-cat-name{ margin-top:10px; font-size:14px; font-weight:700; color:var(--ac-ink); }
+      .ac-cat-arrow{ position:absolute; top:52px; width:34px; height:34px; border-radius:50%; border:1px solid var(--ac-line); background:var(--ac-card); color:var(--ac-ink); font-size:18px; cursor:pointer; z-index:2; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+      .ac-cat-arrow.prev{ left:-10px; } .ac-cat-arrow.next{ right:-10px; }
+
+      /* Search + filter bar */
+      .ac-filterbar{ display:flex; align-items:center; gap:10px; background:var(--ac-card); border:1px solid var(--ac-line); border-radius:14px; padding:9px; margin:22px 0 18px; flex-wrap:wrap; }
+      .ac-search{ flex:1; min-width:200px; position:relative; }
+      .ac-search svg{ position:absolute; inset-inline-start:11px; top:50%; transform:translateY(-50%); color:var(--ac-sub); }
+      .ac-search input{ width:100%; padding:8px 12px; padding-inline-start:34px; border:1px solid var(--ac-line); border-radius:10px; background:transparent; font-family:'Cairo',sans-serif; font-size:13px; color:var(--ac-ink); outline:none; }
+      .ac-search input:focus{ border-color:#a5b4fc; }
+      .ac-sep{ width:1px; height:26px; background:var(--ac-line); }
+      .ac-fbtn{ display:inline-flex; align-items:center; gap:6px; padding:7px 13px; border-radius:10px; border:1px solid transparent; background:#f1f2f4; color:#4b5563; font-family:'Cairo',sans-serif; font-size:12.5px; font-weight:700; cursor:pointer; white-space:nowrap; }
+      [data-theme="dark"] .ac-fbtn{ background:rgba(255,255,255,.06); color:#d1d5db; }
+      .ac-fbtn.on{ background:#eef2ff; border-color:#a5b4fc; color:#6366f1; }
+      .ac-count-pill{ display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; padding:0 5px; border-radius:99px; background:#e5e7eb; color:#6b7280; font-size:10.5px; font-weight:800; }
+      .ac-fbtn.on .ac-count-pill{ background:#0ea5e9; color:#fff; }
+
+      /* Product cards: 3 per row */
+      .acp-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; }
+      @media (max-width:1100px){ .acp-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+      @media (max-width:640px){ .acp-grid{ grid-template-columns:1fr; } }
+      .acp-card{ background:var(--ac-card); border:1px solid var(--ac-line); border-top:3px solid var(--ac-gold2); border-radius:18px; padding:18px 20px 20px; display:flex; flex-direction:column; box-shadow:0 2px 10px rgba(17,24,39,.04); transition:box-shadow .2s, transform .2s; }
+      .acp-card:hover{ box-shadow:0 10px 30px rgba(17,24,39,.08); transform:translateY(-2px); }
+      .acp-badges{ display:flex; justify-content:flex-end; gap:6px; flex-wrap:wrap; min-height:24px; }
+      .acp-badge{ display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:999px; color:#fff; font-size:10.5px; font-weight:800; letter-spacing:.3px; text-transform:uppercase; white-space:nowrap; font-family:'Space Grotesk','Cairo',sans-serif; }
+      .acp-badge.off{ background:linear-gradient(135deg,#ef4444,#dc2626); }
+      .acp-badge.instant{ background:linear-gradient(135deg,#10b981,#059669); }
+      .acp-badge.request{ background:linear-gradient(135deg,#3b82f6,#2563eb); }
+      .acp-badge.left{ background:linear-gradient(135deg,#fb923c,#ea580c); text-transform:none; }
+      .acp-badge.sold{ background:#9ca3af; }
+      .acp-logo{ width:54px; height:54px; border-radius:14px; border:1px solid var(--ac-line); background:#fff; display:flex; align-items:center; justify-content:center; overflow:hidden; margin-top:8px; font-weight:900; color:#9ca3af; font-size:20px; }
+      .acp-logo img{ width:42px; height:42px; object-fit:contain; }
+      .acp-name{ font-size:17px; font-weight:800; color:var(--ac-ink); margin-top:12px; }
+      .acp-desc{ font-size:13.5px; color:var(--ac-sub); line-height:1.65; margin-top:6px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:44px; }
+      .acp-rating{ display:flex; align-items:center; gap:6px; margin-top:10px; color:#f59e0b; font-size:12px; letter-spacing:1px; }
+      .acp-rating span{ color:var(--ac-sub); font-size:11px; letter-spacing:0; }
+      .acp-div{ height:1px; background:var(--ac-line); margin:14px 0; }
+      .acp-price{ display:flex; align-items:baseline; gap:6px; }
+      .acp-price b{ font-family:'Space Grotesk',sans-serif; font-size:22px; font-weight:800; color:var(--ac-gold); }
+      .acp-price span{ font-size:13px; color:var(--ac-sub); }
+      .acp-old{ font-size:12px; color:#9ca3af; text-decoration:line-through; margin-top:2px; min-height:16px; }
+      .acp-plans{ display:flex; gap:6px; flex-wrap:wrap; margin:14px 0 10px; }
+      .acp-plan{ flex:1 1 auto; min-width:86px; padding:7px 10px; border-radius:10px; border:1px solid #f3dfb2; background:#fdf6e7; color:#a16207; font-family:'Cairo',sans-serif; font-size:11.5px; font-weight:700; cursor:pointer; text-align:center; line-height:1.35; }
+      .acp-plan small{ display:block; font-weight:800; font-size:12px; color:#92400e; font-family:'Space Grotesk',sans-serif; }
+      .acp-plan.on{ background:var(--ac-gold); border-color:var(--ac-gold); color:#fff; }
+      .acp-plan.on small{ color:#fff; }
+      [data-theme="dark"] .acp-plan:not(.on){ background:rgba(212,147,10,.10); border-color:rgba(212,147,10,.3); color:#fbbf24; }
+      [data-theme="dark"] .acp-plan:not(.on) small{ color:#fcd34d; }
+      .acp-buy{ margin-top:auto; width:100%; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border:none; border-radius:12px; background:var(--ac-gold); color:#fff; font-family:'Cairo',sans-serif; font-size:14.5px; font-weight:800; cursor:pointer; transition:filter .15s; }
+      .acp-buy:hover{ filter:brightness(1.06); }
+      .acp-buy:disabled{ background:#d1d5db; cursor:not-allowed; }
+
+      /* My orders: KPI cards */
+      .aco-kpis{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
+      @media (max-width:1100px){ .aco-kpis{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+      .aco-kpi{ position:relative; background:var(--ac-card); border:1px solid var(--ac-line); border-radius:16px; padding:20px; overflow:hidden; cursor:pointer; transition:transform .2s, box-shadow .2s; }
+      .aco-kpi:hover{ transform:translateY(-3px); box-shadow:0 10px 26px rgba(17,24,39,.08); }
+      .aco-kpi::before{ content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--k); }
+      .aco-kpi::after{ content:''; position:absolute; inset:0; background:linear-gradient(110deg,transparent 55%,var(--kt)); pointer-events:none; }
+      .aco-kpi-lbl{ font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--ac-sub); }
+      .aco-kpi-ic{ position:absolute; top:16px; inset-inline-end:16px; width:32px; height:32px; border-radius:9px; background:var(--kt); color:var(--k); display:flex; align-items:center; justify-content:center; z-index:1; }
+      .aco-kpi-val{ font-family:'Space Grotesk',sans-serif; font-size:32px; font-weight:800; color:var(--ac-ink); margin-top:14px; position:relative; z-index:1; }
+      .aco-kpi-sub{ font-size:12px; color:var(--ac-sub); margin-top:4px; position:relative; z-index:1; display:flex; align-items:center; gap:6px; }
+      .aco-kpi-tag{ background:#dcfce7; color:#059669; font-weight:800; font-size:10.5px; padding:2px 7px; border-radius:6px; }
+      .aco-head{ display:flex; justify-content:space-between; align-items:center; margin:24px 0 10px; }
+      .aco-head h3{ margin:0; font-size:15px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:var(--ac-ink); }
+      .aco-head span{ font-size:12.5px; color:var(--ac-sub); }
+
+      /* My orders: subscription cards */
+      .aco-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+      @media (max-width:1100px){ .aco-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+      @media (max-width:640px){ .aco-grid{ grid-template-columns:1fr; } .aco-kpis{ grid-template-columns:1fr; } }
+      .aco-card{ background:var(--ac-card); border:1px solid var(--ac-line); border-top:4px solid var(--ac-gold2); border-radius:18px; padding:18px 20px; display:flex; flex-direction:column; gap:10px; }
+      .aco-top{ display:flex; justify-content:space-between; align-items:flex-start; }
+      .aco-top .acp-logo{ margin-top:0; }
+      .aco-badges{ display:flex; flex-direction:column; align-items:flex-end; gap:5px; }
+      .aco-days{ display:inline-flex; align-items:center; gap:4px; padding:2px 9px; border-radius:999px; color:#fff; font-size:11px; font-weight:800; font-family:'Space Grotesk','Cairo',sans-serif; }
+      .aco-days.bad{ background:#ef4444; } .aco-days.ok{ background:#059669; } .aco-days.wait{ background:#64748b; }
+      .aco-st{ display:inline-flex; align-items:center; gap:4px; padding:2px 9px; border-radius:999px; font-size:10.5px; font-weight:800; color:#fff; background:var(--ac-gold2); }
+      .aco-name{ font-size:16px; font-weight:800; color:var(--ac-ink); }
+      .aco-exp{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:#ef4444; margin-top:-4px; }
+      .aco-bar{ height:4px; border-radius:99px; background:var(--ac-line); overflow:hidden; }
+      .aco-bar i{ display:block; height:100%; border-radius:99px; }
+      .aco-state{ width:100%; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px; border:none; border-radius:12px; font-family:'Cairo',sans-serif; font-size:13px; font-weight:800; color:#fff; cursor:pointer; }
+      .aco-state.ordered{ background:#64748b; cursor:default; }
+      .aco-state.delivered{ background:linear-gradient(135deg,var(--ac-gold2),var(--ac-gold)); }
+      .aco-state.active{ background:#059669; cursor:default; }
+      .aco-state.renew{ background:#ef4444; }
+      .aco-actions{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+      .aco-btn{ display:flex; align-items:center; justify-content:center; gap:6px; padding:10px; border-radius:12px; font-family:'Cairo',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
+      .aco-btn.outline{ background:transparent; border:1px solid var(--ac-line); color:var(--ac-ink); }
+      .aco-btn.cred{ border:none; color:#fff; background:linear-gradient(135deg,var(--ac-gold2),var(--ac-gold)); box-shadow:0 4px 12px rgba(212,147,10,.25); }
+      .aco-btn:disabled{ opacity:.45; cursor:not-allowed; box-shadow:none; }
+      .aco-panel{ font-size:12.5px; color:var(--ac-sub); display:flex; flex-direction:column; gap:6px; }
+      .aco-panel:empty{ display:none; }
+      .aco-row{ display:flex; justify-content:space-between; gap:10px; padding:7px 10px; border-radius:9px; background:rgba(14,122,254,.05); }
+      .aco-row b{ color:var(--ac-ink); font-weight:700; }
+      .aco-cred{ display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:10px; background:#fdf6e7; color:#78350f; }
+      [data-theme="dark"] .aco-cred{ background:rgba(212,147,10,.1); color:#fde68a; }
+      .aco-cred span{ font-weight:800; min-width:70px; }
+      .aco-cred code{ flex:1; word-break:break-all; }
+      .aco-copy{ border:1px solid rgba(212,147,10,.4); background:#fff; color:var(--ac-gold); border-radius:8px; padding:3px 9px; font-size:11px; font-weight:800; cursor:pointer; font-family:'Cairo',sans-serif; }
+
+      /* Wallet */
+      .acw-card{ border-radius:20px; padding:26px 28px; color:#fff; background:linear-gradient(135deg,#1b2556,#0e7afe); display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; }
+      .acw-card small{ display:block; font-size:12px; opacity:.8; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
+      .acw-card b{ font-family:'Space Grotesk',sans-serif; font-size:36px; font-weight:800; }
+      .acw-note{ font-size:12px; opacity:.85; max-width:320px; line-height:1.6; }
+      .acw-list{ background:var(--ac-card); border:1px solid var(--ac-line); border-radius:16px; overflow:hidden; }
+      .acw-row{ display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--ac-line); font-size:13px; }
+      .acw-row:last-child{ border-bottom:none; }
+      .acw-row .t{ color:var(--ac-ink); font-weight:700; }
+      .acw-row .d{ color:var(--ac-sub); font-size:11.5px; }
+      .acw-amt{ font-family:'Space Grotesk',sans-serif; font-weight:800; }
+      .acw-amt.plus{ color:#059669; } .acw-amt.minus{ color:#ef4444; }
     </style>
     <div class="tabpane" id="pane-academic" style="display:none;">
-      <div class="sec-head"><h2 data-i18n="ac_title">Academic Tools</h2></div>
-      <div class="ac-wallet">
-        <div class="ac-wlbl" data-i18n="ac_wallet">رصيد Academic Tools</div>
-        <div class="ac-wbal"><span id="acWallet">0.00</span> <small data-i18n="ac_egp">ج.م</small></div>
+      <div class="ac-subtabs" id="acSubtabs"></div>
+      <div id="acViewStore">
+        <div class="ac-banner" id="acBanner" style="display:none;">
+          <div class="ac-banner-track" id="acBannerTrack"></div>
+          <button class="ac-bn-arrow prev" onclick="acBannerStep(-1)" aria-label="Previous">‹</button>
+          <button class="ac-bn-arrow next" onclick="acBannerStep(1)" aria-label="Next">›</button>
+          <div class="ac-bn-dots" id="acBannerDots"></div>
+        </div>
+        <h3 class="ac-h" id="acCatsTitle"></h3>
+        <div class="ac-cats-wrap">
+          <button class="ac-cat-arrow prev" onclick="acCatsScroll(-1)" aria-label="Previous">‹</button>
+          <div class="ac-cats" id="acCats"></div>
+          <button class="ac-cat-arrow next" onclick="acCatsScroll(1)" aria-label="Next">›</button>
+        </div>
+        <div class="ac-filterbar">
+          <div class="ac-search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input id="acSearch" type="text" autocomplete="off" oninput="renderAcGrid()">
+          </div>
+          <span class="ac-sep"></span>
+          <div id="acSortBtns" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+        </div>
+        <div class="acp-grid" id="acGrid"></div>
       </div>
-      <div id="acListView">
-        <div class="ac-cats" id="acCats"></div>
-        <div class="ac-grid" id="acGrid"></div>
+      <div id="acViewOrders" style="display:none;">
+        <div class="aco-kpis" id="acoKpis"></div>
+        <div class="aco-head"><h3 id="acoTitle"></h3><span id="acoCount"></span></div>
+        <div class="ac-filterbar" style="margin-top:0;">
+          <div class="ac-search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input id="acoSearch" type="text" autocomplete="off" oninput="renderAcOrders()">
+          </div>
+          <div id="acoChips" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+        </div>
+        <div class="aco-grid" id="acoGrid"></div>
       </div>
-      <div id="acDetailView" style="display:none;"></div>
-    </div>
-    <div class="tabpane" id="pane-my-orders" style="display:none;">
-      <div class="sec-head"><h2 data-i18n="nav_my_orders">طلباتي</h2></div>
-      <h4 class="ac-sec" data-i18n="ac_active_subs">الاشتراكات النشطة</h4>
-      <div class="ac-subs" id="myActiveSubs"></div>
-      <h4 class="ac-sec" data-i18n="ac_all_orders">كل الطلبات</h4>
-      <div id="myOrdersList"></div>
+      <div id="acViewWallet" style="display:none;">
+        <div class="acw-card"><div><small id="acwLbl"></small><b><span id="acwBal">0.00</span> <span style="font-size:16px;" id="acwCur"></span></b></div><div class="acw-note" id="acwNote"></div></div>
+        <div class="aco-head"><h3 id="acwTxTitle"></h3></div>
+        <div class="acw-list" id="acwList"></div>
+      </div>
     </div>
 
     <div class="tabpane" id="pane-support" style="display:none;">
@@ -3160,8 +3276,8 @@
   } catch (e) {}
 })();
 (function showCorrectTabImmediately(){
-  const SOON_TABS = ['academic', 'my-orders']; // not open to customers yet
-  const savedTab = SOON_TABS.includes(localStorage.getItem('prokeys-active-tab')) ? 'new-check' : (localStorage.getItem('prokeys-active-tab') || 'new-check');
+  const SOON_TABS = ['academic']; // not open to customers yet
+  const savedTab = (SOON_TABS.includes(localStorage.getItem('prokeys-active-tab')) && localStorage.getItem('pk-store-preview') !== '1') ? 'new-check' : (localStorage.getItem('prokeys-active-tab') || 'new-check');
   document.querySelectorAll('.navtab[data-tab]').forEach(el => {
     el.classList.toggle('on', el.dataset.tab === savedTab);
   });
@@ -5364,7 +5480,7 @@ document.addEventListener('click', (e)=>{
    Old pane exits (pane-exiting, 0.22s), then new pane enters (pane-entering, 0.22s). */
 let _goTabLock = false;
 function goTab(tab, persist = true){
-  if (['academic', 'my-orders'].includes(tab)) { // coming soon: keep the customer on the current tab
+  if (tab === 'academic' && localStorage.getItem('pk-store-preview') !== '1') { // coming soon (preview: localStorage pk-store-preview = 1)
     toast('Soon', 'info');
     return;
   }
@@ -5397,7 +5513,6 @@ function goTab(tab, persist = true){
     if(tab === 'wallet'){ loadPaymentHistory(); }
     if(tab === 'my-history'){ loadMyHistory(); }
     if(tab === 'academic'){ loadAcademic(); }
-    if(tab === 'my-orders'){ loadMyOrders(); }
     if(tab === 'my-profile'){ openMyProfileTab(); }
     return;
   }
@@ -5422,7 +5537,6 @@ function goTab(tab, persist = true){
     if(tab === 'wallet'){ loadPaymentHistory(); }
     if(tab === 'my-history'){ loadMyHistory(); }
     if(tab === 'academic'){ loadAcademic(); }
-    if(tab === 'my-orders'){ loadMyOrders(); }
     if(tab === 'my-profile'){ openMyProfileTab(); }
   }, {once:true});
 }
@@ -5518,7 +5632,7 @@ function renderPaymentHistory(){
 // back exactly where the customer was instead of jumping to New Check.
 const _tabScrollPositions = JSON.parse(localStorage.getItem('prokeys-scroll') || '{}');
 function restoreTabAndScroll(){
-  const savedTab = ['academic', 'my-orders'].includes(localStorage.getItem('prokeys-active-tab')) ? null : localStorage.getItem('prokeys-active-tab');
+  const savedTab = (localStorage.getItem('prokeys-active-tab') === 'academic' && localStorage.getItem('pk-store-preview') !== '1') ? null : localStorage.getItem('prokeys-active-tab');
   if (savedTab && document.getElementById('pane-' + savedTab)) {
     document.querySelectorAll('.navtab[data-tab]').forEach(el => {
       el.classList.toggle('on', el.dataset.tab === savedTab);
@@ -7287,18 +7401,61 @@ const HIST_ICON_REDEEM = '<svg data-icon-key="hist_icon_redeem" viewBox="0 0 24 
 const HIST_ICON_MIGRATED = '<svg data-icon-key="hist_icon_migrated" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M10 13h4"/></svg>';
 const HIST_ICON_ADMIN = '<svg data-icon-key="hist_icon_admin" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v8h14v-8M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>';
 
-/* ── Academic Tools: catalog, wallet buy, my orders ───────────────────────── */
-const acS = { cats: [], prods: [], plans: [], stock: {}, catId: 'all', openId: null };
-const acName = r => (currentLang === 'ar' ? r.name_ar : r.name_en);
-const acMoney = v => `${Number(v).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ${hx('ج.م', 'EGP')}`;
+/* ── Academic Tools: Store / My orders / Wallet ───────────────────────────── */
+const acS = { cats: [], prods: [], plans: [], stock: {}, banners: [], interval: 5000, wallet: 0, catId: 'all', sort: 'top', sel: {}, view: 'store' };
+let acOrders = [], acOrderProds = {}, acoFilter = 'all', acBannerIdx = 0, acBannerTimer = null;
+const acName = r => (currentLang === 'ar' ? (r.name_ar || r.name_en) : (r.name_en || r.name_ar)) || '';
+const acDesc = r => ((currentLang === 'ar' ? (r.description_ar || r.description_en) : (r.description_en || r.description_ar)) || '');
+const acMoney = v => `${Number(v || 0).toLocaleString('en-US', { maximumFractionDigits: 2 })} ${hx('ج.م', 'EGP')}`;
+const acDur = d => (d % 365 === 0
+  ? (d === 365 ? hx('سنة', '1 Year') : hx(`${d / 365} سنين`, `${d / 365} Years`))
+  : hx(`${d} يوم`, `${d} Days`));
+const acDate = iso => { const d = new Date(iso); return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`; };
+const acDaysLeft = iso => Math.ceil((new Date(iso) - new Date()) / 86400000);
+const acSafeColor = c => (/^#[0-9a-f]{3,8}$/i.test(c || '') ? c : '#6366f1');
+function acLogo(p){
+  if (p && p.image_url) return `<img src="${escapeHtml(p.image_url)}" alt="">`;
+  return escapeHtml((acName(p || {}) || '?').charAt(0).toUpperCase());
+}
+
+function renderAcShell(){
+  const tabs = [['store', hx('🛍️ المتجر', '🛍️ Store')], ['orders', hx('📦 طلباتي', '📦 My orders')], ['wallet', hx('💳 المحفظة', '💳 Wallet')]];
+  document.getElementById('acSubtabs').innerHTML = tabs.map(([k, l]) =>
+    `<button class="ac-subtab${acS.view === k ? ' on' : ''}" onclick="acSub('${k}')">${l}</button>`).join('');
+  document.getElementById('acCatsTitle').textContent = hx('بتدور على إيه؟ 🤔', 'What are you looking for? 🤔');
+  document.getElementById('acSearch').placeholder = hx('ابحث...', 'Search...');
+  document.getElementById('acoSearch').placeholder = hx('ابحث في الاشتراكات...', 'Search subscriptions...');
+  document.getElementById('acoTitle').textContent = hx('اشتراكاتي', 'My active subscriptions');
+  document.getElementById('acwLbl').textContent = hx('رصيد المحفظة', 'Wallet balance');
+  document.getElementById('acwCur').textContent = hx('ج.م', 'EGP');
+  document.getElementById('acwNote').textContent = hx('رصيد المحفظة دي للمتجر بس، ومنفصل عن رصيد الفحوصات.', 'This balance is for the store only, separate from your check slots.');
+  document.getElementById('acwTxTitle').textContent = hx('حركات المحفظة', 'Wallet activity');
+  const sorts = [['top', '☆', hx('الأعلى تقييماً', 'Top Rated')], ['low', '↘', hx('الأقل سعراً', 'Low Price')],
+                 ['high', '↗', hx('الأعلى سعراً', 'High Price')], ['new', '🕘', hx('الأحدث', 'New')]];
+  document.getElementById('acSortBtns').innerHTML = sorts.map(([k, i, l]) =>
+    `<button class="ac-fbtn${acS.sort === k ? ' on' : ''}" onclick="acSetSort('${k}')">${i} ${l}</button>`).join('');
+}
+
+function acSub(view){
+  acS.view = view;
+  [['store', 'acViewStore'], ['orders', 'acViewOrders'], ['wallet', 'acViewWallet']].forEach(([k, id]) => {
+    document.getElementById(id).style.display = k === view ? 'block' : 'none';
+  });
+  renderAcShell();
+  if (view === 'orders') loadAcOrders();
+  if (view === 'wallet') loadAcWallet();
+}
 
 async function loadAcademic(){
-  const [cats, prods, plans, stock, wal] = await Promise.all([
+  renderAcShell();
+  const [cats, prods, plans, stock, wal, banners, settings] = await Promise.all([
     supabaseClient.from('store_categories').select('*').eq('active', true).order('sort_order'),
     supabaseClient.from('store_products').select('*').eq('active', true).order('sort_order'),
     supabaseClient.from('store_plans').select('*').eq('active', true).order('sort_order'),
     supabaseClient.rpc('store_plan_stock'),
     supabaseClient.from('store_wallet').select('balance_egp').maybeSingle(),
+    supabaseClient.from('store_banners').select('*').eq('active', true).order('sort_order'),
+    supabaseClient.from('store_settings').select('banner_interval_ms').eq('id', 1).maybeSingle(),
   ]);
   if (cats.error || prods.error || plans.error) { toast(hx('تعذر تحميل المتجر', 'Could not load the store'), 'error'); return; }
   acS.cats = cats.data || [];
@@ -7306,179 +7463,312 @@ async function loadAcademic(){
   acS.plans = plans.data || [];
   acS.stock = {};
   (stock.data || []).forEach(s => { acS.stock[s.plan_id] = s.available; });
-  const bal = Number(wal.data?.balance_egp || 0);
-  document.getElementById('acWallet').textContent = bal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  renderAcList();
+  acS.banners = banners.data || [];
+  acS.interval = settings.data?.banner_interval_ms || 5000;
+  acS.wallet = Number(wal.data?.balance_egp || 0);
+  document.getElementById('acwBal').textContent = acS.wallet.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  renderAcBanner();
+  renderAcCats();
+  renderAcGrid();
+  acSub(acS.view);
 }
 
-function acPlansOf(pid){ return acS.plans.filter(p => p.product_id === pid); }
-function acStockOf(pid){ return acPlansOf(pid).reduce((s, p) => s + (acS.stock[p.id] || 0), 0); }
-function acDeliveryLbl(p){
-  return p.delivery_type === 'instant' ? hx('⚡ توصيل فوري', '⚡ Instant delivery') : hx('🕒 تفعيل بعد الطلب', '🕒 Activated after order');
+/* Banner slider: the interval comes from the admin settings */
+function renderAcBanner(){
+  const box = document.getElementById('acBanner');
+  clearInterval(acBannerTimer);
+  if (!acS.banners.length) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  document.getElementById('acBannerTrack').innerHTML = acS.banners.map(b => {
+    const img = `<img src="${escapeHtml(b.image_url)}" alt="" loading="lazy">`;
+    const link = /^https?:\/\//i.test(b.link_url || '') ? b.link_url : '';
+    return `<div class="ac-banner-slide">${link ? `<a href="${escapeHtml(link)}" target="_blank" rel="noopener">${img}</a>` : img}</div>`;
+  }).join('');
+  acBannerIdx = 0;
+  acBannerPaint();
+  const start = () => { clearInterval(acBannerTimer); if (acS.banners.length > 1) acBannerTimer = setInterval(() => acBannerStep(1), acS.interval); };
+  start();
+  box.onmouseenter = () => clearInterval(acBannerTimer);
+  box.onmouseleave = start;
 }
-function acSetCat(id){ acS.catId = id; renderAcList(); }
-function acOpen(id){ acS.openId = id; renderAcList(); }
-function acBack(){ acS.openId = null; renderAcList(); }
+function acBannerPaint(){
+  const rtl = document.documentElement.dir === 'rtl';
+  document.getElementById('acBannerTrack').style.transform = `translateX(${(rtl ? 1 : -1) * acBannerIdx * 100}%)`;
+  document.getElementById('acBannerDots').innerHTML = acS.banners.map((_, i) =>
+    `<i class="${i === acBannerIdx ? 'on' : ''}" onclick="acBannerTo(${i})"></i>`).join('');
+}
+function acBannerStep(d){ const n = acS.banners.length; if (!n) return; acBannerIdx = (acBannerIdx + d + n) % n; acBannerPaint(); }
+function acBannerTo(i){ acBannerIdx = i; acBannerPaint(); }
 
-function renderAcList(){
-  if (acS.openId) return renderAcDetail();
-  document.getElementById('acListView').style.display = 'block';
-  document.getElementById('acDetailView').style.display = 'none';
-  const chips = [{ id: 'all', n: hx('الكل', 'All') }, ...acS.cats.map(c => ({ id: c.id, n: acName(c) }))];
-  document.getElementById('acCats').innerHTML = chips.map(c =>
-    `<button class="ac-chip${acS.catId === c.id ? ' on' : ''}" onclick="acSetCat('${c.id}')">${escapeHtml(c.n)}</button>`).join('');
-  const list = acS.prods.filter(p => acS.catId === 'all' || p.category_id === acS.catId);
+/* Categories with images */
+function renderAcCats(){
+  const all = { id: 'all', name_ar: 'الكل', name_en: 'All', image_url: null };
+  document.getElementById('acCats').innerHTML = [all, ...acS.cats].map(c => `
+    <button class="ac-cat${acS.catId === c.id ? ' on' : ''}" onclick="acSetCat('${c.id}')">
+      <div class="ac-cat-img">${c.image_url ? `<img src="${escapeHtml(c.image_url)}" alt="">` : (c.id === 'all' ? '🧰' : '📁')}</div>
+      <div class="ac-cat-name">${escapeHtml(acName(c))}</div>
+    </button>`).join('');
+}
+function acSetCat(id){ acS.catId = (acS.catId === id && id !== 'all') ? 'all' : id; renderAcCats(); renderAcGrid(); }
+function acCatsScroll(d){
+  const rtl = document.documentElement.dir === 'rtl';
+  document.getElementById('acCats').scrollBy({ left: d * (rtl ? -1 : 1) * 300, behavior: 'smooth' });
+}
+function acSetSort(k){ acS.sort = k; renderAcShell(); renderAcGrid(); }
+
+/* Product cards */
+function acPlansOf(pid){ return acS.plans.filter(p => p.product_id === pid).sort((a, b) => Number(a.price_egp) - Number(b.price_egp)); }
+function acSelPlan(p){ const plans = acPlansOf(p.id); return plans.find(x => x.id === acS.sel[p.id]) || plans[0] || null; }
+function acPickPlan(pid, plid){ acS.sel[pid] = plid; renderAcGrid(); }
+
+function renderAcGrid(){
+  const q = (document.getElementById('acSearch').value || '').trim().toLowerCase();
+  const list = acS.prods.filter(p => (acS.catId === 'all' || p.category_id === acS.catId)
+    && (!q || [p.name_ar, p.name_en, p.description_ar, p.description_en].some(s => (s || '').toLowerCase().includes(q))));
+  const minPrice = p => { const pl = acPlansOf(p.id)[0]; return pl ? Number(pl.price_egp) : null; };
+  if (acS.sort === 'top') list.sort((a, b) => (Number(b.rating) - Number(a.rating)) || (b.rating_count - a.rating_count));
+  if (acS.sort === 'low') list.sort((a, b) => (minPrice(a) ?? 1e12) - (minPrice(b) ?? 1e12));
+  if (acS.sort === 'high') list.sort((a, b) => (minPrice(b) ?? -1) - (minPrice(a) ?? -1));
+  if (acS.sort === 'new') list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   document.getElementById('acGrid').innerHTML = list.length
     ? list.map(acCardHtml).join('')
-    : `<div class="ac-empty">${hx('مفيش منتجات في القسم ده', 'No products in this category')}</div>`;
+    : `<div class="ac-empty">${hx('مفيش منتجات', 'No products found')}</div>`;
 }
 
 function acCardHtml(p){
   const plans = acPlansOf(p.id);
-  const from = plans.length ? Math.min(...plans.map(x => Number(x.price_egp))) : null;
-  let stockTxt;
-  if (p.delivery_type === 'instant') {
-    const n = acStockOf(p.id);
-    stockTxt = n > 0 ? hx(`متوفر (${n})`, `In stock (${n})`) : hx('خلص حالياً', 'Out of stock');
-  } else {
-    stockTxt = hx('متاح بالطلب', 'On request');
-  }
-  const desc = (currentLang === 'ar' ? p.description_ar : p.description_en) || '';
-  return `<div class="ac-card" onclick="acOpen('${p.id}')">
-    <div class="ac-card-top"><div class="ac-name">${escapeHtml(acName(p))}</div><span class="ac-tag">${acDeliveryLbl(p)}</span></div>
-    <div class="ac-desc">${escapeHtml(desc)}</div>
-    <div class="ac-foot">
-      <div><small>${hx('يبدأ من', 'From')}</small><b>${from !== null ? acMoney(from) : '—'}</b></div>
-      <span class="ac-stock">${stockTxt}</span>
-    </div>
-  </div>`;
-}
-
-function renderAcDetail(){
-  const p = acS.prods.find(x => x.id === acS.openId);
-  if (!p) { acS.openId = null; return renderAcList(); }
-  document.getElementById('acListView').style.display = 'none';
-  const d = document.getElementById('acDetailView');
-  d.style.display = 'block';
-  const desc = (currentLang === 'ar' ? p.description_ar : p.description_en) || '';
-  const plans = acPlansOf(p.id);
-  d.innerHTML = `
-    <button class="ac-back" onclick="acBack()">${hx('← رجوع للمنتجات', '← Back to products')}</button>
-    <div class="ac-detail-head"><h3>${escapeHtml(acName(p))}</h3><span class="ac-tag">${acDeliveryLbl(p)}</span></div>
-    <p class="ac-desc-long">${escapeHtml(desc)}</p>
-    <div class="ac-plans">${plans.length ? plans.map(pl => acPlanHtml(p, pl)).join('') : `<div class="ac-empty">${hx('مفيش باقات متاحة', 'No plans available')}</div>`}</div>
-    <div id="acBuyMsg" class="ac-msg"></div>`;
-}
-
-function acPlanHtml(p, pl){
+  const pl = acSelPlan(p);
   const isInstant = p.delivery_type === 'instant';
-  const avail = isInstant ? (acS.stock[pl.id] || 0) : null;
-  const blocked = isInstant && avail <= 0;
-  const stockLine = isInstant
-    ? `<div class="ac-plan-meta">${blocked ? hx('خلص حالياً', 'Out of stock') : hx(`متاح: ${avail}`, `Available: ${avail}`)}</div>`
-    : '';
-  return `<div class="ac-plan">
-    <div class="ac-plan-info">
-      <div class="ac-plan-name">${escapeHtml(acName(pl))}</div>
-      <div class="ac-plan-meta">${hx('المدة', 'Duration')}: ${pl.duration_days} ${hx('يوم', 'days')} · ${hx('الضمان', 'Guarantee')}: ${pl.guarantee_days} ${hx('يوم', 'days')}</div>
-      ${stockLine}
-    </div>
-    <div class="ac-plan-buy">
-      <b>${acMoney(pl.price_egp)}</b>
-      <button class="ac-buy" ${blocked ? 'disabled' : ''} onclick="acBuy('${pl.id}')">${hx('اشتري من المحفظة', 'Buy from wallet')}</button>
-    </div>
+  const left = pl ? (acS.stock[pl.id] || 0) : 0;
+  const soldOut = isInstant && left <= 0;
+  const hasOld = pl && pl.old_price_egp && Number(pl.old_price_egp) > Number(pl.price_egp);
+  const badges = [];
+  if (hasOld && p.show_discount) {
+    const off = Math.round((1 - Number(pl.price_egp) / Number(pl.old_price_egp)) * 100);
+    badges.push(`<span class="acp-badge off">↘ ${off}% OFF</span>`);
+  }
+  if (p.show_delivery) {
+    badges.push(isInstant
+      ? `<span class="acp-badge instant">⚡ ${hx('فوري', 'Instant')}</span>`
+      : `<span class="acp-badge request">🕒 ${hx('بالطلب', 'On request')}</span>`);
+  }
+  if (isInstant && p.show_stock) {
+    badges.push(soldOut ? `<span class="acp-badge sold">${hx('خلص', 'Sold out')}</span>`
+                        : `<span class="acp-badge left">📦 ${hx(`${left} متبقي`, `${left} left`)}</span>`);
+  }
+  if (p.custom_badge_text) badges.push(`<span class="acp-badge" style="background:${acSafeColor(p.custom_badge_color)}">${escapeHtml(p.custom_badge_text)}</span>`);
+  const r = Math.max(0, Math.min(5, Number(p.rating || 0)));
+  const stars = '★'.repeat(Math.round(r)) + '☆'.repeat(5 - Math.round(r));
+  const planLabel = x => (plans.filter(y => y.duration_days === x.duration_days).length > 1 ? escapeHtml(acName(x)) : acDur(x.duration_days));
+  return `<div class="acp-card">
+    <div class="acp-badges">${badges.join('')}</div>
+    <div class="acp-logo">${acLogo(p)}</div>
+    <div class="acp-name">${escapeHtml(acName(p))}</div>
+    <div class="acp-desc">${escapeHtml(acDesc(p))}</div>
+    <div class="acp-rating">${stars} <span>${r.toFixed(1)} (${p.rating_count || 0})</span></div>
+    <div class="acp-div"></div>
+    <div class="acp-price"><b>${pl ? acMoney(pl.price_egp) : '—'}</b>${pl ? `<span>/ ${acDur(pl.duration_days)}</span>` : ''}</div>
+    <div class="acp-old">${hasOld ? acMoney(pl.old_price_egp) : ''}</div>
+    ${plans.length > 1
+      ? `<div class="acp-plans">${plans.map(x => `<button class="acp-plan${pl && x.id === pl.id ? ' on' : ''}" onclick="acPickPlan('${p.id}','${x.id}')">${planLabel(x)}</button>`).join('')}</div>`
+      : '<div style="height:14px"></div>'}
+    <button class="acp-buy" ${!pl || soldOut ? 'disabled' : ''} onclick="acBuy('${pl ? pl.id : ''}')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/></svg>
+      ${hx('اشتري الآن', 'Buy Now')}
+    </button>
   </div>`;
 }
 
+/* Buying: from the store wallet for now (the checkout page comes next) */
+async function acDoBuy(planId, label, price){
+  if (!planId) return false;
+  if (!confirm(hx(`تأكيد شراء ${label} بـ ${acMoney(price)} من رصيد المحفظة؟`, `Buy ${label} for ${acMoney(price)} from your wallet balance?`))) return false;
+  const { error } = await supabaseClient.rpc('store_buy', { p_plan_id: planId });
+  if (error) {
+    const m = error.message || '';
+    toast(m.includes('insufficient_balance') ? hx('رصيد المحفظة مش كفاية', 'Not enough wallet balance')
+      : m.includes('out_of_stock') ? hx('الباقة خلصت حالياً', 'This plan is out of stock')
+      : m.includes('not available') ? hx('الباقة مش متاحة دلوقتي', 'This plan is not available now')
+      : hx('فشلت عملية الشراء، حاول تاني', 'Purchase failed, please try again'), 'error');
+    return false;
+  }
+  toast(hx('تم الشراء بنجاح', 'Purchase successful'), 'success');
+  return true;
+}
 async function acBuy(planId){
   const pl = acS.plans.find(x => x.id === planId);
   if (!pl) return;
-  const ok = confirm(hx(
-    `تأكيد شراء ${acName(pl)} بـ ${acMoney(pl.price_egp)} من المحفظة؟`,
-    `Buy ${acName(pl)} for ${acMoney(pl.price_egp)} from your wallet?`));
-  if (!ok) return;
-  const { error } = await supabaseClient.rpc('store_buy', { p_plan_id: planId });
-  const msgEl = document.getElementById('acBuyMsg');
-  if (error) {
-    const m = error.message || '';
-    const text = m.includes('insufficient_balance') ? hx('رصيد المحفظة مش كفاية', 'Not enough wallet balance')
-      : m.includes('out_of_stock') ? hx('الباقة خلصت حالياً', 'This plan is out of stock')
-      : hx('فشلت عملية الشراء، حاول تاني', 'Purchase failed, please try again');
-    if (msgEl) { msgEl.textContent = text; msgEl.className = 'ac-msg err'; }
-    toast(text, 'error');
-    return;
-  }
-  toast(hx('تم الشراء بنجاح', 'Purchase successful'), 'success');
-  await loadAcademic();
-  goTab('my-orders');
+  const p = acS.prods.find(x => x.id === pl.product_id) || {};
+  if (await acDoBuy(planId, `${acName(p)} — ${acDur(pl.duration_days)}`, pl.price_egp)) { await loadAcademic(); acSub('orders'); }
+}
+async function acRenew(orderId){
+  const o = acOrders.find(x => x.id === orderId);
+  const pl = o && acS.plans.find(x => x.id === o.plan_id);
+  if (!o || !o.plan_id) { toast(hx('الباقة دي مش متاحة للتجديد', 'This plan is not available for renewal'), 'error'); return; }
+  if (await acDoBuy(o.plan_id, `${o.product_name} — ${o.plan_name}`, pl ? pl.price_egp : o.price_egp)) { await loadAcademic(); acSub('orders'); }
 }
 
-/* My orders: active subscriptions with their end dates, and all orders with details when due */
-let acOrders = [];
-async function loadMyOrders(){
+/* My orders */
+async function loadAcOrders(){
   const { data, error } = await supabaseClient.from('store_orders').select('*').order('created_at', { ascending: false });
   if (error) { toast(hx('تعذر تحميل الطلبات', 'Could not load orders'), 'error'); return; }
   acOrders = data || [];
-  renderMyOrders();
+  acOrderProds = {};
+  acS.prods.forEach(p => { acOrderProds[p.id] = p; });
+  const missing = [...new Set(acOrders.map(o => o.product_id).filter(id => id && !acOrderProds[id]))];
+  if (missing.length) {
+    const { data: ps } = await supabaseClient.from('store_products').select('*').in('id', missing);
+    (ps || []).forEach(p => { acOrderProds[p.id] = p; });
+  }
+  renderAcOrders();
 }
 
-function renderMyOrders(){
+// Ordered (paid, waiting) -> Delivered (details due, not opened) -> Active (opened) -> Renew (expired)
+function acOrderState(o){
+  if (o.status === 'refunded') return 'refunded';
+  if (!o.deliver_at || new Date(o.deliver_at) > new Date()) return 'ordered';
+  if (o.end_date && new Date(o.end_date) <= new Date()) return 'renew';
+  return o.viewed_at ? 'active' : 'delivered';
+}
+
+const ACO_FILTERS = {
+  all: () => true,
+  active: o => !['refunded', 'renew'].includes(acOrderState(o)),
+  shared: o => acOrderProds[o.product_id]?.account_type === 'shared',
+  private: o => (acOrderProds[o.product_id]?.account_type || 'private') === 'private',
+  soon: o => { const s = acOrderState(o); return !!o.end_date && (s === 'active' || s === 'delivered') && acDaysLeft(o.end_date) <= 7; },
+  expired: o => acOrderState(o) === 'renew',
+};
+function acoSetFilter(f){ acoFilter = f; renderAcOrders(); }
+
+const ACO_IC = {
+  grid: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+  cal: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/><circle cx="15" cy="16" r="2"/></svg>',
+  wallet: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="16" cy="14.5" r="1.3"/></svg>',
+  trend: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l6 6 4-4 8 8"/><path d="M15 17h6v-6"/></svg>',
+};
+
+function renderAcKpis(){
   const now = new Date();
-  const subs = acOrders.filter(o => o.status !== 'refunded' && (o.delivery_type === 'subscription' || o.end_date));
-  const active = subs.filter(o => !o.end_date || new Date(o.end_date) > now);
-  document.getElementById('myActiveSubs').innerHTML = active.length
-    ? active.map(o => {
-        if (!o.end_date) return subCardHtml(o, hx('في انتظار التسليم', 'Awaiting delivery'), null);
-        const days = Math.max(0, Math.ceil((new Date(o.end_date) - now) / 86400000));
-        return subCardHtml(o, hx(`باقي ${days} يوم`, `${days} days left`), o.end_date);
-      }).join('')
-    : `<div class="ac-empty">${hx('مفيش اشتراكات نشطة', 'No active subscriptions')}</div>`;
-  document.getElementById('myOrdersList').innerHTML = acOrders.length
-    ? acOrders.map(orderCardHtml).join('')
-    : `<div class="ac-empty">${hx('مفيش طلبات لسه', 'No orders yet')}</div>`;
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const live = acOrders.filter(ACO_FILTERS.active);
+  const days = acOrders.filter(o => o.end_date && ['active', 'delivered'].includes(acOrderState(o))).map(o => acDaysLeft(o.end_date));
+  const next = days.length ? Math.min(...days) : '—';
+  const month = acOrders.filter(o => o.status !== 'refunded' && new Date(o.created_at) >= monthStart);
+  const spend = month.reduce((s, o) => s + Number(o.price_egp || 0), 0);
+  const save = month.reduce((s, o) => s + Math.max(0, Number(o.old_price_egp || 0) - Number(o.price_egp || 0)), 0);
+  const cards = [
+    { c: '#6366f1', t: 'rgba(99,102,241,.10)', l: hx('الاشتراكات النشطة', 'Active subscriptions'), v: live.length, s: hx('باقة نشطة', 'active plans'), f: 'active', ic: ACO_IC.grid },
+    { c: '#f59e0b', t: 'rgba(245,158,11,.12)', l: hx('التجديد الجاي', 'Next renewal'), v: next, s: hx('يوم متبقي', 'days left'), f: 'soon', ic: ACO_IC.cal },
+    { c: '#ef4444', t: 'rgba(239,68,68,.10)', l: hx('مصروف الشهر', 'Monthly spend'), v: acMoney(spend), s: hx('الشهر ده', 'per month'), f: 'all', ic: ACO_IC.wallet },
+    { c: '#10b981', t: 'rgba(16,185,129,.12)', l: hx('توفير الشهر', 'Monthly savings'), v: acMoney(save),
+      s: `${hx('الشهر ده', 'per month')} <span class="aco-kpi-tag">${hx('مقارنة بالسعر الرسمي', 'vs. official price')}</span>`, f: 'all', ic: ACO_IC.trend },
+  ];
+  document.getElementById('acoKpis').innerHTML = cards.map(k => `
+    <div class="aco-kpi" style="--k:${k.c};--kt:${k.t}" onclick="acoSetFilter('${k.f}')">
+      <div class="aco-kpi-lbl">${k.l}</div><div class="aco-kpi-ic">${k.ic}</div>
+      <div class="aco-kpi-val">${k.v}</div><div class="aco-kpi-sub">${k.s}</div>
+    </div>`).join('');
 }
 
-function subCardHtml(o, badge, endIso){
-  return `<div class="ac-sub">
-    <div><b>${escapeHtml(o.product_name)}</b><div class="ac-plan-meta">${escapeHtml(o.plan_name)}</div></div>
-    <div class="ac-sub-end"><span class="ac-badge ok">${badge}</span>
-      ${endIso ? `<div class="ac-plan-meta">${hx('ينتهي', 'Ends')}: ${fmtDateTime(endIso)}</div>` : ''}</div>
+function renderAcOrders(){
+  renderAcKpis();
+  const q = (document.getElementById('acoSearch').value || '').trim().toLowerCase();
+  const chips = [['all', hx('الكل', 'All')], ['shared', hx('مشترك', 'Shared')], ['private', hx('خاص', 'Private')],
+                 ['soon', hx('قرب ينتهي', 'Expiring Soon')], ['expired', hx('منتهي', 'Expired')]];
+  document.getElementById('acoChips').innerHTML = chips.map(([k, l]) =>
+    `<button class="ac-fbtn${acoFilter === k ? ' on' : ''}" onclick="acoSetFilter('${k}')">${l} <span class="ac-count-pill">${acOrders.filter(ACO_FILTERS[k]).length}</span></button>`).join('');
+  const list = acOrders.filter(ACO_FILTERS[acoFilter] || ACO_FILTERS.all)
+    .filter(o => !q || `${o.product_name} ${o.plan_name}`.toLowerCase().includes(q));
+  document.getElementById('acoCount').textContent = hx(`${acOrders.length} طلب`, `${acOrders.length} order${acOrders.length === 1 ? '' : 's'}`);
+  document.getElementById('acoGrid').innerHTML = list.length
+    ? list.map(acoCardHtml).join('')
+    : `<div class="ac-empty">${hx('مفيش اشتراكات هنا', 'No subscriptions here')}</div>`;
+}
+
+function acoCardHtml(o){
+  const st = acOrderState(o);
+  const p = acOrderProds[o.product_id];
+  const left = o.end_date ? acDaysLeft(o.end_date) : null;
+  let daysBadge = '';
+  if (st === 'ordered') daysBadge = `<span class="aco-days wait">⏳ ${hx('قيد التجهيز', 'Pending')}</span>`;
+  else if (left !== null) daysBadge = left <= 0
+    ? `<span class="aco-days bad">⚠ ${left} ${hx('يوم', 'd')}</span>`
+    : `<span class="aco-days ${left <= 7 ? 'bad' : 'ok'}">✓ ${hx(`${left} يوم`, `${left} days`)}</span>`;
+  const stBadge = st === 'delivered' ? `<span class="aco-st">📦 ${hx('تم التسليم', 'Delivered')}</span>` : '';
+  const pct = left === null ? 0 : (left <= 0 ? 100 : Math.max(2, Math.min(100, left / (o.duration_days || 1) * 100)));
+  const barColor = left !== null && left <= 0 ? '#ef4444' : (left !== null && left <= 7 ? '#f59e0b' : '#34d399');
+  const stateBtn = {
+    ordered: `<button class="aco-state ordered" disabled>⏳ ${hx('تم الطلب — في انتظار التسليم', 'Ordered — waiting for delivery')}</button>`,
+    delivered: `<button class="aco-state delivered" onclick="acoCreds('${o.id}')">📦 ${hx('اتسلم — افتح البيانات', 'Delivered — open your credentials')}</button>`,
+    active: `<button class="aco-state active" disabled>✓ ${hx('نشط', 'Active')}</button>`,
+    renew: `<button class="aco-state renew" onclick="acRenew('${o.id}')">↻ ⚠ ${hx(`جدد الآن — ${left} يوم`, `Renew Now — ${left}d left`)}</button>`,
+    refunded: `<button class="aco-state ordered" disabled>${hx('مسترجع', 'Refunded')}</button>`,
+  }[st];
+  const canCreds = ['delivered', 'active', 'renew'].includes(st);
+  return `<div class="aco-card">
+    <div class="aco-top"><div class="acp-logo">${acLogo(p || { name_en: o.product_name })}</div><div class="aco-badges">${daysBadge}${stBadge}</div></div>
+    <div class="aco-name">${escapeHtml(p ? acName(p) : o.product_name)}</div>
+    ${o.end_date
+      ? `<div class="aco-exp">🕒 ${hx('ينتهي', 'Expires')} ${acDate(o.end_date)}</div>`
+      : `<div class="aco-exp" style="color:var(--ac-sub)">🕒 ${hx('التاريخ بيتحدد عند التسليم', 'Date is set on delivery')}</div>`}
+    <div class="aco-bar"><i style="width:${pct}%;background:${barColor}"></i></div>
+    ${stateBtn}
+    <div class="aco-actions">
+      <button class="aco-btn outline" onclick="acoDetails('${o.id}')">${hx('التفاصيل', 'View Details')} ›</button>
+      <button class="aco-btn cred" ${canCreds ? '' : 'disabled'} onclick="acoCreds('${o.id}')">👁 ${hx('عرض البيانات', 'View Credentials')}</button>
+    </div>
+    <div class="aco-panel" id="acoPanel_${o.id}"></div>
   </div>`;
 }
 
-function orderCardHtml(o){
-  const now = new Date();
-  const due = o.deliver_at && new Date(o.deliver_at) <= now;
-  const refunded = o.status === 'refunded';
-  const st = refunded ? hx('مسترجع', 'Refunded')
-    : o.deliver_at ? hx('تم التسليم', 'Delivered')
-    : hx('في انتظار التسليم', 'Awaiting delivery');
-  const scheduled = (o.deliver_at && !due)
-    ? `<div class="ac-plan-meta">${hx('التفاصيل هتتفتح', 'Details open')}: ${fmtDateTime(o.deliver_at)}</div>` : '';
-  return `<div class="ac-order">
-    <div class="ac-order-top"><div><b>${escapeHtml(o.product_name)}</b> · ${escapeHtml(o.plan_name)}</div><span class="ac-badge">${st}</span></div>
-    <div class="ac-plan-meta">${fmtDateTime(o.created_at)} · ${acMoney(o.price_egp)}</div>
-    ${scheduled}
-    ${due && !refunded ? `<button class="ac-buy small" onclick="acShowDetails('${o.id}')">${hx('عرض التفاصيل', 'Show details')}</button><div id="acDet_${o.id}"></div>` : ''}
-  </div>`;
+function acoDetails(id){
+  const box = document.getElementById('acoPanel_' + id);
+  const o = acOrders.find(x => x.id === id);
+  if (!box || !o) return;
+  if (box.dataset.mode === 'details') { box.innerHTML = ''; box.dataset.mode = ''; return; }
+  const rows = [
+    [hx('الباقة', 'Plan'), escapeHtml(o.plan_name)],
+    [hx('السعر', 'Price'), acMoney(o.price_egp)],
+    [hx('تاريخ الطلب', 'Ordered on'), fmtDateTime(o.created_at)],
+    [hx('تاريخ التسليم', 'Delivered on'), o.deliver_at ? fmtDateTime(o.deliver_at) : '—'],
+    [hx('تاريخ الانتهاء', 'Ends on'), o.end_date ? fmtDateTime(o.end_date) : '—'],
+  ];
+  box.dataset.mode = 'details';
+  box.innerHTML = rows.map(([k, v]) => `<div class="aco-row"><span>${k}</span><b>${v}</b></div>`).join('');
 }
 
-async function acShowDetails(id){
-  const box = document.getElementById('acDet_' + id);
-  if (!box) return;
-  if (box.dataset.open) { box.innerHTML = ''; box.dataset.open = ''; return; }
+async function acoCreds(id){
+  const o = acOrders.find(x => x.id === id);
+  if (!o) return;
   const { data, error } = await supabaseClient.rpc('store_my_order_details', { p_order_id: id });
-  if (error) { toast(hx('تعذر فتح التفاصيل', 'Could not open details'), 'error'); return; }
-  if (!data) { box.innerHTML = `<div class="ac-plan-meta">${hx('التفاصيل مش متاحة لسه', 'Details not available yet')}</div>`; return; }
+  if (error) { toast(hx('تعذر فتح البيانات', 'Could not open the credentials'), 'error'); return; }
+  if (!data) { toast(hx('البيانات مش متاحة لسه', 'Credentials are not available yet'), 'info'); return; }
+  if (!o.viewed_at) { o.viewed_at = new Date().toISOString(); renderAcOrders(); }
+  const box = document.getElementById('acoPanel_' + id);
+  if (!box) return;
   const rows = Object.entries(data).filter(([, v]) => v !== null && v !== '');
-  box.dataset.open = '1';
-  box.innerHTML = `<div class="ac-cred">${rows.map(([k, v]) =>
-    `<div class="ac-cred-row"><span>${escapeHtml(k)}</span><code dir="ltr">${escapeHtml(String(v))}</code>
-      <button class="ac-copy" onclick="acCopy(this)" data-v="${escapeHtml(String(v))}">${hx('نسخ', 'Copy')}</button></div>`).join('')}</div>`;
+  box.dataset.mode = 'creds';
+  box.innerHTML = rows.map(([k, v]) => `<div class="aco-cred"><span>${escapeHtml(k)}</span><code dir="ltr">${escapeHtml(String(v))}</code>
+    <button class="aco-copy" data-v="${escapeHtml(String(v))}" onclick="acCopy(this)">${hx('نسخ', 'Copy')}</button></div>`).join('');
 }
+function acCopy(btn){ navigator.clipboard?.writeText(btn.dataset.v).then(() => toast(hx('اتنسخ', 'Copied'), 'success')); }
 
-function acCopy(btn){
-  navigator.clipboard?.writeText(btn.dataset.v).then(() => toast(hx('اتنسخ', 'Copied'), 'success'));
+/* Wallet */
+async function loadAcWallet(){
+  const [wal, tx] = await Promise.all([
+    supabaseClient.from('store_wallet').select('balance_egp').maybeSingle(),
+    supabaseClient.from('store_wallet_tx').select('*').order('created_at', { ascending: false }).limit(100),
+  ]);
+  document.getElementById('acwBal').textContent = Number(wal.data?.balance_egp || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const kinds = { topup: hx('شحن', 'Top-up'), purchase: hx('شراء', 'Purchase'), refund: hx('استرجاع', 'Refund'), admin_adjust: hx('تعديل من الإدارة', 'Adjustment') };
+  const rows = tx.data || [];
+  document.getElementById('acwList').innerHTML = rows.length ? rows.map(r => {
+    const plus = Number(r.amount_egp) > 0;
+    const note = r.kind === 'purchase' && r.note ? ` · ${escapeHtml(r.note)}` : '';
+    return `<div class="acw-row"><div><div class="t">${kinds[r.kind] || r.kind}${note}</div><div class="d">${fmtDateTime(r.created_at)}</div></div>
+      <div class="acw-amt ${plus ? 'plus' : 'minus'}">${plus ? '+' : ''}${acMoney(r.amount_egp)}</div></div>`;
+  }).join('') : `<div class="ac-empty">${hx('مفيش حركات لسه', 'No activity yet')}</div>`;
 }
 
 async function loadMyHistory(){
