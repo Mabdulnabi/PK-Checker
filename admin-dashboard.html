@@ -287,6 +287,8 @@
   .edit-link-btn{border:none;background:none;cursor:pointer;color:var(--muted);font-size:12px;padding:2px;}
   .edit-link-btn:hover{color:var(--blue-deep);}
   .source-link{color:var(--blue-deep);font-size:11px;cursor:pointer;text-decoration:underline;}
+  .file-link{color:var(--blue-deep);text-decoration:underline;text-underline-offset:3px;}
+  .file-link:hover{color:var(--blue);}
   .source-none{color:var(--muted);font-size:11px;}
 
   /* ===== CHAT TAB ===== */
@@ -692,7 +694,7 @@
         <div class="side-item" data-tab="uidesign" onclick="switchTab('uidesign')"><span class="ic" data-icon-key="admin_nav_uidesign">🎨</span><span data-i18n="nav_uidesign">تصميم الواجهة</span></div>
         <div class="side-item" data-tab="broadcast" onclick="switchTab('broadcast')"><span class="ic" data-icon-key="admin_nav_broadcast">📢</span><span data-i18n="nav_broadcast">رسائل جماعية</span></div>
         <div class="side-item" data-tab="activity" onclick="switchTab('activity')"><span class="ic" data-icon-key="admin_nav_activity">📋</span><span data-i18n="nav_activity">سجل النشاط</span></div>
-        <div class="side-item" data-tab="slots" onclick="switchTab('slots')"><span class="ic">🎫</span><span data-i18n="nav_slots">الفحوصات</span></div>
+        <div class="side-item" data-tab="slots" onclick="switchTab('slots')"><span class="ic" data-icon-key="admin_nav_checks">🎫</span><span data-i18n="nav_slots">الباقات</span></div>
         <div class="side-item" data-tab="backup" onclick="switchTab('backup')"><span class="ic" data-icon-key="admin_nav_backup">💾</span><span data-i18n="nav_backup">النسخ الاحتياطي</span></div>
         <div class="side-item" data-tab="chat" onclick="switchTab('chat')"><span class="ic" data-icon-key="admin_nav_chat">💬</span><span data-i18n="nav_chat">الشات المباشر</span><span class="side-badge" id="chatSideBadge" style="display:none;"></span></div>
         <div class="side-item" data-tab="tickets" onclick="switchTab('tickets')"><span class="ic" data-icon-key="admin_nav_tickets">🎫</span><span data-i18n="nav_tickets">تذاكر الدعم</span><span class="side-badge" id="ticketsSideBadge" style="display:none;"></span></div>
@@ -889,7 +891,7 @@
           <div style="overflow-x:auto;">
           <table class="tbl">
             <thead><tr>
-              <th></th><th data-i18n="th_order">رقم الطلب</th><th data-i18n="th_user">المستخدم</th><th class="file-col" data-i18n="th_file">الملف</th><th data-i18n="th_status">الحالة</th><th data-i18n="th_sent">وقت الإرسال</th><th data-i18n="th_source">Source</th><th data-i18n="th_sim">الاقتباس</th><th data-i18n="th_ai">AI</th><th data-i18n="th_msg">رسالة</th><th data-i18n="th_resend">إعادة إرسال</th><th data-i18n="th_delivery">مدة التسليم</th>
+              <th></th><th data-i18n="th_order">رقم الطلب</th><th data-i18n="th_user">المستخدم</th><th class="file-col" data-i18n="th_file">الملف</th><th data-i18n="th_status">الحالة</th><th data-i18n="th_sent">وقت الإرسال</th><th data-i18n="th_delivery">مدة التسليم</th><th data-i18n="th_sim">الاقتباس</th><th data-i18n="th_ai">AI</th><th data-i18n="th_msg">رسالة</th><th data-i18n="th_resend">إعادة إرسال</th>
             </tr></thead>
             <tbody id="ordersBody"></tbody>
           </table>
@@ -1306,7 +1308,7 @@
       <!-- ACCOUNTS (merged Users + Admin Management) -->
       <div class="tabpane" id="tab-accounts">
         <div class="main-head">
-          <div><h1 data-i18n="accounts_title">👤 إدارة الحسابات</h1><div class="sub" data-i18n="accounts_subtitle">حسابات الأدمن وعملاء المنصة</div></div>
+          <div><h1 data-i18n="accounts_title">👤 الأعضاء</h1><div class="sub" data-i18n="accounts_subtitle">حسابات الأدمن وعملاء المنصة</div></div>
         </div>
 
         <!-- Admins section -->
@@ -1523,7 +1525,7 @@ const I18N = {
     cr_empty:'لا توجد عمليات', usr_empty:'لا يوجد مستخدمون', bc_empty:'لا توجد رسائل مرسلة', act_empty:'لا يوجد سجل',
     badge_topup:'شحن', badge_admin_add:'أدمن +', badge_admin_deduct:'أدمن −', badge_deduct:'خصم',
     nav_revenue:'الإيرادات', nav_broadcast:'رسائل جماعية', nav_activity:'سجل النشاط', nav_credits:'الفحوصات', nav_users:'المستخدمون',
-    nav_accounts:'إدارة الحسابات', accounts_title:'👤 إدارة الحسابات', accounts_subtitle:'حسابات الأدمن وعملاء المنصة',
+    nav_accounts:'الأعضاء', accounts_title:'👤 الأعضاء', accounts_subtitle:'حسابات الأدمن وعملاء المنصة',
     rc_pkg_lbl:'الباقة', rc_pkg_placeholder:'-- اختار باقة --', rc_col_package:'الباقة', rc_pkg_none:'باقة غير معروفة',
     rc_preview_slots:'{s} فحص ({t}) لكل كود', rc_err_pkg:'اختار باقة الأول',
     rc_title:'🎟 أكواد الخصم (Redeem Codes)', rc_rate_note:'السعر: 1$ = 50 ج.م = 10 slot', rc_value_lbl:'القيمة', rc_unit_lbl:'الوحدة',
@@ -1533,7 +1535,7 @@ const I18N = {
     rc_err_generic:'فشل توليد الأكواد', rc_err_load:'تعذر تحميل الأكواد', rc_new_title:'تم توليد {n} كود، كل كود بـ {c} slot',
     rc_copy_all:'📋 نسخ الكل', rc_copied:'تم نسخ الأكواد ✅', rc_col_code:'الكود', rc_col_credits:'الفحوصات',
     rc_col_status:'الحالة', rc_col_created:'تاريخ الإنشاء', rc_status_unused:'متاح', rc_status_used:'مستخدم', rc_empty:'لا توجد أكواد بعد',
-    nav_slots:'الفحوصات',
+    nav_slots:'الباقات',
     slt_title:'🎫 باقات الفحوصات', slt_subtitle:'الباقات اللي بتظهر للعملاء في الموقع، وكل باقة بتتحدد بنوع الفحص وعدد الفحوصات وصلاحيتها',
     slt_new_btn:'+ باقة جديدة', slt_empty:'مفيش باقات لسه', slt_err_load:'تعذر تحميل الباقات',
     slt_col_name:'الاسم', slt_col_type:'النوع', slt_col_slots:'الفحوصات', slt_col_price:'السعر', slt_col_expiry:'الصلاحية', slt_col_status:'الحالة', slt_col_actions:'إجراءات',
@@ -1639,7 +1641,7 @@ const I18N = {
     cr_empty:'No transactions', usr_empty:'No users', bc_empty:'No messages sent', act_empty:'No log entries',
     badge_topup:'Top-up', badge_admin_add:'Admin +', badge_admin_deduct:'Admin −', badge_deduct:'Deduct',
     nav_revenue:'Revenue', nav_broadcast:'Broadcast', nav_activity:'Activity Log', nav_credits:'Checks', nav_users:'Users',
-    nav_accounts:'Account Management', accounts_title:'👤 Account Management', accounts_subtitle:'Admin accounts and platform customers',
+    nav_accounts:'Members', accounts_title:'👤 Members', accounts_subtitle:'Admin accounts and platform customers',
     rc_pkg_lbl:'Package', rc_pkg_placeholder:'-- Choose a package --', rc_col_package:'Package', rc_pkg_none:'Unknown package',
     rc_preview_slots:'{s} slot ({t}) per code', rc_err_pkg:'Choose a package first',
     rc_title:'🎟 Redeem Codes', rc_rate_note:'Rate: $1 = 50 EGP = 10 slots', rc_value_lbl:'Value', rc_unit_lbl:'Unit',
@@ -1649,7 +1651,7 @@ const I18N = {
     rc_err_generic:'Failed to generate codes', rc_err_load:'Could not load codes', rc_new_title:'{n} codes generated, {c} slots each',
     rc_copy_all:'📋 Copy all', rc_copied:'Codes copied ✅', rc_col_code:'Code', rc_col_credits:'Checks',
     rc_col_status:'Status', rc_col_created:'Created', rc_status_unused:'Unused', rc_status_used:'Used', rc_empty:'No codes yet',
-    nav_slots:'Checks',
+    nav_slots:'Packages',
     slt_title:'🎫 Slot packages', slt_subtitle:'Packages customers see on the site. Each one has a check type, a number of slots and a validity period.',
     slt_new_btn:'+ New package', slt_empty:'No packages yet', slt_err_load:'Could not load packages',
     slt_col_name:'Name', slt_col_type:'Type', slt_col_slots:'Checks', slt_col_price:'Price', slt_col_expiry:'Validity', slt_col_status:'Status', slt_col_actions:'Actions',
@@ -3375,18 +3377,19 @@ function renderOrdersTable(){
       : `<b style="color:var(--danger);" class="mono" title="${escapeHtml(o.user_id||'')}">${(o.user_id||'').slice(0,8)}…</b><span style="color:var(--danger);font-size:10.5px;">${currentLang==='ar'?'بروفايل غير موجود':'No profile'}</span>`;
     const badgeClass = ORDER_BADGE_CLASS[o.status] || 'badge-wait';
     const badgeLabel = t(ORDER_STATUS_KEY[o.status]) || o.status;
-    const sourceCell = o.source_file_path
-      ? `<span class="source-link" onclick="openSourceFile('${o.id}')">${t('source_open')}</span>`
-      : `<span class="source-none">${t('source_expired')}</span>`;
+    const fileName = escapeHtml(o.file_name || '—');
+    const fileCell = o.source_file_path
+      ? `<a href="#" class="file-link" onclick="event.preventDefault();openSourceFile('${o.id}')">${fileName}</a>`
+      : fileName;
 
     const mainRow = `<tr>
       <td>📄</td>
       <td class="mono" style="font-size:11px;">${escapeHtml(o.display_id || o.id.slice(0,8))} <span class="copy-btn" data-clipboard-text="${escapeHtml(o.display_id || o.id.slice(0,8))}" title="نسخ">📋</span></td>
       <td class="u-cell">${userCell}</td>
-      <td class="file-col">${escapeHtml(o.file_name || '—')}<br>${checkTypeBadge(o.check_type)}${filterBadges(o)}</td>
+      <td class="file-col">${fileCell}<br>${checkTypeBadge(o.check_type)}${filterBadges(o)}</td>
       <td><span class="badge ${badgeClass}"><span class="dot"></span>${badgeLabel}</span></td>
       <td style="font-size:11px;color:var(--muted);">${formatDate(o.submitted_at)}</td>
-      <td>${sourceCell}</td>
+      <td class="mono" style="font-size:11px;white-space:nowrap;">${deliveryTime(o)}</td>
       <td style="white-space:nowrap;padding:6px 8px;">${reportButton(o, 'sim')}</td>
       <td style="white-space:nowrap;padding:6px 8px;">${reportButton(o, 'ai')}</td>
       <td>${o.user_id ? `<button class="msg-btn" data-a="${escapeHtml(o.user_id)}" data-b="${escapeHtml(o.display_id || o.id.slice(0,8))}" onclick="runWithData(this, composeMessage)" title="${t('send_msg')}">✉</button>` : ''}</td>
@@ -3394,7 +3397,6 @@ function renderOrdersTable(){
         ${(['error','failed_invalid'].includes(o.status) && o.source_file_path) ? `<button class="msg-btn" onclick="resendOrderToApi('${o.id}')" title="إعادة إرسال نفس الملف للفحص">🔁 إعادة إرسال</button>` : ''}
         ${(['error','failed_invalid'].includes(o.status) && o.processing_mode === 'api') ? `<button class="msg-btn" style="color:var(--blue-deep);border-color:var(--blue-light);" onclick="adoptOrderManually('${o.id}')" title="تولى الطلب يدوياً ورفع التقارير بنفسك">🖐 يدوي</button>` : ''}
       </td>
-      <td class="mono" style="font-size:11px;white-space:nowrap;">${deliveryTime(o)}</td>
     </tr>`;
 
     return mainRow;
@@ -4278,6 +4280,7 @@ const UI_ICON_MAP=[
   {key:'admin_nav_broadcast',imgSize:'18px',label_ar:'أيقونة "رسائل جماعية"',label_en:'"Broadcast" nav icon',context_ar:'القائمة الجانبية للأدمن',context_en:'Admin sidebar',defaultSvg:'<span style="font-size:18px;">📢</span>',section:'admin_nav',section_ar:'أيقونات القائمة الجانبية (لوحة الأدمن)',section_en:'Admin sidebar icons'},
   {key:'admin_nav_activity',imgSize:'18px',label_ar:'أيقونة "سجل النشاط"',label_en:'"Activity log" nav icon',context_ar:'القائمة الجانبية للأدمن',context_en:'Admin sidebar',defaultSvg:'<span style="font-size:18px;">📋</span>',section:'admin_nav',section_ar:'أيقونات القائمة الجانبية (لوحة الأدمن)',section_en:'Admin sidebar icons'},
   {key:'admin_nav_payments',imgSize:'18px',label_ar:'أيقونة "المدفوعات"',label_en:'"Payments" nav icon',context_ar:'القائمة الجانبية للأدمن',context_en:'Admin sidebar',defaultSvg:'<span style="font-size:18px;">💳</span>',section:'admin_nav',section_ar:'أيقونات القائمة الجانبية (لوحة الأدمن)',section_en:'Admin sidebar icons'},
+  {key:'admin_nav_checks',imgSize:'18px',label_ar:'أيقونة "الباقات"',label_en:'"Packages" nav icon',context_ar:'القائمة الجانبية للأدمن — تاب الباقات',context_en:'Admin sidebar — Packages tab',defaultSvg:'<span style="font-size:18px;">🎫</span>',section:'admin_nav',section_ar:'أيقونات القائمة الجانبية (لوحة الأدمن)',section_en:'Admin sidebar icons'},
   {key:'admin_nav_accounts',imgSize:'18px',label_ar:'أيقونة "إدارة الحسابات"',label_en:'"Accounts" nav icon',context_ar:'القائمة الجانبية للأدمن',context_en:'Admin sidebar',defaultSvg:'<span style="font-size:18px;">👤</span>',section:'admin_nav',section_ar:'أيقونات القائمة الجانبية (لوحة الأدمن)',section_en:'Admin sidebar icons'},
   {key:'admin_nav_backup',imgSize:'18px',label_ar:'أيقونة "النسخ الاحتياطي"',label_en:'"Backup" nav icon',context_ar:'القائمة الجانبية للأدمن',context_en:'Admin sidebar',defaultSvg:'<span style="font-size:18px;">💾</span>',section:'admin_nav',section_ar:'أيقونات القائمة الجانبية (لوحة الأدمن)',section_en:'Admin sidebar icons'},
   {key:'admin_nav_chat',imgSize:'18px',label_ar:'أيقونة "الشات المباشر"',label_en:'"Live chat" nav icon',context_ar:'القائمة الجانبية للأدمن',context_en:'Admin sidebar',defaultSvg:'<span style="font-size:18px;">💬</span>',section:'admin_nav',section_ar:'أيقونات القائمة الجانبية (لوحة الأدمن)',section_en:'Admin sidebar icons'},
@@ -4474,7 +4477,7 @@ async function loadUIConfigData(){
 // from the customer-facing pages' icons, using the same ui_config store.
 const ADMIN_ICON_SIZE_MAP={logo_admin:'36px',admin_nav_overview:'18px',admin_nav_orders:'18px',admin_nav_uidesign:'18px',
   admin_nav_broadcast:'18px',admin_nav_activity:'18px',admin_nav_payments:'18px',admin_nav_accounts:'18px',
-  admin_nav_backup:'18px',admin_nav_chat:'18px',admin_nav_tickets:'18px'};
+  admin_nav_backup:'18px',admin_nav_chat:'18px',admin_nav_tickets:'18px',admin_nav_checks:'18px'};
 function applyAdminOwnIcons(){
   const icons=uiConfigState.icons||{};
   const sizes=uiConfigState.iconSizes||{};
