@@ -1323,7 +1323,8 @@
             <table class="tbl cards-tbl" id="creditsTbl">
               <thead><tr>
                 <th data-i18n="cr_col_txcode">كود العملية</th>
-                <th data-i18n="pay_col_customer">العميل</th>
+                <th>PK</th>
+                <th data-i18n="cr_col_name">الاسم</th>
                 <th data-i18n="cr_col_plan">الخطة / السبب</th>
                 <th data-i18n="cr_col_amount">المبلغ</th>
                 <th data-i18n="cr_col_credits">الفحوصات</th>
@@ -5932,7 +5933,7 @@ function renderCreditsTable(rows){
   const body = document.getElementById('creditsBody');
   const ar = currentLang === 'ar';
   if (!rows.length) {
-    body.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px;">${escapeHtml(t('cr_empty'))}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px;">${escapeHtml(t('cr_empty'))}</td></tr>`;
     document.getElementById('creditsPagination').innerHTML = '';
     return;
   }
@@ -5960,7 +5961,8 @@ function renderCreditsTable(rows){
     const msgBtn = r.user_id ? `<button class="msg-btn" onclick="composeMessage('${r.user_id}','${pkStr}')">✉</button>` : '';
     return `<tr class="${ROW[r.kind] || ''}">
       <td data-label="${escapeHtml(t('cr_col_txcode'))}" class="mono" style="font-size:10px;color:var(--muted);">${escapeHtml(r.code)}</td>
-      <td data-label="${escapeHtml(t('pay_col_customer'))}"><b style="font-size:12px;">${escapeHtml(r.full_name)}</b><br>${r.pk_number != null ? clickablePk(r.user_id, r.pk_number) : '<span style="color:var(--muted);">—</span>'}</td>
+      <td data-label="PK" class="mono" style="color:var(--blue-deep);font-weight:700;white-space:nowrap;">${r.pk_number != null ? clickablePk(r.user_id, r.pk_number) : '—'}</td>
+      <td data-label="${escapeHtml(t('cr_col_name'))}"><b style="font-size:12px;">${escapeHtml(r.full_name)}</b></td>
       <td data-label="${escapeHtml(t('cr_col_plan'))}" style="font-size:11.5px;">${escapeHtml(r.plan)}</td>
       <td data-label="${escapeHtml(t('cr_col_amount'))}" style="font-size:11.5px;"><b>${escapeHtml(amt || '—')}</b>${gw ? `<br><small style="color:var(--muted);">${escapeHtml(gw)}</small>` : ''}</td>
       <td data-label="${escapeHtml(t('cr_col_credits'))}" style="font-weight:800;color:${n < 0 ? 'var(--danger)' : 'var(--ok)'};">${escapeHtml(slotTxt)}</td>
