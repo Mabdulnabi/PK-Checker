@@ -753,6 +753,37 @@
     table.orders-tbl tbody tr.row-bad{border-inline-start:3px solid #E11D48;}
     table.orders-tbl tbody tr.row-warn{border-inline-start:3px solid #E8A20B;}
   }
+
+  /* ===== Payments tab: actions, log, popups ===== */
+  .pay-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:18px;}
+  .pay-action{display:flex;align-items:center;gap:14px;text-align:start;background:linear-gradient(150deg,#ffffff 0%,#eef4ff 100%);border:1px solid #dbe6fb;border-radius:16px;padding:16px 18px;cursor:pointer;box-shadow:0 12px 32px -14px rgba(37,99,235,.38);transition:transform .2s ease,box-shadow .2s ease;font-family:'Cairo',sans-serif;color:var(--navy);}
+  .pay-action:hover{transform:translateY(-2px);box-shadow:0 18px 40px -14px rgba(37,99,235,.5);}
+  .pay-action-ic{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none;box-shadow:0 8px 18px -8px rgba(37,99,235,.75);}
+  .pay-action b{display:block;font-size:14px;color:var(--navy);}
+  .pay-action small{display:block;margin-top:2px;font-size:11.5px;color:var(--muted);}
+  [data-theme="dark"] .pay-action{background:linear-gradient(150deg,rgba(26,26,46,.96),rgba(22,33,62,.96));border-color:rgba(92,124,250,.25);}
+  .pay-log-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 12px;}
+  .log-chips{display:flex;gap:6px;flex-wrap:wrap;}
+  .pay-popup{max-width:760px;width:100%;text-align:start;padding:20px 22px;max-height:90vh;overflow-y:auto;}
+  .pay-popup-top{display:flex;justify-content:flex-end;margin-bottom:4px;}
+  .pay-popup .cr-form-card{border:none;box-shadow:none;padding:0;margin:0;background:none;}
+  .pay-popup .cr-form-card > h3,.pay-popup .cr-form-card > .rc-form-row{margin-top:0;}
+  .pay-popup .rc-table-wrap{max-height:320px;overflow:auto;}
+  @media (max-width:640px){
+    .pay-actions{grid-template-columns:1fr;}
+    .pay-popup{padding:16px;border-radius:14px;}
+    .pay-popup .cr-form-grid > *{grid-column:1 / -1 !important;}
+    .pay-popup .rc-form-row{grid-template-columns:1fr !important;}
+  }
+  /* Cards on mobile for tables that set data-label on their cells */
+  @media (max-width:640px){
+    table.cards-tbl thead{display:none;}
+    table.cards-tbl,table.cards-tbl tbody{display:block;width:100%;}
+    table.cards-tbl tbody tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px 12px;padding:14px;margin-bottom:10px;border:1px solid var(--paper-line);border-radius:14px;}
+    table.cards-tbl tbody td{display:flex;flex-direction:column;align-items:flex-start;text-align:start;border:none !important;padding:0 !important;border-radius:0 !important;min-width:0;white-space:normal !important;}
+    table.cards-tbl tbody td::before{content:attr(data-label);font-size:10px;font-weight:700;color:var(--muted);margin-bottom:3px;}
+    table.cards-tbl tbody td:last-child{display:none;}
+  }
 </style>
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -1266,7 +1297,51 @@
         <div class="main-head">
           <div><h1 data-i18n="pay_tab_title">💳 المدفوعات</h1><div class="sub" data-i18n="pay_tab_subtitle">الفحوصات، سجل العمليات، وبوابات الدفع</div></div>
         </div>
-        <div class="cr-save-banner" id="crAdjBanner"></div>
+        <div class="pay-actions">
+          <button class="pay-action" type="button" onclick="openAdjPopup()">
+            <span class="pay-action-ic">⚡</span>
+            <span><b data-i18n="cr_adjust_title">تعديل رصيد عميل</b><small data-i18n="pay_action_adjust_sub">أضف أو اخصم فحوصات من عميل</small></span>
+          </button>
+          <button class="pay-action" type="button" onclick="openRcPopup()">
+            <span class="pay-action-ic">🎟</span>
+            <span><b data-i18n="rc_title">أكواد الخصم</b><small data-i18n="pay_action_codes_sub">توليد أكواد وعرض حالتها</small></span>
+          </button>
+        </div>
+
+        <!-- Transactions log: one filter row, then the table -->
+        <div class="pay-log-head">
+          <div class="log-chips" id="payLogChips">
+            <button type="button" class="chip on" data-k="all" onclick="setLogFilter('all')" data-i18n="pay_f_all">الكل</button>
+            <button type="button" class="chip" data-k="topup" onclick="setLogFilter('topup')" data-i18n="pay_f_topup">شحن</button>
+            <button type="button" class="chip" data-k="adjust" onclick="setLogFilter('adjust')" data-i18n="pay_f_adjust">تعديل</button>
+            <button type="button" class="chip" data-k="codes" onclick="setLogFilter('codes')" data-i18n="pay_f_codes">أكواد</button>
+          </div>
+          <input type="text" class="usr-search" id="payLogSearch" data-i18n-ph="search_generic_ph" placeholder="ابحث..." oninput="applyLogFilters()">
+        </div>
+        <div class="panel" style="padding:12px;">
+          <div style="overflow-x:auto;">
+            <table class="tbl cards-tbl" id="creditsTbl">
+              <thead><tr>
+                <th data-i18n="cr_col_txcode">كود العملية</th>
+                <th data-i18n="pay_col_customer">العميل</th>
+                <th data-i18n="cr_col_plan">الخطة / السبب</th>
+                <th data-i18n="cr_col_amount">المبلغ</th>
+                <th data-i18n="cr_col_credits">الفحوصات</th>
+                <th data-i18n="cr_col_type">النوع</th>
+                <th data-i18n="cr_col_date">التاريخ</th>
+                <th></th>
+              </tr></thead>
+              <tbody id="creditsBody"></tbody>
+            </table>
+          </div>
+          <div id="creditsPagination"></div>
+        </div>
+
+        <!-- Adjust customer balance: popup -->
+        <div class="adm-modal-overlay" id="adjPopup" onclick="if(event.target===this)closeAdjPopup()">
+          <div class="adm-modal-box pay-popup">
+            <div class="pay-popup-top"><button type="button" class="popup-close-btn" onclick="closeAdjPopup()" aria-label="close">✕</button></div>
+            <div class="cr-save-banner" id="crAdjBanner"></div>
 
         <!-- Add / Deduct form -->
         <div class="cr-form-card">
@@ -1313,56 +1388,13 @@
           </div>
         </div>
 
-        <!-- Pending top-up approvals -->
-        <div class="tab-card" id="pendingPaymentsCard" style="margin-bottom:16px;display:none;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-            <span style="font-size:17px;">⏳</span>
-            <b style="font-family:'Cairo',sans-serif;font-size:13.5px;">طلبات شحن بانتظار الموافقة</b>
-            <span id="pendingPaymentsBadge" style="background:var(--danger);color:#fff;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;font-family:'Cairo',sans-serif;"></span>
-          </div>
-          <div style="overflow-x:auto;">
-            <table class="data-tbl" id="pendingPaymentsTbl">
-              <thead><tr>
-                <th>PK</th>
-                <th>الاسم</th>
-                <th>الباقة</th>
-                <th>الفحوصات</th>
-                <th>المبلغ</th>
-                <th>وسيلة الدفع</th>
-                <th>التاريخ</th>
-                <th>إجراء</th>
-              </tr></thead>
-              <tbody id="pendingPaymentsBody"></tbody>
-            </table>
           </div>
         </div>
 
-        <!-- Transactions table -->
-        <div class="tab-card" style="margin-bottom:16px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-            <b style="font-family:'Cairo',sans-serif;font-size:13.5px;" data-i18n="cr_log_title">سجل عمليات الشحن والتعديل</b>
-            <input type="text" class="usr-search" style="width:220px;" data-i18n-ph="search_generic_ph" placeholder="ابحث..." oninput="filterCreditsTable(this.value)">
-          </div>
-          <div style="overflow-x:auto;">
-            <table class="data-tbl" id="creditsTbl">
-              <thead><tr>
-                <th data-i18n="cr_col_txcode">كود العملية</th>
-                <th>PK</th>
-                <th data-i18n="cr_col_name">الاسم</th>
-                <th data-i18n="cr_col_plan">الخطة / السبب</th>
-                <th data-i18n="cr_col_method">وسيلة الدفع</th>
-                <th data-i18n="cr_col_amount">المبلغ</th>
-                <th data-i18n="cr_col_credits">الفحوصات</th>
-                <th data-i18n="cr_col_type">النوع</th>
-                <th data-i18n="cr_col_date">التاريخ</th>
-                <th></th>
-              </tr></thead>
-              <tbody id="creditsBody"><tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px;" data-i18n="loading_ellipsis">جاري التحميل...</td></tr></tbody>
-            </table>
-            <div id="creditsPagination"></div>
-          </div>
-        </div>
-
+        <!-- Redeem codes: popup -->
+        <div class="adm-modal-overlay" id="rcPopup" onclick="if(event.target===this)closeRcPopup()">
+          <div class="adm-modal-box pay-popup">
+            <div class="pay-popup-top"><button type="button" class="popup-close-btn" onclick="closeRcPopup()" aria-label="close">✕</button></div>
         <!-- Redeem codes: single-use vouchers. Each code grants one slot package the customer enters on the Check tab. -->
         <div class="cr-form-card">
           <h3 data-i18n="rc_title">🎟 أكواد الخصم (Redeem Codes)</h3>
@@ -1391,6 +1423,10 @@
             </table>
           </div>
         </div>
+
+          </div>
+        </div>
+
 
         <!-- Payment gateways -->
         <div class="sec-head" style="margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
@@ -1632,7 +1668,7 @@ const I18N = {
     rc_err_generic:'فشل توليد الأكواد', rc_err_load:'تعذر تحميل الأكواد', rc_new_title:'تم توليد {n} كود، كل كود بـ {c} slot',
     rc_copy_all:'📋 نسخ الكل', rc_copied:'تم نسخ الأكواد ✅', rc_col_code:'الكود', rc_col_credits:'الفحوصات',
     rc_col_status:'الحالة', rc_col_created:'تاريخ الإنشاء', rc_status_unused:'متاح', rc_status_used:'مستخدم', rc_empty:'لا توجد أكواد بعد',
-    nav_slots:'الباقات', today_orders_title:'Today orders', api_log_title:'سجل API credit', api_log_time:'الوقت', api_log_order:'الطلب', api_log_event:'الحدث', api_log_before:'API قبل', api_log_after:'API بعد', api_log_delta:'الفرق', api_log_slots:'Slots محجوزة', api_log_note:'ملاحظة', kpi_orders_count:'عدد الطلبات', kpi_revenue:'الإيرادات',
+    nav_slots:'الباقات', today_orders_title:'Today orders', pay_action_adjust_sub:'أضف أو اخصم فحوصات من عميل', pay_action_codes_sub:'توليد أكواد وعرض حالتها', pay_f_all:'الكل', pay_f_topup:'شحن', pay_f_adjust:'تعديل', pay_f_codes:'أكواد', pay_col_customer:'العميل', api_log_title:'سجل API credit', api_log_time:'الوقت', api_log_order:'الطلب', api_log_event:'الحدث', api_log_before:'API قبل', api_log_after:'API بعد', api_log_delta:'الفرق', api_log_slots:'Slots محجوزة', api_log_note:'ملاحظة', kpi_orders_count:'عدد الطلبات', kpi_revenue:'الإيرادات',
     slt_title:'🎫 باقات الفحوصات', slt_subtitle:'الباقات اللي بتظهر للعملاء في الموقع، وكل باقة بتتحدد بنوع الفحص وعدد الفحوصات وصلاحيتها',
     slt_new_btn:'+ باقة جديدة', slt_empty:'مفيش باقات لسه', slt_err_load:'تعذر تحميل الباقات',
     slt_col_name:'الاسم', slt_col_type:'النوع', slt_col_slots:'الفحوصات', slt_col_price:'السعر', slt_col_expiry:'الصلاحية', slt_col_status:'الحالة', slt_col_actions:'إجراءات',
@@ -1748,7 +1784,7 @@ const I18N = {
     rc_err_generic:'Failed to generate codes', rc_err_load:'Could not load codes', rc_new_title:'{n} codes generated, {c} slots each',
     rc_copy_all:'📋 Copy all', rc_copied:'Codes copied ✅', rc_col_code:'Code', rc_col_credits:'Checks',
     rc_col_status:'Status', rc_col_created:'Created', rc_status_unused:'Unused', rc_status_used:'Used', rc_empty:'No codes yet',
-    nav_slots:'Packages', today_orders_title:'Today orders', api_log_title:'API credit log', api_log_time:'Time', api_log_order:'Order', api_log_event:'Event', api_log_before:'API before', api_log_after:'API after', api_log_delta:'Change', api_log_slots:'Slots reserved', api_log_note:'Note', kpi_orders_count:'Order count', kpi_revenue:'Revenue',
+    nav_slots:'Packages', today_orders_title:'Today orders', pay_action_adjust_sub:'Add or deduct checks for a customer', pay_action_codes_sub:'Generate codes and see their status', pay_f_all:'All', pay_f_topup:'Top-ups', pay_f_adjust:'Adjustments', pay_f_codes:'Codes', pay_col_customer:'Customer', api_log_title:'API credit log', api_log_time:'Time', api_log_order:'Order', api_log_event:'Event', api_log_before:'API before', api_log_after:'API after', api_log_delta:'Change', api_log_slots:'Slots reserved', api_log_note:'Note', kpi_orders_count:'Order count', kpi_revenue:'Revenue',
     slt_title:'🎫 Slot packages', slt_subtitle:'Packages customers see on the site. Each one has a check type, a number of slots and a validity period.',
     slt_new_btn:'+ New package', slt_empty:'No packages yet', slt_err_load:'Could not load packages',
     slt_col_name:'Name', slt_col_type:'Type', slt_col_slots:'Checks', slt_col_price:'Price', slt_col_expiry:'Validity', slt_col_status:'Status', slt_col_actions:'Actions',
@@ -2212,10 +2248,10 @@ function subscribeWalletChannel(){
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'payments' }, () => {
       // New payment arrived — refresh pending list if credits tab is visible
-      if (document.getElementById('tab-payments')?.classList.contains('on')) loadPendingPayments();
+      if (document.getElementById('tab-payments')?.classList.contains('on')) loadCreditsTab();
     })
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'payments' }, () => {
-      if (document.getElementById('tab-payments')?.classList.contains('on')) loadPendingPayments();
+      if (document.getElementById('tab-payments')?.classList.contains('on')) loadCreditsTab();
     })
     .subscribe();
 }
@@ -5577,9 +5613,61 @@ async function deleteSlotPackage(id){
 
 async function initCreditsTab(){
   await loadCreditsTab();
-  await loadRcPackages();
-  rcUpdatePreview();
+}
+
+// ---- Popups: adjust balance and redeem codes (the forms keep their ids) ----
+function resetAdjForm(){
+  ['crPkInput','crAmountInput','crNoteInput'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  const prev = document.getElementById('crUserPreview'); if (prev) prev.innerHTML = '';
+  const banner = document.getElementById('crAdjBanner'); if (banner) banner.style.display = 'none';
+  crUserFound = null;
+  const grant = document.getElementById('crGrantSelect'); if (grant) grant.innerHTML = GRANT_PLACEHOLDER;
+  formGrantChanged(CR_FORM);
+}
+function openAdjPopup(){
+  resetAdjForm();
+  document.getElementById('adjPopup').classList.add('open');
+  loadCrPackageOptions();
+  setTimeout(() => document.getElementById('crPkInput')?.focus(), 80);
+}
+function closeAdjPopup(){ document.getElementById('adjPopup').classList.remove('open'); }
+function openRcPopup(){
+  document.getElementById('rcPopup').classList.add('open');
+  loadRcPackages().then(() => rcUpdatePreview());
   loadRedeemCodes();
+}
+function closeRcPopup(){ document.getElementById('rcPopup').classList.remove('open'); }
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  closeAdjPopup(); closeRcPopup();
+});
+
+// ---- Log: one filter row (all / top-ups / adjustments / codes) plus search ----
+let _logKind = 'all';
+function logKindOf(r){
+  if (r.kind === 'topup' || r.kind === 'pending' || r.kind === 'rejected') return 'topup';
+  if (r.kind === 'admin_add' || r.kind === 'admin_deduct') return 'adjust';
+  if (r.kind === 'redeem') return 'codes';
+  return 'check';
+}
+function setLogFilter(k){
+  _logKind = k;
+  document.querySelectorAll('#payLogChips .chip').forEach(c => c.classList.toggle('on', c.dataset.k === k));
+  applyLogFilters();
+}
+function applyLogFilters(){
+  const q = (document.getElementById('payLogSearch')?.value || '').trim();
+  let rows = _logKind === 'all' ? allTxRows : allTxRows.filter(r => logKindOf(r) === _logKind);
+  if (q) {
+    if (window.Fuse) {
+      rows = new Fuse(rows, { keys: ['full_name', 'code', 'pk_number', 'plan', 'method'], threshold: 0.35 }).search(q).map(r => r.item);
+    } else {
+      const ql = q.toLowerCase();
+      rows = rows.filter(r => (r.full_name||'').toLowerCase().includes(ql) || (r.code||'').toLowerCase().includes(ql)
+        || String(r.pk_number||'').includes(ql) || String(r.plan||'').toLowerCase().includes(ql));
+    }
+  }
+  renderCreditsTable(rows);
 }
 
 /* ================================================================
@@ -5710,60 +5798,6 @@ async function loadRedeemCodes(){
   }).join('');
 }
 
-async function loadPendingPayments(){
-  // Top-up approvals are retired: every payment is verified automatically, so this card stays hidden.
-  const hiddenCard = document.getElementById('pendingPaymentsCard');
-  if (hiddenCard) hiddenCard.style.display = 'none';
-  return;
-  const { data, error } = await supabaseClient
-    .from('payments')
-    .select('id, user_id, pack_id, gateway, amount, currency, credits, created_at')
-    .eq('status', 'pending')
-    .order('created_at', { ascending: false });
-
-  const card = document.getElementById('pendingPaymentsCard');
-  const tbody = document.getElementById('pendingPaymentsBody');
-  const badge = document.getElementById('pendingPaymentsBadge');
-  if (error || !data || data.length === 0) {
-    card.style.display = 'none';
-    return;
-  }
-  card.style.display = '';
-  badge.textContent = data.length;
-
-  const PACK_LABELS = {
-    pack_1:'1 ملف', pack_5:'5 ملفات', pack_10:'10 ملفات', pack_25:'25 ملف',
-  };
-  const GW = { binance:'Binance', bybit:'Bybit', bep20:'BEP20', easykash:'EasyKash', instapay:'InstaPay', vodafone:'فودافون كاش' };
-
-  tbody.innerHTML = data.map(p => {
-    const profile = profilesByUserId[p.user_id] || {};
-    const pkStr = profile.pk_number != null ? `PK${formatPkNumber(profile.pk_number)}` : '—';
-    const name  = escapeHtml(profile.full_name || '—');
-    const pack      = escapeHtml(PACK_LABELS[p.pack_id] || p.pack_id || '—');
-    const gw        = escapeHtml(GW[p.gateway] || p.gateway || '—');
-    const amt       = p.amount != null ? `${p.amount} ${p.currency || 'EGP'}` : '—';
-    const date      = formatDate(p.created_at);
-    const expDays   = p.pack_id ? (PACK_EXPIRY_DAYS[p.pack_id] ?? null) : null;
-    const expLabel  = expDays ? `<span style="color:var(--warn);font-weight:700;">⏳ ${expDays}د</span>` : `<span style="color:var(--ok);">∞</span>`;
-    return `<tr>
-      <td class="mono" style="color:var(--blue-deep);font-weight:700;">${clickablePk(p.user_id, profile.pk_number)}</td>
-      <td><b style="font-size:12px;">${name}</b></td>
-      <td style="font-size:12px;">${pack}</td>
-      <td style="font-weight:800;color:var(--ok);">+${slotsOfPayment(p)}</td>
-      <td style="font-size:12px;">${expLabel}</td>
-      <td style="font-size:12px;font-weight:700;">${escapeHtml(amt)}</td>
-      <td style="font-size:12px;">${gw}</td>
-      <td style="font-size:11px;color:var(--muted);">${date}</td>
-      <td style="display:flex;gap:6px;">
-        <button class="btn btn-primary" style="background:var(--ok);border-color:var(--ok);padding:5px 12px;font-size:12px;"
-          onclick="approvePendingPayment('${p.id}','${p.user_id}',${slotsOfPayment(p)},this)">✅ موافقة</button>
-        <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger);padding:5px 12px;font-size:12px;"
-          onclick="rejectPendingPayment('${p.id}',this)">❌ رفض</button>
-      </td>
-    </tr>`;
-  }).join('');
-}
 
 // Slot validity switch: ON = packages expire by their days; OFF = packages bought from now on are lifetime.
 function updateSlotValidityNote(){
@@ -5796,8 +5830,6 @@ async function toggleSlotValidity(el){
 }
 
 async function loadCreditsTab(){
-  loadCrPackageOptions();
-  loadPendingPayments();
   await loadSlotData();
   document.getElementById('creditsBody').innerHTML =
     '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px;">جاري التحميل...</td></tr>';
@@ -5805,15 +5837,17 @@ async function loadCreditsTab(){
   // The log is in slots. Sources: completed top-ups (payments), admin package
   // additions and slot deductions (admin_slot_adjustments), and old admin credit
   // rows (20 credits = 1 slot). Each row gets its own log code (LOG-...).
-  const [payRes, adjRes, packRes, legacyRes, usageRes] = await Promise.all([
+  const [payRes, adjRes, packRes, legacyRes, usageRes, redeemRes] = await Promise.all([
     supabaseClient.from('payments').select('id, user_id, pack_id, gateway, amount, currency, status, created_at, verified_at, reference').in('status', ['completed', 'pending', 'rejected']).order('created_at', { ascending: false }).limit(1000),
     supabaseClient.from('admin_slot_adjustments').select('*').order('created_at', { ascending: false }).limit(1000),
     supabaseClient.from('slot_packages').select('id, legacy_pack_id, slots, name_ar, name_en'),
     supabaseClient.from('wallet_transactions').select('*').in('type', ['admin_credit', 'admin_debit']).order('created_at', { ascending: false }).limit(500),
     // Every check that took a slot (reserved). Released reservations were refunded, so they are not listed.
     supabaseClient.from('slot_usages').select('id, user_id, slot_type, order_id, status, created_at').eq('status', 'reserved').order('created_at', { ascending: false }).limit(1000),
+    // Redeemed vouchers: each one adds its slots when it was used.
+    supabaseClient.from('redeem_codes').select('code, credits, package_id, redeemed_at, redeemed_by').not('redeemed_at', 'is', null).order('redeemed_at', { ascending: false }).limit(1000),
   ]);
-  const error = payRes.error || adjRes.error || packRes.error || legacyRes.error || usageRes.error;
+  const error = payRes.error || adjRes.error || packRes.error || legacyRes.error || usageRes.error || redeemRes.error;
   if (error) {
     console.error('loadCreditsTab:', error);
     document.getElementById('creditsBody').innerHTML =
@@ -5875,75 +5909,66 @@ async function loadCreditsTab(){
       method: 'system', amount_paid: null, currency: null, slots: -1, kind: 'check', created_at: u.created_at,
     });
   });
+  (redeemRes.data || []).forEach(c => {
+    const pr = profileOf(c.redeemed_by);
+    const pack = packByKey[c.package_id] || null;
+    rows.push({
+      code: c.code, user_id: c.redeemed_by, pk_number: pr.pk_number, full_name: pr.full_name || '—',
+      plan: pack ? pack.name : (currentLang === 'ar' ? 'كود خصم' : 'Voucher'),
+      method: 'redeem', amount_paid: null, currency: null,
+      slots: Number(c.credits) || 0, kind: 'redeem', created_at: c.redeemed_at,
+    });
+  });
   rows.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   allTxRows = rows;
-  renderCreditsTable(allTxRows);
+  applyLogFilters();
 }
 
 function renderCreditsTable(rows){
+  const body = document.getElementById('creditsBody');
+  const ar = currentLang === 'ar';
   if (!rows.length) {
-    document.getElementById('creditsBody').innerHTML =
-      `<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px;">${t('cr_empty')}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px;">${escapeHtml(t('cr_empty'))}</td></tr>`;
     document.getElementById('creditsPagination').innerHTML = '';
     return;
   }
   const pageRows = paginateList('credits', rows, () => renderCreditsTable(rows));
-  document.getElementById('creditsBody').innerHTML = pageRows.map(r => {
-    const pkStr   = r.pk_number != null ? `PK${formatPkNumber(r.pk_number)}` : '—';
-    const gw      = r.method === 'manual'
-                       ? `${GATEWAY_LABELS.manual}`
-                       : (GATEWAY_LABELS[r.method] || r.method || '—');
-    const amt     = r.amount_paid != null ? `${Number(r.amount_paid).toFixed(2)} ${r.currency || ''}` : '—';
-    const typeBadge = r.kind === 'topup'        ? `<span class="cr-badge-add">${t('badge_topup')}</span>`
-                    : r.kind === 'admin_add'    ? `<span class="cr-badge-adm">${t('badge_admin_add')}</span>`
-                    : r.kind === 'pending'      ? `<span class="cr-badge-adm">${currentLang === 'ar' ? 'معلّق' : 'Pending'}</span>`
-                    : r.kind === 'rejected'     ? `<span class="cr-badge-ded">${currentLang === 'ar' ? 'مرفوض' : 'Rejected'}</span>`
-                    : r.kind === 'check'        ? `<span class="cr-badge-ded">${currentLang === 'ar' ? 'فحص' : 'Check'}</span>`
-                    : `<span class="cr-badge-ded">${t('badge_admin_deduct')}</span>`;
-    const n       = Number(r.slots);
+  const TYPE = {
+    topup:        ['cr-badge-add', t('badge_topup')],
+    admin_add:    ['cr-badge-adm', t('badge_admin_add')],
+    admin_deduct: ['cr-badge-ded', t('badge_admin_deduct')],
+    pending:      ['cr-badge-adm', ar ? 'معلّق' : 'Pending'],
+    rejected:     ['cr-badge-ded', ar ? 'مرفوض' : 'Rejected'],
+    check:        ['cr-badge-ded', ar ? 'فحص' : 'Check'],
+    redeem:       ['cr-badge-add', ar ? 'كود خصم' : 'Voucher'],
+  };
+  const ROW = { topup: 'row-ok', redeem: 'row-ok', admin_add: 'row-ok', admin_deduct: 'row-bad', rejected: 'row-bad', pending: 'row-run' };
+  body.innerHTML = pageRows.map(r => {
+    const pkStr = r.pk_number != null ? `PK${formatPkNumber(r.pk_number)}` : '—';
+    const gw = r.method === 'manual' ? GATEWAY_LABELS.manual
+      : r.method === 'redeem' ? (ar ? 'كود خصم' : 'Voucher')
+      : r.method === 'system' ? (ar ? 'النظام' : 'System')
+      : (GATEWAY_LABELS[r.method] || r.method || '');
+    const amt = r.amount_paid != null ? `${Number(r.amount_paid).toFixed(2)} ${r.currency || ''}` : '';
+    const [tcls, tlbl] = TYPE[r.kind] || ['cr-badge-ded', r.kind];
+    const n = Number(r.slots);
     const slotTxt = r.slots == null ? '—' : `${n > 0 ? '+' : ''}${n}`;
-    const slotCol = n < 0 ? 'color:var(--danger)' : 'color:var(--ok)';
-    const msgBtn  = r.user_id ? `<button class="msg-btn" onclick="composeMessage('${r.user_id}','${pkStr}')">✉</button>` : '';
-    return `<tr>
-      <td class="mono" style="font-size:10px;color:var(--muted);">${escapeHtml(r.code)}</td>
-      <td class="mono" style="color:var(--blue-deep);font-weight:700;">${clickablePk(r.user_id, r.pk_number)}</td>
-      <td><b style="font-size:12px;">${escapeHtml(r.full_name)}</b></td>
-      <td style="font-size:11.5px;">${escapeHtml(r.plan)}</td>
-      <td style="font-size:11.5px;">${escapeHtml(gw)}</td>
-      <td style="font-size:12px;font-weight:700;">${escapeHtml(amt)}</td>
-      <td style="font-weight:800;${slotCol}">${escapeHtml(slotTxt)}</td>
-      <td>${typeBadge}</td>
-      <td style="font-size:11px;color:var(--muted);">${formatDate(r.created_at)}</td>
+    const msgBtn = r.user_id ? `<button class="msg-btn" onclick="composeMessage('${r.user_id}','${pkStr}')">✉</button>` : '';
+    return `<tr class="${ROW[r.kind] || ''}">
+      <td data-label="${escapeHtml(t('cr_col_txcode'))}" class="mono" style="font-size:10px;color:var(--muted);">${escapeHtml(r.code)}</td>
+      <td data-label="${escapeHtml(t('pay_col_customer'))}"><b style="font-size:12px;">${escapeHtml(r.full_name)}</b><br>${clickablePk(r.user_id, r.pk_number)}</td>
+      <td data-label="${escapeHtml(t('cr_col_plan'))}" style="font-size:11.5px;">${escapeHtml(r.plan)}</td>
+      <td data-label="${escapeHtml(t('cr_col_amount'))}" style="font-size:11.5px;"><b>${escapeHtml(amt || '—')}</b>${gw ? `<br><small style="color:var(--muted);">${escapeHtml(gw)}</small>` : ''}</td>
+      <td data-label="${escapeHtml(t('cr_col_credits'))}" style="font-weight:800;color:${n < 0 ? 'var(--danger)' : 'var(--ok)'};">${escapeHtml(slotTxt)}</td>
+      <td data-label="${escapeHtml(t('cr_col_type'))}"><span class="${tcls}">${escapeHtml(tlbl)}</span></td>
+      <td data-label="${escapeHtml(t('cr_col_date'))}" style="font-size:11px;color:var(--muted);">${formatDate(r.created_at)}</td>
       <td>${msgBtn}</td>
     </tr>`;
   }).join('');
-
   renderPaginationBar('credits', 'creditsPagination', rows.length);
 }
 
 let _creditsFuse = null;
-function filterCreditsTable(q){
-  q = q.trim();
-  if (!q) { renderCreditsTable(allTxRows); return; }
-  if (window.Fuse) {
-    if (!_creditsFuse || _creditsFuse._list !== allTxRows) {
-      _creditsFuse = new Fuse(allTxRows, {
-        keys: ['full_name', 'code', 'pk_number', 'plan', 'method'],
-        threshold: 0.35,
-      });
-      _creditsFuse._list = allTxRows;
-    }
-    renderCreditsTable(_creditsFuse.search(q).map(r => r.item));
-    return;
-  }
-  const ql = q.toLowerCase();
-  renderCreditsTable(allTxRows.filter(r =>
-    (r.full_name||'').toLowerCase().includes(ql) ||
-    (r.code||'').toLowerCase().includes(ql) ||
-    String(r.pk_number||'').includes(ql) ||
-    String(r.plan||'').toLowerCase().includes(ql)
-  ));
-}
 
 // ── User lookup by PK ──
 let crLookupTimer = null;
@@ -5959,10 +5984,7 @@ async function crLookupUser(){
     if (found) {
       crUserFound = found;
       loadCrGrants(found.user_id);
-      // Get current balance
-      const { data: bal } = await supabaseClient
-        .from('wallet_transactions').select('balance_after')
-        .eq('user_id', found.user_id).order('created_at',{ascending:false}).limit(1);
+      await loadSlotData();
       const credits = slotTotal(found.user_id);
       prev.innerHTML = `<span class="cr-found-badge">✅ ${escapeHtml(found.full_name)} — رصيد حالي: ${credits} فحص</span>`;
     } else {
@@ -6998,46 +7020,6 @@ const PACK_EXPIRY_DAYS = {
   pack_daily_starter:1, pack_daily_pro:1, pack_daily_master:1,
   pack_daily_elite:1, pack_daily_ultimate:1,
 };
-
-async function approvePendingPayment(paymentId, userId, credits, triggerBtn){
-  if (triggerBtn) { triggerBtn.disabled = true; triggerBtn.textContent = '...'; }
-  try {
-    // The database claims the payment and grants its slots in one transaction (admin_approve_payment).
-    // A payment that is no longer pending is refused, so a second click never grants twice.
-    const { data, error } = await supabaseClient.rpc('admin_approve_payment', { p_payment_id: paymentId });
-    if (error) throw error;
-    if (!data || data.ok !== true) {
-      const reasons = {
-        NOT_PENDING: 'الدفعة مش معلقة (اتعالجت قبل كده)',
-        REFERENCE_ALREADY_USED: 'الرقم المرجعي ده اتستخدم في دفعة تانية، مش هيتفعّل تاني',
-      };
-      throw new Error(reasons[data?.error] || 'تعذر الموافقة');
-    }
-
-    await logAdminActivity('manual_approve', userId, '', 'الموافقة على دفعة معلقة: ' + paymentId);
-    loadPendingPayments();
-    loadCreditsTab();
-  } catch(err) {
-    console.error('approvePendingPayment failed:', err);
-    await adminAlert('فشلت الموافقة: ' + (err.message || 'خطأ غير معروف'), {icon:'❌', danger:true});
-    if (triggerBtn) { triggerBtn.disabled = false; triggerBtn.textContent = '✅ موافقة'; }
-  }
-}
-
-async function rejectPendingPayment(paymentId, triggerBtn){
-  if (triggerBtn) { triggerBtn.disabled = true; triggerBtn.textContent = '...'; }
-  try {
-    const { error } = await supabaseClient.from('payments').update({status:'rejected'}).eq('id',paymentId);
-    if (error) throw error;
-    await logAdminActivity('payment_reject',null,'','رفض دفعة: '+paymentId);
-    loadPendingPayments();
-    loadCreditsTab();
-  } catch(err) {
-    console.error('rejectPendingPayment failed:', err);
-    await adminAlert('فشل الرفض: ' + (err.message || 'خطأ غير معروف'), {icon:'❌', danger:true});
-    if (triggerBtn) { triggerBtn.disabled = false; triggerBtn.textContent = '❌ رفض'; }
-  }
-}
 
 /* ================================================================
    FEATURE 4: CSV EXPORT
