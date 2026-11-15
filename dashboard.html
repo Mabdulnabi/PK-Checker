@@ -1973,6 +1973,12 @@
         </div>
         <span data-i18n="nav_academic">Academic Tools</span><span class="soon-badge">Soon</span>
       </div>
+      <div class="navtab sidebar-item" data-tab="focus">
+        <div class="sid-chip sid-rose">
+          <svg data-icon-key="tab_focus" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>
+        </div>
+        <span data-i18n="nav_focus">Focus mode</span>
+      </div>
       <div class="navtab sidebar-item" data-tab="support">
         <div class="sid-chip sid-orange">
           <!-- ph-headset duotone -->
@@ -2879,6 +2885,308 @@
       </div>
     </div>
 
+    <style>
+      .sid-rose{ color:#db2777 !important; }
+      .sid-rose{ background:#db27771f; color:#db2777; }
+      .sidebar-item[data-tab="focus"]{ --tab-color:#db2777; }
+#pane-focus{ --fm-bg:#f5f7fb; --fm-surface:#ffffff; --fm-surface2:#f1f4f9; --fm-border:#e4e9f2; --fm-text:#1b2556; --fm-muted:#6b7a99;
+  --fm-accent:#0e7afe; --fm-cyan:#00baf7; --fm-ok:#10b981; --fm-warn:#f59e0b; --fm-danger:#e0445b; --fm-purple:#8b5cf6;
+  --fm-radius:12px; --fm-font-mono:'IBM Plex Mono',monospace; }
+[data-theme="dark"] #pane-focus{ --fm-bg:#0d1117; --fm-surface:#161b22; --fm-surface2:#1c2130; --fm-border:#2a3142; --fm-text:#e6edf3; --fm-muted:#8b949e; }
+#pane-focus:fullscreen{ background:var(--fm-bg); padding:16px; overflow:auto; }
+#pane-focus .fm-head{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+#pane-focus .fm-head h2{ margin:0; font-size:20px; font-weight:800; color:var(--fm-text); }
+#pane-focus .fm-head p{ margin:2px 0 0; font-size:12.5px; color:var(--fm-muted); }
+#pane-focus .fm-actions{ display:flex; gap:8px; }
+#pane-focus .main-layout{ border:1px solid var(--fm-border); border-radius:18px; overflow:hidden; background:var(--fm-bg); }
+#pane-focus /* ── Layout ── */
+.icon-btn{width:34px;height:34px;border-radius:9px;border:1px solid var(--fm-border);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--fm-muted);transition:all .15s}
+#pane-focus .icon-btn:hover{background:var(--fm-surface2);color:var(--fm-text)}
+#pane-focus .icon-btn.on{background:var(--fm-accent);color:#fff;border-color:var(--fm-accent)}
+#pane-focus .main-layout{display:grid;grid-template-columns:380px 1fr;min-height:640px;gap:0}
+@media(max-width:900px){#pane-focus .main-layout{grid-template-columns:1fr}}
+#pane-focus /* ── Left panel ── */
+.left-panel{border-left:1px solid var(--fm-border);background:var(--fm-surface);display:flex;flex-direction:column;gap:0;overflow-y:auto}
+#pane-focus .panel-section{border-bottom:1px solid var(--fm-border);padding:16px}
+#pane-focus .section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--fm-muted);margin-bottom:12px}
+#pane-focus /* ── Pomodoro ── */
+.pomodoro-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
+#pane-focus .pomo-modes{display:flex;gap:4px;background:var(--fm-surface2);border:1px solid var(--fm-border);padding:3px;border-radius:9px}
+#pane-focus .pomo-mode-btn{flex:1;padding:5px 10px;border-radius:7px;border:none;background:none;cursor:pointer;font-family:'Cairo',sans-serif;font-size:11px;font-weight:700;color:var(--fm-muted);transition:all .15s;white-space:nowrap}
+#pane-focus .pomo-mode-btn.on{background:var(--fm-accent);color:#fff}
+#pane-focus .ring-wrap{position:relative;width:170px;height:170px}
+#pane-focus .ring-wrap svg{width:100%;height:100%}
+#pane-focus .ring-bg{fill:none;stroke:var(--fm-border);stroke-width:8}
+#pane-focus .ring-prog{fill:none;stroke-width:8;stroke-linecap:round;transform-origin:center;transform:rotate(-90deg);transition:stroke-dashoffset .9s linear}
+#pane-focus .ring-time{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+#pane-focus .ring-time .time{font-family:var(--fm-font-mono);font-size:32px;font-weight:600;color:var(--fm-text);letter-spacing:-.02em}
+#pane-focus .ring-time .mode-label{font-size:11px;color:var(--fm-muted);font-weight:600}
+#pane-focus .pomo-controls{display:flex;gap:8px;align-items:center}
+#pane-focus .pomo-btn{width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+#pane-focus .pomo-btn-play{background:var(--fm-accent);color:#fff}
+#pane-focus .pomo-btn-play:hover{background:#0b5fc9}
+#pane-focus .pomo-btn-sm{background:var(--fm-surface2);border:1px solid var(--fm-border);color:var(--fm-muted)}
+#pane-focus .pomo-btn-sm:hover{background:var(--fm-border);color:var(--fm-text)}
+#pane-focus .pomo-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
+#pane-focus .pomo-stat{background:var(--fm-surface2);border:1px solid var(--fm-border);border-radius:9px;padding:8px 10px;text-align:center}
+#pane-focus .pomo-stat-val{font-family:var(--fm-font-mono);font-size:18px;font-weight:600;color:var(--fm-accent)}
+#pane-focus .pomo-stat-label{font-size:10px;color:var(--fm-muted);margin-top:2px}
+#pane-focus /* ── Search engines ── */
+.engine-tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+#pane-focus .engine-tab{padding:5px 10px;border-radius:7px;border:1px solid var(--fm-border);background:var(--fm-surface2);cursor:pointer;font-size:11px;font-weight:700;color:var(--fm-muted);transition:all .15s;display:flex;align-items:center;gap:5px}
+#pane-focus .engine-tab.on{border-color:var(--fm-accent);color:var(--fm-accent);background:rgba(14,122,254,.1)}
+#pane-focus .search-row{display:flex;gap:8px}
+#pane-focus .search-box{flex:1;padding:9px 12px;border:1.5px solid var(--fm-border);border-radius:9px;background:var(--fm-surface2);font-family:'Cairo',sans-serif;font-size:14px;color:var(--fm-text);outline:none;transition:border-color .15s;direction:ltr}
+#pane-focus .search-box:focus{border-color:var(--fm-accent)}
+#pane-focus .search-go{padding:9px 14px;border-radius:9px;background:var(--fm-accent);color:#fff;border:none;cursor:pointer;font-weight:700;font-size:13px;transition:all .15s;white-space:nowrap;font-family:'Cairo',sans-serif}
+#pane-focus .search-go:hover{background:#0b5fc9}
+#pane-focus /* ── Calculator ── */
+.calc-wrap{background:var(--fm-surface2);border:1px solid var(--fm-border);border-radius:var(--fm-radius);padding:12px}
+#pane-focus .calc-display{background:var(--fm-bg);border:1px solid var(--fm-border);border-radius:9px;padding:10px 14px;margin-bottom:10px;text-align:right}
+#pane-focus .calc-expr{font-family:var(--fm-font-mono);font-size:11px;color:var(--fm-muted);min-height:16px;word-break:break-all}
+#pane-focus .calc-val{font-family:var(--fm-font-mono);font-size:24px;font-weight:600;color:var(--fm-text);min-height:30px;overflow:hidden;text-overflow:ellipsis}
+#pane-focus .calc-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+#pane-focus .calc-btn{padding:8px 4px;border-radius:7px;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;transition:all .12s;color:var(--fm-text)}
+#pane-focus .calc-btn:hover{filter:brightness(1.2)}
+#pane-focus .calc-btn.num{background:var(--fm-surface2)}
+#pane-focus .calc-btn.op{background:rgba(14,122,254,.2);color:var(--fm-accent)}
+#pane-focus .calc-btn.fn{background:rgba(161,113,247,.2);color:var(--fm-purple)}
+#pane-focus .calc-btn.eq{background:var(--fm-accent);color:#fff;grid-column:span 1}
+#pane-focus .calc-btn.eq:hover{background:#0b5fc9}
+#pane-focus .calc-btn.clr{background:rgba(224,68,91,.2);color:var(--fm-danger)}
+#pane-focus .calc-shift-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+#pane-focus .calc-shift-btn{padding:4px 10px;border-radius:7px;border:1px solid var(--fm-border);background:var(--fm-surface2);cursor:pointer;font-size:11px;font-weight:700;color:var(--fm-muted);transition:all .15s}
+#pane-focus .calc-shift-btn.on{background:var(--fm-purple);color:#fff;border-color:var(--fm-purple)}
+#pane-focus /* ── Right panel ── */
+.right-panel{background:var(--fm-bg);display:flex;flex-direction:column;overflow:hidden}
+#pane-focus .tabs-bar{display:flex;gap:2px;padding:10px 16px 0;border-bottom:1px solid var(--fm-border);background:var(--fm-surface)}
+#pane-focus .tab{padding:8px 14px;border-radius:9px 9px 0 0;cursor:pointer;font-size:12px;font-weight:700;color:var(--fm-muted);transition:all .15s;border:1px solid transparent;border-bottom:none;white-space:nowrap}
+#pane-focus .tab.on{background:var(--fm-bg);color:var(--fm-text);border-color:var(--fm-border);border-bottom-color:var(--fm-bg)}
+#pane-focus .tab:hover:not(.on){color:var(--fm-text)}
+#pane-focus .tab-content{flex:1;overflow:hidden;display:none}
+#pane-focus .tab-content.on{display:flex;flex-direction:column}
+#pane-focus /* ── Notes ── */
+.notes-toolbar{display:flex;gap:4px;padding:10px 14px;border-bottom:1px solid var(--fm-border);background:var(--fm-surface);flex-wrap:wrap}
+#pane-focus .fmt-btn{width:28px;height:28px;border-radius:6px;border:none;background:none;cursor:pointer;color:var(--fm-muted);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;transition:all .12s;font-family:'Space Grotesk',sans-serif}
+#pane-focus .fmt-btn:hover{background:var(--fm-surface2);color:var(--fm-text)}
+#pane-focus .fmt-btn.on{background:var(--fm-accent);color:#fff}
+#pane-focus .fmt-sep{width:1px;background:var(--fm-border);margin:4px 2px;align-self:stretch}
+#pane-focus .notes-area{flex:1;padding:16px;outline:none;font-family:'Cairo',sans-serif;font-size:14px;color:var(--fm-text);line-height:1.75;overflow-y:auto;min-height:0}
+#pane-focus .notes-area:empty::before{content:attr(data-placeholder);color:var(--fm-muted);pointer-events:none}
+#pane-focus .notes-footer{padding:8px 14px;border-top:1px solid var(--fm-border);font-size:11px;color:var(--fm-muted);display:flex;justify-content:space-between}
+#pane-focus /* ── Tasks board ── */
+.board-toolbar{padding:10px 14px;border-bottom:1px solid var(--fm-border);display:flex;gap:8px;background:var(--fm-surface)}
+#pane-focus .add-task-inp{flex:1;padding:7px 11px;border:1px solid var(--fm-border);border-radius:8px;background:var(--fm-surface2);font-family:'Cairo',sans-serif;font-size:13px;color:var(--fm-text);outline:none}
+#pane-focus .add-task-inp:focus{border-color:var(--fm-accent)}
+#pane-focus .add-task-btn{padding:7px 14px;border-radius:8px;background:var(--fm-accent);color:#fff;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700}
+#pane-focus .board-cols{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px;overflow-y:auto;min-height:0}
+#pane-focus .board-col{background:var(--fm-surface2);border:1px solid var(--fm-border);border-radius:var(--fm-radius);display:flex;flex-direction:column;min-height:200px}
+#pane-focus .col-head{padding:10px 12px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--fm-border);display:flex;align-items:center;justify-content:space-between}
+#pane-focus .col-count{background:var(--fm-border);border-radius:20px;padding:1px 7px;font-size:10px;font-weight:700;color:var(--fm-muted)}
+#pane-focus .col-todo .col-head{color:var(--fm-muted)}
+#pane-focus .col-doing .col-head{color:var(--fm-cyan)}
+#pane-focus .col-done .col-head{color:var(--fm-ok)}
+#pane-focus .col-tasks{flex:1;padding:8px;display:flex;flex-direction:column;gap:6px;overflow-y:auto}
+#pane-focus .task-card{background:var(--fm-surface);border:1px solid var(--fm-border);border-radius:9px;padding:9px 11px;cursor:grab;transition:all .15s;user-select:none}
+#pane-focus .task-card:hover{border-color:var(--fm-accent);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+#pane-focus .task-card.dragging{opacity:.4;cursor:grabbing}
+#pane-focus .task-card.drag-over{border-color:var(--fm-cyan);background:rgba(0,186,247,.05)}
+#pane-focus .task-text{font-size:12px;line-height:1.5;color:var(--fm-text)}
+#pane-focus .task-meta{display:flex;align-items:center;justify-content:space-between;margin-top:5px}
+#pane-focus .task-time{font-family:var(--fm-font-mono);font-size:10px;color:var(--fm-muted)}
+#pane-focus .task-del{width:18px;height:18px;border-radius:4px;border:none;background:none;cursor:pointer;color:var(--fm-danger);opacity:0;transition:opacity .15s;display:flex;align-items:center;justify-content:center;font-size:10px}
+#pane-focus .task-card:hover .task-del{opacity:1}
+#pane-focus .col-drop-zone{flex:1;min-height:40px;border-radius:8px;transition:all .2s}
+#pane-focus .col-drop-zone.drag-active{background:rgba(14,122,254,.08);border:1.5px dashed var(--fm-accent)}
+#pane-focus /* ── Sessions log ── */
+.sessions-list{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:0}
+#pane-focus .session-item{background:var(--fm-surface);border:1px solid var(--fm-border);border-radius:var(--fm-radius);padding:10px 14px;display:flex;align-items:center;gap:10px}
+#pane-focus .session-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+#pane-focus .session-dot.work{background:var(--fm-accent)}
+#pane-focus .session-dot.short{background:var(--fm-ok)}
+#pane-focus .session-dot.long{background:var(--fm-warn)}
+#pane-focus .session-info{flex:1}
+#pane-focus .session-label{font-size:12px;font-weight:700;color:var(--fm-text)}
+#pane-focus .session-time{font-family:var(--fm-font-mono);font-size:10px;color:var(--fm-muted);margin-top:2px}
+#pane-focus .session-dur{font-family:var(--fm-font-mono);font-size:11px;font-weight:600;color:var(--fm-muted)}
+#pane-focus .empty-sessions{text-align:center;padding:40px 20px;color:var(--fm-muted);font-size:13px}
+@media(max-width:900px){#pane-focus .board-cols{grid-template-columns:1fr}
+#pane-focus .left-panel{max-height:none}}
+    </style>
+    <div class="tabpane" id="pane-focus" style="display:none;">
+<div class="fm-head"><div><h2>🎯 Focus mode</h2><p>بومودورو، ملاحظات، مهام، وآلة حاسبة — كله بيتحفظ على جهازك</p></div><div class="fm-actions">
+      <button class="icon-btn" title="تبديل الكالكيولاتور" onclick="FM.toggleCalc()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="14" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="10" y2="18"/><line x1="14" y1="18" x2="16" y2="18"/></svg>
+      </button>
+      <button class="icon-btn" id="fm-fullscreen-btn" title="ملء الشاشة" onclick="FM.toggleFullscreen()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      </button>
+</div></div>
+  <div class="main-layout">
+    <!-- Left panel -->
+    <div class="left-panel">
+
+      <!-- Pomodoro -->
+      <div class="panel-section">
+        <div class="section-label">مؤقت بومودورو</div>
+        <div class="pomodoro-wrap">
+          <div class="pomo-modes">
+            <button class="pomo-mode-btn on" onclick="FM.setMode('work',this)">عمل</button>
+            <button class="pomo-mode-btn" onclick="FM.setMode('short',this)">استراحة قصيرة</button>
+            <button class="pomo-mode-btn" onclick="FM.setMode('long',this)">استراحة طويلة</button>
+          </div>
+          <div class="ring-wrap">
+            <svg viewBox="0 0 170 170">
+              <circle class="ring-bg" cx="85" cy="85" r="78"/>
+              <circle id="fm-ring-prog" class="ring-prog" cx="85" cy="85" r="78" stroke="var(--fm-accent)"
+                stroke-dasharray="490" stroke-dashoffset="0"/>
+            </svg>
+            <div class="ring-time">
+              <span class="time" id="fm-timer-display">25:00</span>
+              <span class="mode-label" id="fm-mode-label">وقت التركيز</span>
+            </div>
+          </div>
+          <div class="pomo-controls">
+            <button class="pomo-btn pomo-btn-sm" onclick="FM.resetTimer()" title="إعادة">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.4"/></svg>
+            </button>
+            <button class="pomo-btn pomo-btn-play" id="fm-play-btn" onclick="FM.toggleTimer()">
+              <svg id="fm-play-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <svg id="fm-pause-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            </button>
+            <button class="pomo-btn pomo-btn-sm" onclick="FM.skipSession()" title="تخطي">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+            </button>
+          </div>
+          <div class="pomo-stats">
+            <div class="pomo-stat">
+              <div class="pomo-stat-val" id="fm-stat-sessions">0</div>
+              <div class="pomo-stat-label">جلسات اليوم</div>
+            </div>
+            <div class="pomo-stat">
+              <div class="pomo-stat-val" id="fm-stat-minutes">0</div>
+              <div class="pomo-stat-label">دقيقة تركيز</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="panel-section">
+        <div class="section-label">بحث سريع</div>
+        <div class="engine-tabs" id="fm-engine-tabs">
+          <button class="engine-tab on" onclick="FM.selectEngine('google',this)">🔍 Google</button>
+          <button class="engine-tab" onclick="FM.selectEngine('youtube',this)">▶️ YouTube</button>
+          <button class="engine-tab" onclick="FM.selectEngine('chatgpt',this)">🤖 ChatGPT</button>
+          <button class="engine-tab" onclick="FM.selectEngine('claude',this)">✨ Claude</button>
+          <button class="engine-tab" onclick="FM.selectEngine('perplexity',this)">🔮 Perplexity</button>
+        </div>
+        <div class="search-row">
+          <input class="search-box" id="fm-search-inp" placeholder="ابحث عن أي شيء…" dir="rtl"
+            onkeydown="if(event.key==='Enter')FM.doSearch()"/>
+          <button class="search-go" onclick="FM.doSearch()">بحث</button>
+        </div>
+      </div>
+
+      <!-- Calculator -->
+      <div class="panel-section" id="fm-calc-section">
+        <div class="section-label">آلة حاسبة علمية</div>
+        <div class="calc-wrap">
+          <div class="calc-display">
+            <div class="calc-expr" id="fm-calc-expr"></div>
+            <div class="calc-val" id="fm-calc-val">0</div>
+          </div>
+          <div class="calc-shift-row">
+            <span style="font-size:10px;color:var(--fm-muted)">وظائف علمية</span>
+            <button class="calc-shift-btn" id="fm-shift-btn" onclick="FM.toggleShift()">SHIFT</button>
+          </div>
+          <div class="calc-grid" id="fm-calc-grid"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right panel -->
+    <div class="right-panel">
+      <div class="tabs-bar">
+        <button class="tab on" onclick="FM.switchTab('notes',this)">📝 ملاحظات</button>
+        <button class="tab" onclick="FM.switchTab('tasks',this)">✅ المهام</button>
+        <button class="tab" onclick="FM.switchTab('sessions',this)">📊 السجل</button>
+      </div>
+
+      <!-- Notes tab -->
+      <div class="tab-content on" id="fm-tab-notes">
+        <div class="notes-toolbar">
+          <button class="fmt-btn" onclick="FM.fmt('bold')" title="Bold"><strong>B</strong></button>
+          <button class="fmt-btn" onclick="FM.fmt('italic')" title="Italic"><em>I</em></button>
+          <button class="fmt-btn" onclick="FM.fmt('underline')" title="Underline"><u>U</u></button>
+          <div class="fmt-sep"></div>
+          <button class="fmt-btn" onclick="FM.fmt('insertUnorderedList')" title="قائمة">•</button>
+          <button class="fmt-btn" onclick="FM.fmt('insertOrderedList')" title="قائمة مرقمة">1.</button>
+          <div class="fmt-sep"></div>
+          <button class="fmt-btn" onclick="FM.fmt('formatBlock','h3')" title="عنوان">H</button>
+          <button class="fmt-btn" onclick="FM.fmt('formatBlock','p')" title="فقرة">¶</button>
+          <div class="fmt-sep"></div>
+          <button class="fmt-btn" style="color:var(--fm-danger)" onclick="if(confirm('مسح الملاحظات؟'))FM.clearNotes()" title="مسح">✕</button>
+          <div style="margin-right:auto;display:flex;gap:6px">
+            <button class="fmt-btn" style="width:auto;padding:0 10px;color:var(--fm-ok)" onclick="FM.saveNotes()">حفظ</button>
+            <button class="fmt-btn" style="width:auto;padding:0 10px" onclick="FM.exportNotes()">تصدير</button>
+          </div>
+        </div>
+        <div class="notes-area" id="fm-notes-area" contenteditable="true"
+          data-placeholder="ابدأ الكتابة… الملاحظات تُحفظ تلقائيًا"></div>
+        <div class="notes-footer">
+          <span id="fm-notes-words">0 كلمة</span>
+          <span id="fm-notes-saved"></span>
+        </div>
+      </div>
+
+      <!-- Tasks tab -->
+      <div class="tab-content" id="fm-tab-tasks">
+        <div class="board-toolbar">
+          <input class="add-task-inp" id="fm-new-task-inp" placeholder="أضف مهمة جديدة…"
+            onkeydown="if(event.key==='Enter')FM.addTask()"/>
+          <button class="add-task-btn" onclick="FM.addTask()">+ إضافة</button>
+        </div>
+        <div class="board-cols">
+          <div class="board-col col-todo">
+            <div class="col-head">
+              للتنفيذ
+              <span class="col-count" id="fm-count-todo">0</span>
+            </div>
+            <div class="col-tasks" id="fm-col-todo" ondragover="FM.onDragOver(event,'todo')" ondrop="FM.onDrop(event,'todo')" ondragleave="FM.onDragLeave(event)"></div>
+          </div>
+          <div class="board-col col-doing">
+            <div class="col-head">
+              جارٍ
+              <span class="col-count" id="fm-count-doing">0</span>
+            </div>
+            <div class="col-tasks" id="fm-col-doing" ondragover="FM.onDragOver(event,'doing')" ondrop="FM.onDrop(event,'doing')" ondragleave="FM.onDragLeave(event)"></div>
+          </div>
+          <div class="board-col col-done">
+            <div class="col-head">
+              منجز
+              <span class="col-count" id="fm-count-done">0</span>
+            </div>
+            <div class="col-tasks" id="fm-col-done" ondragover="FM.onDragOver(event,'done')" ondrop="FM.onDrop(event,'done')" ondragleave="FM.onDragLeave(event)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sessions tab -->
+      <div class="tab-content" id="fm-tab-sessions">
+        <div style="padding:12px 14px;border-bottom:1px solid var(--fm-border);display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:12px;font-weight:700;color:var(--fm-text)">سجل الجلسات</span>
+          <button onclick="FM.clearSessions()" style="padding:4px 10px;border-radius:7px;border:1px solid var(--fm-border);background:none;cursor:pointer;font-size:11px;font-weight:700;color:var(--fm-danger);font-family:Cairo,sans-serif">مسح</button>
+        </div>
+        <div class="sessions-list" id="fm-sessions-list">
+          <div class="empty-sessions">لا توجد جلسات محفوظة بعد</div>
+        </div>
+      </div>
+    </div>
+  </div>
+    </div>
+
     <div class="tabpane" id="pane-support" style="display:none;">
       <div class="sec-head"><h2 data-i18n="support_title">الدعم الفني</h2></div>
       <p style="color:var(--muted);font-size:12.5px;margin-top:-8px;margin-bottom:18px;" data-i18n="support_hint">افتح تذكرة وسيردّ عليك فريق الدعم في أقرب وقت</p>
@@ -3495,7 +3803,7 @@ const ICONS = {
 const ICON_SIZE_MAP = {
   logo_dashboard:'52px',
   header_notif:'18px', header_notif_dark:'18px', header_lightmode:'18px', header_darkmode:'18px', header_tour:'18px', header_tour_dark:'18px', header_profile:'16px', header_signout:'16px',
-  tab_home:'18px', tab_new_check:'18px', tab_orders:'18px', tab_wallet:'18px', tab_support:'18px', tab_academic:'24px', tab_my_orders:'24px',
+  tab_home:'18px', tab_new_check:'18px', tab_orders:'18px', tab_wallet:'18px', tab_support:'18px', tab_academic:'24px', tab_my_orders:'24px', tab_focus:'24px',
   home_watch:'15px', home_g1:'20px', home_g2:'20px', home_g3:'20px',
   nc_balance:'18px', nc_floating:'18px', nc_api_active:'18px', nc_api_maintenance:'18px', nc_completed:'18px', redeem_code_icon:'18px',
   nc_upload:'20px', nc_options:'16px', nc_payment:'16px',
@@ -3524,7 +3832,7 @@ function applyCustomIcons(){
 const I18N = {
   ar: {
     loading_ellipsis:"جاري التحميل...", lifetime_validity:"صلاحية مدى الحياة", profile_save_ok:"تم حفظ التغييرات", profile_pass_short:"كلمة المرور قصيرة (6 أحرف على الأقل)", profile_pass_error:"تعذر تغيير كلمة المرور",
-    nav_academic:"Academic Tools", nav_my_orders:"طلباتي", ac_title:"Academic Tools", ac_wallet:"رصيد Academic Tools", ac_egp:"ج.م", ac_active_subs:"الاشتراكات النشطة", ac_all_orders:"كل الطلبات",
+    nav_focus:"وضع التركيز", nav_academic:"Academic Tools", nav_my_orders:"طلباتي", ac_title:"Academic Tools", ac_wallet:"رصيد Academic Tools", ac_egp:"ج.م", ac_active_subs:"الاشتراكات النشطة", ac_all_orders:"كل الطلبات",
     nav_home:"الرئيسية", nav_new_check:"فحص جديد", nav_orders:"ملفاتي", nav_wallet:"المحفظة", nav_my_history:"السجل", plan_ai_tab:"فحص إقتباس + AI", plan_only_tab:"فحص إقتباس فقط", plan_soon:"قريباً", plan_title:"فحص Turnitin Plag + AI", plan_pill:"تقرير Plag + AI", plan_auto:"تفعيل فوري تلقائي", nav_support:"الدعم", nav_my_profile:"حسابي",
     sup_lang:"اللغة", sup_currency:"العملة", sup_settings:"الإعدادات",
     profile_modal_title:"الملف الشخصي", profile_save_btn:"حفظ", profile_cancel_btn:"إلغاء",
@@ -3731,7 +4039,7 @@ const I18N = {
   },
   en: {
     loading_ellipsis:"Loading...", lifetime_validity:"Lifetime validity", profile_save_ok:"Changes saved", profile_pass_short:"Password too short (at least 6 characters)", profile_pass_error:"Could not change the password",
-    nav_academic:"Academic Tools", nav_my_orders:"My orders", ac_title:"Academic Tools", ac_wallet:"Academic Tools balance", ac_egp:"EGP", ac_active_subs:"Active subscriptions", ac_all_orders:"All orders",
+    nav_focus:"Focus mode", nav_academic:"Academic Tools", nav_my_orders:"My orders", ac_title:"Academic Tools", ac_wallet:"Academic Tools balance", ac_egp:"EGP", ac_active_subs:"Active subscriptions", ac_all_orders:"All orders",
     nav_home:"Home", nav_new_check:"New Check", nav_orders:"My orders", nav_wallet:"Wallet", nav_my_history:"History", plan_ai_tab:"Plag + AI Report", plan_only_tab:"Only Plag Report", plan_soon:"Soon", plan_title:"Turnitin Plag + AI Check", plan_pill:"PLAG + AI REPORT", plan_auto:"Automated Instant Activation", nav_support:"Support", nav_my_profile:"My Account",
     sup_lang:"Language", sup_currency:"Currency", sup_settings:"Settings",
     profile_modal_title:"Account Settings", profile_save_btn:"Save", profile_cancel_btn:"Cancel",
@@ -6078,6 +6386,7 @@ const TAB_COLORS = {
   'support'   : '#ea580c',
   'my-profile': '#475569',
   'academic'  : '#d4930a',
+  'focus'     : '#db2777',
 };
 
 function movePill(activeEl){
@@ -8181,6 +8490,426 @@ function acmCopyAll(){
   if (!m || !m._rows) return;
   navigator.clipboard?.writeText(m._rows.map(([k, v]) => `${k}: ${v}`).join('\n')).then(() => toast(hx('اتنسخ', 'Copied'), 'success'));
 }
+
+/* ── Focus mode (Pomodoro, search, calculator, notes, tasks). Saved on this device only. ── */
+const FM = (() => {
+  const FM_ROOT = document.getElementById('pane-focus')
+  if (!FM_ROOT) return {}
+  try {
+// ── Pomodoro ──
+const MODES = {
+  work:  { label:'وقت التركيز',       mins:25, color:'var(--fm-accent)' },
+  short: { label:'استراحة قصيرة',    mins:5,  color:'var(--fm-ok)' },
+  long:  { label:'استراحة طويلة',    mins:15, color:'var(--fm-warn)' },
+}
+let pomoMode = 'work'
+let totalSecs = 25 * 60
+let remainSecs = totalSecs
+let running = false
+let interval = null
+let pomoSessions = 0
+let totalWorkMins = 0
+let sessionLog = JSON.parse(localStorage.getItem('pk-focus-sessions') || '[]')
+let sessionStart = null
+
+const ring = document.getElementById('fm-ring-prog')
+const C = 2 * Math.PI * 78  // circumference ≈ 490
+
+function setMode(m, btn) {
+  if (running) stopTimer()
+  pomoMode = m
+  FM_ROOT.querySelectorAll('.pomo-mode-btn').forEach(b => b.classList.remove('on'))
+  btn.classList.add('on')
+  totalSecs = MODES[m].mins * 60
+  remainSecs = totalSecs
+  ring.setAttribute('stroke', MODES[m].color)
+  updateDisplay()
+}
+
+function toggleTimer() {
+  if (running) stopTimer(); else startTimer()
+}
+
+function startTimer() {
+  running = true
+  sessionStart = Date.now()
+  document.getElementById('fm-play-icon').style.display = 'none'
+  document.getElementById('fm-pause-icon').style.display = ''
+  interval = setInterval(() => {
+    remainSecs--
+    updateDisplay()
+    if (remainSecs <= 0) {
+      clearInterval(interval)
+      running = false
+      onSessionEnd()
+    }
+  }, 1000)
+}
+
+function stopTimer() {
+  clearInterval(interval)
+  running = false
+  sessionStart = null
+  document.getElementById('fm-play-icon').style.display = ''
+  document.getElementById('fm-pause-icon').style.display = 'none'
+}
+
+function resetTimer() {
+  stopTimer()
+  remainSecs = totalSecs
+  updateDisplay()
+}
+
+function skipSession() {
+  if (running) onSessionEnd()
+  else resetTimer()
+}
+
+function onSessionEnd() {
+  document.getElementById('fm-play-icon').style.display = ''
+  document.getElementById('fm-pause-icon').style.display = 'none'
+  running = false
+
+  if (pomoMode === 'work') {
+    pomoSessions++
+    totalWorkMins += MODES.work.mins
+    document.getElementById('fm-stat-sessions').textContent = pomoSessions
+    document.getElementById('fm-stat-minutes').textContent = totalWorkMins
+    playChime()
+    logSession('work', MODES.work.mins)
+    toast(`جلسة #${pomoSessions} اكتملت 🎯`, 'info')
+  } else {
+    playChime()
+    logSession(pomoMode, MODES[pomoMode].mins)
+    toast('انتهت الاستراحة ⏰', 'info')
+  }
+
+  remainSecs = totalSecs
+  updateDisplay()
+}
+
+function logSession(type, mins) {
+  sessionLog.unshift({
+    type, mins,
+    time: new Date().toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' }),
+    date: new Date().toLocaleDateString('ar-EG', { weekday:'short', day:'numeric', month:'short' })
+  })
+  if (sessionLog.length > 50) sessionLog.pop()
+  localStorage.setItem('pk-focus-sessions', JSON.stringify(sessionLog))
+  renderSessions()
+}
+
+function updateDisplay() {
+  const m = String(Math.floor(remainSecs / 60)).padStart(2, '0')
+  const s = String(remainSecs % 60).padStart(2, '0')
+  document.getElementById('fm-timer-display').textContent = `${m}:${s}`
+  document.getElementById('fm-mode-label').textContent = MODES[pomoMode].label
+  const frac = remainSecs / totalSecs
+  ring.style.strokeDashoffset = C * frac
+}
+
+function playChime() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+    const notes = [523.25, 659.25, 783.99] // C5 E5 G5
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain); gain.connect(ctx.destination)
+      osc.frequency.value = freq
+      osc.type = 'sine'
+      gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.18)
+      gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + i * 0.18 + 0.03)
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.4)
+      osc.start(ctx.currentTime + i * 0.18)
+      osc.stop(ctx.currentTime + i * 0.18 + 0.45)
+    })
+  } catch(e) {}
+}
+
+function renderSessions() {
+  const el = document.getElementById('fm-sessions-list')
+  if (!sessionLog.length) {
+    el.innerHTML = '<div class="empty-sessions">لا توجد جلسات محفوظة بعد</div>'
+    return
+  }
+  el.innerHTML = sessionLog.map(s => `
+    <div class="session-item">
+      <div class="session-dot ${s.type}"></div>
+      <div class="session-info">
+        <div class="session-label">${s.type === 'work' ? '🎯 جلسة تركيز' : s.type === 'short' ? '☕ استراحة قصيرة' : '🌴 استراحة طويلة'}</div>
+        <div class="session-time">${s.date} · ${s.time}</div>
+      </div>
+      <div class="session-dur">${s.mins} د</div>
+    </div>`).join('')
+}
+
+function clearSessions() {
+  if (!confirm('مسح سجل الجلسات؟')) return
+  sessionLog = []
+  localStorage.removeItem('pk-focus-sessions')
+  renderSessions()
+}
+
+updateDisplay()
+renderSessions()
+
+// ── Search ──
+const ENGINES = {
+  google:     q => `https://google.com/search?q=${encodeURIComponent(q)}`,
+  youtube:    q => `https://youtube.com/results?search_query=${encodeURIComponent(q)}`,
+  chatgpt:    q => `https://chatgpt.com/?q=${encodeURIComponent(q)}`,
+  claude:     q => `https://claude.ai/new?q=${encodeURIComponent(q)}`,
+  perplexity: q => `https://perplexity.ai/?q=${encodeURIComponent(q)}`,
+}
+let currentEngine = 'google'
+
+function selectEngine(key, btn) {
+  currentEngine = key
+  FM_ROOT.querySelectorAll('.engine-tab').forEach(b => b.classList.remove('on'))
+  btn.classList.add('on')
+}
+
+function doSearch() {
+  const q = document.getElementById('fm-search-inp').value.trim()
+  if (!q) return
+  window.open(ENGINES[currentEngine](q), '_blank', 'noopener')
+  document.getElementById('fm-search-inp').value = ''
+}
+
+// ── Calculator ──
+let calcExpr = ''
+let calcShift = false
+
+const CALC_BUTTONS = [
+  ['sin',  'cos',  'tan',  '(',  ')'],
+  ['ln',   'log',  '√',    'π',  'e'],
+  ['7',    '8',    '9',    '/',  '^'],
+  ['4',    '5',    '6',    '*',  '%'],
+  ['1',    '2',    '3',    '-',  'C'],
+  ['0',    '.',    '±',    '+',  '='],
+]
+const SHIFT_MAP = { sin:'asin', cos:'acos', tan:'atan', ln:'exp', log:'10^', '√':'x²' }
+const FN_KEYS = new Set(['sin','cos','tan','ln','log','√','π','e','asin','acos','atan','exp','10^','x²','C','±'])
+const OP_KEYS = new Set(['+','-','*','/','%','^','(',')'])
+
+function buildCalc() {
+  const grid = document.getElementById('fm-calc-grid')
+  grid.innerHTML = CALC_BUTTONS.map(row => row.map(k => {
+    const display = calcShift && SHIFT_MAP[k] ? SHIFT_MAP[k] : k
+    const cls = k === '=' ? 'eq' : k === 'C' ? 'clr' : FN_KEYS.has(k) ? 'fn' : OP_KEYS.has(k) ? 'op' : 'num'
+    return `<button class="calc-btn ${cls}" onclick="FM.calcPress('${k}')">${display}</button>`
+  }).join('')).join('')
+}
+
+function calcPress(k) {
+  const display = document.getElementById('fm-calc-val')
+  const expr    = document.getElementById('fm-calc-expr')
+  const key = calcShift && SHIFT_MAP[k] ? SHIFT_MAP[k] : k
+
+  if (key === 'C') { calcExpr = ''; display.textContent = '0'; expr.textContent = ''; return }
+  if (key === '=') {
+    try {
+      let e = calcExpr
+        .replace(/sin\(/g, 'Math.sin(').replace(/cos\(/g, 'Math.cos(').replace(/tan\(/g, 'Math.tan(')
+        .replace(/asin\(/g, 'Math.asin(').replace(/acos\(/g, 'Math.acos(').replace(/atan\(/g, 'Math.atan(')
+        .replace(/ln\(/g, 'Math.log(').replace(/log\(/g, 'Math.log10(').replace(/exp\(/g, 'Math.exp(')
+        .replace(/√\(/g,'Math.sqrt(').replace(/π/g,'Math.PI').replace(/e(?![+\-\d])/g,'Math.E')
+        .replace(/\^/g,'**').replace(/x²/g,'**2').replace(/10\^\(/g,'Math.pow(10,')
+      const result = Function('"use strict";return (' + e + ')')()
+      const pretty = isFinite(result) ? (+result.toFixed(10)).toString() : 'خطأ'
+      expr.textContent = calcExpr + ' ='
+      display.textContent = pretty
+      calcExpr = pretty
+    } catch { display.textContent = 'خطأ'; calcExpr = '' }
+    return
+  }
+  if (key === '±') {
+    if (calcExpr) calcExpr = calcExpr.startsWith('-') ? calcExpr.slice(1) : '-' + calcExpr
+    display.textContent = calcExpr || '0'
+    return
+  }
+  if (key === 'π') { calcExpr += 'π'; display.textContent = calcExpr; return }
+  if (key === 'e')  { calcExpr += 'e'; display.textContent = calcExpr; return }
+  if (['sin','cos','tan','asin','acos','atan','ln','log','exp','√','10^'].includes(key)) {
+    calcExpr += key + '('; display.textContent = calcExpr; return
+  }
+  if (key === 'x²') { calcExpr += '**2'; display.textContent = calcExpr; return }
+  calcExpr += key
+  display.textContent = calcExpr
+  expr.textContent = ''
+}
+
+function toggleShift() {
+  calcShift = !calcShift
+  document.getElementById('fm-shift-btn').classList.toggle('on', calcShift)
+  buildCalc()
+}
+
+function toggleCalc() {
+  const s = document.getElementById('fm-calc-section')
+  s.style.display = s.style.display === 'none' ? '' : 'none'
+}
+
+buildCalc()
+
+// ── Notes ──
+const notesArea = document.getElementById('fm-notes-area')
+let notesTimer = null
+
+function fmt(cmd, val) {
+  document.execCommand(cmd, false, val || null)
+  notesArea.focus()
+}
+
+function saveNotes() {
+  localStorage.setItem('pk-notes', notesArea.innerHTML)
+  document.getElementById('fm-notes-saved').textContent = 'محفوظ ✓'
+  setTimeout(() => document.getElementById('fm-notes-saved').textContent = '', 2000)
+}
+
+function clearNotes() {
+  notesArea.innerHTML = ''
+  saveNotes()
+}
+
+function exportNotes() {
+  const text = notesArea.innerText
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = `notes-${new Date().toISOString().slice(0,10)}.txt`
+  a.click()
+}
+
+notesArea.addEventListener('input', () => {
+  const words = notesArea.innerText.trim().split(/\s+/).filter(w=>w).length
+  document.getElementById('fm-notes-words').textContent = `${words} كلمة`
+  clearTimeout(notesTimer)
+  notesTimer = setTimeout(saveNotes, 1500)
+})
+
+const saved = localStorage.getItem('pk-notes')
+if (saved) notesArea.innerHTML = saved
+
+// ── Tasks ──
+let tasks = JSON.parse(localStorage.getItem('pk-tasks') || '[]')
+let dragId = null
+
+function addTask() {
+  const inp = document.getElementById('fm-new-task-inp')
+  const text = inp.value.trim()
+  if (!text) return
+  tasks.push({ id: Date.now().toString(), text, status: 'todo', created: new Date().toISOString() })
+  inp.value = ''
+  saveTasks()
+  renderTasks()
+}
+
+function deleteTask(id) {
+  tasks = tasks.filter(t => t.id !== id)
+  saveTasks()
+  renderTasks()
+}
+
+function saveTasks() {
+  localStorage.setItem('pk-tasks', JSON.stringify(tasks))
+}
+
+function renderTasks() {
+  const cols = { todo:[], doing:[], done:[] }
+  tasks.forEach(t => (cols[t.status] || cols.todo).push(t))
+
+  for (const [col, list] of Object.entries(cols)) {
+    const el = document.getElementById(`fm-col-${col}`)
+    if (!el) continue
+    el.innerHTML = list.map(t => `
+      <div class="task-card" draggable="true" id="fm-task-${t.id}"
+        ondragstart="FM.onDragStart(event,'${t.id}')"
+        ondragend="FM.onDragEnd(event)">
+        <div class="task-text">${esc(t.text)}</div>
+        <div class="task-meta">
+          <span class="task-time">${new Date(t.created).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})}</span>
+          <button class="task-del" onclick="FM.deleteTask('${t.id}')">✕</button>
+        </div>
+      </div>`).join('')
+    document.getElementById(`fm-count-${col}`).textContent = list.length
+  }
+}
+
+function onDragStart(e, id) {
+  dragId = id
+  setTimeout(() => document.getElementById(`fm-task-${id}`)?.classList.add('dragging'), 0)
+}
+
+function onDragEnd(e) {
+  if (dragId) document.getElementById(`fm-task-${dragId}`)?.classList.remove('dragging')
+  dragId = null
+  FM_ROOT.querySelectorAll('.col-tasks').forEach(c => c.classList.remove('drag-active'))
+}
+
+function onDragOver(e, col) {
+  e.preventDefault()
+  document.getElementById(`fm-col-${col}`)?.classList.add('drag-active')
+}
+
+function onDragLeave(e) {
+  e.currentTarget.classList.remove('drag-active')
+}
+
+function onDrop(e, col) {
+  e.preventDefault()
+  FM_ROOT.querySelectorAll('.col-tasks').forEach(c => c.classList.remove('drag-active'))
+  if (!dragId) return
+  const task = tasks.find(t => t.id === dragId)
+  if (task) { task.status = col; saveTasks(); renderTasks() }
+}
+
+renderTasks()
+
+// ── Tabs ──
+function switchTab(id, btn) {
+  FM_ROOT.querySelectorAll('.tab').forEach(t => t.classList.remove('on'))
+  FM_ROOT.querySelectorAll('.tab-content').forEach(t => t.classList.remove('on'))
+  btn.classList.add('on')
+  document.getElementById(`fm-tab-${id}`).classList.add('on')
+}
+
+// ── Misc ──
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    FM_ROOT.requestFullscreen().catch(() => {})
+  } else {
+    document.exitFullscreen()
+  }
+}
+
+document.addEventListener('fullscreenchange', () => {
+  document.getElementById('fm-fullscreen-btn').classList.toggle('on', !!document.fullscreenElement)
+})
+
+function toast(msg, type = 'ok') {
+  if (typeof window.toast === 'function') window.toast(msg, type === 'ok' ? 'success' : type)
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+}
+
+// keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (FM_ROOT.style.display !== 'block') return // shortcuts only while Focus mode is open
+  if (['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'].includes(e.target.tagName) || e.target.isContentEditable) return
+  if (e.key === ' ') { e.preventDefault(); toggleTimer() }
+  if (e.key === 'r' || e.key === 'R') resetTimer()
+})
+
+    return { addTask, calcPress, clearNotes, clearSessions, deleteTask, doSearch, exportNotes, fmt, onDragEnd, onDragLeave, onDragOver, onDragStart, onDrop, resetTimer, saveNotes, selectEngine, setMode, skipSession, switchTab, toggleCalc, toggleFullscreen, toggleShift, toggleTimer }
+  } catch (e) {
+    console.error('Focus mode init failed', e)
+    return {}
+  }
+})();
 
 async function loadMyHistory(){
   const { data, error } = await supabaseClient.rpc('my_history');
