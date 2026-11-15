@@ -3276,6 +3276,13 @@
   } catch (e) {}
 })();
 (function showCorrectTabImmediately(){
+  // Store preview for the owner: dashboard.html?preview=store opens Academic Tools on this browser only;
+  // dashboard.html?preview=off turns it back off.
+  (() => {
+    const q = new URLSearchParams(location.search).get('preview');
+    if (q === 'store') { localStorage.setItem('pk-store-preview', '1'); localStorage.setItem('prokeys-active-tab', 'academic'); }
+    if (q === 'off') localStorage.removeItem('pk-store-preview');
+  })();
   const SOON_TABS = ['academic']; // not open to customers yet
   const savedTab = (SOON_TABS.includes(localStorage.getItem('prokeys-active-tab')) && localStorage.getItem('pk-store-preview') !== '1') ? 'new-check' : (localStorage.getItem('prokeys-active-tab') || 'new-check');
   document.querySelectorAll('.navtab[data-tab]').forEach(el => {
