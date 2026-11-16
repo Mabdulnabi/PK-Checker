@@ -3598,9 +3598,9 @@
   } catch (e) {}
 })();
 (function showCorrectTabImmediately(){
-  // The last open tab, or New check when that tab no longer exists (a removed tab would leave the page blank).
-  let savedTab = localStorage.getItem('prokeys-active-tab') || 'new-check';
-  if (!document.getElementById('pane-' + savedTab)) { savedTab = 'new-check'; localStorage.setItem('prokeys-active-tab', savedTab); }
+  // New check is the main tab: the dashboard always opens on it (after login and after a refresh).
+  const savedTab = 'new-check';
+  localStorage.setItem('prokeys-active-tab', savedTab);
   document.querySelectorAll('.navtab[data-tab]').forEach(el => {
     el.classList.toggle('on', el.dataset.tab === savedTab);
   });
