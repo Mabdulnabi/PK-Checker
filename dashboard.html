@@ -1804,37 +1804,54 @@
     box-shadow:0 8px 32px -6px rgba(27,37,86,0.22),0 2px 8px rgba(27,37,86,0.07);
     flex-direction:row;
     align-items:stretch;
-    padding:5px 4px;
-    gap:2px;
+    padding:5px 6px;
+    gap:6px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scroll-behavior:smooth;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-x:contain;
   }
+  #mobileFloatingNav::-webkit-scrollbar{ display:none; }
   [data-theme="dark"] #mobileFloatingNav{
     background:rgba(22,33,61,0.86);
     border-color:rgba(255,255,255,0.09);
     box-shadow:0 8px 32px -6px rgba(0,0,0,0.5);
   }
   .mob-nav-item{
-    flex:1;
+    flex:0 0 auto;
+    min-width:74px;
     display:flex;
     flex-direction:column;
     align-items:center;
     justify-content:center;
     gap:4px;
-    padding:6px 4px;
+    padding:6px 12px;
     border-radius:16px;
     cursor:pointer;
     transition:background 0.18s, color 0.18s;
     color:var(--muted);
     -webkit-tap-highlight-color:transparent;
     user-select:none;
-    min-width:0;
   }
+  /* Same colour per tab as the desktop sidebar */
+  .mob-nav-item{ --tc:#6366f1; }
+  .mob-nav-item[data-tab="new-check"]{ --tc:#6366f1; }
+  .mob-nav-item[data-tab="orders"]{ --tc:#2563eb; }
+  .mob-nav-item[data-tab="wallet"]{ --tc:#059669; }
+  .mob-nav-item[data-tab="my-history"]{ --tc:#2563eb; }
+  .mob-nav-item[data-tab="academic"]{ --tc:#d4930a; }
+  .mob-nav-item[data-tab="focus"]{ --tc:#0891b2; }
+  .mob-nav-item[data-tab="support"]{ --tc:#ea580c; }
+  .mob-nav-item[data-tab="my-profile"]{ --tc:#dc2626; }
   .mob-nav-item.on{
-    color:var(--blue-deep);
-    background:var(--blue-wash);
+    color:var(--tc);
+    background:color-mix(in srgb, var(--tc) 13%, transparent);
   }
   [data-theme="dark"] .mob-nav-item.on{
-    background:rgba(14,122,254,0.15);
-    color:#60a5fa;
+    color:color-mix(in srgb, var(--tc) 75%, #fff);
+    background:color-mix(in srgb, var(--tc) 22%, transparent);
   }
   .mob-nav-item .mob-icon{
     width:24px; height:24px;
@@ -11987,6 +12004,12 @@ function maybeShowOnboarding(profileData){
     </div>
     <span class="mob-label" data-i18n="nav_academic">الأدوات الأكاديمية</span>
   </div>
+  <div class="mob-nav-item" data-tab="focus" onclick="goTab('focus')">
+    <div class="mob-icon" data-icon-key="tab_focus">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>
+    </div>
+    <span class="mob-label" data-i18n="nav_focus">وضع التركيز</span>
+  </div>
   <div class="mob-nav-item" data-tab="support" onclick="goTab('support')">
     <div class="mob-icon" data-icon-key="tab_support">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="22" height="22"><path d="M80,144v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V128H64A16,16,0,0,1,80,144Zm112-16a16,16,0,0,0-16,16v40a16,16,0,0,0,16,16h32V128Z" opacity="0.2"/><path d="M201.89,54.66A104.08,104.08,0,0,0,24,128v56a24,24,0,0,0,24,24H64a24,24,0,0,0,24-24V144a24,24,0,0,0-24-24H40.36A88.12,88.12,0,0,1,190.54,65.93,87.39,87.39,0,0,1,215.65,120H192a24,24,0,0,0-24,24v40a24,24,0,0,0,24,24h24a24,24,0,0,1-24,24H136a8,8,0,0,0,0,16h56a40,40,0,0,0,40-40V128A103.41,103.41,0,0,0,201.89,54.66Z"/></svg>
@@ -12010,14 +12033,24 @@ function maybeShowOnboarding(profileData){
     document.querySelectorAll('#mobileFloatingNav .mob-nav-item').forEach(el => {
       el.classList.toggle('on', el.dataset.tab === tab);
     });
+    mobNavShowActive();
   };
 })();
+/* Scroll the bottom bar so the open tab is in view */
+function mobNavShowActive(){
+  const bar = document.getElementById('mobileFloatingNav');
+  const on = bar && bar.querySelector('.mob-nav-item.on');
+  if (!bar || !on || bar.scrollWidth <= bar.clientWidth) return;
+  const b = bar.getBoundingClientRect(), r = on.getBoundingClientRect();
+  bar.scrollBy({ left: (r.left + r.width / 2) - (b.left + b.width / 2), behavior: 'smooth' });
+}
 /* Set initial active state from localStorage */
 (function(){
   const saved = localStorage.getItem('prokeys-active-tab') || 'new-check';
   document.querySelectorAll('#mobileFloatingNav .mob-nav-item').forEach(el => {
     el.classList.toggle('on', el.dataset.tab === saved);
   });
+  setTimeout(mobNavShowActive, 300);
 })();
 </script>
 
