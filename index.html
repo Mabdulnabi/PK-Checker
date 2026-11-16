@@ -872,14 +872,20 @@ function toggleFaq(el){
 // Check packages: the same active Plag + AI packages the dashboard Wallet tab sells.
 const PLANS_USD_RATE = 50; // EGP per USD, same rate as the dashboard
 let landingPlans = null;
+// Lifetime validity follows the admin switch (check_settings.slot_expiry_enabled = false), as in the dashboard.
+let landingLifetime = false;
 async function loadLandingPlans(){
-  const { data, error } = await supabaseClient.rpc('list_slot_packages');
+  const [{ data, error }, settings] = await Promise.all([
+    supabaseClient.rpc('list_slot_packages'),
+    supabaseClient.from('check_settings').select('slot_expiry_enabled').maybeSingle(),
+  ]);
   if (error || !Array.isArray(data) || !data.length) {
     console.error('loadLandingPlans failed:', error);
     document.getElementById('plans')?.style.setProperty('display', 'none');
     return;
   }
   landingPlans = data;
+  landingLifetime = settings?.data?.slot_expiry_enabled === false;
   renderLandingPlans();
 }
 function renderLandingPlans(){
@@ -896,7 +902,8 @@ function renderLandingPlans(){
     const usd = (Math.ceil(egp / PLANS_USD_RATE * 100) / 100).toFixed(2);
     const name = ar ? (p.name_ar || p.name_en) : (p.name_en || p.name_ar);
     const arDays = d => (d === 1 ? 'يوم واحد' : d === 2 ? 'يومين' : `${d} ${d <= 10 ? 'أيام' : 'يوم'}`);
-    const daysTxt = days ? (ar ? `صالحة ${arDays(days)}` : `${days} ${days === 1 ? 'Day' : 'Days'}`) : (ar ? 'بدون مدة' : 'No expiry');
+    const daysTxt = landingLifetime ? (ar ? 'صلاحية مدى الحياة' : 'Lifetime validity')
+      : days ? (ar ? `صالحة ${arDays(days)}` : `${days} ${days === 1 ? 'Day' : 'Days'}`) : (ar ? 'بدون مدة' : 'No expiry');
     const feats = ar
       ? [`<b>${n}</b> ${n === 1 ? 'تقرير رسمي كامل' : 'تقارير رسمية كاملة'}`, 'ملف PDF رسمي من Turnitin', 'تقرير اقتباس + ذكاء اصطناعي', 'ملفك مش بيتحفظ في أي مستودع', 'النتيجة خلال دقائق', 'استبعاد المراجع والاقتباسات حسب اختيارك']
       : [`<b>${n}</b> Full Official ${n === 1 ? 'Report' : 'Reports'}`, 'Official Turnitin PDF', 'Plag + AI Report', '100% Non-Repository Safe', 'Results within minutes', 'Exclude references and quotes as you choose'];
