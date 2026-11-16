@@ -144,7 +144,7 @@
   .pricing-price .unit{font-size:12.5px;font-weight:600;color:var(--muted);margin-inline-start:4px;}
   .pricing-badge-slot{min-height:26px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;}
   .pricing-badge{display:inline-block;background:var(--blue-deep);color:#fff;font-size:11px;font-weight:700;padding:5px 14px;border-radius:20px;}
-  .pricing-badge.danger{display:none;background:#E0445B;}
+  .pricing-badge.danger{display:none;background:var(--gold);box-shadow:0 4px 10px -4px rgba(255,152,0,.6);}
   .pricing-card.sim-off .pricing-badge.danger{display:inline-block;}
   .pricing-card.sim-off{opacity:.6;}
 
@@ -210,6 +210,8 @@
   .plan-card.featured::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(180deg,var(--blue-wash),transparent 45%);opacity:.55;pointer-events:none;}
   .plan-card > *{position:relative;}
   .plan-pop{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;font-size:11.5px;font-weight:700;padding:5px 14px;border-radius:999px;white-space:nowrap;box-shadow:0 8px 18px -8px rgba(27,37,86,.55);}
+  .plan-pop.value{background:linear-gradient(90deg,var(--ok),#14b885);box-shadow:0 8px 18px -8px rgba(14,159,110,.6);}
+  .plan-card.best-value{border-color:var(--ok);}
   .plan-name{font-size:17px;font-weight:800;color:var(--navy);margin:0 0 12px;}
   .plan-price{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;}
   .plan-price b{font-family:'Manrope','Cairo',sans-serif;font-size:38px;font-weight:800;color:var(--navy);line-height:1.05;letter-spacing:-.5px;}
@@ -650,7 +652,7 @@
         <div class="pricing-price"><span data-i18n="srv_ai_price">100 جنيه مصري أو 2 دولار</span> <span class="unit" data-i18n="srv_ai_unit">/ فحص</span></div>
       </div>
       <div class="pricing-card" id="simOnlyCard" data-aos="fade-up" data-aos-delay="100">
-        <div class="pricing-badge-slot"><span class="pricing-badge danger" id="simUnavailableBadge" data-i18n="srv_unavailable_badge">غير متاح حالياً</span></div>
+        <div class="pricing-badge-slot"><span class="pricing-badge danger" id="simUnavailableBadge" data-i18n="srv_unavailable_badge">قريبًا</span></div>
         <h3 data-i18n="srv_sim_title">فحص الاقتباس فقط</h3>
         <div class="pricing-price"><span data-i18n="srv_sim_price">50 جنيه مصري أو 1 دولار</span> <span class="unit" data-i18n="srv_sim_unit">/ فحص</span></div>
       </div>
@@ -680,7 +682,7 @@
     <div class="section-head" data-aos="fade-up">
       <span class="eyebrow"><span class="dot"></span> <span data-i18n="plans_eyebrow">الباقات</span></span>
       <h2 class="why-title"><span data-i18n="plans_title_1">اختار</span> <span class="grad-text" data-i18n="plans_title_2">باقة الفحص</span></h2>
-      <p data-i18n="plans_sub">تقارير اقتباس + ذكاء اصطناعي رسمية من Turnitin، وملفك مش بيتحفظ في أي مستودع.</p>
+      <p data-i18n="plans_sub">اختار عدد الفحوصات اللي يناسبك، وكل فحص بيطلعلك تقرير اقتباس وذكاء اصطناعي كامل.</p>
     </div>
     <div class="plans-tabs-wrap" data-aos="fade-up" data-aos-delay="80">
       <div class="plans-tabs" role="tablist">
@@ -737,7 +739,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 const LANG_DICT = {
   ar: {
     idx_nav_features:"المميزات", idx_nav_services:"الخدمات المتاحة", idx_nav_how:"إزاي بيشتغل", idx_nav_faq:"أسئلة شائعة",
-    plans_eyebrow:"الباقات", plans_title_1:"اختار", plans_title_2:"باقة الفحص", plans_sub:"تقارير اقتباس + ذكاء اصطناعي رسمية من Turnitin، وملفك مش بيتحفظ في أي مستودع.",
+    plans_eyebrow:"الباقات", plans_title_1:"اختار", plans_title_2:"باقة الفحص", plans_sub:"اختار عدد الفحوصات اللي يناسبك، وكل فحص بيطلعلك تقرير اقتباس وذكاء اصطناعي كامل.",
     plans_tab_ai:"اقتباس + ذكاء اصطناعي", plans_tab_plag:"اقتباس فقط", plans_soon:"قريبًا",
     idx_store_btn:"متجر Pro Keys", idx_signin_btn:"تسجيل الدخول",
     hero_badge:"تكامل رسمي مع Turnitin Instructor API",
@@ -754,7 +756,7 @@ const LANG_DICT = {
     idx_feat6_title:"دعم فني حقيقي", idx_feat6_desc:"لايف شات وتذاكر دعم بيرد عليها فريق حقيقي، مش بوت آلي.",
     srv_sim_title:"فحص الاقتباس فقط", srv_sim_unit:"/ فحص", srv_sim_price:"50 جنيه مصري أو 1 دولار",
     srv_ai_title:"اقتباس + ذكاء اصطناعي", srv_ai_unit:"/ فحص", srv_ai_price:"100 جنيه مصري أو 2 دولار", srv_ai_badge:"الأكثر طلبًا",
-    srv_unavailable_badge:"غير متاح حالياً",
+    srv_unavailable_badge:"قريبًا",
     how_title_1:"كيف تعمل", how_title_2:"الخدمة؟", how_sub:"احصل على تقرير الاقتباس في 5 خطوات بسيطة",
     step1:"اختر نوع الفحص", step1_desc:"حدد هتفحص اقتباس بس ولا اقتباس + ذكاء اصطناعي",
     step2:"حدّد الاستثناءات", step2_desc:"استبعد المراجع أو الاقتباسات المنصوصة لو حابب",
@@ -777,7 +779,7 @@ const LANG_DICT = {
   },
   en: {
     idx_nav_features:"Features", idx_nav_services:"Services", idx_nav_how:"How it works", idx_nav_faq:"FAQ",
-    plans_eyebrow:"Packages", plans_title_1:"Choose your", plans_title_2:"check package", plans_sub:"Official Turnitin Plagiarism + AI reports. Your file is never stored in any repository.",
+    plans_eyebrow:"Packages", plans_title_1:"Choose your", plans_title_2:"check package", plans_sub:"Pick the number of checks that suits you. Each check gives you a full plagiarism and AI report.",
     plans_tab_ai:"Plag + AI Report", plans_tab_plag:"Only Plag Report", plans_soon:"Soon",
     idx_store_btn:"Pro Keys Store", idx_signin_btn:"Sign in",
     hero_badge:"Official Turnitin Instructor API Integration",
@@ -794,7 +796,7 @@ const LANG_DICT = {
     idx_feat6_title:"Real support", idx_feat6_desc:"Live chat and support tickets answered by a real team, not a bot.",
     srv_sim_title:"Similarity only check", srv_sim_unit:"/ check", srv_sim_price:"50 EGP or $1",
     srv_ai_title:"Similarity + AI", srv_ai_unit:"/ check", srv_ai_price:"100 EGP or $2", srv_ai_badge:"Most popular",
-    srv_unavailable_badge:"Currently unavailable",
+    srv_unavailable_badge:"Soon",
     how_title_1:"How Does", how_title_2:"It Work?", how_sub:"Get your plagiarism report in 5 simple steps",
     step1:"Choose the check type", step1_desc:"Pick Similarity only or Similarity + AI",
     step2:"Pick your exclusions", step2_desc:"Exclude bibliography or quoted text if you like",
@@ -897,6 +899,9 @@ function renderLandingPlans(){
   // "Most popular": the 10-check package, or the middle one if there is none.
   const tenIdx = landingPlans.findIndex(p => Number(p.slots) === 10);
   const popIdx = tenIdx >= 0 ? tenIdx : Math.floor((landingPlans.length - 1) / 2);
+  // "Best value": the 25-check package, or the biggest one if there is none.
+  const bigIdx = landingPlans.findIndex(p => Number(p.slots) === 25);
+  const valueIdx = bigIdx >= 0 ? bigIdx : landingPlans.reduce((m, p, i, a) => Number(p.slots) > Number(a[m].slots) ? i : m, 0);
   grid.innerHTML = landingPlans.map((p, i) => {
     const n = Number(p.slots), egp = Number(p.price_egp), days = Number(p.expiry_days);
     const usd = (Math.ceil(egp / PLANS_USD_RATE * 100) / 100).toFixed(2);
@@ -907,8 +912,10 @@ function renderLandingPlans(){
     const feats = ar
       ? [`<b>${n}</b> ${n === 1 ? 'تقرير رسمي كامل' : 'تقارير رسمية كاملة'}`, 'ملف PDF رسمي من Turnitin', 'تقرير اقتباس + ذكاء اصطناعي', 'ملفك مش بيتحفظ في أي مستودع', 'النتيجة خلال دقائق', 'استبعاد المراجع والاقتباسات حسب اختيارك']
       : [`<b>${n}</b> Full Official ${n === 1 ? 'Report' : 'Reports'}`, 'Official Turnitin PDF', 'Plag + AI Report', '100% Non-Repository Safe', 'Results within minutes', 'Exclude references and quotes as you choose'];
-    return `<div class="plan-card${i === popIdx ? ' featured' : ''}" data-aos="fade-up" data-aos-delay="${i * 90}">
+    const isValue = i === valueIdx && i !== popIdx;
+    return `<div class="plan-card${i === popIdx ? ' featured' : ''}${isValue ? ' best-value' : ''}" data-aos="fade-up" data-aos-delay="${i * 90}">
       ${i === popIdx ? `<span class="plan-pop">${ar ? 'الأكثر طلبًا' : 'Most popular'}</span>` : ''}
+      ${isValue ? `<span class="plan-pop value">${ar ? 'أفضل قيمة' : 'Best value'}</span>` : ''}
       <h3 class="plan-name">${esc(name)}</h3>
       <div class="plan-price"><b>${egp.toLocaleString('en-US')}<small>${ar ? 'ج.م' : 'EGP'}</small></b></div>
       <div class="plan-meta"><span>${ar ? '' : '/ '}$${usd} USDT</span> • ${daysTxt}</div>
