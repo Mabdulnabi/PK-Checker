@@ -1971,7 +1971,7 @@
         <div class="sid-chip sid-gold">
           <svg data-icon-key="tab_academic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>
         </div>
-        <span data-i18n="nav_academic">Academic Tools</span><span class="soon-badge">Soon</span>
+        <span data-i18n="nav_academic">Academic Tools</span>
       </div>
       <div class="navtab sidebar-item" data-tab="focus">
         <div class="sid-chip sid-cyan">
@@ -2599,7 +2599,7 @@
       .ac-empty{ grid-column:1/-1; text-align:center; color:var(--ac-sub); padding:34px; font-size:13px; }
 
       /* Banner 1200x280 */
-      .ac-banner{ position:relative; border-radius:18px; overflow:hidden; aspect-ratio:1200/280; background:var(--ac-line); }
+      .ac-banner{ position:relative; margin-bottom:16px; border-radius:18px; overflow:hidden; aspect-ratio:1200/280; background:var(--ac-line); }
       .ac-banner-track{ display:flex; height:100%; transition:transform .6s ease; }
       .ac-banner-slide{ flex:0 0 100%; height:100%; }
       .ac-banner-slide img{ width:100%; height:100%; object-fit:cover; display:block; }
@@ -2840,14 +2840,14 @@
 
     </style>
     <div class="tabpane" id="pane-academic" style="display:none;">
+      <div class="ac-banner" id="acBanner" style="display:none;">
+        <div class="ac-banner-track" id="acBannerTrack"></div>
+        <button class="ac-bn-arrow prev" onclick="acBannerStep(-1)" aria-label="Previous">‹</button>
+        <button class="ac-bn-arrow next" onclick="acBannerStep(1)" aria-label="Next">›</button>
+        <div class="ac-bn-dots" id="acBannerDots"></div>
+      </div>
       <div class="ac-subtabs" id="acSubtabs"></div>
       <div id="acViewStore">
-        <div class="ac-banner" id="acBanner" style="display:none;">
-          <div class="ac-banner-track" id="acBannerTrack"></div>
-          <button class="ac-bn-arrow prev" onclick="acBannerStep(-1)" aria-label="Previous">‹</button>
-          <button class="ac-bn-arrow next" onclick="acBannerStep(1)" aria-label="Next">›</button>
-          <div class="ac-bn-dots" id="acBannerDots"></div>
-        </div>
         <h3 class="ac-h" id="acCatsTitle"></h3>
         <div class="ac-cats-wrap">
           <button class="ac-cat-arrow prev" onclick="acCatsScroll(-1)" aria-label="Previous">‹</button>
@@ -3590,7 +3590,7 @@
     if (q === 'store') { localStorage.setItem('pk-store-preview', '1'); localStorage.setItem('prokeys-active-tab', 'academic'); }
     if (q === 'off') localStorage.removeItem('pk-store-preview');
   })();
-  const SOON_TABS = ['academic']; // not open to customers yet
+  const SOON_TABS = []; // tabs not open to customers yet
   const savedTab = (SOON_TABS.includes(localStorage.getItem('prokeys-active-tab')) && localStorage.getItem('pk-store-preview') !== '1') ? 'new-check' : (localStorage.getItem('prokeys-active-tab') || 'new-check');
   document.querySelectorAll('.navtab[data-tab]').forEach(el => {
     el.classList.toggle('on', el.dataset.tab === savedTab);
@@ -3696,6 +3696,7 @@ const ICON_SIZE_MAP = {
   logo_dashboard:'52px',
   header_notif:'18px', header_notif_dark:'18px', header_lightmode:'18px', header_darkmode:'18px', header_tour:'18px', header_tour_dark:'18px', header_profile:'16px', header_signout:'16px',
   tab_home:'18px', tab_new_check:'18px', tab_orders:'18px', tab_wallet:'18px', tab_support:'18px', tab_academic:'24px', tab_my_orders:'24px', tab_focus:'24px',
+  ac_tab_store:'16px', ac_tab_orders:'16px', ac_tab_wallet:'16px', ac_kpi_active:'16px', ac_kpi_renewal:'16px', ac_kpi_spend:'16px', ac_kpi_savings:'16px', ac_buy:'16px', ac_help:'20px', fx_calc:'16px', fx_export:'16px', fx_import:'16px', fx_fullscreen:'16px', fx_lock:'16px', fx_bookmarks:'16px', fx_notes:'16px', fx_tasks:'16px', fx_calendar:'16px', fx_reminder:'16px', fx_timer_reset:'16px', fx_timer_settings:'16px',
   home_watch:'15px', home_g1:'20px', home_g2:'20px', home_g3:'20px',
   nc_balance:'18px', nc_floating:'18px', nc_api_active:'18px', nc_api_maintenance:'18px', nc_completed:'18px', redeem_code_icon:'18px',
   nc_upload:'20px', nc_options:'16px', nc_payment:'16px',
@@ -5808,10 +5809,6 @@ document.addEventListener('click', (e)=>{
    Old pane exits (pane-exiting, 0.22s), then new pane enters (pane-entering, 0.22s). */
 let _goTabLock = false;
 function goTab(tab, persist = true){
-  if (tab === 'academic' && localStorage.getItem('pk-store-preview') !== '1') { // coming soon (preview: localStorage pk-store-preview = 1)
-    toast('Soon', 'info');
-    return;
-  }
   if (tab !== 'academic' && typeof acUnmountPayBlock === 'function') acUnmountPayBlock();
   if (tab === 'my-profile' && typeof renderPushCard === 'function') setTimeout(renderPushCard, 0);
   if(_goTabLock) return;
@@ -5963,7 +5960,7 @@ function renderPaymentHistory(){
 // back exactly where the customer was instead of jumping to New Check.
 const _tabScrollPositions = JSON.parse(localStorage.getItem('prokeys-scroll') || '{}');
 function restoreTabAndScroll(){
-  const savedTab = (localStorage.getItem('prokeys-active-tab') === 'academic' && localStorage.getItem('pk-store-preview') !== '1') ? null : localStorage.getItem('prokeys-active-tab');
+  const savedTab = localStorage.getItem('prokeys-active-tab');
   if (savedTab && document.getElementById('pane-' + savedTab)) {
     document.querySelectorAll('.navtab[data-tab]').forEach(el => {
       el.classList.toggle('on', el.dataset.tab === savedTab);
@@ -7315,6 +7312,7 @@ document.getElementById('currencySwitch').onclick = ()=>{
 };
 
 function updateAllPrices(){
+  if (typeof acFxLocaleRefresh === 'function') acFxLocaleRefresh();
   // Update home page prices — currency must read as a label (USD/دولار/EGP/جنيه مصري), never just "$"
   document.querySelectorAll('.price-currency').forEach(el => {
     el.textContent = currencyLabel();
@@ -7739,7 +7737,13 @@ const acS = { cats: [], prods: [], plans: [], stock: {}, banners: [], interval: 
 let acOrders = [], acOrderProds = {}, acoFilter = 'all', acBannerIdx = 0, acBannerTimer = null;
 const acName = r => (currentLang === 'ar' ? (r.name_ar || r.name_en) : (r.name_en || r.name_ar)) || '';
 const acDesc = r => ((currentLang === 'ar' ? (r.description_ar || r.description_en) : (r.description_en || r.description_ar)) || '');
-const acMoney = v => `${Number(v || 0).toLocaleString('en-US', { maximumFractionDigits: 2 })} ${hx('ج.م', 'EGP')}`;
+// Prices are stored in EGP; shown in the site currency (USD at the site rate, EGP otherwise).
+const acMoney = v => (currentCurrency === 'USD'
+  ? `$${(Number(v || 0) / exchangeRate).toFixed(2)}`
+  : `${Number(v || 0).toLocaleString('en-US', { maximumFractionDigits: 2 })} ${hx('ج.م', 'EGP')}`);
+const acMoneyNum = v => (currentCurrency === 'USD'
+  ? (Number(v || 0) / exchangeRate).toFixed(2)
+  : Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 const acDur = d => (d % 365 === 0
   ? (d === 365 ? hx('سنة', '1 Year') : hx(`${d / 365} سنين`, `${d / 365} Years`))
   : hx(`${d} يوم`, `${d} Days`));
@@ -7752,7 +7756,8 @@ function acLogo(p){
 }
 
 function renderAcShell(){
-  const tabs = [['store', hx('🛍️ المتجر', '🛍️ Store')], ['orders', hx('📦 طلباتي', '📦 My orders')], ['wallet', hx('💳 المحفظة', '💳 Wallet')]];
+  const ti = (key, e) => `<span data-icon-key="${key}" style="display:inline-flex;vertical-align:middle">${e}</span>`;
+  const tabs = [['store', `${ti('ac_tab_store', '🛍️')} ${hx('المتجر', 'Store')}`], ['orders', `${ti('ac_tab_orders', '📦')} ${hx('طلباتي', 'My orders')}`], ['wallet', `${ti('ac_tab_wallet', '💳')} ${hx('المحفظة', 'Wallet')}`]];
   document.getElementById('acSubtabs').innerHTML = tabs.map(([k, l]) =>
     `<button class="ac-subtab${acS.view === k || (acS.view === 'checkout' && k === 'store') ? ' on' : ''}" onclick="acSub('${k}')">${l}</button>`).join('');
   document.getElementById('acCatsTitle').textContent = hx('بتدور على إيه؟ 🤔', 'What are you looking for? 🤔');
@@ -7760,7 +7765,7 @@ function renderAcShell(){
   document.getElementById('acoSearch').placeholder = hx('ابحث في الاشتراكات...', 'Search subscriptions...');
   document.getElementById('acoTitle').textContent = hx('اشتراكاتي', 'My active subscriptions');
   document.getElementById('acwLbl').textContent = hx('رصيد المحفظة', 'Wallet balance');
-  document.getElementById('acwCur').textContent = hx('ج.م', 'EGP');
+  document.getElementById('acwCur').textContent = currentCurrency === 'USD' ? 'USD' : hx('ج.م', 'EGP');
   document.getElementById('acwNote').textContent = hx('رصيد المحفظة دي للمتجر بس، ومنفصل عن رصيد الفحوصات.', 'This balance is for the store only, separate from your check slots.');
   document.getElementById('acwTxTitle').textContent = hx('حركات المحفظة', 'Wallet activity');
   const sorts = [['top', '☆', hx('الأعلى تقييماً', 'Top Rated')], ['low', '↘', hx('الأقل سعراً', 'Low Price')],
@@ -7802,7 +7807,7 @@ async function loadAcademic(){
   acS.banners = banners.data || [];
   acS.interval = settings.data?.banner_interval_ms || 5000;
   acS.wallet = Number(wal.data?.balance_egp || 0);
-  document.getElementById('acwBal').textContent = acS.wallet.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  document.getElementById('acwBal').textContent = acMoneyNum(acS.wallet);
   renderAcBanner();
   renderAcCats();
   renderAcGrid();
@@ -7909,7 +7914,7 @@ function acCardHtml(p){
       ? `<div class="acp-plans">${plans.map(x => `<button class="acp-plan${pl && x.id === pl.id ? ' on' : ''}" onclick="acPickPlan('${p.id}','${x.id}')">${planLabel(x)}</button>`).join('')}</div>`
       : '<div style="height:14px"></div>'}
     <button class="acp-buy" ${!pl || soldOut ? 'disabled' : ''} onclick="acBuy('${pl ? pl.id : ''}')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/></svg>
+      <svg data-icon-key="ac_buy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/></svg>
       ${hx('اشتري الآن', 'Buy Now')}
     </button>
   </div>`;
@@ -7977,6 +7982,7 @@ const ACO_IC = {
   wallet: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="16" cy="14.5" r="1.3"/></svg>',
   trend: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l6 6 4-4 8 8"/><path d="M15 17h6v-6"/></svg>',
 };
+[['grid', 'ac_kpi_active'], ['cal', 'ac_kpi_renewal'], ['wallet', 'ac_kpi_spend'], ['trend', 'ac_kpi_savings']].forEach(([k, key]) => { ACO_IC[k] = `<span data-icon-key="${key}" style="display:inline-flex">${ACO_IC[k]}</span>`; });
 
 function renderAcKpis(){
   const now = new Date();
@@ -8087,7 +8093,8 @@ async function loadAcWallet(){
     supabaseClient.from('store_wallet').select('balance_egp').maybeSingle(),
     supabaseClient.from('store_wallet_tx').select('*').order('created_at', { ascending: false }).limit(100),
   ]);
-  document.getElementById('acwBal').textContent = Number(wal.data?.balance_egp || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  acS.wallet = Number(wal.data?.balance_egp || 0);
+  document.getElementById('acwBal').textContent = acMoneyNum(acS.wallet);
   const kinds = { topup: hx('شحن', 'Top-up'), purchase: hx('شراء', 'Purchase'), refund: hx('استرجاع', 'Refund'), admin_adjust: hx('تعديل من الإدارة', 'Adjustment') };
   const rows = tx.data || [];
   document.getElementById('acwList').innerHTML = rows.length ? rows.map(r => {
@@ -8137,10 +8144,12 @@ function acCkSummary(v){
       <div class="ck-row"><span>${hx('السعر', 'Price')}</span><span>${acMoney(v.list)}</span></div>
       ${v.discount > 0 ? `<div class="ck-row ok"><span>${hx('الخصم', 'Discount')} (${acCk.pct}%)</span><span dir="ltr">-${acMoney(v.discount)}</span></div>` : ''}
       <div class="ck-row total"><span>${hx('الإجمالي', 'Total')}</span><span>${acMoney(v.total)}</span></div>
-      <div class="ck-row muted"><span>${hx('المبلغ بالدولار', 'Amount (USD)')}</span><b dir="ltr">$${acUsd(v.total)} USDT</b></div>
+      ${currentCurrency === 'USD'
+        ? `<div class="ck-row muted"><span>${hx('المبلغ بالجنيه', 'Amount (EGP)')}</span><b dir="ltr">${Number(v.total).toLocaleString('en-US')} EGP</b></div>`
+        : `<div class="ck-row muted"><span>${hx('المبلغ بالدولار', 'Amount (USD)')}</span><b dir="ltr">$${acUsd(v.total)} USDT</b></div>`}
     </div>
     <button class="ck-help" onclick="acCkHelp()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>
+      <svg data-icon-key="ac_help" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>
       <div><b>${hx('محتاج مساعدة؟', 'Need help?')}</b><small>${hx('كلمنا على الشات المباشر', 'Chat with us on live chat')}</small></div>
     </button>
   </div>`;
@@ -8424,6 +8433,8 @@ const FX_IC = {
   pause: '<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>',
   alarm: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M5 3L2 6M22 6l-3-3"/></svg>',
 };
+[['calc', 'fx_calc'], ['down', 'fx_export'], ['up', 'fx_import'], ['full', 'fx_fullscreen'], ['lock', 'fx_lock'], ['bookmark', 'fx_bookmarks'], ['book', 'fx_notes'], ['check', 'fx_tasks'], ['cal', 'fx_calendar'], ['alarm', 'fx_reminder'], ['reset', 'fx_timer_reset'], ['gear', 'fx_timer_settings']]
+  .forEach(([k, key]) => { FX_IC[k] = `<span data-icon-key="${key}" style="display:inline-flex;align-items:center;justify-content:center">${FX_IC[k]}</span>`; });
 const FX_ENGINES = [
   { id: 'google', label: 'Google', color: '#4285F4', url: 'https://www.google.com/search?q=', logo: '<svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>' },
   { id: 'youtube', label: 'YouTube', color: '#FF0000', url: 'https://www.youtube.com/results?search_query=', logo: '<svg viewBox="0 0 90 63"><rect width="90" height="63" rx="14" fill="#FF0000"/><polygon points="33,12 33,51 65,31.5" fill="#fff"/></svg>' },
@@ -9253,6 +9264,34 @@ function fxStartReminders(){
     setTimeout(() => el.remove(), 8000);
   }, 30000);
 }
+
+// Language or currency changed: redraw Academic Tools and Focus mode if they are open.
+// The gateway step of the checkout is left alone so its transfer reference stays the same.
+function acFxLocaleRefresh(){
+  const open = id => document.getElementById(id)?.style.display === 'block';
+  if (open('pane-academic')) {
+    renderAcShell(); renderAcCats(); renderAcGrid();
+    const cur = document.getElementById('acwCur'); if (cur) cur.textContent = currentCurrency === 'USD' ? 'USD' : hx('ج.م', 'EGP');
+    const bal = document.getElementById('acwBal'); if (bal) bal.textContent = acMoneyNum(acS.wallet);
+    if (acS.view === 'orders') renderAcOrders();
+    if (acS.view === 'wallet') loadAcWallet();
+    if (acS.view === 'checkout' && acCk && acCk.step !== 'payment') renderAcCheckout();
+  }
+  if (FX.ready && open('pane-focus')) {
+    if (FX.noteId) fxNoteFlush().finally(fxRender); else fxRender();
+  }
+}
+
+// Icons inside Academic Tools and Focus mode can be replaced from the admin's UI design tab.
+// These panes are drawn by JS, so overrides are re-applied whenever their content changes.
+(function(){
+  let t = null;
+  const run = () => { clearTimeout(t); t = setTimeout(() => { try { if (window.PK && PK.applyIcons) PK.applyIcons(() => uiConfigOverrides, ICON_SIZE_MAP); } catch (e) {} }, 40); };
+  ['pane-academic', 'pane-focus'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) new MutationObserver(muts => { if (muts.every(m => m.target.id === 'fxPTime')) return; run(); }).observe(el, { childList: true, subtree: true });
+  });
+})();
 
 async function loadMyHistory(){
   const { data, error } = await supabaseClient.rpc('my_history');
@@ -11878,7 +11917,7 @@ function maybeShowOnboarding(profileData){
     <div class="mob-icon" data-icon-key="tab_academic">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>
     </div>
-    <span class="mob-label" data-i18n="nav_academic">Academic Tools</span><span class="soon-badge">Soon</span>
+    <span class="mob-label" data-i18n="nav_academic">Academic Tools</span>
   </div>
   <div class="mob-nav-item" data-tab="support" onclick="goTab('support')">
     <div class="mob-icon" data-icon-key="tab_support">
