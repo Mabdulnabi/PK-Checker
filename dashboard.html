@@ -2889,303 +2889,190 @@
       .sid-rose{ color:#db2777 !important; }
       .sid-rose{ background:#db27771f; color:#db2777; }
       .sidebar-item[data-tab="focus"]{ --tab-color:#db2777; }
-#pane-focus{ --fm-bg:#f5f7fb; --fm-surface:#ffffff; --fm-surface2:#f1f4f9; --fm-border:#e4e9f2; --fm-text:#1b2556; --fm-muted:#6b7a99;
-  --fm-accent:#0e7afe; --fm-cyan:#00baf7; --fm-ok:#10b981; --fm-warn:#f59e0b; --fm-danger:#e0445b; --fm-purple:#8b5cf6;
-  --fm-radius:12px; --fm-font-mono:'IBM Plex Mono',monospace; }
-[data-theme="dark"] #pane-focus{ --fm-bg:#0d1117; --fm-surface:#161b22; --fm-surface2:#1c2130; --fm-border:#2a3142; --fm-text:#e6edf3; --fm-muted:#8b949e; }
-#pane-focus:fullscreen{ background:var(--fm-bg); padding:16px; overflow:auto; }
-#pane-focus .fm-head{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
-#pane-focus .fm-head h2{ margin:0; font-size:20px; font-weight:800; color:var(--fm-text); }
-#pane-focus .fm-head p{ margin:2px 0 0; font-size:12.5px; color:var(--fm-muted); }
-#pane-focus .fm-actions{ display:flex; gap:8px; }
-#pane-focus .main-layout{ border:1px solid var(--fm-border); border-radius:18px; overflow:hidden; background:var(--fm-bg); }
-#pane-focus /* ── Layout ── */
-.icon-btn{width:34px;height:34px;border-radius:9px;border:1px solid var(--fm-border);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--fm-muted);transition:all .15s}
-#pane-focus .icon-btn:hover{background:var(--fm-surface2);color:var(--fm-text)}
-#pane-focus .icon-btn.on{background:var(--fm-accent);color:#fff;border-color:var(--fm-accent)}
-#pane-focus .main-layout{display:grid;grid-template-columns:380px 1fr;min-height:640px;gap:0}
-@media(max-width:900px){#pane-focus .main-layout{grid-template-columns:1fr}}
-#pane-focus /* ── Left panel ── */
-.left-panel{border-left:1px solid var(--fm-border);background:var(--fm-surface);display:flex;flex-direction:column;gap:0;overflow-y:auto}
-#pane-focus .panel-section{border-bottom:1px solid var(--fm-border);padding:16px}
-#pane-focus .section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--fm-muted);margin-bottom:12px}
-#pane-focus /* ── Pomodoro ── */
-.pomodoro-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
-#pane-focus .pomo-modes{display:flex;gap:4px;background:var(--fm-surface2);border:1px solid var(--fm-border);padding:3px;border-radius:9px}
-#pane-focus .pomo-mode-btn{flex:1;padding:5px 10px;border-radius:7px;border:none;background:none;cursor:pointer;font-family:'Cairo',sans-serif;font-size:11px;font-weight:700;color:var(--fm-muted);transition:all .15s;white-space:nowrap}
-#pane-focus .pomo-mode-btn.on{background:var(--fm-accent);color:#fff}
-#pane-focus .ring-wrap{position:relative;width:170px;height:170px}
-#pane-focus .ring-wrap svg{width:100%;height:100%}
-#pane-focus .ring-bg{fill:none;stroke:var(--fm-border);stroke-width:8}
-#pane-focus .ring-prog{fill:none;stroke-width:8;stroke-linecap:round;transform-origin:center;transform:rotate(-90deg);transition:stroke-dashoffset .9s linear}
-#pane-focus .ring-time{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
-#pane-focus .ring-time .time{font-family:var(--fm-font-mono);font-size:32px;font-weight:600;color:var(--fm-text);letter-spacing:-.02em}
-#pane-focus .ring-time .mode-label{font-size:11px;color:var(--fm-muted);font-weight:600}
-#pane-focus .pomo-controls{display:flex;gap:8px;align-items:center}
-#pane-focus .pomo-btn{width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
-#pane-focus .pomo-btn-play{background:var(--fm-accent);color:#fff}
-#pane-focus .pomo-btn-play:hover{background:#0b5fc9}
-#pane-focus .pomo-btn-sm{background:var(--fm-surface2);border:1px solid var(--fm-border);color:var(--fm-muted)}
-#pane-focus .pomo-btn-sm:hover{background:var(--fm-border);color:var(--fm-text)}
-#pane-focus .pomo-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
-#pane-focus .pomo-stat{background:var(--fm-surface2);border:1px solid var(--fm-border);border-radius:9px;padding:8px 10px;text-align:center}
-#pane-focus .pomo-stat-val{font-family:var(--fm-font-mono);font-size:18px;font-weight:600;color:var(--fm-accent)}
-#pane-focus .pomo-stat-label{font-size:10px;color:var(--fm-muted);margin-top:2px}
-#pane-focus /* ── Search engines ── */
-.engine-tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
-#pane-focus .engine-tab{padding:5px 10px;border-radius:7px;border:1px solid var(--fm-border);background:var(--fm-surface2);cursor:pointer;font-size:11px;font-weight:700;color:var(--fm-muted);transition:all .15s;display:flex;align-items:center;gap:5px}
-#pane-focus .engine-tab.on{border-color:var(--fm-accent);color:var(--fm-accent);background:rgba(14,122,254,.1)}
-#pane-focus .search-row{display:flex;gap:8px}
-#pane-focus .search-box{flex:1;padding:9px 12px;border:1.5px solid var(--fm-border);border-radius:9px;background:var(--fm-surface2);font-family:'Cairo',sans-serif;font-size:14px;color:var(--fm-text);outline:none;transition:border-color .15s;direction:ltr}
-#pane-focus .search-box:focus{border-color:var(--fm-accent)}
-#pane-focus .search-go{padding:9px 14px;border-radius:9px;background:var(--fm-accent);color:#fff;border:none;cursor:pointer;font-weight:700;font-size:13px;transition:all .15s;white-space:nowrap;font-family:'Cairo',sans-serif}
-#pane-focus .search-go:hover{background:#0b5fc9}
-#pane-focus /* ── Calculator ── */
-.calc-wrap{background:var(--fm-surface2);border:1px solid var(--fm-border);border-radius:var(--fm-radius);padding:12px}
-#pane-focus .calc-display{background:var(--fm-bg);border:1px solid var(--fm-border);border-radius:9px;padding:10px 14px;margin-bottom:10px;text-align:right}
-#pane-focus .calc-expr{font-family:var(--fm-font-mono);font-size:11px;color:var(--fm-muted);min-height:16px;word-break:break-all}
-#pane-focus .calc-val{font-family:var(--fm-font-mono);font-size:24px;font-weight:600;color:var(--fm-text);min-height:30px;overflow:hidden;text-overflow:ellipsis}
-#pane-focus .calc-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
-#pane-focus .calc-btn{padding:8px 4px;border-radius:7px;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;transition:all .12s;color:var(--fm-text)}
-#pane-focus .calc-btn:hover{filter:brightness(1.2)}
-#pane-focus .calc-btn.num{background:var(--fm-surface2)}
-#pane-focus .calc-btn.op{background:rgba(14,122,254,.2);color:var(--fm-accent)}
-#pane-focus .calc-btn.fn{background:rgba(161,113,247,.2);color:var(--fm-purple)}
-#pane-focus .calc-btn.eq{background:var(--fm-accent);color:#fff;grid-column:span 1}
-#pane-focus .calc-btn.eq:hover{background:#0b5fc9}
-#pane-focus .calc-btn.clr{background:rgba(224,68,91,.2);color:var(--fm-danger)}
-#pane-focus .calc-shift-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-#pane-focus .calc-shift-btn{padding:4px 10px;border-radius:7px;border:1px solid var(--fm-border);background:var(--fm-surface2);cursor:pointer;font-size:11px;font-weight:700;color:var(--fm-muted);transition:all .15s}
-#pane-focus .calc-shift-btn.on{background:var(--fm-purple);color:#fff;border-color:var(--fm-purple)}
-#pane-focus /* ── Right panel ── */
-.right-panel{background:var(--fm-bg);display:flex;flex-direction:column;overflow:hidden}
-#pane-focus .tabs-bar{display:flex;gap:2px;padding:10px 16px 0;border-bottom:1px solid var(--fm-border);background:var(--fm-surface)}
-#pane-focus .tab{padding:8px 14px;border-radius:9px 9px 0 0;cursor:pointer;font-size:12px;font-weight:700;color:var(--fm-muted);transition:all .15s;border:1px solid transparent;border-bottom:none;white-space:nowrap}
-#pane-focus .tab.on{background:var(--fm-bg);color:var(--fm-text);border-color:var(--fm-border);border-bottom-color:var(--fm-bg)}
-#pane-focus .tab:hover:not(.on){color:var(--fm-text)}
-#pane-focus .tab-content{flex:1;overflow:hidden;display:none}
-#pane-focus .tab-content.on{display:flex;flex-direction:column}
-#pane-focus /* ── Notes ── */
-.notes-toolbar{display:flex;gap:4px;padding:10px 14px;border-bottom:1px solid var(--fm-border);background:var(--fm-surface);flex-wrap:wrap}
-#pane-focus .fmt-btn{width:28px;height:28px;border-radius:6px;border:none;background:none;cursor:pointer;color:var(--fm-muted);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;transition:all .12s;font-family:'Space Grotesk',sans-serif}
-#pane-focus .fmt-btn:hover{background:var(--fm-surface2);color:var(--fm-text)}
-#pane-focus .fmt-btn.on{background:var(--fm-accent);color:#fff}
-#pane-focus .fmt-sep{width:1px;background:var(--fm-border);margin:4px 2px;align-self:stretch}
-#pane-focus .notes-area{flex:1;padding:16px;outline:none;font-family:'Cairo',sans-serif;font-size:14px;color:var(--fm-text);line-height:1.75;overflow-y:auto;min-height:0}
-#pane-focus .notes-area:empty::before{content:attr(data-placeholder);color:var(--fm-muted);pointer-events:none}
-#pane-focus .notes-footer{padding:8px 14px;border-top:1px solid var(--fm-border);font-size:11px;color:var(--fm-muted);display:flex;justify-content:space-between}
-#pane-focus /* ── Tasks board ── */
-.board-toolbar{padding:10px 14px;border-bottom:1px solid var(--fm-border);display:flex;gap:8px;background:var(--fm-surface)}
-#pane-focus .add-task-inp{flex:1;padding:7px 11px;border:1px solid var(--fm-border);border-radius:8px;background:var(--fm-surface2);font-family:'Cairo',sans-serif;font-size:13px;color:var(--fm-text);outline:none}
-#pane-focus .add-task-inp:focus{border-color:var(--fm-accent)}
-#pane-focus .add-task-btn{padding:7px 14px;border-radius:8px;background:var(--fm-accent);color:#fff;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700}
-#pane-focus .board-cols{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px;overflow-y:auto;min-height:0}
-#pane-focus .board-col{background:var(--fm-surface2);border:1px solid var(--fm-border);border-radius:var(--fm-radius);display:flex;flex-direction:column;min-height:200px}
-#pane-focus .col-head{padding:10px 12px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--fm-border);display:flex;align-items:center;justify-content:space-between}
-#pane-focus .col-count{background:var(--fm-border);border-radius:20px;padding:1px 7px;font-size:10px;font-weight:700;color:var(--fm-muted)}
-#pane-focus .col-todo .col-head{color:var(--fm-muted)}
-#pane-focus .col-doing .col-head{color:var(--fm-cyan)}
-#pane-focus .col-done .col-head{color:var(--fm-ok)}
-#pane-focus .col-tasks{flex:1;padding:8px;display:flex;flex-direction:column;gap:6px;overflow-y:auto}
-#pane-focus .task-card{background:var(--fm-surface);border:1px solid var(--fm-border);border-radius:9px;padding:9px 11px;cursor:grab;transition:all .15s;user-select:none}
-#pane-focus .task-card:hover{border-color:var(--fm-accent);box-shadow:0 2px 8px rgba(0,0,0,.3)}
-#pane-focus .task-card.dragging{opacity:.4;cursor:grabbing}
-#pane-focus .task-card.drag-over{border-color:var(--fm-cyan);background:rgba(0,186,247,.05)}
-#pane-focus .task-text{font-size:12px;line-height:1.5;color:var(--fm-text)}
-#pane-focus .task-meta{display:flex;align-items:center;justify-content:space-between;margin-top:5px}
-#pane-focus .task-time{font-family:var(--fm-font-mono);font-size:10px;color:var(--fm-muted)}
-#pane-focus .task-del{width:18px;height:18px;border-radius:4px;border:none;background:none;cursor:pointer;color:var(--fm-danger);opacity:0;transition:opacity .15s;display:flex;align-items:center;justify-content:center;font-size:10px}
-#pane-focus .task-card:hover .task-del{opacity:1}
-#pane-focus .col-drop-zone{flex:1;min-height:40px;border-radius:8px;transition:all .2s}
-#pane-focus .col-drop-zone.drag-active{background:rgba(14,122,254,.08);border:1.5px dashed var(--fm-accent)}
-#pane-focus /* ── Sessions log ── */
-.sessions-list{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:0}
-#pane-focus .session-item{background:var(--fm-surface);border:1px solid var(--fm-border);border-radius:var(--fm-radius);padding:10px 14px;display:flex;align-items:center;gap:10px}
-#pane-focus .session-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-#pane-focus .session-dot.work{background:var(--fm-accent)}
-#pane-focus .session-dot.short{background:var(--fm-ok)}
-#pane-focus .session-dot.long{background:var(--fm-warn)}
-#pane-focus .session-info{flex:1}
-#pane-focus .session-label{font-size:12px;font-weight:700;color:var(--fm-text)}
-#pane-focus .session-time{font-family:var(--fm-font-mono);font-size:10px;color:var(--fm-muted);margin-top:2px}
-#pane-focus .session-dur{font-family:var(--fm-font-mono);font-size:11px;font-weight:600;color:var(--fm-muted)}
-#pane-focus .empty-sessions{text-align:center;padding:40px 20px;color:var(--fm-muted);font-size:13px}
-@media(max-width:900px){#pane-focus .board-cols{grid-template-columns:1fr}
-#pane-focus .left-panel{max-height:none}}
+
+      #pane-focus{ --fx-card:#fff; --fx-line:#eceef3; --fx-ink:#111827; --fx-sub:#6b7280; --fx-soft:#f3f4f6; --fx-cyan:#06b6d4; --fx-violet:#8b5cf6; --fx-amber:#d99401; --fx-green:#10b981; font-family:'Cairo',sans-serif; }
+      [data-theme="dark"] #pane-focus{ --fx-card:#141c2f; --fx-line:rgba(255,255,255,.08); --fx-ink:#f3f4f6; --fx-sub:#9ca3af; --fx-soft:rgba(255,255,255,.06); }
+      #pane-focus:fullscreen{ background:#f5f7fb; padding:20px; overflow:auto; }
+      [data-theme="dark"] #pane-focus:fullscreen{ background:#0b1220; }
+      .fx-head{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+      .fx-title h1{ margin:0; font-size:24px; font-weight:900; color:var(--fx-ink); letter-spacing:-.3px; font-family:'Space Grotesk','Cairo',sans-serif; }
+      .fx-title p{ margin:2px 0 0; font-size:12px; color:var(--fx-sub); }
+      .fx-ibtn{ width:38px; height:38px; border-radius:12px; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none; }
+      .fx-ibtn:hover{ opacity:.8; }
+      .fx-search{ flex:1; min-width:260px; display:flex; align-items:center; gap:6px; padding:6px; padding-inline-start:10px; border-radius:16px; border:1px solid #c7d7fb; background:#eef4ff; }
+      [data-theme="dark"] .fx-search{ background:rgba(59,130,246,.08); border-color:rgba(147,197,253,.25); }
+      .fx-eng{ width:30px; height:30px; border-radius:9px; border:none; background:transparent; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:.5; flex:none; }
+      .fx-eng.on{ opacity:1; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.08); outline:2px solid #bfdbfe; }
+      .fx-eng svg{ width:20px; height:20px; }
+      .fx-search .sep{ width:1px; height:22px; background:#c7d7fb; margin:0 4px; flex:none; }
+      .fx-search input{ flex:1; min-width:0; border:none; background:transparent; outline:none; font-family:'Cairo',sans-serif; font-size:14px; color:var(--fx-ink); }
+      .fx-search .go{ width:34px; height:34px; border-radius:10px; border:none; background:#3b82f6; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; flex:none; }
+      .fx-notice{ display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:12px; border:1px solid #10b98140; background:#10b9810d; color:#059669; font-size:12.5px; margin-bottom:14px; }
+      .fx-bar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
+      .fx-seg{ display:flex; padding:3px; border-radius:12px; background:var(--fx-soft); }
+      .fx-seg button{ display:flex; align-items:center; gap:6px; padding:7px 14px; border:none; border-radius:9px; background:transparent; font-family:'Cairo',sans-serif; font-weight:800; font-size:12.5px; color:var(--fx-sub); cursor:pointer; }
+      .fx-seg button.on{ background:var(--fx-card); color:var(--fx-ink); box-shadow:0 1px 3px rgba(0,0,0,.08); }
+      .fx-seg button.on.shared{ background:var(--fx-cyan); color:#fff; }
+      .fx-link{ display:flex; align-items:center; gap:6px; padding:7px 10px; border:none; background:none; font-family:'Cairo',sans-serif; font-weight:700; font-size:12.5px; color:var(--fx-sub); cursor:pointer; }
+      .fx-pick{ padding:6px 10px; border-radius:9px; border:1px solid var(--fx-line); background:var(--fx-card); color:var(--fx-ink); font-family:'Cairo',sans-serif; font-size:12.5px; }
+      .fx-hint{ font-size:12px; color:var(--fx-sub); }
+      .fx-invite-bar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px 14px; border-radius:12px; border:1px solid #06b6d440; background:#06b6d40d; color:var(--fx-ink); font-size:13px; margin-bottom:10px; }
+      .fx-invite-bar b{ flex:1; min-width:180px; }
+      .fx-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 18px; }
+      @media (max-width:900px){ .fx-grid{ grid-template-columns:1fr; } }
+      .fx-slot{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+      .fx-slot.full{ grid-column:1 / -1; }
+      .fx-slot.over > div:last-child{ outline:2px dashed var(--fx-cyan); outline-offset:3px; border-radius:18px; }
+      .fx-slot > div:last-child{ flex:1; display:flex; flex-direction:column; min-width:0; }
+      .fx-handle{ align-self:flex-start; cursor:grab; color:#c4c9d4; font-size:15px; line-height:1; padding:2px 6px; user-select:none; }
+      .fx-card{ background:var(--fx-card); border:1px solid var(--fx-line); border-radius:18px; box-shadow:0 1px 4px rgba(17,24,39,.04); overflow:hidden; display:flex; flex-direction:column; flex:1; }
+      .fx-chead{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 16px; border-bottom:1px solid var(--fx-line); flex-wrap:wrap; }
+      .fx-chead .l{ display:flex; align-items:center; gap:10px; min-width:0; }
+      .fx-cic{ width:32px; height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex:none; }
+      .fx-chead b{ font-size:15.5px; color:var(--fx-ink); }
+      .fx-chead small{ font-size:12.5px; color:var(--fx-sub); }
+      .fx-btn{ display:inline-flex; align-items:center; gap:5px; padding:6px 12px; border-radius:9px; border:none; font-family:'Cairo',sans-serif; font-weight:800; font-size:12.5px; cursor:pointer; color:#fff; }
+      .fx-btn.ghost{ background:transparent; border:1px solid var(--fx-line); color:var(--fx-ink); font-weight:700; }
+      .fx-back{ width:26px; height:26px; border-radius:8px; border:none; background:var(--fx-soft); color:var(--fx-sub); cursor:pointer; }
+      .fx-empty{ text-align:center; color:var(--fx-sub); font-size:13px; padding:40px 12px; }
+
+      /* Pomodoro */
+      .fx-pomo{ position:relative; display:flex; gap:22px; align-items:flex-start; padding:22px; border-radius:18px; background:var(--fx-card); border:1px solid var(--pc-b); box-shadow:0 4px 24px var(--pc-s); overflow:hidden; flex:1; }
+      .fx-pomo::before{ content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--pc),transparent); }
+      .fx-ring{ position:relative; width:168px; height:168px; flex:none; }
+      .fx-ring .glow{ position:absolute; inset:-8px; border-radius:50%; background:var(--pc); opacity:.15; filter:blur(18px); }
+      .fx-ring svg{ position:relative; }
+      .fx-ring .c{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; }
+      .fx-ring .t{ font-size:34px; font-weight:900; color:var(--fx-ink); font-variant-numeric:tabular-nums; font-family:'Space Grotesk',sans-serif; line-height:1; }
+      .fx-ring .m{ font-size:10px; font-weight:900; letter-spacing:.18em; text-transform:uppercase; padding:4px 10px; border-radius:99px; color:var(--pc); background:var(--pc-t); }
+      .fx-pr{ flex:1; min-width:0; display:flex; flex-direction:column; gap:16px; padding-top:4px; }
+      .fx-modes{ display:flex; gap:4px; padding:4px; border-radius:12px; background:var(--fx-soft); }
+      .fx-modes button{ flex:1; padding:7px; border:none; border-radius:9px; background:transparent; font-weight:800; font-size:12px; color:var(--fx-sub); cursor:pointer; font-family:'Cairo',sans-serif; }
+      .fx-modes button.on{ color:#fff; background:var(--pc); box-shadow:0 2px 10px var(--pc-s); }
+      .fx-ctrls{ display:flex; align-items:center; gap:12px; }
+      .fx-sq{ width:42px; height:42px; border-radius:12px; border:none; background:var(--fx-soft); color:var(--fx-sub); display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none; }
+      .fx-play{ flex:1; height:50px; border-radius:16px; border:none; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; background:linear-gradient(135deg,var(--pc),var(--pc-l)); box-shadow:0 6px 20px var(--pc-s); }
+      .fx-dots{ display:flex; align-items:center; gap:4px; font-size:12.5px; color:var(--fx-sub); flex-wrap:wrap; }
+      .fx-dots i{ width:10px; height:10px; border-radius:50%; background:rgba(148,163,184,.35); display:inline-block; margin-inline-end:4px; transition:all .4s; }
+      .fx-dots i.on{ background:var(--pc); box-shadow:0 0 8px var(--pc); transform:scale(1.15); }
+      @media (max-width:560px){ .fx-pomo{ flex-direction:column; align-items:center; } .fx-pr{ width:100%; } }
+
+      /* Bookmarks */
+      .fx-bm{ display:flex; flex-wrap:wrap; gap:6px; padding:12px; }
+      .fx-tile{ position:relative; width:78px; display:flex; flex-direction:column; align-items:center; gap:5px; padding:6px; border-radius:12px; cursor:pointer; }
+      .fx-tile:hover{ background:var(--fx-soft); }
+      .fx-ticon{ width:56px; height:56px; border-radius:14px; background:var(--fx-soft); border:1px solid var(--fx-line); display:flex; align-items:center; justify-content:center; overflow:hidden; color:#9ca3af; }
+      .fx-ticon img{ width:30px; height:30px; object-fit:contain; }
+      .fx-ticon .mini{ display:grid; grid-template-columns:1fr 1fr; gap:3px; padding:7px; width:100%; height:100%; }
+      .fx-ticon .mini img{ width:100%; height:100%; }
+      .fx-tile > span{ font-size:11px; font-weight:700; color:var(--fx-ink); text-align:center; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+      .fx-tact{ position:absolute; top:-2px; inset-inline-end:-2px; display:none; gap:2px; }
+      .fx-tile:hover .fx-tact{ display:flex; }
+      .fx-tact button{ width:20px; height:20px; border-radius:6px; border:1px solid var(--fx-line); background:var(--fx-card); font-size:10px; cursor:pointer; color:var(--fx-sub); padding:0; }
+
+      /* Notes */
+      .fx-list{ flex:1; overflow-y:auto; max-height:440px; }
+      .fx-note{ display:block; width:100%; text-align:start; padding:12px 16px; border:none; border-bottom:1px solid var(--fx-line); background:none; cursor:pointer; position:relative; font-family:'Cairo',sans-serif; }
+      .fx-note:hover{ background:rgba(217,148,1,.05); }
+      .fx-note b{ display:block; font-size:15px; color:var(--fx-ink); }
+      .fx-note span{ display:block; font-size:12.5px; color:var(--fx-sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .fx-note small{ font-size:10.5px; color:#9ca3af; }
+      .fx-note .del{ position:absolute; top:10px; inset-inline-end:10px; display:none; }
+      .fx-note:hover .del{ display:block; }
+      .fx-tool{ display:flex; flex-wrap:wrap; gap:2px; padding:6px 8px; border-bottom:1px solid var(--fx-line); background:var(--fx-soft); align-items:center; }
+      .fx-tool button, .fx-tool label{ width:28px; height:28px; border-radius:7px; border:none; background:transparent; color:var(--fx-sub); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:800; position:relative; margin:0; }
+      .fx-tool button:hover, .fx-tool label:hover{ background:rgba(148,163,184,.2); }
+      .fx-tool label input{ position:absolute; inset:0; opacity:0; cursor:pointer; }
+      .fx-tool select{ height:28px; border-radius:7px; border:1px solid var(--fx-line); background:transparent; font-size:12px; color:var(--fx-sub); }
+      .fx-tool .sp{ width:1px; height:16px; background:var(--fx-line); margin:0 3px; }
+      .fx-ntitle{ border:none; outline:none; background:transparent; padding:12px 16px 4px; font-size:16px; font-weight:800; color:var(--fx-ink); font-family:'Cairo',sans-serif; }
+      .fx-editor{ flex:1; min-height:300px; padding:8px 16px 16px; outline:none; font-size:14px; color:var(--fx-ink); line-height:1.7; overflow-y:auto; }
+      .fx-saved{ font-size:11px; color:var(--fx-green); }
+
+      /* Tasks */
+      .fx-tform{ padding:12px 16px; border-bottom:1px solid var(--fx-line); background:var(--fx-soft); display:flex; flex-direction:column; gap:8px; }
+      .fx-in{ width:100%; padding:8px 10px; border-radius:9px; border:1px solid var(--fx-line); background:var(--fx-card); font-family:'Cairo',sans-serif; font-size:13px; color:var(--fx-ink); outline:none; box-sizing:border-box; }
+      .fx-in:focus{ border-color:#a78bfa; }
+      .fx-lbl{ display:block; font-size:10.5px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:#9ca3af; margin-bottom:4px; }
+      .fx-2{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+      .fx-filters{ display:flex; gap:6px; padding:10px 16px; border-bottom:1px solid var(--fx-line); }
+      .fx-filters button{ padding:5px 12px; border-radius:9px; border:none; background:transparent; font-weight:800; font-size:12.5px; color:var(--fx-sub); cursor:pointer; font-family:'Cairo',sans-serif; }
+      .fx-filters button.on{ background:var(--fx-violet); color:#fff; }
+      .fx-filters em{ font-style:normal; opacity:.65; font-size:11px; margin-inline-start:4px; }
+      .fx-task{ display:flex; gap:12px; align-items:flex-start; padding:12px 16px; border-bottom:1px solid var(--fx-line); position:relative; }
+      .fx-task.done{ opacity:.55; }
+      .fx-chk{ width:20px; height:20px; border-radius:50%; border:2px solid #d1d5db; background:transparent; cursor:pointer; flex:none; margin-top:2px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; padding:0; }
+      .fx-task.done .fx-chk{ background:var(--fx-violet); border-color:var(--fx-violet); }
+      .fx-task .tt{ font-size:15px; color:var(--fx-ink); }
+      .fx-task.done .tt{ text-decoration:line-through; color:#9ca3af; }
+      .fx-meta{ display:flex; gap:8px; flex-wrap:wrap; margin-top:5px; font-size:11px; align-items:center; }
+      .fx-pri{ padding:1px 8px; border-radius:99px; font-weight:800; font-size:10.5px; }
+      .fx-dl{ color:#9ca3af; } .fx-dl.over{ color:#ef4444; } .fx-rm{ color:#f59e0b; }
+      .fx-desc{ font-size:12px; color:#9ca3af; margin-top:4px; }
+      .fx-hact{ display:none; gap:4px; position:absolute; top:10px; inset-inline-end:12px; }
+      .fx-task:hover .fx-hact{ display:flex; }
+      .fx-mini{ width:26px; height:26px; border-radius:7px; border:none; background:var(--fx-soft); cursor:pointer; font-size:12px; padding:0; }
+
+      /* Calendar */
+      .fx-cal{ display:flex; }
+      .fx-cal-main{ flex:1; padding:14px 16px; min-width:0; }
+      .fx-dow{ display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:6px; }
+      .fx-dow div{ text-align:center; font-size:10.5px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:#9ca3af; padding:4px 0; }
+      .fx-days{ display:grid; grid-template-columns:repeat(7,1fr); gap:1px; background:var(--fx-line); border-radius:12px; overflow:hidden; }
+      .fx-day{ background:var(--fx-card); min-height:82px; padding:6px 8px; cursor:pointer; overflow:hidden; min-width:0; }
+      .fx-day:hover{ background:var(--fx-soft); }
+      .fx-day.blank{ background:var(--fx-soft); cursor:default; }
+      .fx-day.sel{ box-shadow:inset 0 0 0 2px var(--fx-cyan); }
+      .fx-dn{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:800; color:var(--fx-ink); }
+      .fx-day.today .fx-dn{ background:var(--fx-cyan); color:#fff; }
+      .fx-ev{ display:block; width:100%; text-align:start; border:none; border-inline-start:2px solid; border-radius:4px; padding:1px 4px; margin-top:2px; font-size:10px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer; font-family:'Cairo',sans-serif; }
+      .fx-more{ font-size:9.5px; color:#9ca3af; font-weight:800; }
+      .fx-side{ width:230px; border-inline-start:1px solid var(--fx-line); display:flex; flex-direction:column; flex:none; }
+      .fx-side-h{ display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-bottom:1px solid var(--fx-line); font-size:12.5px; font-weight:800; color:var(--fx-ink); }
+      .fx-side-l{ padding:8px; display:flex; flex-direction:column; gap:6px; overflow-y:auto; }
+      .fx-sev{ border-radius:9px; padding:8px 10px; border-top:2px solid; }
+      .fx-sev b{ display:block; font-size:12.5px; color:var(--fx-ink); }
+      .fx-sev small{ display:block; font-size:11px; color:var(--fx-sub); }
+      .fx-sev .a{ display:flex; gap:6px; margin-top:4px; }
+      .fx-sev .a button{ border:none; background:none; cursor:pointer; font-size:11px; color:var(--fx-sub); padding:0; font-family:'Cairo',sans-serif; }
+      @media (max-width:760px){
+        .fx-cal{ flex-direction:column; } .fx-side{ width:auto; border-inline-start:none; border-top:1px solid var(--fx-line); }
+        .fx-day{ min-height:56px; padding:4px; } .fx-day .fx-ev, .fx-day .fx-more{ display:none; }
+        .fx-day.has .fx-dn::after{ content:''; position:absolute; }
+        .fx-day.has{ box-shadow:inset 0 -3px 0 var(--fx-cyan); }
+      }
+
+      /* Modals, switch, reminder */
+      .fx-ov{ position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:9998; display:flex; align-items:center; justify-content:center; padding:16px; }
+      .fx-mod{ width:100%; max-width:380px; max-height:88vh; overflow-y:auto; background:var(--fx-card); border-radius:18px; box-shadow:0 30px 80px rgba(0,0,0,.3); }
+      .fx-mod-h{ display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid var(--fx-line); font-weight:800; color:var(--fx-ink); }
+      .fx-mod-b{ padding:16px 18px; display:flex; flex-direction:column; gap:12px; }
+      .fx-mod-f{ display:flex; gap:8px; padding:0 18px 18px; }
+      .fx-mod-f button{ flex:1; padding:10px; border-radius:12px; border:none; font-weight:800; font-family:'Cairo',sans-serif; cursor:pointer; }
+      .fx-mod-f .c{ background:var(--fx-soft); color:var(--fx-sub); }
+      .fx-sw{ width:40px; height:22px; border-radius:99px; background:#d1d5db; position:relative; cursor:pointer; flex:none; border:none; padding:0; }
+      .fx-sw.on{ background:var(--fx-cyan); }
+      .fx-sw::after{ content:''; position:absolute; top:3px; inset-inline-start:3px; width:16px; height:16px; border-radius:50%; background:#fff; transition:all .2s; }
+      .fx-sw.on::after{ inset-inline-start:21px; }
+      .fx-swrow{ display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:13.5px; color:var(--fx-ink); }
+      .fx-colors{ display:flex; gap:6px; flex-wrap:wrap; }
+      .fx-colors button{ width:24px; height:24px; border-radius:50%; border:none; cursor:pointer; padding:0; }
+      .fx-colors button.on{ outline:3px solid var(--fx-line); outline-offset:2px; }
+      .fx-chips{ display:flex; gap:6px; flex-wrap:wrap; }
+      .fx-chips button{ padding:5px 10px; border-radius:8px; border:1px solid var(--fx-line); background:transparent; font-size:12px; font-weight:700; color:var(--fx-sub); cursor:pointer; font-family:'Cairo',sans-serif; }
+      .fx-chips button.on{ background:var(--fx-cyan); border-color:var(--fx-cyan); color:#fff; }
+      .fx-remind{ --fx-card:#fff; --fx-line:#eceef3; --fx-ink:#111827; --fx-sub:#6b7280; --fx-soft:#f3f4f6; font-family:'Cairo',sans-serif; position:fixed; bottom:24px; inset-inline-end:24px; z-index:9999; display:flex; gap:10px; align-items:flex-start; max-width:300px; padding:12px 14px; border-radius:16px; background:var(--fx-card); border:1px solid var(--fx-line); box-shadow:0 20px 50px rgba(0,0,0,.2); }
+      [data-theme="dark"] .fx-remind{ --fx-card:#141c2f; --fx-line:rgba(255,255,255,.08); --fx-ink:#f3f4f6; --fx-sub:#9ca3af; --fx-soft:rgba(255,255,255,.06); }
+      .fx-remind b{ display:block; font-size:12px; color:var(--fx-sub); }
+      .fx-remind strong{ display:block; font-size:14px; color:var(--fx-ink); }
+      .fx-calc .row{ display:flex; gap:4px; }
+      .fx-calc .row button{ flex:1; padding:9px 4px; border-radius:9px; border:none; background:var(--fx-soft); color:var(--fx-ink); font-weight:800; font-size:12.5px; cursor:pointer; }
+      .fx-calc .row button.w{ flex:2; }
+      .fx-calc-d{ padding:12px 16px; background:var(--fx-soft); text-align:end; }
+      .fx-calc-d small{ display:block; min-height:16px; font-size:11px; color:#9ca3af; font-family:'IBM Plex Mono',monospace; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+      .fx-calc-d b{ display:block; font-size:24px; font-weight:900; color:var(--fx-ink); font-family:'IBM Plex Mono',monospace; overflow:hidden; text-overflow:ellipsis; }
     </style>
-    <div class="tabpane" id="pane-focus" style="display:none;">
-<div class="fm-head"><div><h2>🎯 Focus mode</h2><p>بومودورو، ملاحظات، مهام، وآلة حاسبة — كله بيتحفظ على جهازك</p></div><div class="fm-actions">
-      <button class="icon-btn" title="تبديل الكالكيولاتور" onclick="FM.toggleCalc()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="14" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="10" y2="18"/><line x1="14" y1="18" x2="16" y2="18"/></svg>
-      </button>
-      <button class="icon-btn" id="fm-fullscreen-btn" title="ملء الشاشة" onclick="FM.toggleFullscreen()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-      </button>
-</div></div>
-  <div class="main-layout">
-    <!-- Left panel -->
-    <div class="left-panel">
-
-      <!-- Pomodoro -->
-      <div class="panel-section">
-        <div class="section-label">مؤقت بومودورو</div>
-        <div class="pomodoro-wrap">
-          <div class="pomo-modes">
-            <button class="pomo-mode-btn on" onclick="FM.setMode('work',this)">عمل</button>
-            <button class="pomo-mode-btn" onclick="FM.setMode('short',this)">استراحة قصيرة</button>
-            <button class="pomo-mode-btn" onclick="FM.setMode('long',this)">استراحة طويلة</button>
-          </div>
-          <div class="ring-wrap">
-            <svg viewBox="0 0 170 170">
-              <circle class="ring-bg" cx="85" cy="85" r="78"/>
-              <circle id="fm-ring-prog" class="ring-prog" cx="85" cy="85" r="78" stroke="var(--fm-accent)"
-                stroke-dasharray="490" stroke-dashoffset="0"/>
-            </svg>
-            <div class="ring-time">
-              <span class="time" id="fm-timer-display">25:00</span>
-              <span class="mode-label" id="fm-mode-label">وقت التركيز</span>
-            </div>
-          </div>
-          <div class="pomo-controls">
-            <button class="pomo-btn pomo-btn-sm" onclick="FM.resetTimer()" title="إعادة">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.4"/></svg>
-            </button>
-            <button class="pomo-btn pomo-btn-play" id="fm-play-btn" onclick="FM.toggleTimer()">
-              <svg id="fm-play-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              <svg id="fm-pause-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-            </button>
-            <button class="pomo-btn pomo-btn-sm" onclick="FM.skipSession()" title="تخطي">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
-            </button>
-          </div>
-          <div class="pomo-stats">
-            <div class="pomo-stat">
-              <div class="pomo-stat-val" id="fm-stat-sessions">0</div>
-              <div class="pomo-stat-label">جلسات اليوم</div>
-            </div>
-            <div class="pomo-stat">
-              <div class="pomo-stat-val" id="fm-stat-minutes">0</div>
-              <div class="pomo-stat-label">دقيقة تركيز</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Search -->
-      <div class="panel-section">
-        <div class="section-label">بحث سريع</div>
-        <div class="engine-tabs" id="fm-engine-tabs">
-          <button class="engine-tab on" onclick="FM.selectEngine('google',this)">🔍 Google</button>
-          <button class="engine-tab" onclick="FM.selectEngine('youtube',this)">▶️ YouTube</button>
-          <button class="engine-tab" onclick="FM.selectEngine('chatgpt',this)">🤖 ChatGPT</button>
-          <button class="engine-tab" onclick="FM.selectEngine('claude',this)">✨ Claude</button>
-          <button class="engine-tab" onclick="FM.selectEngine('perplexity',this)">🔮 Perplexity</button>
-        </div>
-        <div class="search-row">
-          <input class="search-box" id="fm-search-inp" placeholder="ابحث عن أي شيء…" dir="rtl"
-            onkeydown="if(event.key==='Enter')FM.doSearch()"/>
-          <button class="search-go" onclick="FM.doSearch()">بحث</button>
-        </div>
-      </div>
-
-      <!-- Calculator -->
-      <div class="panel-section" id="fm-calc-section">
-        <div class="section-label">آلة حاسبة علمية</div>
-        <div class="calc-wrap">
-          <div class="calc-display">
-            <div class="calc-expr" id="fm-calc-expr"></div>
-            <div class="calc-val" id="fm-calc-val">0</div>
-          </div>
-          <div class="calc-shift-row">
-            <span style="font-size:10px;color:var(--fm-muted)">وظائف علمية</span>
-            <button class="calc-shift-btn" id="fm-shift-btn" onclick="FM.toggleShift()">SHIFT</button>
-          </div>
-          <div class="calc-grid" id="fm-calc-grid"></div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Right panel -->
-    <div class="right-panel">
-      <div class="tabs-bar">
-        <button class="tab on" onclick="FM.switchTab('notes',this)">📝 ملاحظات</button>
-        <button class="tab" onclick="FM.switchTab('tasks',this)">✅ المهام</button>
-        <button class="tab" onclick="FM.switchTab('sessions',this)">📊 السجل</button>
-      </div>
-
-      <!-- Notes tab -->
-      <div class="tab-content on" id="fm-tab-notes">
-        <div class="notes-toolbar">
-          <button class="fmt-btn" onclick="FM.fmt('bold')" title="Bold"><strong>B</strong></button>
-          <button class="fmt-btn" onclick="FM.fmt('italic')" title="Italic"><em>I</em></button>
-          <button class="fmt-btn" onclick="FM.fmt('underline')" title="Underline"><u>U</u></button>
-          <div class="fmt-sep"></div>
-          <button class="fmt-btn" onclick="FM.fmt('insertUnorderedList')" title="قائمة">•</button>
-          <button class="fmt-btn" onclick="FM.fmt('insertOrderedList')" title="قائمة مرقمة">1.</button>
-          <div class="fmt-sep"></div>
-          <button class="fmt-btn" onclick="FM.fmt('formatBlock','h3')" title="عنوان">H</button>
-          <button class="fmt-btn" onclick="FM.fmt('formatBlock','p')" title="فقرة">¶</button>
-          <div class="fmt-sep"></div>
-          <button class="fmt-btn" style="color:var(--fm-danger)" onclick="if(confirm('مسح الملاحظات؟'))FM.clearNotes()" title="مسح">✕</button>
-          <div style="margin-right:auto;display:flex;gap:6px">
-            <button class="fmt-btn" style="width:auto;padding:0 10px;color:var(--fm-ok)" onclick="FM.saveNotes()">حفظ</button>
-            <button class="fmt-btn" style="width:auto;padding:0 10px" onclick="FM.exportNotes()">تصدير</button>
-          </div>
-        </div>
-        <div class="notes-area" id="fm-notes-area" contenteditable="true"
-          data-placeholder="ابدأ الكتابة… الملاحظات تُحفظ تلقائيًا"></div>
-        <div class="notes-footer">
-          <span id="fm-notes-words">0 كلمة</span>
-          <span id="fm-notes-saved"></span>
-        </div>
-      </div>
-
-      <!-- Tasks tab -->
-      <div class="tab-content" id="fm-tab-tasks">
-        <div class="board-toolbar">
-          <input class="add-task-inp" id="fm-new-task-inp" placeholder="أضف مهمة جديدة…"
-            onkeydown="if(event.key==='Enter')FM.addTask()"/>
-          <button class="add-task-btn" onclick="FM.addTask()">+ إضافة</button>
-        </div>
-        <div class="board-cols">
-          <div class="board-col col-todo">
-            <div class="col-head">
-              للتنفيذ
-              <span class="col-count" id="fm-count-todo">0</span>
-            </div>
-            <div class="col-tasks" id="fm-col-todo" ondragover="FM.onDragOver(event,'todo')" ondrop="FM.onDrop(event,'todo')" ondragleave="FM.onDragLeave(event)"></div>
-          </div>
-          <div class="board-col col-doing">
-            <div class="col-head">
-              جارٍ
-              <span class="col-count" id="fm-count-doing">0</span>
-            </div>
-            <div class="col-tasks" id="fm-col-doing" ondragover="FM.onDragOver(event,'doing')" ondrop="FM.onDrop(event,'doing')" ondragleave="FM.onDragLeave(event)"></div>
-          </div>
-          <div class="board-col col-done">
-            <div class="col-head">
-              منجز
-              <span class="col-count" id="fm-count-done">0</span>
-            </div>
-            <div class="col-tasks" id="fm-col-done" ondragover="FM.onDragOver(event,'done')" ondrop="FM.onDrop(event,'done')" ondragleave="FM.onDragLeave(event)"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sessions tab -->
-      <div class="tab-content" id="fm-tab-sessions">
-        <div style="padding:12px 14px;border-bottom:1px solid var(--fm-border);display:flex;align-items:center;justify-content:space-between">
-          <span style="font-size:12px;font-weight:700;color:var(--fm-text)">سجل الجلسات</span>
-          <button onclick="FM.clearSessions()" style="padding:4px 10px;border-radius:7px;border:1px solid var(--fm-border);background:none;cursor:pointer;font-size:11px;font-weight:700;color:var(--fm-danger);font-family:Cairo,sans-serif">مسح</button>
-        </div>
-        <div class="sessions-list" id="fm-sessions-list">
-          <div class="empty-sessions">لا توجد جلسات محفوظة بعد</div>
-        </div>
-      </div>
-    </div>
-  </div>
-    </div>
+    <div class="tabpane" id="pane-focus" style="display:none;"><div id="fxRoot"></div></div>
 
     <div class="tabpane" id="pane-support" style="display:none;">
       <div class="sec-head"><h2 data-i18n="support_title">الدعم الفني</h2></div>
@@ -5950,6 +5837,7 @@ function goTab(tab, persist = true){
     if(tab === 'wallet'){ loadPaymentHistory(); }
     if(tab === 'my-history'){ loadMyHistory(); }
     if(tab === 'academic'){ loadAcademic(); }
+    if(tab === 'focus'){ loadFocus(); }
     if(tab === 'my-profile'){ openMyProfileTab(); }
     return;
   }
@@ -5974,6 +5862,7 @@ function goTab(tab, persist = true){
     if(tab === 'wallet'){ loadPaymentHistory(); }
     if(tab === 'my-history'){ loadMyHistory(); }
     if(tab === 'academic'){ loadAcademic(); }
+    if(tab === 'focus'){ loadFocus(); }
     if(tab === 'my-profile'){ openMyProfileTab(); }
   }, {once:true});
 }
@@ -8491,425 +8380,871 @@ function acmCopyAll(){
   navigator.clipboard?.writeText(m._rows.map(([k, v]) => `${k}: ${v}`).join('\n')).then(() => toast(hx('اتنسخ', 'Copied'), 'success'));
 }
 
-/* ── Focus mode (Pomodoro, search, calculator, notes, tasks). Saved on this device only. ── */
-const FM = (() => {
-  const FM_ROOT = document.getElementById('pane-focus')
-  if (!FM_ROOT) return {}
-  try {
-// ── Pomodoro ──
-const MODES = {
-  work:  { label:'وقت التركيز',       mins:25, color:'var(--fm-accent)' },
-  short: { label:'استراحة قصيرة',    mins:5,  color:'var(--fm-ok)' },
-  long:  { label:'استراحة طويلة',    mins:15, color:'var(--fm-warn)' },
+/* ── Focus mode: Pomodoro, bookmarks, notes, tasks, calendar. Saved to the account (private),
+   with an optional shared board others join by invitation. ─────────────────────────────── */
+const FX_PANELS = ['pomodoro', 'bookmarks', 'notes', 'tasks', 'calendar'];
+const FX = {
+  ready: false, uid: null, mode: 'private', boardId: null, boards: [], invites: [],
+  bm: [], notes: [], tasks: [], events: [],
+  bmFolder: null, noteId: null, noteTimer: null, taskFilter: 'all', taskForm: false,
+  calCur: null, calSel: null, drag: null,
+  order: (() => { try { const o = JSON.parse(localStorage.getItem('pk-focus-order') || 'null'); if (Array.isArray(o) && o.length === 5 && FX_PANELS.every(p => o.includes(p))) return o; } catch (e) {} return FX_PANELS.slice(); })(),
+  engine: localStorage.getItem('pk-focus-engine') || 'google',
+};
+const FX_EV_COLORS = ['#06b6d4', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#6366f1', '#d99401'];
+const FX_PRI = { low: '#10b981', medium: '#f59e0b', high: '#ef4444' };
+const fxE = s => escapeHtml(String(s ?? ''));
+const fxLoc = () => (currentLang === 'ar' ? 'ar-EG-u-nu-latn' : 'en-US');
+const fxPad = n => String(n).padStart(2, '0');
+const fxLocalInput = iso => { if (!iso) return ''; const d = new Date(iso); return isNaN(d) ? '' : `${d.getFullYear()}-${fxPad(d.getMonth() + 1)}-${fxPad(d.getDate())}T${fxPad(d.getHours())}:${fxPad(d.getMinutes())}`; };
+const fxToIso = local => { if (!local) return null; const d = new Date(local); return isNaN(d) ? null : d.toISOString(); };
+const fxYmd = d => `${d.getFullYear()}-${fxPad(d.getMonth() + 1)}-${fxPad(d.getDate())}`;
+const FX_IC = {
+  calc: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h4"/></svg>',
+  down: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>',
+  up: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>',
+  full: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>',
+  search: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>',
+  lock: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  globe: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>',
+  userplus: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6"/></svg>',
+  bookmark: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>',
+  folder: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+  book: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d99401" stroke-width="2"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg>',
+  check: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>',
+  cal: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>',
+  reset: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>',
+  gear: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+  play: '<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M7 4v16l13-8z"/></svg>',
+  pause: '<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>',
+  alarm: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M5 3L2 6M22 6l-3-3"/></svg>',
+};
+const FX_ENGINES = [
+  { id: 'google', label: 'Google', url: 'https://www.google.com/search?q=', logo: '<svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>' },
+  { id: 'youtube', label: 'YouTube', url: 'https://www.youtube.com/results?search_query=', logo: '<svg viewBox="0 0 90 63"><rect width="90" height="63" rx="14" fill="#FF0000"/><polygon points="33,12 33,51 65,31.5" fill="#fff"/></svg>' },
+  { id: 'chatgpt', label: 'ChatGPT', url: 'https://chatgpt.com/?q=', logo: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#10a37f"/><path d="M12 6l5 2.9v6.2L12 18l-5-2.9V8.9z" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/></svg>' },
+  { id: 'claude', label: 'Claude', url: 'https://claude.ai/new?q=', logo: '<svg viewBox="0 0 100 100">' + [0, 27, 55, 82, 110, 138, 165, 192, 220, 248, 275, 302, 330].map(a => `<rect x="45.5" y="5" width="9" height="43" rx="4.5" fill="#CC7858" transform="rotate(${a} 50 50)"/>`).join('') + '</svg>' },
+  { id: 'perplexity', label: 'Perplexity', url: 'https://www.perplexity.ai/search?q=', logo: '<svg viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#20C8D8"/><path d="M7 6.5l5 4 5-4v11l-5-4-5 4z" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/></svg>' },
+];
+
+/* Note HTML from a shared board is shown to other members, so only simple formatting survives. */
+function fxSanitize(html){
+  const doc = new DOMParser().parseFromString('<div>' + (html || '') + '</div>', 'text/html');
+  const root = doc.body.firstChild;
+  const OK = new Set(['B', 'STRONG', 'I', 'EM', 'U', 'P', 'DIV', 'BR', 'SPAN', 'UL', 'OL', 'LI', 'FONT', 'H1', 'H2', 'H3', 'BLOCKQUOTE']);
+  const DROP = new Set(['SCRIPT', 'STYLE', 'IFRAME', 'OBJECT', 'EMBED', 'LINK', 'META', 'SVG', 'MATH', 'TEMPLATE']);
+  const walk = el => {
+    [...el.children].forEach(ch => {
+      if (DROP.has(ch.tagName)) { ch.remove(); return; }
+      if (!OK.has(ch.tagName)) { ch.replaceWith(doc.createTextNode(ch.textContent)); return; }
+      [...ch.attributes].forEach(a => {
+        if (a.name === 'style') {
+          const st = ch.style, keep = { color: st.color, backgroundColor: st.backgroundColor, fontSize: st.fontSize, textAlign: st.textAlign };
+          ch.removeAttribute('style');
+          Object.entries(keep).forEach(([k, v]) => { if (v && !/url\(|expression|javascript/i.test(v)) ch.style[k] = v; });
+        } else if (!(ch.tagName === 'FONT' && a.name === 'color' && /^#?[0-9a-z]+$/i.test(a.value))
+                && !(a.name === 'align' && /^(left|right|center|justify)$/i.test(a.value))) {
+          ch.removeAttribute(a.name);
+        }
+      });
+      walk(ch);
+    });
+  };
+  walk(root);
+  return root.innerHTML;
 }
-let pomoMode = 'work'
-let totalSecs = 25 * 60
-let remainSecs = totalSecs
-let running = false
-let interval = null
-let pomoSessions = 0
-let totalWorkMins = 0
-let sessionLog = JSON.parse(localStorage.getItem('pk-focus-sessions') || '[]')
-let sessionStart = null
+const fxText = html => new DOMParser().parseFromString('<div>' + (html || '') + '</div>', 'text/html').body.textContent || '';
 
-const ring = document.getElementById('fm-ring-prog')
-const C = 2 * Math.PI * 78  // circumference ≈ 490
-
-function setMode(m, btn) {
-  if (running) stopTimer()
-  pomoMode = m
-  FM_ROOT.querySelectorAll('.pomo-mode-btn').forEach(b => b.classList.remove('on'))
-  btn.classList.add('on')
-  totalSecs = MODES[m].mins * 60
-  remainSecs = totalSecs
-  ring.setAttribute('stroke', MODES[m].color)
-  updateDisplay()
-}
-
-function toggleTimer() {
-  if (running) stopTimer(); else startTimer()
-}
-
-function startTimer() {
-  running = true
-  sessionStart = Date.now()
-  document.getElementById('fm-play-icon').style.display = 'none'
-  document.getElementById('fm-pause-icon').style.display = ''
-  interval = setInterval(() => {
-    remainSecs--
-    updateDisplay()
-    if (remainSecs <= 0) {
-      clearInterval(interval)
-      running = false
-      onSessionEnd()
-    }
-  }, 1000)
-}
-
-function stopTimer() {
-  clearInterval(interval)
-  running = false
-  sessionStart = null
-  document.getElementById('fm-play-icon').style.display = ''
-  document.getElementById('fm-pause-icon').style.display = 'none'
-}
-
-function resetTimer() {
-  stopTimer()
-  remainSecs = totalSecs
-  updateDisplay()
-}
-
-function skipSession() {
-  if (running) onSessionEnd()
-  else resetTimer()
-}
-
-function onSessionEnd() {
-  document.getElementById('fm-play-icon').style.display = ''
-  document.getElementById('fm-pause-icon').style.display = 'none'
-  running = false
-
-  if (pomoMode === 'work') {
-    pomoSessions++
-    totalWorkMins += MODES.work.mins
-    document.getElementById('fm-stat-sessions').textContent = pomoSessions
-    document.getElementById('fm-stat-minutes').textContent = totalWorkMins
-    playChime()
-    logSession('work', MODES.work.mins)
-    toast(`جلسة #${pomoSessions} اكتملت 🎯`, 'info')
-  } else {
-    playChime()
-    logSession(pomoMode, MODES[pomoMode].mins)
-    toast('انتهت الاستراحة ⏰', 'info')
+/* ── Load and layout ── */
+async function loadFocus(){
+  if (!FX.uid) {
+    FX.uid = (typeof PROKEYS_USER_ID !== 'undefined' && PROKEYS_USER_ID) || (await supabaseClient.auth.getUser()).data?.user?.id || null;
   }
-
-  remainSecs = totalSecs
-  updateDisplay()
+  if (!FX.ready) { FX.ready = true; fxStartReminders(); }
+  fxRender();
+  await fxLoadBoards();
+  await fxLoadData();
 }
 
-function logSession(type, mins) {
-  sessionLog.unshift({
-    type, mins,
-    time: new Date().toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' }),
-    date: new Date().toLocaleDateString('ar-EG', { weekday:'short', day:'numeric', month:'short' })
-  })
-  if (sessionLog.length > 50) sessionLog.pop()
-  localStorage.setItem('pk-focus-sessions', JSON.stringify(sessionLog))
-  renderSessions()
+function fxRender(){
+  const root = document.getElementById('fxRoot');
+  if (!root) return;
+  const order = FX.order;
+  root.innerHTML = `
+    <div class="fx-head">
+      <div class="fx-title"><h1>${hx('وضع التركيز', 'Focus Mode')}</h1><p>${hx('ركز. اكتب. تابع. كرر.', 'Focus. Write. Track. Repeat.')}</p></div>
+      <button class="fx-ibtn" style="background:#06b6d414" title="${hx('الآلة الحاسبة العلمية', 'Scientific calculator')}" onclick="fxCalc()">${FX_IC.calc}</button>
+      <button class="fx-ibtn" style="background:#10b98114" title="${hx('تصدير بياناتك', 'Export your data')}" onclick="fxExport()">${FX_IC.down}</button>
+      <button class="fx-ibtn" style="background:#f59e0b14" title="${hx('استيراد من ملف JSON', 'Import from a JSON file')}" onclick="document.getElementById('fxImportFile').click()">${FX_IC.up}</button>
+      <input type="file" id="fxImportFile" accept=".json,application/json" style="display:none" onchange="fxImportPick(this)">
+      <button class="fx-ibtn" style="background:#64748b14" title="${hx('ملء الشاشة', 'Fullscreen')}" onclick="fxFullscreen()">${FX_IC.full}</button>
+      <div class="fx-search" id="fxSearch"></div>
+    </div>
+    <div class="fx-notice">${FX_IC.lock}<span>${hx('بياناتك محفوظة في حسابك وخاصة بيك — محدش من المستخدمين التانيين يقدر يشوفها، والمشاركة بإيدك بس.', 'Your data is saved to your account and private to you — no other user can see it. Sharing is entirely in your control.')}</span></div>
+    <div id="fxInvites"></div>
+    <div class="fx-bar" id="fxBar"></div>
+    <div class="fx-grid">${order.map((id, i) => {
+      const full = order.length % 2 === 1 && i === order.length - 1;
+      return `<div class="fx-slot${full ? ' full' : ''}" data-id="${id}" ondragover="fxDragOver(event,'${id}')" ondragleave="fxDragLeave(event)" ondrop="fxDrop(event,'${id}')">
+        <div class="fx-handle" draggable="true" ondragstart="fxDragStart(event,'${id}')" ondragend="fxDragEnd()" title="${hx('اسحب لتغيير الترتيب', 'Drag to reorder')}">⠿</div>
+        <div id="fxP_${id}"></div></div>`;
+    }).join('')}</div>`;
+  fxRenderSearch(); fxRenderBar(); fxRenderInvites();
+  fxRenderPomo(); fxRenderBm(); fxRenderNotes(); fxRenderTasks(); fxRenderCal();
 }
 
-function updateDisplay() {
-  const m = String(Math.floor(remainSecs / 60)).padStart(2, '0')
-  const s = String(remainSecs % 60).padStart(2, '0')
-  document.getElementById('fm-timer-display').textContent = `${m}:${s}`
-  document.getElementById('fm-mode-label').textContent = MODES[pomoMode].label
-  const frac = remainSecs / totalSecs
-  ring.style.strokeDashoffset = C * frac
+function fxRenderSearch(){
+  const box = document.getElementById('fxSearch');
+  if (!box) return;
+  const eng = FX_ENGINES.find(e => e.id === FX.engine) || FX_ENGINES[0];
+  box.innerHTML = FX_ENGINES.map(e => `<button class="fx-eng${e.id === eng.id ? ' on' : ''}" title="${e.label}" onclick="fxSetEngine('${e.id}')">${e.logo}</button>`).join('')
+    + `<span class="sep"></span><input id="fxSearchIn" placeholder="${hx(`ابحث في ${eng.label}...`, `Search on ${eng.label}...`)}" onkeydown="if(event.key==='Enter')fxSearch()">
+      <button class="go" onclick="fxSearch()" aria-label="Search">${FX_IC.search}</button>`;
+}
+function fxSetEngine(id){ FX.engine = id; localStorage.setItem('pk-focus-engine', id); fxRenderSearch(); }
+function fxSearch(){
+  const q = (document.getElementById('fxSearchIn')?.value || '').trim();
+  if (!q) return;
+  const eng = FX_ENGINES.find(e => e.id === FX.engine) || FX_ENGINES[0];
+  window.open(eng.url + encodeURIComponent(q), '_blank', 'noopener');
 }
 
-function playChime() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)()
-    const notes = [523.25, 659.25, 783.99] // C5 E5 G5
-    notes.forEach((freq, i) => {
-      const osc = ctx.createOscillator()
-      const gain = ctx.createGain()
-      osc.connect(gain); gain.connect(ctx.destination)
-      osc.frequency.value = freq
-      osc.type = 'sine'
-      gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.18)
-      gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + i * 0.18 + 0.03)
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.4)
-      osc.start(ctx.currentTime + i * 0.18)
-      osc.stop(ctx.currentTime + i * 0.18 + 0.45)
-    })
-  } catch(e) {}
+function fxRenderBar(){
+  const bar = document.getElementById('fxBar');
+  if (!bar) return;
+  const shared = FX.mode === 'shared';
+  bar.innerHTML = `<div class="fx-seg">
+      <button class="${!shared ? 'on' : ''}" onclick="fxSetMode('private')">${FX_IC.lock} ${hx('خاص', 'Private')}</button>
+      <button class="${shared ? 'on shared' : ''}" onclick="fxSetMode('shared')">${FX_IC.globe} ${hx('مشترك', 'Shared')}</button>
+    </div>
+    ${shared && FX.boards.length > 1 ? `<select class="fx-pick" onchange="fxPickBoard(this.value)">${FX.boards.map(b =>
+      `<option value="${b.id}" ${b.id === FX.boardId ? 'selected' : ''}>${fxE(b.name)} — ${b.role === 'owner' ? hx('لوحتي', 'Mine') : hx('مدعو', 'Invited')}</option>`).join('')}</select>` : ''}
+    <button class="fx-link" onclick="fxInviteModal()">${FX_IC.userplus} ${hx('دعوة', 'Invite')}</button>
+    ${shared ? `<span class="fx-hint">👥 ${hx('تعاوني — ظاهر لكل الأعضاء', 'Collaborative — visible to all members')}</span>` : ''}`;
+}
+function fxRenderInvites(){
+  const box = document.getElementById('fxInvites');
+  if (!box) return;
+  box.innerHTML = FX.invites.map(i => `<div class="fx-invite-bar">👋 <b>${hx('عندك دعوة للانضمام لـ', 'You are invited to join')} "${fxE(i.board_name)}"</b>
+    <button class="fx-btn" style="background:var(--fx-cyan)" onclick="fxRespond('${i.id}', true)">${hx('قبول', 'Accept')}</button>
+    <button class="fx-btn ghost" onclick="fxRespond('${i.id}', false)">${hx('رفض', 'Decline')}</button></div>`).join('');
 }
 
-function renderSessions() {
-  const el = document.getElementById('fm-sessions-list')
-  if (!sessionLog.length) {
-    el.innerHTML = '<div class="empty-sessions">لا توجد جلسات محفوظة بعد</div>'
-    return
-  }
-  el.innerHTML = sessionLog.map(s => `
-    <div class="session-item">
-      <div class="session-dot ${s.type}"></div>
-      <div class="session-info">
-        <div class="session-label">${s.type === 'work' ? '🎯 جلسة تركيز' : s.type === 'short' ? '☕ استراحة قصيرة' : '🌴 استراحة طويلة'}</div>
-        <div class="session-time">${s.date} · ${s.time}</div>
-      </div>
-      <div class="session-dur">${s.mins} د</div>
-    </div>`).join('')
+/* ── Boards and invitations ── */
+async function fxLoadBoards(){
+  const [b, i] = await Promise.all([supabaseClient.rpc('focus_my_boards'), supabaseClient.rpc('focus_pending_invites')]);
+  FX.boards = b.data || [];
+  FX.invites = i.data || [];
+  if (FX.mode === 'shared' && !FX.boards.some(x => x.id === FX.boardId)) { FX.mode = 'private'; FX.boardId = null; }
+  fxRenderBar(); fxRenderInvites();
 }
-
-function clearSessions() {
-  if (!confirm('مسح سجل الجلسات؟')) return
-  sessionLog = []
-  localStorage.removeItem('pk-focus-sessions')
-  renderSessions()
+async function fxSetMode(mode){
+  if (mode === 'shared') {
+    if (!FX.boards.length) { fxInviteModal(); return; }
+    FX.mode = 'shared';
+    if (!FX.boards.some(b => b.id === FX.boardId)) FX.boardId = FX.boards[0].id;
+  } else { FX.mode = 'private'; FX.boardId = null; }
+  FX.bmFolder = null; FX.noteId = null; FX.calSel = null;
+  fxRenderBar();
+  await fxLoadData();
 }
-
-updateDisplay()
-renderSessions()
-
-// ── Search ──
-const ENGINES = {
-  google:     q => `https://google.com/search?q=${encodeURIComponent(q)}`,
-  youtube:    q => `https://youtube.com/results?search_query=${encodeURIComponent(q)}`,
-  chatgpt:    q => `https://chatgpt.com/?q=${encodeURIComponent(q)}`,
-  claude:     q => `https://claude.ai/new?q=${encodeURIComponent(q)}`,
-  perplexity: q => `https://perplexity.ai/?q=${encodeURIComponent(q)}`,
-}
-let currentEngine = 'google'
-
-function selectEngine(key, btn) {
-  currentEngine = key
-  FM_ROOT.querySelectorAll('.engine-tab').forEach(b => b.classList.remove('on'))
-  btn.classList.add('on')
-}
-
-function doSearch() {
-  const q = document.getElementById('fm-search-inp').value.trim()
-  if (!q) return
-  window.open(ENGINES[currentEngine](q), '_blank', 'noopener')
-  document.getElementById('fm-search-inp').value = ''
-}
-
-// ── Calculator ──
-let calcExpr = ''
-let calcShift = false
-
-const CALC_BUTTONS = [
-  ['sin',  'cos',  'tan',  '(',  ')'],
-  ['ln',   'log',  '√',    'π',  'e'],
-  ['7',    '8',    '9',    '/',  '^'],
-  ['4',    '5',    '6',    '*',  '%'],
-  ['1',    '2',    '3',    '-',  'C'],
-  ['0',    '.',    '±',    '+',  '='],
-]
-const SHIFT_MAP = { sin:'asin', cos:'acos', tan:'atan', ln:'exp', log:'10^', '√':'x²' }
-const FN_KEYS = new Set(['sin','cos','tan','ln','log','√','π','e','asin','acos','atan','exp','10^','x²','C','±'])
-const OP_KEYS = new Set(['+','-','*','/','%','^','(',')'])
-
-function buildCalc() {
-  const grid = document.getElementById('fm-calc-grid')
-  grid.innerHTML = CALC_BUTTONS.map(row => row.map(k => {
-    const display = calcShift && SHIFT_MAP[k] ? SHIFT_MAP[k] : k
-    const cls = k === '=' ? 'eq' : k === 'C' ? 'clr' : FN_KEYS.has(k) ? 'fn' : OP_KEYS.has(k) ? 'op' : 'num'
-    return `<button class="calc-btn ${cls}" onclick="FM.calcPress('${k}')">${display}</button>`
-  }).join('')).join('')
-}
-
-function calcPress(k) {
-  const display = document.getElementById('fm-calc-val')
-  const expr    = document.getElementById('fm-calc-expr')
-  const key = calcShift && SHIFT_MAP[k] ? SHIFT_MAP[k] : k
-
-  if (key === 'C') { calcExpr = ''; display.textContent = '0'; expr.textContent = ''; return }
-  if (key === '=') {
-    try {
-      let e = calcExpr
-        .replace(/sin\(/g, 'Math.sin(').replace(/cos\(/g, 'Math.cos(').replace(/tan\(/g, 'Math.tan(')
-        .replace(/asin\(/g, 'Math.asin(').replace(/acos\(/g, 'Math.acos(').replace(/atan\(/g, 'Math.atan(')
-        .replace(/ln\(/g, 'Math.log(').replace(/log\(/g, 'Math.log10(').replace(/exp\(/g, 'Math.exp(')
-        .replace(/√\(/g,'Math.sqrt(').replace(/π/g,'Math.PI').replace(/e(?![+\-\d])/g,'Math.E')
-        .replace(/\^/g,'**').replace(/x²/g,'**2').replace(/10\^\(/g,'Math.pow(10,')
-      const result = Function('"use strict";return (' + e + ')')()
-      const pretty = isFinite(result) ? (+result.toFixed(10)).toString() : 'خطأ'
-      expr.textContent = calcExpr + ' ='
-      display.textContent = pretty
-      calcExpr = pretty
-    } catch { display.textContent = 'خطأ'; calcExpr = '' }
-    return
-  }
-  if (key === '±') {
-    if (calcExpr) calcExpr = calcExpr.startsWith('-') ? calcExpr.slice(1) : '-' + calcExpr
-    display.textContent = calcExpr || '0'
-    return
-  }
-  if (key === 'π') { calcExpr += 'π'; display.textContent = calcExpr; return }
-  if (key === 'e')  { calcExpr += 'e'; display.textContent = calcExpr; return }
-  if (['sin','cos','tan','asin','acos','atan','ln','log','exp','√','10^'].includes(key)) {
-    calcExpr += key + '('; display.textContent = calcExpr; return
-  }
-  if (key === 'x²') { calcExpr += '**2'; display.textContent = calcExpr; return }
-  calcExpr += key
-  display.textContent = calcExpr
-  expr.textContent = ''
-}
-
-function toggleShift() {
-  calcShift = !calcShift
-  document.getElementById('fm-shift-btn').classList.toggle('on', calcShift)
-  buildCalc()
-}
-
-function toggleCalc() {
-  const s = document.getElementById('fm-calc-section')
-  s.style.display = s.style.display === 'none' ? '' : 'none'
-}
-
-buildCalc()
-
-// ── Notes ──
-const notesArea = document.getElementById('fm-notes-area')
-let notesTimer = null
-
-function fmt(cmd, val) {
-  document.execCommand(cmd, false, val || null)
-  notesArea.focus()
-}
-
-function saveNotes() {
-  localStorage.setItem('pk-notes', notesArea.innerHTML)
-  document.getElementById('fm-notes-saved').textContent = 'محفوظ ✓'
-  setTimeout(() => document.getElementById('fm-notes-saved').textContent = '', 2000)
-}
-
-function clearNotes() {
-  notesArea.innerHTML = ''
-  saveNotes()
-}
-
-function exportNotes() {
-  const text = notesArea.innerText
-  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
-  const a = document.createElement('a')
-  a.href = URL.createObjectURL(blob)
-  a.download = `notes-${new Date().toISOString().slice(0,10)}.txt`
-  a.click()
-}
-
-notesArea.addEventListener('input', () => {
-  const words = notesArea.innerText.trim().split(/\s+/).filter(w=>w).length
-  document.getElementById('fm-notes-words').textContent = `${words} كلمة`
-  clearTimeout(notesTimer)
-  notesTimer = setTimeout(saveNotes, 1500)
-})
-
-const saved = localStorage.getItem('pk-notes')
-if (saved) notesArea.innerHTML = saved
-
-// ── Tasks ──
-let tasks = JSON.parse(localStorage.getItem('pk-tasks') || '[]')
-let dragId = null
-
-function addTask() {
-  const inp = document.getElementById('fm-new-task-inp')
-  const text = inp.value.trim()
-  if (!text) return
-  tasks.push({ id: Date.now().toString(), text, status: 'todo', created: new Date().toISOString() })
-  inp.value = ''
-  saveTasks()
-  renderTasks()
-}
-
-function deleteTask(id) {
-  tasks = tasks.filter(t => t.id !== id)
-  saveTasks()
-  renderTasks()
-}
-
-function saveTasks() {
-  localStorage.setItem('pk-tasks', JSON.stringify(tasks))
-}
-
-function renderTasks() {
-  const cols = { todo:[], doing:[], done:[] }
-  tasks.forEach(t => (cols[t.status] || cols.todo).push(t))
-
-  for (const [col, list] of Object.entries(cols)) {
-    const el = document.getElementById(`fm-col-${col}`)
-    if (!el) continue
-    el.innerHTML = list.map(t => `
-      <div class="task-card" draggable="true" id="fm-task-${t.id}"
-        ondragstart="FM.onDragStart(event,'${t.id}')"
-        ondragend="FM.onDragEnd(event)">
-        <div class="task-text">${esc(t.text)}</div>
-        <div class="task-meta">
-          <span class="task-time">${new Date(t.created).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})}</span>
-          <button class="task-del" onclick="FM.deleteTask('${t.id}')">✕</button>
-        </div>
-      </div>`).join('')
-    document.getElementById(`fm-count-${col}`).textContent = list.length
+async function fxPickBoard(id){ FX.boardId = id; FX.bmFolder = null; FX.noteId = null; await fxLoadData(); }
+async function fxRespond(id, accept){
+  const { error } = await supabaseClient.rpc('focus_respond_invite', { p_id: id, p_accept: accept });
+  if (error) { toast(hx('تعذر الرد على الدعوة', 'Could not answer the invitation'), 'error'); return; }
+  await fxLoadBoards();
+  if (accept) {
+    const inv = FX.boards.find(b => b.role !== 'owner');
+    toast(hx('انضميت للوحة المشتركة ✅', 'You joined the shared board ✅'), 'success');
+    if (inv) { FX.mode = 'shared'; FX.boardId = inv.id; fxRenderBar(); await fxLoadData(); }
   }
 }
-
-function onDragStart(e, id) {
-  dragId = id
-  setTimeout(() => document.getElementById(`fm-task-${id}`)?.classList.add('dragging'), 0)
+function fxInviteModal(){
+  fxModal(hx('دعوة للوحة المشتركة', 'Invite to your shared board'), `
+    <p style="margin:0;font-size:13px;color:var(--fx-sub);line-height:1.6;">${hx('اكتب إيميل حساب الشخص على الموقع. هيلاقي الدعوة لما يفتح وضع التركيز، وبعد ما يقبل هتشوفوا نفس المفضلة والملاحظات والمهام والتقويم في وضع "مشترك".', 'Enter the email of their account on this site. They will see the invitation when they open Focus mode; once they accept, you share the same bookmarks, notes, tasks and calendar in Shared mode.')}</p>
+    <input class="fx-in" id="fxInvEmail" type="email" dir="ltr" placeholder="name@example.com">
+    <div id="fxInvMsg" style="font-size:12.5px;font-weight:700;"></div>`,
+    hx('إرسال الدعوة', 'Send invitation'), async () => {
+      const email = document.getElementById('fxInvEmail').value.trim();
+      const msg = document.getElementById('fxInvMsg');
+      if (!email) return false;
+      const { error } = await supabaseClient.rpc('focus_invite', { p_email: email });
+      if (error) {
+        const m = error.message || '';
+        msg.style.color = '#ef4444';
+        msg.textContent = m.includes('invalid_email') ? hx('الإيميل مش صحيح', 'That email is not valid')
+          : m.includes('self_invite') ? hx('مينفعش تدعي نفسك', 'You cannot invite yourself')
+          : m.includes('too_many_pending') ? hx('عندك دعوات كتير مستنية رد', 'You have too many pending invitations')
+          : hx('تعذر إرسال الدعوة', 'Could not send the invitation');
+        return false;
+      }
+      toast(hx('اتبعتت الدعوة ✅', 'Invitation sent ✅'), 'success');
+      fxLoadBoards();
+      return true;
+    }, '#06b6d4');
 }
 
-function onDragEnd(e) {
-  if (dragId) document.getElementById(`fm-task-${dragId}`)?.classList.remove('dragging')
-  dragId = null
-  FM_ROOT.querySelectorAll('.col-tasks').forEach(c => c.classList.remove('drag-active'))
+/* ── Data ── */
+function fxScope(q){ return FX.boardId ? q.eq('board_id', FX.boardId) : q.is('board_id', null); }
+async function fxLoadData(){
+  const [bm, nt, tk, ev] = await Promise.all([
+    fxScope(supabaseClient.from('focus_bookmarks').select('*')).order('created_at'),
+    fxScope(supabaseClient.from('focus_notes').select('*')).order('updated_at', { ascending: false }),
+    fxScope(supabaseClient.from('focus_tasks').select('*')).order('created_at', { ascending: false }),
+    fxScope(supabaseClient.from('focus_events').select('*')).order('start_at'),
+  ]);
+  if (bm.error || nt.error || tk.error || ev.error) { toast(hx('تعذر تحميل بيانات وضع التركيز', 'Could not load Focus mode data'), 'error'); return; }
+  FX.bm = bm.data || []; FX.notes = nt.data || []; FX.tasks = tk.data || []; FX.events = ev.data || [];
+  fxRenderBm(); if (!FX.noteId) fxRenderNotes(); fxRenderTasks(); fxRenderCal();
+}
+const fxNew = row => (FX.boardId ? { ...row, board_id: FX.boardId } : row);
+
+/* ── Panel reorder (drag the ⠿ handle) ── */
+function fxDragStart(e, id){ FX.drag = id; e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', id); } catch (x) {} }
+function fxDragEnd(){ FX.drag = null; document.querySelectorAll('#pane-focus .fx-slot.over').forEach(s => s.classList.remove('over')); }
+function fxDragOver(e, id){ if (!FX.drag || FX.drag === id) return; e.preventDefault(); e.currentTarget.classList.add('over'); }
+function fxDragLeave(e){ e.currentTarget.classList.remove('over'); }
+function fxDrop(e, id){
+  e.preventDefault();
+  const from = FX.drag; fxDragEnd();
+  if (!from || from === id) return;
+  const o = FX.order.slice(); const a = o.indexOf(from), b = o.indexOf(id);
+  o[a] = id; o[b] = from;
+  FX.order = o;
+  localStorage.setItem('pk-focus-order', JSON.stringify(o));
+  fxRender();
+}
+function fxFullscreen(){
+  const el = document.getElementById('pane-focus');
+  if (!document.fullscreenElement) el?.requestFullscreen?.().catch(() => {});
+  else document.exitFullscreen?.();
 }
 
-function onDragOver(e, col) {
-  e.preventDefault()
-  document.getElementById(`fm-col-${col}`)?.classList.add('drag-active')
+/* ── Generic modal (kept inside the pane so it also works in fullscreen) ── */
+function fxModal(title, body, okLabel, onOk, okColor){
+  fxCloseModal();
+  const el = document.createElement('div');
+  el.className = 'fx-ov'; el.id = 'fxModal';
+  el.onclick = e => { if (e.target === el) fxCloseModal(); };
+  el.innerHTML = `<div class="fx-mod" role="dialog" aria-modal="true">
+    <div class="fx-mod-h"><span>${title}</span><button class="fx-back" onclick="fxCloseModal()">✕</button></div>
+    <div class="fx-mod-b">${body}</div>
+    ${okLabel ? `<div class="fx-mod-f"><button class="c" onclick="fxCloseModal()">${hx('إلغاء', 'Cancel')}</button><button id="fxModalOk" style="background:${okColor || '#06b6d4'};color:#fff">${okLabel}</button></div>` : ''}
+  </div>`;
+  (document.getElementById('pane-focus') || document.body).appendChild(el);
+  if (okLabel) document.getElementById('fxModalOk').onclick = async () => { if ((await onOk()) !== false) fxCloseModal(); };
+  setTimeout(() => el.querySelector('input,textarea')?.focus(), 30);
 }
+function fxCloseModal(){ document.getElementById('fxModal')?.remove(); }
 
-function onDragLeave(e) {
-  e.currentTarget.classList.remove('drag-active')
-}
-
-function onDrop(e, col) {
-  e.preventDefault()
-  FM_ROOT.querySelectorAll('.col-tasks').forEach(c => c.classList.remove('drag-active'))
-  if (!dragId) return
-  const task = tasks.find(t => t.id === dragId)
-  if (task) { task.status = col; saveTasks(); renderTasks() }
-}
-
-renderTasks()
-
-// ── Tabs ──
-function switchTab(id, btn) {
-  FM_ROOT.querySelectorAll('.tab').forEach(t => t.classList.remove('on'))
-  FM_ROOT.querySelectorAll('.tab-content').forEach(t => t.classList.remove('on'))
-  btn.classList.add('on')
-  document.getElementById(`fm-tab-${id}`).classList.add('on')
-}
-
-// ── Misc ──
-function toggleFullscreen() {
-  if (!document.fullscreenElement) {
-    FM_ROOT.requestFullscreen().catch(() => {})
-  } else {
-    document.exitFullscreen()
-  }
-}
-
-document.addEventListener('fullscreenchange', () => {
-  document.getElementById('fm-fullscreen-btn').classList.toggle('on', !!document.fullscreenElement)
-})
-
-function toast(msg, type = 'ok') {
-  if (typeof window.toast === 'function') window.toast(msg, type === 'ok' ? 'success' : type)
-}
-
-function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-}
-
-// keyboard shortcuts
-document.addEventListener('keydown', e => {
-  if (FM_ROOT.style.display !== 'block') return // shortcuts only while Focus mode is open
-  if (['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'].includes(e.target.tagName) || e.target.isContentEditable) return
-  if (e.key === ' ') { e.preventDefault(); toggleTimer() }
-  if (e.key === 'r' || e.key === 'R') resetTimer()
-})
-
-    return { addTask, calcPress, clearNotes, clearSessions, deleteTask, doSearch, exportNotes, fmt, onDragEnd, onDragLeave, onDragOver, onDragStart, onDrop, resetTimer, saveNotes, selectEngine, setMode, skipSession, switchTab, toggleCalc, toggleFullscreen, toggleShift, toggleTimer }
-  } catch (e) {
-    console.error('Focus mode init failed', e)
-    return {}
-  }
+/* ── Pomodoro ── */
+const FX_MODES = { work: { color: '#06b6d4', light: '#38bdf8' }, short: { color: '#10b981', light: '#34d399' }, long: { color: '#8b5cf6', light: '#a78bfa' } };
+const FXP = (() => {
+  let cfg = { work: 25, short: 5, long: 15, every: 4, autoBreak: true, autoWork: false };
+  try { cfg = Object.assign(cfg, JSON.parse(localStorage.getItem('pk-focus-pomo') || '{}')); } catch (e) {}
+  let s = { d: '', n: 0 };
+  try { s = JSON.parse(localStorage.getItem('pk-focus-sessions-today') || '{"d":"","n":0}'); } catch (e) {}
+  return { cfg, mode: 'work', secs: cfg.work * 60, running: false, iv: null, sessions: s.d === new Date().toDateString() ? s.n : 0 };
 })();
+const fxModeLabel = m => (m === 'work' ? hx('تركيز', 'Focus') : m === 'short' ? hx('استراحة قصيرة', 'Short break') : hx('استراحة طويلة', 'Long break'));
+
+function fxRenderPomo(){
+  const box = document.getElementById('fxP_pomodoro');
+  if (!box) return;
+  const c = FX_MODES[FXP.mode];
+  const r = 68, circ = 2 * Math.PI * r;
+  const ticks = Array.from({ length: 60 }, (_, i) => {
+    const a = i / 60 * Math.PI * 2 - Math.PI / 2, major = i % 5 === 0, inner = r + 4, outer = r + (major ? 11 : 7);
+    return `<line x1="${84 + inner * Math.cos(a)}" y1="${84 + inner * Math.sin(a)}" x2="${84 + outer * Math.cos(a)}" y2="${84 + outer * Math.sin(a)}" stroke-width="${major ? 2 : 1}" stroke-linecap="round" stroke="${c.color}${major ? '99' : '44'}"/>`;
+  }).join('');
+  const every = Math.max(1, FXP.cfg.every);
+  box.innerHTML = `<div class="fx-pomo" style="--pc:${c.color};--pc-l:${c.light};--pc-b:${c.color}33;--pc-s:${c.color}22;--pc-t:${c.color}1f">
+    <div class="fx-ring"><div class="glow"></div>
+      <svg width="168" height="168" viewBox="0 0 168 168">
+        <circle cx="84" cy="84" r="${r}" fill="none" stroke-width="8" stroke="${c.color}1f"/>${ticks}
+        <circle id="fxPRing" cx="84" cy="84" r="${r}" fill="none" stroke-width="8" stroke="${c.color}" stroke-dasharray="${circ}" stroke-linecap="round" transform="rotate(-90 84 84)" style="transition:stroke-dashoffset 1s linear;filter:drop-shadow(0 0 6px ${c.color}88)"/>
+        <circle id="fxPDot" r="5" fill="${c.color}" style="filter:drop-shadow(0 0 8px ${c.color})"/>
+      </svg>
+      <div class="c"><span class="t" id="fxPTime"></span><span class="m">${fxModeLabel(FXP.mode)}</span></div>
+    </div>
+    <div class="fx-pr">
+      <div class="fx-modes">${['work', 'short', 'long'].map(m => `<button class="${FXP.mode === m ? 'on' : ''}" onclick="fxPomoMode('${m}')">${m === 'work' ? hx('تركيز', 'Focus') : m === 'short' ? hx('قصيرة', 'Short') : hx('طويلة', 'Long')}</button>`).join('')}</div>
+      <div class="fx-ctrls">
+        <button class="fx-sq" onclick="fxPomoReset()" title="${hx('إعادة', 'Reset')}">${FX_IC.reset}</button>
+        <button class="fx-play" id="fxPPlay" onclick="fxPomoToggle()">${FXP.running ? FX_IC.pause : FX_IC.play}</button>
+        <button class="fx-sq" onclick="fxPomoSettings()" title="${hx('إعدادات المؤقت', 'Timer settings')}">${FX_IC.gear}</button>
+      </div>
+      <div class="fx-dots">${Array.from({ length: every }, (_, i) => `<i class="${i < FXP.sessions % every ? 'on' : ''}"></i>`).join('')}
+        <span>${hx(`${FXP.sessions} جلسة النهارده`, `${FXP.sessions} session${FXP.sessions === 1 ? '' : 's'} today`)}</span></div>
+    </div>
+  </div>`;
+  fxPomoPaint();
+}
+function fxPomoPaint(){
+  const t = document.getElementById('fxPTime');
+  if (!t) return;
+  t.textContent = `${fxPad(Math.floor(FXP.secs / 60))}:${fxPad(FXP.secs % 60)}`;
+  const total = FXP.cfg[FXP.mode] * 60, p = Math.min(1, Math.max(0, (total - FXP.secs) / total));
+  const r = 68, circ = 2 * Math.PI * r;
+  document.getElementById('fxPRing')?.setAttribute('stroke-dashoffset', String(circ * (1 - p)));
+  const dot = document.getElementById('fxPDot');
+  if (dot) {
+    const a = p * Math.PI * 2 - Math.PI / 2;
+    dot.setAttribute('cx', 84 + r * Math.cos(a)); dot.setAttribute('cy', 84 + r * Math.sin(a));
+    dot.style.display = p > 0.01 ? '' : 'none';
+  }
+}
+function fxPomoMode(m, autostart){
+  clearInterval(FXP.iv); FXP.mode = m; FXP.secs = FXP.cfg[m] * 60; FXP.running = false;
+  if (autostart) fxPomoStart();
+  fxRenderPomo();
+}
+function fxPomoToggle(){ if (FXP.running) { clearInterval(FXP.iv); FXP.running = false; fxRenderPomo(); } else { fxPomoStart(); fxRenderPomo(); } }
+function fxPomoStart(){
+  clearInterval(FXP.iv);
+  FXP.running = true;
+  FXP.iv = setInterval(() => {
+    FXP.secs -= 1;
+    if (FXP.secs <= 0) { clearInterval(FXP.iv); FXP.running = false; fxPomoDone(); return; }
+    fxPomoPaint();
+  }, 1000);
+}
+function fxPomoReset(){ clearInterval(FXP.iv); FXP.running = false; FXP.secs = FXP.cfg[FXP.mode] * 60; fxRenderPomo(); }
+function fxPomoDone(){
+  fxChime();
+  if (FXP.mode === 'work') {
+    FXP.sessions += 1;
+    localStorage.setItem('pk-focus-sessions-today', JSON.stringify({ d: new Date().toDateString(), n: FXP.sessions }));
+    const next = FXP.sessions % Math.max(1, FXP.cfg.every) === 0 ? 'long' : 'short';
+    toast(hx('خلصت جلسة تركيز 🎯', 'Focus session complete 🎯'), 'success');
+    fxPomoMode(next, FXP.cfg.autoBreak);
+  } else {
+    toast(hx('خلصت الاستراحة ⏰', 'Break is over ⏰'), 'info');
+    fxPomoMode('work', FXP.cfg.autoWork);
+  }
+}
+function fxPomoSettings(){
+  const c = FXP.cfg;
+  const num = (k, l, max) => `<div><label class="fx-lbl">${l}</label><input class="fx-in" type="number" min="1" max="${max}" id="fxCfg_${k}" value="${c[k]}"></div>`;
+  fxModal(hx('إعدادات المؤقت', 'Timer settings'), `
+    <div class="fx-2">${num('work', hx('تركيز (دقيقة)', 'Focus (min)'), 120)}${num('short', hx('استراحة قصيرة', 'Short break (min)'), 60)}
+      ${num('long', hx('استراحة طويلة', 'Long break (min)'), 90)}${num('every', hx('جلسات قبل الطويلة', 'Sessions → long'), 10)}</div>
+    <div class="fx-swrow">${hx('بدء الاستراحة تلقائياً', 'Auto-start breaks')}<button class="fx-sw${c.autoBreak ? ' on' : ''}" id="fxCfg_autoBreak" onclick="this.classList.toggle('on')"></button></div>
+    <div class="fx-swrow">${hx('بدء التركيز تلقائياً', 'Auto-start focus')}<button class="fx-sw${c.autoWork ? ' on' : ''}" id="fxCfg_autoWork" onclick="this.classList.toggle('on')"></button></div>`,
+    hx('تطبيق', 'Apply'), () => {
+      const v = (k, max) => Math.min(max, Math.max(1, parseInt(document.getElementById('fxCfg_' + k).value, 10) || 1));
+      FXP.cfg = { work: v('work', 120), short: v('short', 60), long: v('long', 90), every: v('every', 10),
+        autoBreak: document.getElementById('fxCfg_autoBreak').classList.contains('on'),
+        autoWork: document.getElementById('fxCfg_autoWork').classList.contains('on') };
+      localStorage.setItem('pk-focus-pomo', JSON.stringify(FXP.cfg));
+      fxPomoMode(FXP.mode);
+    });
+}
+let fxAudio = null;
+function fxChime(){
+  try {
+    fxAudio = fxAudio || new (window.AudioContext || window.webkitAudioContext)();
+    const t0 = fxAudio.currentTime;
+    [523.25, 659.25, 783.99].forEach((f, i) => {
+      const o = fxAudio.createOscillator(), g = fxAudio.createGain();
+      o.connect(g); g.connect(fxAudio.destination); o.type = 'sine'; o.frequency.value = f;
+      const s = t0 + i * 0.18;
+      g.gain.setValueAtTime(0, s); g.gain.linearRampToValueAtTime(0.28, s + 0.04); g.gain.exponentialRampToValueAtTime(0.001, s + 0.9);
+      o.start(s); o.stop(s + 0.9);
+    });
+  } catch (e) {}
+}
+
+/* ── Bookmarks ── */
+const fxFav = url => { try { return `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=64`; } catch (e) { return ''; } };
+const fxNormUrl = raw => { const s = raw.trim(); if (!s) return ''; const u = /^https?:\/\//i.test(s) ? s : 'https://' + s; try { new URL(u); return u; } catch (e) { return ''; } };
+function fxRenderBm(){
+  const box = document.getElementById('fxP_bookmarks');
+  if (!box) return;
+  const folder = FX.bm.find(b => b.id === FX.bmFolder);
+  const list = folder ? FX.bm.filter(b => b.folder_id === folder.id && b.type === 'bookmark') : FX.bm.filter(b => !b.folder_id);
+  const tile = b => {
+    const kids = FX.bm.filter(x => x.folder_id === b.id).slice(0, 4);
+    const icon = b.type === 'folder'
+      ? (kids.length ? `<div class="mini">${kids.map(k => `<img src="${fxE(fxFav(k.url))}" alt="" onerror="this.style.visibility='hidden'">`).join('')}</div>` : FX_IC.folder)
+      : `<img src="${fxE(fxFav(b.url))}" alt="" onerror="this.style.visibility='hidden'">`;
+    const mine = b.created_by === FX.uid;
+    return `<div class="fx-tile" onclick="fxBmOpen('${b.id}')" title="${fxE(b.url || b.name)}">
+      <div class="fx-ticon">${icon}</div><span>${fxE(b.name)}</span>
+      ${mine ? `<div class="fx-tact"><button onclick="event.stopPropagation();fxBmEdit('${b.id}')">✎</button><button onclick="event.stopPropagation();fxBmDelete('${b.id}')">🗑</button></div>` : ''}
+    </div>`;
+  };
+  box.innerHTML = `<div class="fx-card">
+    <div class="fx-chead"><div class="l">
+      ${folder ? `<button class="fx-back" onclick="fxBmBack()">${currentLang === 'ar' ? '→' : '←'}</button>` : ''}
+      <span class="fx-cic" style="background:#06b6d414">${FX_IC.bookmark}</span>
+      <b>${folder ? `<span style="color:var(--fx-sub);font-weight:600">${hx('المفضلة', 'Bookmarks')} /</span> ${fxE(folder.name)}` : hx('المفضلة', 'Bookmarks')}</b></div>
+      <div class="l"><button class="fx-btn ghost" onclick="fxBmFolderModal()">📁 ${hx('مجلد', 'Folder')}</button>
+        <button class="fx-btn" style="background:var(--fx-cyan)" onclick="fxBmAddModal()">＋ ${hx('إضافة', 'Add')}</button></div>
+    </div>
+    ${list.length ? `<div class="fx-bm">${list.map(tile).join('')}</div>` : `<div class="fx-empty">🔖<br>${folder ? hx('المجلد فاضي', 'Empty folder') : hx('مفيش مفضلة لسه', 'No bookmarks yet')}</div>`}
+  </div>`;
+}
+function fxBmOpen(id){
+  const b = FX.bm.find(x => x.id === id);
+  if (!b) return;
+  if (b.type === 'folder') { FX.bmFolder = id; fxRenderBm(); return; }
+  if (/^https?:\/\//i.test(b.url || '')) window.open(b.url, '_blank', 'noopener');
+}
+function fxBmBack(){ FX.bmFolder = null; fxRenderBm(); }
+function fxBmAddModal(){
+  const folders = FX.bm.filter(b => b.type === 'folder');
+  fxModal(hx('إضافة مفضلة', 'Add bookmark'), `
+    <div><label class="fx-lbl">${hx('الرابط', 'URL')}</label><input class="fx-in" id="fxBmUrl" dir="ltr" placeholder="google.com"></div>
+    <div><label class="fx-lbl">${hx('الاسم (اختياري)', 'Name (optional)')}</label><input class="fx-in" id="fxBmName" placeholder="Google"></div>
+    ${folders.length ? `<div><label class="fx-lbl">${hx('المجلد', 'Folder')}</label><select class="fx-in" id="fxBmFolder"><option value="">${hx('بدون مجلد', 'No folder')}</option>
+      ${folders.map(f => `<option value="${f.id}" ${f.id === FX.bmFolder ? 'selected' : ''}>${fxE(f.name)}</option>`).join('')}</select></div>` : ''}`,
+    hx('إضافة', 'Add'), async () => {
+      const url = fxNormUrl(document.getElementById('fxBmUrl').value);
+      if (!url) { toast(hx('الرابط مش صحيح', 'That URL is not valid'), 'error'); return false; }
+      let name = document.getElementById('fxBmName').value.trim();
+      if (!name) { try { name = new URL(url).hostname.replace(/^www\./, ''); } catch (e) { name = url; } }
+      const folderId = document.getElementById('fxBmFolder')?.value || null;
+      const { data, error } = await supabaseClient.from('focus_bookmarks').insert(fxNew({ type: 'bookmark', name: name.slice(0, 120), url, folder_id: folderId })).select().single();
+      if (error) { toast(hx('تعذر الحفظ', 'Could not save'), 'error'); return false; }
+      FX.bm.push(data); fxRenderBm();
+    });
+}
+function fxBmFolderModal(){
+  fxModal(hx('مجلد جديد', 'New folder'), `<input class="fx-in" id="fxBmFolderName" placeholder="${hx('أبحاث', 'Research')}" onkeydown="if(event.key==='Enter')document.getElementById('fxModalOk').click()">`,
+    hx('إنشاء', 'Create'), async () => {
+      const name = document.getElementById('fxBmFolderName').value.trim();
+      if (!name) return false;
+      const { data, error } = await supabaseClient.from('focus_bookmarks').insert(fxNew({ type: 'folder', name: name.slice(0, 120) })).select().single();
+      if (error) { toast(hx('تعذر الحفظ', 'Could not save'), 'error'); return false; }
+      FX.bm.push(data); fxRenderBm();
+    });
+}
+function fxBmEdit(id){
+  const b = FX.bm.find(x => x.id === id);
+  if (!b) return;
+  fxModal(b.type === 'folder' ? hx('تعديل المجلد', 'Edit folder') : hx('تعديل المفضلة', 'Edit bookmark'), `
+    <div><label class="fx-lbl">${hx('الاسم', 'Name')}</label><input class="fx-in" id="fxBmEName" value="${fxE(b.name)}"></div>
+    ${b.type === 'bookmark' ? `<div><label class="fx-lbl">${hx('الرابط', 'URL')}</label><input class="fx-in" id="fxBmEUrl" dir="ltr" value="${fxE(b.url)}"></div>` : ''}`,
+    hx('حفظ', 'Save'), async () => {
+      const patch = { name: document.getElementById('fxBmEName').value.trim().slice(0, 120) };
+      if (!patch.name) return false;
+      if (b.type === 'bookmark') { patch.url = fxNormUrl(document.getElementById('fxBmEUrl').value); if (!patch.url) { toast(hx('الرابط مش صحيح', 'That URL is not valid'), 'error'); return false; } }
+      const { error } = await supabaseClient.from('focus_bookmarks').update(patch).eq('id', id);
+      if (error) { toast(hx('تعذر الحفظ', 'Could not save'), 'error'); return false; }
+      Object.assign(b, patch); fxRenderBm();
+    });
+}
+async function fxBmDelete(id){
+  const b = FX.bm.find(x => x.id === id);
+  if (!b || !confirm(b.type === 'folder' ? hx('هيتمسح المجلد واللي جواه. متأكد؟', 'Delete this folder and everything in it?') : hx('تمسح المفضلة دي؟', 'Delete this bookmark?'))) return;
+  const { error } = await supabaseClient.from('focus_bookmarks').delete().eq('id', id);
+  if (error) { toast(hx('تعذر المسح', 'Could not delete'), 'error'); return; }
+  FX.bm = FX.bm.filter(x => x.id !== id && x.folder_id !== id);
+  if (FX.bmFolder === id) FX.bmFolder = null;
+  fxRenderBm();
+}
+
+/* ── Notes ── */
+function fxRenderNotes(){
+  const box = document.getElementById('fxP_notes');
+  if (!box) return;
+  const note = FX.notes.find(n => n.id === FX.noteId);
+  if (!note) {
+    FX.noteId = null;
+    box.innerHTML = `<div class="fx-card" style="min-height:480px">
+      <div class="fx-chead"><div class="l"><span class="fx-cic" style="background:#d994011a">${FX_IC.book}</span><b>${hx('الملاحظات', 'Notes')}</b><small>${FX.notes.length}</small></div>
+        <button class="fx-btn" style="background:var(--fx-amber)" onclick="fxNoteNew()">＋ ${hx('جديدة', 'New')}</button></div>
+      ${FX.notes.length ? `<div class="fx-list">${FX.notes.map(n => `<div class="fx-note" onclick="fxNoteOpen('${n.id}')">
+          <b>${fxE(n.title || hx('بدون عنوان', 'Untitled'))}</b>
+          <span>${fxE(fxText(n.content).slice(0, 80) || hx('مفيش محتوى', 'No content'))}</span>
+          <small>${new Date(n.updated_at).toLocaleString(fxLoc(), { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</small>
+          ${n.created_by === FX.uid ? `<button class="fx-mini del" onclick="event.stopPropagation();fxNoteDelete('${n.id}')">🗑</button>` : ''}
+        </div>`).join('')}</div>`
+        : `<div class="fx-empty">📄<br>${hx('مفيش ملاحظات لسه', 'No notes yet.')}</div>`}
+    </div>`;
+    return;
+  }
+  const sizes = [12, 14, 16, 18, 20, 24, 28, 32];
+  box.innerHTML = `<div class="fx-card" style="min-height:480px">
+    <div class="fx-chead"><div class="l"><button class="fx-back" onclick="fxNoteBack()">${currentLang === 'ar' ? '→' : '←'}</button>
+      <span class="fx-cic" style="background:#d994011a">${FX_IC.book}</span><b>${hx('الملاحظات', 'Notes')}</b><span class="fx-saved" id="fxNoteState"></span></div>
+      <button class="fx-btn" style="background:var(--fx-amber)" onclick="fxNoteNew()">＋ ${hx('جديدة', 'New')}</button></div>
+    <div class="fx-tool">
+      <button onmousedown="event.preventDefault();fxCmd('bold')"><b>B</b></button><button onmousedown="event.preventDefault();fxCmd('italic')"><i>I</i></button><button onmousedown="event.preventDefault();fxCmd('underline')"><u>U</u></button><span class="sp"></span>
+      <button onmousedown="event.preventDefault();fxCmd('justifyLeft')">⇤</button><button onmousedown="event.preventDefault();fxCmd('justifyCenter')">≡</button><button onmousedown="event.preventDefault();fxCmd('justifyRight')">⇥</button><span class="sp"></span>
+      <button onmousedown="event.preventDefault();fxCmd('insertUnorderedList')">•</button><button onmousedown="event.preventDefault();fxCmd('insertOrderedList')">1.</button><span class="sp"></span>
+      <select onchange="fxFontSize(this.value)">${sizes.map(s => `<option value="${s}px" ${s === 16 ? 'selected' : ''}>${s}</option>`).join('')}</select><span class="sp"></span>
+      <label title="${hx('لون الخط', 'Text color')}">🎨<input type="color" value="#000000" onchange="fxCmd('foreColor', this.value)"></label>
+      <label title="${hx('تظليل', 'Highlight')}">🖍<input type="color" value="#fef08a" onchange="fxCmd('backColor', this.value)"></label>
+    </div>
+    <input class="fx-ntitle" id="fxNoteTitle" value="${fxE(note.title)}" placeholder="${hx('عنوان الملاحظة…', 'Note title…')}" oninput="fxNoteSave()">
+    <div class="fx-editor" id="fxNoteBody" contenteditable="true" oninput="fxNoteSave()"></div>
+  </div>`;
+  document.getElementById('fxNoteBody').innerHTML = fxSanitize(note.content);
+}
+async function fxNoteNew(){
+  const { data, error } = await supabaseClient.from('focus_notes').insert(fxNew({ title: hx('ملاحظة بدون عنوان', 'Untitled Note'), content: '' })).select().single();
+  if (error) { toast(hx('تعذر إنشاء الملاحظة', 'Could not create the note'), 'error'); return; }
+  FX.notes.unshift(data); FX.noteId = data.id; fxRenderNotes();
+}
+function fxNoteOpen(id){ FX.noteId = id; fxRenderNotes(); }
+function fxNoteBack(){ fxNoteFlush(); FX.noteId = null; fxRenderNotes(); }
+function fxCmd(c, v){ document.getElementById('fxNoteBody')?.focus(); document.execCommand(c, false, v); fxNoteSave(); }
+function fxFontSize(size){
+  const ed = document.getElementById('fxNoteBody');
+  if (!ed) return;
+  ed.focus(); document.execCommand('fontSize', false, '7');
+  ed.querySelectorAll('font[size="7"]').forEach(f => { const s = document.createElement('span'); s.style.fontSize = size; while (f.firstChild) s.appendChild(f.firstChild); f.replaceWith(s); });
+  fxNoteSave();
+}
+function fxNoteSave(){
+  clearTimeout(FX.noteTimer);
+  const st = document.getElementById('fxNoteState');
+  if (st) { st.style.color = 'var(--fx-sub)'; st.textContent = hx('بيتحفظ…', 'Saving…'); }
+  FX.noteTimer = setTimeout(fxNoteFlush, 700);
+}
+async function fxNoteFlush(){
+  clearTimeout(FX.noteTimer);
+  const note = FX.notes.find(n => n.id === FX.noteId);
+  const t = document.getElementById('fxNoteTitle'), b = document.getElementById('fxNoteBody');
+  if (!note || !t || !b) return;
+  const patch = { title: t.value.slice(0, 300), content: fxSanitize(b.innerHTML).slice(0, 200000), updated_at: new Date().toISOString() };
+  if (patch.title === note.title && patch.content === note.content) return;
+  const { error } = await supabaseClient.from('focus_notes').update(patch).eq('id', note.id);
+  const st = document.getElementById('fxNoteState');
+  if (error) { if (st) { st.style.color = '#ef4444'; st.textContent = hx('فشل الحفظ', 'Save failed'); } return; }
+  Object.assign(note, patch);
+  if (st) { st.style.color = ''; st.textContent = hx('اتحفظ ✓', 'Saved ✓'); setTimeout(() => { if (st.isConnected) st.textContent = ''; }, 2000); }
+}
+async function fxNoteDelete(id){
+  if (!confirm(hx('تمسح الملاحظة دي؟', 'Delete this note?'))) return;
+  const { error } = await supabaseClient.from('focus_notes').delete().eq('id', id);
+  if (error) { toast(hx('تعذر المسح', 'Could not delete'), 'error'); return; }
+  FX.notes = FX.notes.filter(n => n.id !== id);
+  if (FX.noteId === id) FX.noteId = null;
+  fxRenderNotes();
+}
+
+/* ── Tasks ── */
+const fxPriLabel = p => (p === 'low' ? hx('منخفضة', 'Low') : p === 'medium' ? hx('متوسطة', 'Med') : hx('عالية', 'High'));
+function fxTaskFields(t){
+  t = t || { title: '', deadline: '', priority: 'medium', remind_at: null, description: '' };
+  return `<input class="fx-in" id="fxTkTitle" value="${fxE(t.title)}" placeholder="${hx('عنوان المهمة…', 'Task title…')}">
+    <div class="fx-2"><div><label class="fx-lbl">${hx('الموعد النهائي', 'Deadline')}</label><input class="fx-in" type="date" id="fxTkDl" value="${fxE(t.deadline || '')}"></div>
+      <div><label class="fx-lbl">${hx('الأولوية', 'Priority')}</label><select class="fx-in" id="fxTkPri">${['low', 'medium', 'high'].map(p => `<option value="${p}" ${t.priority === p ? 'selected' : ''}>${p === 'low' ? hx('منخفضة', 'Low') : p === 'medium' ? hx('متوسطة', 'Medium') : hx('عالية', 'High')}</option>`).join('')}</select></div></div>
+    <div><label class="fx-lbl">⏰ ${hx('تذكير (بتوقيتك)', 'Reminder (your local time)')}</label><input class="fx-in" type="datetime-local" id="fxTkRm" value="${fxLocalInput(t.remind_at)}"></div>
+    <div><label class="fx-lbl">${hx('التفاصيل', 'Details')}</label><textarea class="fx-in" id="fxTkDesc" rows="2" placeholder="${hx('ملاحظات اختيارية…', 'Optional notes…')}">${fxE(t.description || '')}</textarea></div>`;
+}
+function fxTaskRead(){
+  return {
+    title: document.getElementById('fxTkTitle').value.trim().slice(0, 300),
+    deadline: document.getElementById('fxTkDl').value || null,
+    priority: document.getElementById('fxTkPri').value,
+    remind_at: fxToIso(document.getElementById('fxTkRm').value),
+    description: document.getElementById('fxTkDesc').value.trim().slice(0, 5000) || null,
+  };
+}
+function fxRenderTasks(){
+  const box = document.getElementById('fxP_tasks');
+  if (!box) return;
+  const today = fxYmd(new Date());
+  const active = FX.tasks.filter(t => !t.done).length;
+  const vis = FX.tasks.filter(t => FX.taskFilter === 'all' ? true : FX.taskFilter === 'active' ? !t.done : t.done);
+  const counts = { all: FX.tasks.length, active, completed: FX.tasks.length - active };
+  box.innerHTML = `<div class="fx-card" style="min-height:480px">
+    <div class="fx-chead"><div class="l"><span class="fx-cic" style="background:#8b5cf61a">${FX_IC.check}</span><b>${hx('المهام', 'Tasks')}</b><small>${active} ${hx('نشطة', 'active')}</small></div>
+      <button class="fx-btn" style="background:var(--fx-violet)" onclick="FX.taskForm=!FX.taskForm;fxRenderTasks()">＋ ${hx('إضافة', 'Add')}</button></div>
+    ${FX.taskForm ? `<div class="fx-tform">${fxTaskFields()}<div style="display:flex;gap:8px;"><button class="fx-btn" style="background:var(--fx-violet);flex:1;justify-content:center" onclick="fxTaskAdd()">${hx('إضافة المهمة', 'Add task')}</button><button class="fx-btn ghost" onclick="FX.taskForm=false;fxRenderTasks()">${hx('إلغاء', 'Cancel')}</button></div></div>` : ''}
+    <div class="fx-filters">${['all', 'active', 'completed'].map(f => `<button class="${FX.taskFilter === f ? 'on' : ''}" onclick="FX.taskFilter='${f}';fxRenderTasks()">${f === 'all' ? hx('الكل', 'All') : f === 'active' ? hx('نشطة', 'Active') : hx('مكتملة', 'Completed')}<em>${counts[f]}</em></button>`).join('')}</div>
+    <div class="fx-list">${vis.length ? vis.map(t => {
+      const over = !t.done && t.deadline && t.deadline < today;
+      return `<div class="fx-task${t.done ? ' done' : ''}">
+        <button class="fx-chk" onclick="fxTaskToggle('${t.id}')">${t.done ? '✓' : ''}</button>
+        <div style="flex:1;min-width:0"><div class="tt">${fxE(t.title)}</div>
+          <div class="fx-meta"><span class="fx-pri" style="background:${FX_PRI[t.priority]}22;color:${FX_PRI[t.priority]}">${fxPriLabel(t.priority)}</span>
+            ${t.deadline ? `<span class="fx-dl${over ? ' over' : ''}">📅 ${new Date(t.deadline + 'T00:00').toLocaleDateString(fxLoc(), { month: 'short', day: 'numeric' })}${over ? ' · ' + hx('متأخرة', 'Overdue') : ''}</span>` : ''}
+            ${t.remind_at ? `<span class="fx-rm">⏰ ${new Date(t.remind_at).toLocaleString(fxLoc(), { hour: 'numeric', minute: '2-digit' })}</span>` : ''}</div>
+          ${t.description ? `<div class="fx-desc">${fxE(t.description)}</div>` : ''}</div>
+        ${t.created_by === FX.uid ? `<div class="fx-hact"><button class="fx-mini" onclick="fxTaskEdit('${t.id}')">✎</button><button class="fx-mini" onclick="fxTaskDelete('${t.id}')">🗑</button></div>` : ''}
+      </div>`;
+    }).join('') : `<div class="fx-empty">✓<br>${FX.taskFilter === 'completed' ? hx('مفيش مهام مكتملة لسه', 'No completed tasks yet') : hx('مفيش مهام', 'No tasks')}</div>`}</div>
+  </div>`;
+  if (FX.taskForm) setTimeout(() => document.getElementById('fxTkTitle')?.focus(), 20);
+}
+async function fxTaskAdd(){
+  const row = fxTaskRead();
+  if (!row.title) return;
+  const { data, error } = await supabaseClient.from('focus_tasks').insert(fxNew(row)).select().single();
+  if (error) { toast(hx('تعذر الحفظ', 'Could not save'), 'error'); return; }
+  FX.tasks.unshift(data); FX.taskForm = false; fxRenderTasks();
+}
+async function fxTaskToggle(id){
+  const t = FX.tasks.find(x => x.id === id);
+  if (!t) return;
+  t.done = !t.done; fxRenderTasks();
+  const { error } = await supabaseClient.from('focus_tasks').update({ done: t.done }).eq('id', id);
+  if (error) { t.done = !t.done; fxRenderTasks(); toast(hx('تعذر الحفظ', 'Could not save'), 'error'); }
+}
+function fxTaskEdit(id){
+  const t = FX.tasks.find(x => x.id === id);
+  if (!t) return;
+  fxModal(hx('تعديل المهمة', 'Edit task'), fxTaskFields(t), hx('حفظ', 'Save'), async () => {
+    const patch = fxTaskRead();
+    if (!patch.title) return false;
+    const { error } = await supabaseClient.from('focus_tasks').update(patch).eq('id', id);
+    if (error) { toast(hx('تعذر الحفظ', 'Could not save'), 'error'); return false; }
+    Object.assign(t, patch); fxRenderTasks();
+  }, '#8b5cf6');
+}
+async function fxTaskDelete(id){
+  if (!confirm(hx('تمسح المهمة دي؟', 'Delete this task?'))) return;
+  const { error } = await supabaseClient.from('focus_tasks').delete().eq('id', id);
+  if (error) { toast(hx('تعذر المسح', 'Could not delete'), 'error'); return; }
+  FX.tasks = FX.tasks.filter(t => t.id !== id); fxRenderTasks();
+}
+
+/* ── Calendar ── */
+function fxEventsOn(day){
+  return FX.events.filter(e => {
+    const s = new Date(e.start_at);
+    if (s.toDateString() === day.toDateString()) return true;
+    if (!e.recurrence || e.recurrence === 'none' || day < new Date(s.getFullYear(), s.getMonth(), s.getDate())) return false;
+    if (e.recurrence === 'weekly') return s.getDay() === day.getDay();
+    if (e.recurrence === 'monthly') return s.getDate() === day.getDate();
+    if (e.recurrence === 'yearly') return s.getDate() === day.getDate() && s.getMonth() === day.getMonth();
+    return false;
+  });
+}
+function fxRenderCal(){
+  const box = document.getElementById('fxP_calendar');
+  if (!box) return;
+  const now = new Date();
+  if (!FX.calCur) FX.calCur = new Date(now.getFullYear(), now.getMonth(), 1);
+  const y = FX.calCur.getFullYear(), m = FX.calCur.getMonth();
+  const days = new Date(y, m + 1, 0).getDate(), first = new Date(y, m, 1).getDay();
+  const total = Math.ceil((first + days) / 7) * 7;
+  const dows = currentLang === 'ar' ? ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const sel = FX.calSel ? new Date(FX.calSel) : null;
+  const cells = Array.from({ length: total }, (_, i) => {
+    const dn = i - first + 1;
+    if (dn < 1 || dn > days) return '<div class="fx-day blank"></div>';
+    const d = new Date(y, m, dn), evs = fxEventsOn(d);
+    const isToday = d.toDateString() === now.toDateString(), isSel = sel && d.toDateString() === sel.toDateString();
+    return `<div class="fx-day${isToday ? ' today' : ''}${isSel ? ' sel' : ''}${evs.length ? ' has' : ''}" onclick="fxCalPick('${fxYmd(d)}')">
+      <div class="fx-dn">${dn}</div>
+      ${evs.slice(0, 2).map(e => `<button class="fx-ev" style="background:${e.color}22;border-color:${e.color};color:${e.color}" onclick="event.stopPropagation();fxEventModal('${e.id}')">${fxE(e.title)}</button>`).join('')}
+      ${evs.length > 2 ? `<div class="fx-more">+${evs.length - 2} ${hx('كمان', 'more')}</div>` : ''}</div>`;
+  }).join('');
+  const selEvs = sel ? fxEventsOn(sel) : [];
+  box.innerHTML = `<div class="fx-card">
+    <div class="fx-chead"><div class="l"><span class="fx-cic" style="background:#06b6d414">${FX_IC.cal}</span><b>${hx('التقويم', 'Calendar')}</b>
+      <small style="font-size:14px;font-weight:700">${FX.calCur.toLocaleDateString(fxLoc(), { month: 'long', year: 'numeric' })}</small></div>
+      <div class="l"><button class="fx-btn" style="background:var(--fx-cyan)" onclick="fxEventModal()">＋ ${hx('حدث', 'Event')}</button>
+        <button class="fx-back" onclick="fxCalMove(-1)">${currentLang === 'ar' ? '›' : '‹'}</button>
+        <button class="fx-btn ghost" onclick="FX.calCur=null;fxRenderCal()">${hx('النهارده', 'Today')}</button>
+        <button class="fx-back" onclick="fxCalMove(1)">${currentLang === 'ar' ? '‹' : '›'}</button></div></div>
+    <div class="fx-cal"><div class="fx-cal-main"><div class="fx-dow">${dows.map(d => `<div>${d}</div>`).join('')}</div><div class="fx-days">${cells}</div></div>
+      ${sel ? `<div class="fx-side"><div class="fx-side-h">${sel.toLocaleDateString(fxLoc(), { weekday: 'short', month: 'short', day: 'numeric' })}
+          <button class="fx-btn" style="background:var(--fx-cyan);padding:4px 9px" onclick="fxEventModal(null,'${fxYmd(sel)}')">＋</button></div>
+        <div class="fx-side-l">${selEvs.length ? selEvs.map(e => `<div class="fx-sev" style="background:${e.color}18;border-color:${e.color}">
+            <b>${fxE(e.title)}</b>${e.all_day ? `<small>${hx('طول اليوم', 'All day')}</small>` : `<small>${new Date(e.start_at).toLocaleTimeString(fxLoc(), { hour: 'numeric', minute: '2-digit' })}</small>`}
+            ${e.description ? `<small>${fxE(e.description)}</small>` : ''}
+            ${e.created_by === FX.uid ? `<div class="a"><button onclick="fxEventModal('${e.id}')">✎ ${hx('تعديل', 'Edit')}</button><button onclick="fxEventDelete('${e.id}')">🗑 ${hx('مسح', 'Delete')}</button></div>` : ''}
+          </div>`).join('') : `<div class="fx-empty" style="padding:16px">${hx('مفيش أحداث', 'No events')}</div>`}</div></div>` : ''}
+    </div></div>`;
+}
+function fxCalMove(d){ const c = FX.calCur || new Date(); FX.calCur = new Date(c.getFullYear(), c.getMonth() + d, 1); fxRenderCal(); }
+function fxCalPick(ymd){ FX.calSel = FX.calSel === ymd ? null : ymd; fxRenderCal(); }
+function fxEventModal(id, ymd){
+  const e = id ? FX.events.find(x => x.id === id) : null;
+  if (id && !e) return;
+  if (e && e.created_by !== FX.uid) return;
+  const s = e ? new Date(e.start_at) : null, en = e && e.end_at ? new Date(e.end_at) : null;
+  const st = { title: e?.title || '', date: s ? fxYmd(s) : (ymd || FX.calSel || fxYmd(new Date())), all: e ? e.all_day : false,
+    start: s ? `${fxPad(s.getHours())}:${fxPad(s.getMinutes())}` : '09:00', end: en ? `${fxPad(en.getHours())}:${fxPad(en.getMinutes())}` : '10:00',
+    color: e?.color || '#06b6d4', remind: fxLocalInput(e?.remind_at), rec: e?.recurrence || 'none', desc: e?.description || '' };
+  const recs = [['none', hx('بدون تكرار', 'No repeat')], ['weekly', hx('أسبوعياً', 'Weekly')], ['monthly', hx('شهرياً', 'Monthly')], ['yearly', hx('سنوياً', 'Yearly')]];
+  fxModal(e ? hx('تعديل الحدث', 'Edit event') : hx('إضافة حدث', 'Add event'), `
+    <div><label class="fx-lbl">${hx('العنوان', 'Title')}</label><input class="fx-in" id="fxEvTitle" value="${fxE(st.title)}" placeholder="${hx('عنوان الحدث', 'Event title')}"></div>
+    <div><label class="fx-lbl">${hx('التاريخ', 'Date')}</label><input class="fx-in" type="date" id="fxEvDate" value="${st.date}"></div>
+    <div class="fx-swrow">${hx('طول اليوم', 'All day')}<button class="fx-sw${st.all ? ' on' : ''}" id="fxEvAll" onclick="this.classList.toggle('on');document.getElementById('fxEvTimes').style.display=this.classList.contains('on')?'none':''"></button></div>
+    <div class="fx-2" id="fxEvTimes" style="${st.all ? 'display:none' : ''}"><div><label class="fx-lbl">${hx('البداية', 'Start')}</label><input class="fx-in" type="time" id="fxEvStart" value="${st.start}"></div>
+      <div><label class="fx-lbl">${hx('النهاية', 'End')}</label><input class="fx-in" type="time" id="fxEvEnd" value="${st.end}"></div></div>
+    <div><label class="fx-lbl">${hx('اللون', 'Color')}</label><div class="fx-colors" id="fxEvColors">${FX_EV_COLORS.map(c => `<button class="${c === st.color ? 'on' : ''}" data-c="${c}" style="background:${c}" onclick="document.querySelectorAll('#fxEvColors button').forEach(b=>b.classList.remove('on'));this.classList.add('on')"></button>`).join('')}</div></div>
+    <div><label class="fx-lbl">⏰ ${hx('تذكير (بتوقيتك)', 'Reminder (your local time)')}</label><input class="fx-in" type="datetime-local" id="fxEvRemind" value="${st.remind}"></div>
+    <div><label class="fx-lbl">↻ ${hx('التكرار', 'Recurrence')}</label><div class="fx-chips" id="fxEvRec">${recs.map(([k, l]) => `<button class="${k === st.rec ? 'on' : ''}" data-r="${k}" onclick="document.querySelectorAll('#fxEvRec button').forEach(b=>b.classList.remove('on'));this.classList.add('on')">${l}</button>`).join('')}</div></div>
+    <div><label class="fx-lbl">${hx('الوصف', 'Description')}</label><textarea class="fx-in" id="fxEvDesc" rows="2">${fxE(st.desc)}</textarea></div>`,
+    e ? hx('حفظ', 'Save') : hx('إضافة الحدث', 'Add event'), async () => {
+      const title = document.getElementById('fxEvTitle').value.trim().slice(0, 300);
+      const date = document.getElementById('fxEvDate').value;
+      if (!title || !date) return false;
+      const all = document.getElementById('fxEvAll').classList.contains('on');
+      const row = {
+        title, all_day: all,
+        start_at: fxToIso(`${date}T${all ? '00:00' : document.getElementById('fxEvStart').value || '09:00'}`),
+        end_at: all ? null : fxToIso(`${date}T${document.getElementById('fxEvEnd').value || '10:00'}`),
+        color: document.querySelector('#fxEvColors button.on')?.dataset.c || '#06b6d4',
+        remind_at: fxToIso(document.getElementById('fxEvRemind').value),
+        recurrence: document.querySelector('#fxEvRec button.on')?.dataset.r || 'none',
+        description: document.getElementById('fxEvDesc').value.trim().slice(0, 5000) || null,
+      };
+      const q = e ? supabaseClient.from('focus_events').update(row).eq('id', e.id).select().single()
+                  : supabaseClient.from('focus_events').insert(fxNew(row)).select().single();
+      const { data, error } = await q;
+      if (error) { toast(hx('تعذر الحفظ', 'Could not save'), 'error'); return false; }
+      if (e) Object.assign(e, data); else FX.events.push(data);
+      fxRenderCal();
+    }, '#06b6d4');
+}
+async function fxEventDelete(id){
+  if (!confirm(hx('تمسح الحدث ده؟', 'Delete this event?'))) return;
+  const { error } = await supabaseClient.from('focus_events').delete().eq('id', id);
+  if (error) { toast(hx('تعذر المسح', 'Could not delete'), 'error'); return; }
+  FX.events = FX.events.filter(e => e.id !== id); fxRenderCal();
+}
+
+/* ── Scientific calculator ── */
+let fxCalcExpr = '', fxCalcMem = 0, fxCalcShift = false;
+function fxCalc(){
+  fxModal(hx('الآلة الحاسبة العلمية', 'Scientific calculator'), '<div class="fx-calc" id="fxCalcBox"></div>');
+  const mod = document.querySelector('#fxModal .fx-mod'); if (mod) mod.style.maxWidth = '310px';
+  fxCalcRender();
+}
+function fxCalcRender(){
+  const box = document.getElementById('fxCalcBox');
+  if (!box) return;
+  const rows = [[['sin(', 'asin('], ['cos(', 'acos('], ['tan(', 'atan('], ['log(', 'ln('], ['√(', 'x²']], [['π'], ['e'], ['('], [')'], ['%']], [['MC'], ['MR'], ['M+'], ['⌫'], ['C']],
+    [['7'], ['8'], ['9'], ['÷']], [['4'], ['5'], ['6'], ['×']], [['1'], ['2'], ['3'], ['-']], [['0', null, 'w'], ['.'], ['+']], [['SHIFT', null, 'w'], ['=', null, 'w']]];
+  box.innerHTML = `<div class="fx-calc-d"><small>${fxE(fxCalcExpr) || '&nbsp;'}</small><b id="fxCalcOut">${fxE(fxCalcExpr || '0')}</b>${fxCalcShift ? '<small style="color:#8b5cf6">SHIFT</small>' : ''}</div>
+    <div style="display:flex;flex-direction:column;gap:4px;padding:8px 0 0">${rows.map(r => `<div class="row">${r.map(([k, alt, w]) => {
+      const label = fxCalcShift && alt ? alt : k;
+      const bg = k === '=' ? 'background:#06b6d4;color:#fff' : (k === 'C' || k === '⌫') ? 'background:#ef4444;color:#fff' : (k === 'SHIFT' && fxCalcShift) ? 'background:#8b5cf6;color:#fff' : '';
+      return `<button class="${w ? 'w' : ''}" style="${bg}" onclick="fxCalcPress('${label.replace(/'/g, '')}')">${label}</button>`;
+    }).join('')}</div>`).join('')}</div>`;
+}
+function fxCalcEval(e){
+  try {
+    const s = e.replace(/asin\(/g, 'Math.asin(').replace(/acos\(/g, 'Math.acos(').replace(/atan\(/g, 'Math.atan(')
+      .replace(/(^|[^a])sin\(/g, '$1Math.sin(').replace(/(^|[^a])cos\(/g, '$1Math.cos(').replace(/(^|[^a])tan\(/g, '$1Math.tan(')
+      .replace(/log\(/g, 'Math.log10(').replace(/ln\(/g, 'Math.log(').replace(/√\(/g, 'Math.sqrt(')
+      .replace(/π/g, 'Math.PI').replace(/(^|[^a-zA-Z.])e(?![a-zA-Z])/g, '$1Math.E').replace(/÷/g, '/').replace(/×/g, '*').replace(/%/g, '/100').replace(/\^/g, '**');
+    if (!/^[0-9+\-*/().\s]*$/.test(s.replace(/Math\.(sin|cos|tan|asin|acos|atan|log10|log|sqrt|PI|E)/g, ''))) return 'Error';
+    const r = Function('"use strict";return (' + s + ')')();
+    return Number.isFinite(r) ? String(Number(r.toPrecision(12))) : 'Error';
+  } catch (x) { return 'Error'; }
+}
+function fxCalcPress(k){
+  if (k === 'C') fxCalcExpr = '';
+  else if (k === '⌫') fxCalcExpr = fxCalcExpr.slice(0, -1);
+  else if (k === '=') { const r = fxCalcEval(fxCalcExpr); fxCalcExpr = r === 'Error' ? '' : r; fxCalcRender(); if (r === 'Error') document.getElementById('fxCalcOut').textContent = 'Error'; return; }
+  else if (k === 'M+') { const r = fxCalcEval(fxCalcExpr || '0'); if (r !== 'Error') fxCalcMem += Number(r); }
+  else if (k === 'MR') fxCalcExpr += String(fxCalcMem);
+  else if (k === 'MC') fxCalcMem = 0;
+  else if (k === 'SHIFT') fxCalcShift = !fxCalcShift;
+  else if (k === 'x²') fxCalcExpr = `(${fxCalcExpr || '0'})^2`;
+  else fxCalcExpr += k;
+  fxCalcRender();
+}
+
+/* ── Export / import (private data) ── */
+async function fxExport(){
+  const sel = t => supabaseClient.from(t).select('*').is('board_id', null);
+  const [bm, nt, tk, ev] = await Promise.all([sel('focus_bookmarks'), sel('focus_notes'), sel('focus_tasks'), sel('focus_events')]);
+  if (bm.error || nt.error || tk.error || ev.error) { toast(hx('تعذر التصدير', 'Export failed'), 'error'); return; }
+  const strip = r => { const { created_by, board_id, ...rest } = r; return rest; };
+  const payload = { app: 'focus-mode', version: 1, exported_at: new Date().toISOString(),
+    bookmarks: bm.data.map(strip), notes: nt.data.map(strip), tasks: tk.data.map(strip), calendar_events: ev.data.map(strip) };
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }));
+  a.download = `focus-mode-${fxYmd(new Date())}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+function fxImportPick(input){
+  const file = input.files?.[0];
+  input.value = '';
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { toast(hx('الملف كبير جداً', 'The file is too large'), 'error'); return; }
+  const rd = new FileReader();
+  rd.onload = () => {
+    let p;
+    try { p = JSON.parse(rd.result); } catch (x) { toast(hx('ملف JSON مش صالح', 'Invalid JSON file'), 'error'); return; }
+    const arr = k => (Array.isArray(p[k]) ? p[k] : []);
+    const c = { bookmarks: arr('bookmarks').length, notes: arr('notes').length, tasks: arr('tasks').length, events: arr('calendar_events').length };
+    fxModal(hx('استيراد بيانات وضع التركيز', 'Import Focus mode data'), `
+      <div style="font-size:13px;color:var(--fx-ink)"><b>${fxE(file.name)}</b><br><span style="color:var(--fx-sub)">${c.bookmarks} ${hx('مفضلة', 'bookmarks')} · ${c.notes} ${hx('ملاحظة', 'notes')} · ${c.tasks} ${hx('مهمة', 'tasks')} · ${c.events} ${hx('حدث', 'events')}</span></div>
+      <div class="fx-chips" id="fxImpMode"><button class="on" data-m="merge" onclick="document.querySelectorAll('#fxImpMode button').forEach(b=>b.classList.remove('on'));this.classList.add('on');document.getElementById('fxImpWarn').style.display='none'">${hx('دمج مع الموجود', 'Merge with existing')}</button>
+        <button data-m="replace" onclick="document.querySelectorAll('#fxImpMode button').forEach(b=>b.classList.remove('on'));this.classList.add('on');document.getElementById('fxImpWarn').style.display=''">${hx('استبدال الكل', 'Replace all')}</button></div>
+      <div id="fxImpWarn" style="display:none;font-size:12px;color:#ef4444;font-weight:700">${hx('هيتمسح كل المفضلة والملاحظات والمهام والأحداث الخاصة بتاعتك وبعدين يتم الاستيراد.', 'All your private bookmarks, notes, tasks and events will be deleted first, then the file is imported.')}</div>`,
+      hx('استيراد', 'Import'), async () => {
+        const mode = document.querySelector('#fxImpMode button.on')?.dataset.m || 'merge';
+        if (mode === 'replace' && !confirm(hx('متأكد إنك عايز تمسح بياناتك الخاصة الحالية؟', 'Delete your current private data?'))) return false;
+        const ok = await fxImportRun(p, mode);
+        if (ok) { toast(hx('تم الاستيراد ✅', 'Import complete ✅'), 'success'); FX.mode = 'private'; FX.boardId = null; fxRenderBar(); await fxLoadData(); }
+        return ok;
+      }, '#f59e0b');
+  };
+  rd.readAsText(file);
+}
+async function fxImportRun(p, mode){
+  const arr = k => (Array.isArray(p[k]) ? p[k].slice(0, 2000) : []);
+  const str = (v, n) => (typeof v === 'string' ? v.slice(0, n) : null);
+  const iso = v => { const d = new Date(v); return v && !isNaN(d) ? d.toISOString() : null; };
+  try {
+    if (mode === 'replace') {
+      for (const t of ['focus_bookmarks', 'focus_notes', 'focus_tasks', 'focus_events']) {
+        const { error } = await supabaseClient.from(t).delete().is('board_id', null).eq('created_by', FX.uid);
+        if (error) throw error;
+      }
+    }
+    const bms = arr('bookmarks'), map = {};
+    for (const f of bms.filter(b => b.type === 'folder')) {
+      const name = str(f.name, 120); if (!name) continue;
+      const { data, error } = await supabaseClient.from('focus_bookmarks').insert({ type: 'folder', name }).select('id').single();
+      if (error) throw error; map[f.id] = data.id;
+    }
+    const links = bms.filter(b => b.type === 'bookmark').map(b => ({ type: 'bookmark', name: str(b.name, 120) || 'Link', url: fxNormUrl(str(b.url, 2000) || ''), folder_id: map[b.folder_id] || null })).filter(b => b.url);
+    if (links.length) { const { error } = await supabaseClient.from('focus_bookmarks').insert(links); if (error) throw error; }
+    const notes = arr('notes').map(n => ({ title: str(n.title, 300) || 'Untitled Note', content: fxSanitize(str(n.content, 200000) || ''), updated_at: iso(n.updated_at) || new Date().toISOString() }));
+    if (notes.length) { const { error } = await supabaseClient.from('focus_notes').insert(notes); if (error) throw error; }
+    const tasks = arr('tasks').map(t => ({ title: str(t.title, 300), deadline: /^\d{4}-\d{2}-\d{2}/.test(t.deadline || '') ? t.deadline.slice(0, 10) : null,
+      priority: ['low', 'medium', 'high'].includes(t.priority) ? t.priority : 'medium', done: !!t.done, remind_at: iso(t.remind_at), description: str(t.description, 5000) })).filter(t => t.title);
+    if (tasks.length) { const { error } = await supabaseClient.from('focus_tasks').insert(tasks); if (error) throw error; }
+    const evs = arr('calendar_events').map(e => ({ title: str(e.title, 300), description: str(e.description, 5000), start_at: iso(e.start_at), end_at: iso(e.end_at), all_day: !!e.all_day,
+      color: /^#[0-9a-f]{6}$/i.test(e.color || '') ? e.color : '#06b6d4', remind_at: iso(e.remind_at),
+      recurrence: ['none', 'weekly', 'monthly', 'yearly'].includes(e.recurrence) ? e.recurrence : 'none' })).filter(e => e.title && e.start_at);
+    if (evs.length) { const { error } = await supabaseClient.from('focus_events').insert(evs); if (error) throw error; }
+    return true;
+  } catch (e) {
+    console.error('focus import failed', e);
+    toast(hx('حصل خطأ أثناء الاستيراد', 'Something went wrong during import'), 'error');
+    return false;
+  }
+}
+
+/* ── Reminders: tasks and events with a reminder time, checked every 30 seconds ── */
+function fxStartReminders(){
+  let seen = [];
+  try { seen = JSON.parse(localStorage.getItem('pk-focus-reminded') || '[]'); } catch (e) {}
+  setInterval(() => {
+    const now = Date.now();
+    const due = [...FX.tasks.filter(t => !t.done && t.remind_at).map(t => ({ k: t.id + '|' + t.remind_at, at: t.remind_at, title: t.title, type: hx('مهمة', 'Task') })),
+                 ...FX.events.filter(e => e.remind_at).map(e => ({ k: e.id + '|' + e.remind_at, at: e.remind_at, title: e.title, type: hx('حدث', 'Event') }))]
+      .filter(r => { const t = new Date(r.at).getTime(); return t <= now && t > now - 10 * 60000 && !seen.includes(r.k); });
+    if (!due.length) return;
+    due.forEach(r => seen.push(r.k));
+    seen = seen.slice(-200);
+    localStorage.setItem('pk-focus-reminded', JSON.stringify(seen));
+    fxChime();
+    document.getElementById('fxRemind')?.remove();
+    const el = document.createElement('div');
+    el.id = 'fxRemind'; el.className = 'fx-remind';
+    el.innerHTML = `<span class="fx-cic" style="background:#06b6d414">${FX_IC.alarm}</span><div style="flex:1;min-width:0"><b>⏰ ${hx('تذكير', 'Reminder')}</b><strong>${fxE(due[0].title)}</strong><b>${due[0].type}</b></div><button class="fx-back" onclick="this.parentNode.remove()">✕</button>`;
+    (document.fullscreenElement || document.body).appendChild(el);
+    setTimeout(() => el.remove(), 8000);
+  }, 30000);
+}
 
 async function loadMyHistory(){
   const { data, error } = await supabaseClient.rpc('my_history');
