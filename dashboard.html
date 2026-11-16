@@ -5989,6 +5989,8 @@ function restoreTabAndScroll(){
   } else {
     goTab('new-check');
   }
+  const activeNav = document.querySelector('.sidebar-item.on');
+  if (activeNav) movePill(activeNav);
   const y = _tabScrollPositions[savedTab || 'new-check'] || 0;
   // Content may still be loading/rendering async — try shortly after too.
   const raf = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : (fn)=>setTimeout(fn,0);
@@ -6326,6 +6328,19 @@ function movePill(activeEl){
       if(pill) pill.style.transition = '';
     }));
   }
+})();
+
+/* Keep the pill on the active tab when the sidebar layout shifts after load
+   (web fonts, translated labels, tabs hidden by later scripts, collapse). */
+(function keepPillInPlace(){
+  const sync = () => { const a = document.querySelector('.sidebar-item.on'); if (a) movePill(a); };
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(() => requestAnimationFrame(sync));
+    document.querySelectorAll('#sidebarNav .sidebar-item, #sidebarNav .sid-section').forEach(el => ro.observe(el));
+  }
+  window.addEventListener('resize', sync);
+  window.addEventListener('load', sync);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(sync);
 })();
 
 /* Sidebar collapse toggle */
