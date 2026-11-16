@@ -2759,6 +2759,7 @@
       .acw-amt-in:focus-within{ border-color:#d99401; }
       .acw-amt-in input{ flex:1; min-width:0; border:none; outline:none; background:transparent; padding:10px 0; font-size:20px; font-weight:800; color:var(--ac-ink); font-family:'Space Grotesk','Cairo',sans-serif; }
       .acw-amt-in span{ font-weight:800; color:var(--ac-sub); }
+      .acw-cur{ border:none; border-inline-start:1.5px solid var(--ac-line); background:transparent; color:var(--ac-ink); font-family:'Cairo',sans-serif; font-weight:800; font-size:14px; padding:8px 4px 8px 0; padding-inline-start:10px; cursor:pointer; outline:none; }
       .acw-chips{ display:flex; gap:8px; flex-wrap:wrap; margin:12px 0 16px; }
       .acw-chips button{ padding:7px 14px; border-radius:99px; border:1px solid var(--ac-line); background:transparent; color:var(--ac-ink); font-family:'Cairo',sans-serif; font-weight:700; cursor:pointer; }
       .acw-chips button:hover{ border-color:#d99401; color:#b37700; background:rgba(217,148,1,.08); }
@@ -8317,7 +8318,7 @@ var acTop = null;
 const ACW_MIN_EGP = 50, ACW_MAX_EGP = 50000;
 function acwToggleTopup(){
   if (acTop) { acwCloseTopup(); return; }
-  acTop = { step: 'amount', egp: 0 };
+  acTop = { step: 'amount', egp: 0, cur: currentCurrency === 'USD' ? 'USD' : 'EGP' };
   document.getElementById('acwTop').style.display = 'block';
   renderAcwTopup();
   document.getElementById('acwTop').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -8331,14 +8332,18 @@ function acwCloseTopup(){
 function renderAcwTopup(){
   const box = document.getElementById('acwTop');
   if (!box || !acTop) return;
-  const usd = currentCurrency === 'USD';
+  const usd = acTop.cur === 'USD';
   const head = `<div class="acw-top-h"><b>💰 ${hx('شحن محفظة المتجر', 'Top up your store wallet')}</b><button class="acw-x" onclick="acwCloseTopup()" aria-label="Close">×</button></div>`;
   if (acTop.step === 'amount') {
     const chips = usd ? [2, 5, 10, 20, 50] : [100, 250, 500, 1000, 2500];
     const val = acTop.egp ? (usd ? +(acTop.egp / exchangeRate).toFixed(2) : acTop.egp) : '';
     box.innerHTML = `${head}
       <label for="acwAmt">${hx('المبلغ', 'Amount')}</label>
-      <div class="acw-amt-in"><input id="acwAmt" type="number" inputmode="decimal" min="0" step="${usd ? '0.5' : '10'}" value="${val}" placeholder="0" onkeydown="if(event.key==='Enter')acwTopContinue()"><span>${usd ? 'USD' : hx('ج.م', 'EGP')}</span></div>
+      <div class="acw-amt-in"><input id="acwAmt" type="number" inputmode="decimal" min="0" step="${usd ? '0.5' : '10'}" value="${val}" placeholder="0" onkeydown="if(event.key==='Enter')acwTopContinue()">
+        <select class="acw-cur" onchange="acwSetCur(this.value)" aria-label="${hx('العملة', 'Currency')}">
+          <option value="EGP" ${usd ? '' : 'selected'}>${hx('ج.م', 'EGP')}</option><option value="USD" ${usd ? 'selected' : ''}>USD $</option>
+        </select></div>
+      ${usd ? `<p style="margin:6px 0 0;font-size:12px;color:var(--ac-sub);">${hx(`1$ = ${exchangeRate} ج.م — الرصيد بيتحفظ بالجنيه.`, `$1 = ${exchangeRate} EGP — the balance is kept in EGP.`)}</p>` : ''}
       <div class="acw-chips">${chips.map(v => `<button type="button" onclick="acwSetAmt(${v})">${usd ? '$' + v : v + ' ' + hx('ج.م', 'EGP')}</button>`).join('')}</div>
       <button class="ck-main" style="max-width:360px;" onclick="acwTopContinue()">${hx('متابعة للدفع ←', 'Continue to payment →')}</button>
       <p style="margin:10px 0 0;font-size:12px;color:var(--ac-sub);">${hx(`أقل مبلغ ${acMoney(ACW_MIN_EGP)}. الرصيد بيتضاف للمحفظة أول ما الدفع يتأكد.`, `Minimum ${acMoney(ACW_MIN_EGP)}. The balance is added as soon as the payment is confirmed.`)}</p>`;
@@ -8359,11 +8364,19 @@ function acwSetAmt(v){
 }
 function acwTopContinue(){
   const v = Number(document.getElementById('acwAmt')?.value || 0);
-  const egp = Math.round(currentCurrency === 'USD' ? v * exchangeRate : v);
+  const egp = Math.round(acTop.cur === 'USD' ? v * exchangeRate : v);
   if (!(egp >= ACW_MIN_EGP)) { toast(hx(`أقل مبلغ للشحن ${acMoney(ACW_MIN_EGP)}`, `The minimum top-up is ${acMoney(ACW_MIN_EGP)}`), 'error'); return; }
   if (egp > ACW_MAX_EGP) { toast(hx(`أقصى مبلغ للشحن ${acMoney(ACW_MAX_EGP)}`, `The maximum top-up is ${acMoney(ACW_MAX_EGP)}`), 'error'); return; }
   acTop.egp = egp;
   acTop.step = 'pay';
+  renderAcwTopup();
+}
+// Switching currency keeps the amount's value (e.g. 500 EGP becomes $10).
+function acwSetCur(cur){
+  if (!acTop) return;
+  const v = Number(document.getElementById('acwAmt')?.value || 0);
+  if (v > 0) acTop.egp = Math.round(acTop.cur === 'USD' ? v * exchangeRate : v);
+  acTop.cur = cur === 'USD' ? 'USD' : 'EGP';
   renderAcwTopup();
 }
 function acwTopBack(){ acUnmountPayBlock(); acTop.step = 'amount'; renderAcwTopup(); }
