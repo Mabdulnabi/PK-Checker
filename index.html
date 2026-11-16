@@ -195,8 +195,42 @@
   .mobile-menu-row .btn-signin{color:#fff;}
   .mobile-menu-row .btn-store{color:var(--navy);}
 
+  /* ===== CHECK PACKAGES (same packages as the dashboard Wallet tab) ===== */
+  .plans-tabs{display:inline-flex;gap:6px;padding:6px;border-radius:999px;background:var(--paper-soft);border:1px solid var(--paper-line);margin:0 auto 34px;}
+  .plans-tab{position:relative;display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:999px;border:none;background:transparent;color:var(--ink-soft);font-family:'Cairo','Manrope',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:all .2s;}
+  .plans-tab.on{background:var(--navy);color:#fff;box-shadow:0 10px 22px -10px rgba(27,37,86,.5);}
+  .plans-tab[disabled]{cursor:not-allowed;opacity:.75;}
+  .plans-tab svg{width:16px;height:16px;flex:none;}
+  .plans-soon{position:absolute;top:-9px;inset-inline-end:-4px;background:var(--gold);color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;letter-spacing:.4px;box-shadow:0 4px 10px -4px rgba(255,152,0,.6);}
+  .plans-tabs-wrap{text-align:center;}
+  .plans-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;align-items:stretch;}
+  .plan-card{position:relative;display:flex;flex-direction:column;background:var(--paper);border:1.5px solid var(--paper-line);border-radius:18px;padding:28px 24px 24px;transition:transform .2s,box-shadow .2s,border-color .2s;}
+  .plan-card:hover{transform:translateY(-4px);box-shadow:0 18px 36px -14px rgba(27,37,86,.18);border-color:var(--blue-wash);}
+  .plan-card.featured{border-color:var(--blue);box-shadow:0 18px 40px -16px rgba(14,122,254,.35);}
+  .plan-card.featured::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(180deg,var(--blue-wash),transparent 45%);opacity:.55;pointer-events:none;}
+  .plan-card > *{position:relative;}
+  .plan-pop{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;font-size:11.5px;font-weight:700;padding:5px 14px;border-radius:999px;white-space:nowrap;box-shadow:0 8px 18px -8px rgba(27,37,86,.55);}
+  .plan-name{font-size:17px;font-weight:800;color:var(--navy);margin:0 0 12px;}
+  .plan-price{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;}
+  .plan-price b{font-family:'Manrope','Cairo',sans-serif;font-size:38px;font-weight:800;color:var(--navy);line-height:1.05;letter-spacing:-.5px;}
+  .plan-price b small{font-size:18px;font-weight:800;margin-inline-start:4px;}
+  .plan-meta{font-size:12.5px;font-weight:600;color:var(--muted);margin-top:6px;}
+  .plan-meta span{direction:ltr;unicode-bidi:isolate;}
+  .plan-sep{height:1px;background:var(--paper-line);margin:18px 0;}
+  .plan-feats{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px;}
+  .plan-feats li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--ink-soft);line-height:1.5;}
+  .plan-feats li b{color:var(--navy);}
+  .plan-feats .ck{flex:none;width:20px;height:20px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+  .plan-card.featured .plan-feats .ck{background:var(--blue);}
+  .plan-feats .ck svg{width:11px;height:11px;}
+  .plan-skel{height:330px;border-radius:18px;background:linear-gradient(90deg,var(--paper-soft) 25%,var(--paper) 50%,var(--paper-soft) 75%);background-size:200% 100%;animation:planShimmer 1.2s infinite linear;border:1px solid var(--paper-line);}
+  @keyframes planShimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+  @media (max-width:1100px){ .plans-grid{grid-template-columns:repeat(2,1fr);row-gap:28px;} }
+
   @media (max-width:860px){
     .hero-grid{grid-template-columns:1fr;}
+    .plans-grid{grid-template-columns:1fr;}
+    .plans-tab{padding:10px 14px;font-size:13px;}
     .hero h1{font-size:28px;}
     .features-grid{grid-template-columns:1fr;}
     .pricing-grid{grid-template-columns:1fr;}
@@ -641,6 +675,32 @@
   </div>
 </section>
 
+<section id="plans">
+  <div class="wrap">
+    <div class="section-head" data-aos="fade-up">
+      <span class="eyebrow"><span class="dot"></span> <span data-i18n="plans_eyebrow">الباقات</span></span>
+      <h2 class="why-title"><span data-i18n="plans_title_1">اختار</span> <span class="grad-text" data-i18n="plans_title_2">باقة الفحص</span></h2>
+      <p data-i18n="plans_sub">تقارير اقتباس + ذكاء اصطناعي رسمية من Turnitin، وملفك مش بيتحفظ في أي مستودع.</p>
+    </div>
+    <div class="plans-tabs-wrap" data-aos="fade-up" data-aos-delay="80">
+      <div class="plans-tabs" role="tablist">
+        <button class="plans-tab on" type="button" role="tab" aria-selected="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+          <span data-i18n="plans_tab_ai">اقتباس + ذكاء اصطناعي</span>
+        </button>
+        <button class="plans-tab" type="button" role="tab" aria-selected="false" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>
+          <span data-i18n="plans_tab_plag">اقتباس فقط</span>
+          <span class="plans-soon" data-i18n="plans_soon">قريبًا</span>
+        </button>
+      </div>
+    </div>
+    <div class="plans-grid" id="plansGrid">
+      <div class="plan-skel"></div><div class="plan-skel"></div><div class="plan-skel"></div><div class="plan-skel"></div>
+    </div>
+  </div>
+</section>
+
 <section id="faq">
   <div class="wrap">
     <div class="section-head" data-aos="fade-up">
@@ -677,6 +737,8 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 const LANG_DICT = {
   ar: {
     idx_nav_features:"المميزات", idx_nav_services:"الخدمات المتاحة", idx_nav_how:"إزاي بيشتغل", idx_nav_faq:"أسئلة شائعة",
+    plans_eyebrow:"الباقات", plans_title_1:"اختار", plans_title_2:"باقة الفحص", plans_sub:"تقارير اقتباس + ذكاء اصطناعي رسمية من Turnitin، وملفك مش بيتحفظ في أي مستودع.",
+    plans_tab_ai:"اقتباس + ذكاء اصطناعي", plans_tab_plag:"اقتباس فقط", plans_soon:"قريبًا",
     idx_store_btn:"متجر Pro Keys", idx_signin_btn:"تسجيل الدخول",
     hero_badge:"تكامل رسمي مع Turnitin Instructor API",
     hero_title_1:"تقارير الاقتباس و AI", hero_title_2:"في دقائق",
@@ -715,6 +777,8 @@ const LANG_DICT = {
   },
   en: {
     idx_nav_features:"Features", idx_nav_services:"Services", idx_nav_how:"How it works", idx_nav_faq:"FAQ",
+    plans_eyebrow:"Packages", plans_title_1:"Choose your", plans_title_2:"check package", plans_sub:"Official Turnitin Plagiarism + AI reports. Your file is never stored in any repository.",
+    plans_tab_ai:"Plag + AI Report", plans_tab_plag:"Only Plag Report", plans_soon:"Soon",
     idx_store_btn:"Pro Keys Store", idx_signin_btn:"Sign in",
     hero_badge:"Official Turnitin Instructor API Integration",
     hero_title_1:"Plagiarism & AI Reports", hero_title_2:"in minutes",
@@ -805,8 +869,52 @@ function toggleFaq(el){
   if (!wasOpen) item.classList.add('open');
 }
 
+// Check packages: the same active Plag + AI packages the dashboard Wallet tab sells.
+const PLANS_USD_RATE = 50; // EGP per USD, same rate as the dashboard
+let landingPlans = null;
+async function loadLandingPlans(){
+  const { data, error } = await supabaseClient.rpc('list_slot_packages');
+  if (error || !Array.isArray(data) || !data.length) {
+    console.error('loadLandingPlans failed:', error);
+    document.getElementById('plans')?.style.setProperty('display', 'none');
+    return;
+  }
+  landingPlans = data;
+  renderLandingPlans();
+}
+function renderLandingPlans(){
+  const grid = document.getElementById('plansGrid');
+  if (!grid || !landingPlans) return;
+  const ar = currentLang === 'ar';
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const CK = '<span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>';
+  // "Most popular": the 10-check package, or the middle one if there is none.
+  const tenIdx = landingPlans.findIndex(p => Number(p.slots) === 10);
+  const popIdx = tenIdx >= 0 ? tenIdx : Math.floor((landingPlans.length - 1) / 2);
+  grid.innerHTML = landingPlans.map((p, i) => {
+    const n = Number(p.slots), egp = Number(p.price_egp), days = Number(p.expiry_days);
+    const usd = (Math.ceil(egp / PLANS_USD_RATE * 100) / 100).toFixed(2);
+    const name = ar ? (p.name_ar || p.name_en) : (p.name_en || p.name_ar);
+    const arDays = d => (d === 1 ? 'يوم واحد' : d === 2 ? 'يومين' : `${d} ${d <= 10 ? 'أيام' : 'يوم'}`);
+    const daysTxt = days ? (ar ? `صالحة ${arDays(days)}` : `${days} ${days === 1 ? 'Day' : 'Days'}`) : (ar ? 'بدون مدة' : 'No expiry');
+    const feats = ar
+      ? [`<b>${n}</b> ${n === 1 ? 'تقرير رسمي كامل' : 'تقارير رسمية كاملة'}`, 'ملف PDF رسمي من Turnitin', 'تقرير اقتباس + ذكاء اصطناعي', 'ملفك مش بيتحفظ في أي مستودع', 'النتيجة خلال دقائق', 'استبعاد المراجع والاقتباسات حسب اختيارك']
+      : [`<b>${n}</b> Full Official ${n === 1 ? 'Report' : 'Reports'}`, 'Official Turnitin PDF', 'Plag + AI Report', '100% Non-Repository Safe', 'Results within minutes', 'Exclude references and quotes as you choose'];
+    return `<div class="plan-card${i === popIdx ? ' featured' : ''}" data-aos="fade-up" data-aos-delay="${i * 90}">
+      ${i === popIdx ? `<span class="plan-pop">${ar ? 'الأكثر طلبًا' : 'Most popular'}</span>` : ''}
+      <h3 class="plan-name">${esc(name)}</h3>
+      <div class="plan-price"><b>${egp.toLocaleString('en-US')}<small>${ar ? 'ج.م' : 'EGP'}</small></b></div>
+      <div class="plan-meta"><span>${ar ? '' : '/ '}$${usd} USDT</span> • ${daysTxt}</div>
+      <div class="plan-sep"></div>
+      <ul class="plan-feats">${feats.map(f => `<li>${CK}<span>${f}</span></li>`).join('')}</ul>
+    </div>`;
+  }).join('');
+  if (window.AOS) AOS.refreshHard();
+}
+
 function applyLang(){
   PK.translateDom(currentLang, t);
+  renderLandingPlans();
   document.getElementById('langBtn').textContent = currentLang === 'ar' ? '🇬🇧 EN' : '🇪🇬 AR';
   const langBtnMobile = document.getElementById('langBtnMobile');
   if (langBtnMobile) langBtnMobile.textContent = currentLang === 'ar' ? '🇬🇧 EN' : '🇪🇬 AR';
@@ -940,6 +1048,7 @@ applyLang();
 applyCustomIcons();
 applyFavicon();
 loadUIConfig();
+loadLandingPlans();
 
 if (window.AOS) {
   AOS.init({
