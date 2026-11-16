@@ -305,7 +305,7 @@
   .sidebar-item[data-tab="orders"]    { --tab-color:#2563eb; }
   .sidebar-item[data-tab="wallet"]    { --tab-color:#059669; }
   .sidebar-item[data-tab="support"]   { --tab-color:#ea580c; }
-  .sidebar-item[data-tab="my-profile"]{ --tab-color:#475569; }
+  .sidebar-item[data-tab="my-profile"]{ --tab-color:#db2777; }
   .sidebar-item[data-tab="my-history"]{ --tab-color:#2563eb; }
   /* Weight/size fixed — only color changes, never shifts layout */
   .sidebar-item > span{ font-family:'Cairo',sans-serif;font-weight:800;font-size:15px;transition:color 0.18s; }
@@ -1974,7 +1974,7 @@
         <span data-i18n="nav_academic">Academic Tools</span><span class="soon-badge">Soon</span>
       </div>
       <div class="navtab sidebar-item" data-tab="focus">
-        <div class="sid-chip sid-rose">
+        <div class="sid-chip sid-cyan">
           <svg data-icon-key="tab_focus" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>
         </div>
         <span data-i18n="nav_focus">Focus mode</span>
@@ -1987,7 +1987,7 @@
         <span data-i18n="nav_support">الدعم</span>
       </div>
       <div class="navtab sidebar-item" data-tab="my-profile">
-        <div class="sid-chip sid-slate">
+        <div class="sid-chip sid-rose">
           <!-- ph-user-gear duotone -->
           <svg data-icon-key="tab_my_profile" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="24" height="24"><path d="M168,100a60,60,0,1,1-60-60A60,60,0,0,1,168,100Z" opacity="0.2"/><path d="M144,157.68a68,68,0,1,0-71.9,0c-20.65,6.76-39.23,19.39-54.17,37.17a8,8,0,1,0,12.24,10.3C50.25,181.19,77.91,168,108,168s57.75,13.19,77.87,37.15a8,8,0,0,0,12.26-10.3C183.18,177.07,164.6,164.44,144,157.68ZM56,100a52,52,0,1,1,52,52A52.06,52.06,0,0,1,56,100Zm196.25,43.07-4.66-2.69a23.6,23.6,0,0,0,0-8.76l4.66-2.69a8,8,0,1,0-8-13.86l-4.67,2.7a23.92,23.92,0,0,0-7.58-4.39V108a8,8,0,0,0-16,0v5.38a23.92,23.92,0,0,0-7.58,4.39l-4.67-2.7a8,8,0,1,0-8,13.86l4.66,2.69a23.6,23.6,0,0,0,0,8.76l-4.66,2.69a8,8,0,0,0,8,13.86l4.67-2.7a23.92,23.92,0,0,0,7.58,4.39V164a8,8,0,0,0,16,0v-5.38a23.92,23.92,0,0,0,7.58-4.39l4.67,2.7a7.92,7.92,0,0,0,4,1.07,8,8,0,0,0,4-14.93ZM224,144a8,8,0,1,1,8-8A8,8,0,0,1,224,144Z"/></svg>
         </div>
@@ -2888,7 +2888,9 @@
     <style>
       .sid-rose{ color:#db2777 !important; }
       .sid-rose{ background:#db27771f; color:#db2777; }
-      .sidebar-item[data-tab="focus"]{ --tab-color:#db2777; }
+      .sid-cyan{ color:#0891b2 !important; }
+      .sid-cyan{ background:#0891b21f; color:#0891b2; }
+      .sidebar-item[data-tab="focus"]{ --tab-color:#0891b2; }
 
       #pane-focus{ --fx-card:#fff; --fx-line:#eceef3; --fx-ink:#111827; --fx-sub:#6b7280; --fx-soft:#f3f4f6; --fx-cyan:#06b6d4; --fx-violet:#8b5cf6; --fx-amber:#d99401; --fx-green:#10b981; font-family:'Cairo',sans-serif; }
       [data-theme="dark"] #pane-focus{ --fx-card:#141c2f; --fx-line:rgba(255,255,255,.08); --fx-ink:#f3f4f6; --fx-sub:#9ca3af; --fx-soft:rgba(255,255,255,.06); }
@@ -6273,9 +6275,9 @@ const TAB_COLORS = {
   'orders'    : '#2563eb',
   'wallet'    : '#059669',
   'support'   : '#ea580c',
-  'my-profile': '#475569',
+  'my-profile': '#db2777',
   'academic'  : '#d4930a',
-  'focus'     : '#db2777',
+  'focus'     : '#0891b2',
 };
 
 function movePill(activeEl){
