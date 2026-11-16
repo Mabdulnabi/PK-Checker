@@ -1907,6 +1907,13 @@
   var KEY = 'pk-cookie-consent';
   function loadPixel(){
     if (window.fbq) return;
+    // An ad click saved by the home or sign-in page (see shared/pk-pixel.js) becomes Meta's _fbc cookie.
+    try {
+      if (!/(^|; )_fbc=/.test(document.cookie) && !/[?&]fbclid=/.test(location.search)) {
+        var saved = JSON.parse(sessionStorage.getItem('pk-fbclid') || 'null');
+        if (saved && saved.id) document.cookie = '_fbc=fb.1.' + saved.t + '.' + saved.id + '; path=/; max-age=' + (90 * 86400) + '; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : '');
+      }
+    } catch (e) {}
     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', PIXEL_ID);
     fbq('track', 'PageView');
