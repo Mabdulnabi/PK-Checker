@@ -30,10 +30,21 @@ Deno.serve(async (req: Request) => {
   const userData: Record<string, unknown> = {};
   if (typeof body.email === "string" && body.email) userData.em = [await sha256Hex(body.email)];
   if (typeof body.external_id === "string" && body.external_id) userData.external_id = [await sha256Hex(body.external_id)];
+  // Browser IDs saved by the dashboard after cookie consent. Meta expects these unhashed.
+  const str = (v: unknown, max: number) => (typeof v === "string" && v.trim() && v.length <= max ? v.trim() : null);
+  const fbp = str(body.fbp, 200), fbc = str(body.fbc, 500);
+  const ua = str(body.client_user_agent, 512), ip = str(body.client_ip_address, 45);
+  if (fbp) userData.fbp = fbp;
+  if (fbc) userData.fbc = fbc;
+  if (ua) userData.client_user_agent = ua;
+  if (ip) userData.client_ip_address = ip;
 
   const event: Record<string, unknown> = {
     event_name: body.event_name,
-    event_time: Math.floor(Date.now() / 1000),
+    // Queued events keep the time they happened (Meta accepts up to 7 days back).
+    event_time: Number.isFinite(Number(body.event_time)) && Number(body.event_time) > Date.now() / 1000 - 6 * 86400
+      ? Math.min(Math.floor(Number(body.event_time)), Math.floor(Date.now() / 1000))
+      : Math.floor(Date.now() / 1000),
     event_id: body.event_id,
     action_source: "website",
     event_source_url: body.event_source_url || "https://pkchecker.com/dashboard.html",

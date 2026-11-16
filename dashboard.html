@@ -1918,6 +1918,20 @@
     fbq('init', PIXEL_ID);
     fbq('track', 'PageView');
   }
+  // Sends the browser IDs to the server so Purchase / CompleteRegistration (sent from the database)
+  // can be matched by Meta. Without consent no IDs are sent; the call still releases a queued
+  // registration. With consent it waits a few seconds for Meta's _fbp cookie to appear.
+  var idsSaved = false;
+  window.pkSaveMetaIds = function(tries){
+    if (idsSaved || typeof supabaseClient === 'undefined') return;
+    var consent = localStorage.getItem(KEY) === 'yes';
+    var get = function(n){ var m = document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)')); return m ? decodeURIComponent(m[1]) : null; };
+    var fbp = consent ? get('_fbp') : null, fbc = consent ? get('_fbc') : null;
+    if (consent && !fbp && (tries || 0) < 6) { setTimeout(function(){ window.pkSaveMetaIds((tries || 0) + 1); }, 1000); return; }
+    idsSaved = !!(fbp || fbc) || !consent;
+    supabaseClient.rpc('meta_save_browser_ids', { p_fbp: fbp, p_fbc: fbc, p_user_agent: consent ? navigator.userAgent : null })
+      .then(function(r){ if (r && r.error) { idsSaved = false; console.warn('meta ids:', r.error.message); } });
+  };
   // Used by the dashboard for conversion steps. Does nothing without consent.
   window.pkTrack = function(event, params){
     if (window.fbq && localStorage.getItem(KEY) === 'yes') fbq('track', event, params || {});
@@ -1935,7 +1949,7 @@
         '<button id="pkCkYes" style="padding:8px 14px;border-radius:9px;border:none;background:#0E7AFE;color:#fff;font-family:Cairo,sans-serif;font-weight:700;cursor:pointer;">' + (ar ? 'موافق' : 'Accept') + '</button>' +
       '</div>';
     document.body.appendChild(box);
-    document.getElementById('pkCkYes').onclick = function(){ localStorage.setItem(KEY, 'yes'); box.remove(); loadPixel(); };
+    document.getElementById('pkCkYes').onclick = function(){ localStorage.setItem(KEY, 'yes'); box.remove(); loadPixel(); idsSaved = false; window.pkSaveMetaIds(); };
     document.getElementById('pkCkNo').onclick = function(){ localStorage.setItem(KEY, 'no'); box.remove(); };
   }
   var choice = localStorage.getItem(KEY);
@@ -11179,6 +11193,7 @@ async function loadUserProfile({ force = false } = {}){
 
   const authUser = sessionData?.session?.user;
   applyAuthProfileFields(authUser, data);
+  if (authUser && typeof pkSaveMetaIds === 'function') pkSaveMetaIds(); // browser IDs for Meta's server events
 
   if (error) {
     // PGRST116 = no rows — new user with no profile yet (e.g. first Google OAuth login)
