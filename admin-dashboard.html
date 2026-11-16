@@ -4745,9 +4745,15 @@ function deliveryTime(o){
     <div class="adm-modal-box" style="max-width:400px;text-align:right;">
       <div class="adm-modal-icon">👤</div>
       <div class="adm-modal-msg">إضافة مستخدم جديد</div>
-      <input class="adm-modal-input" id="newUserName" placeholder="الاسم الكامل" style="margin-bottom:8px;">
-      <input class="adm-modal-input" id="newUserEmail" type="email" dir="ltr" placeholder="الإيميل" style="margin-bottom:8px;">
-      <input class="adm-modal-input" id="newUserPassword" type="password" dir="ltr" placeholder="باسورد (8 حروف على الأقل)" style="margin-bottom:8px;">
+      <input class="adm-modal-input" id="newUserEmail" type="email" dir="ltr" placeholder="الإيميل *" style="margin-bottom:8px;">
+      <div style="display:flex;gap:6px;margin-bottom:4px;">
+        <input class="adm-modal-input" id="newUserPassword" type="password" dir="ltr" placeholder="الباسورد *" autocomplete="new-password" style="margin:0;flex:1;">
+        <button type="button" class="adm-modal-cancel" style="padding:0 10px;flex:none;" title="إظهار / إخفاء" onclick="const i=document.getElementById('newUserPassword');i.type=i.type==='password'?'text':'password';">👁</button>
+        <button type="button" class="adm-modal-cancel" style="padding:0 10px;flex:none;" title="توليد باسورد قوي" onclick="genNewUserPassword()">🎲</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6;">8 حروف على الأقل وفيه حرف إنجليزي صغير وكبير ورقم ورمز (مثل ! @ #) — أو اضغط 🎲 لتوليد واحد.</div>
+      <div style="font-size:11.5px;color:var(--muted);font-weight:700;margin-bottom:6px;">بيانات اختيارية:</div>
+      <input class="adm-modal-input" id="newUserName" placeholder="الاسم الكامل (اختياري)" style="margin-bottom:8px;">
       <input class="adm-modal-input" id="newUserWhatsapp" dir="ltr" placeholder="واتساب (اختياري، مع كود الدولة)" style="margin-bottom:8px;">
       <input class="adm-modal-input" id="newUserPhone" dir="ltr" placeholder="تليفون (اختياري، مع كود الدولة)" style="margin-bottom:8px;">
       <select class="adm-modal-input" id="newUserPackage" style="margin-bottom:8px;"></select>
@@ -8276,8 +8282,31 @@ async function submitPayMethod(){
   }
 }
 
+// Matches the Auth password policy: 8+ chars, lowercase, uppercase, digit and symbol.
+function newUserPasswordMissing(pw){
+  const miss = [];
+  if (pw.length < 8) miss.push('8 حروف على الأقل');
+  if (!/[a-z]/.test(pw)) miss.push('حرف إنجليزي صغير');
+  if (!/[A-Z]/.test(pw)) miss.push('حرف إنجليزي كبير');
+  if (!/[0-9]/.test(pw)) miss.push('رقم');
+  if (!/[^A-Za-z0-9]/.test(pw)) miss.push('رمز مثل ! @ #');
+  return miss;
+}
+function genNewUserPassword(){
+  const sets = ['abcdefghijkmnpqrstuvwxyz', 'ABCDEFGHJKLMNPQRSTUVWXYZ', '23456789', '!@#$%&*?'];
+  const all = sets.join('');
+  const rnd = n => { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; };
+  const chars = sets.map(set => set[rnd(set.length)]);
+  while (chars.length < 12) chars.push(all[rnd(all.length)]);
+  for (let i = chars.length - 1; i > 0; i--) { const j = rnd(i + 1); [chars[i], chars[j]] = [chars[j], chars[i]]; }
+  const inp = document.getElementById('newUserPassword');
+  inp.value = chars.join('');
+  inp.type = 'text';
+  navigator.clipboard?.writeText(inp.value).then(() => toast('اتولد باسورد واتنسخ ✅'), () => {});
+}
 function openAddUserPopup(){
   ['newUserName','newUserEmail','newUserPassword','newUserWhatsapp','newUserPhone','newUserCredits'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('newUserPassword').type = 'password';
   document.getElementById('addUserOverlay').classList.add('open');
 }
 function closeAddUserPopup(){
@@ -8291,8 +8320,10 @@ async function submitNewUser(){
   const phone = document.getElementById('newUserPhone').value.trim();
   const pkgCount = parseInt(document.getElementById('newUserCredits').value, 10) || 0;
   const pkgId = document.getElementById('newUserPackage')?.value || '';
-  if (!full_name || !email || !password) { await adminAlert('من فضلك املأ الاسم والإيميل والباسورد', {icon:'⚠️'}); return; }
-  if (password.length < 8) { await adminAlert('الباسورد لازم يكون 8 حروف على الأقل', {icon:'⚠️'}); return; }
+  if (!email || !password) { await adminAlert('اكتب الإيميل والباسورد (باقي البيانات اختيارية)', {icon:'⚠️'}); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { await adminAlert('الإيميل مكتوب غلط', {icon:'⚠️'}); return; }
+  const pwMissing = newUserPasswordMissing(password);
+  if (pwMissing.length) { await adminAlert('الباسورد ناقصه: ' + pwMissing.join('، ') + ' — ممكن تضغط 🎲 لتوليد باسورد قوي.', {icon:'⚠️'}); return; }
   try {
     const { data: sessionData } = await supabaseClient.auth.getSession();
     const resp = await fetch(`${FN_BASE}/create-customer`, {
@@ -8307,7 +8338,7 @@ async function submitNewUser(){
       if (g.error) throw new Error('الحساب اتعمل بس الباقة متضافتش: ' + g.error.message);
     }
     closeAddUserPopup();
-    await logAdminActivity('setting_change', result.id, '', `إضافة مستخدم جديد: ${full_name}`);
+    await logAdminActivity('setting_change', result.id, '', `إضافة مستخدم جديد: ${full_name || email}`);
     await adminAlert('✅ اتضاف المستخدم بنجاح', {icon:'✅'});
     loadUsersTab();
   } catch (err) {

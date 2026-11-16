@@ -33,11 +33,14 @@ Deno.serve(async (req) => {
     }
 
     const { email, password, full_name, whatsapp, phone, initial_credits } = await req.json();
-    if (!email || !password || !full_name) {
-      return new Response(JSON.stringify({ error: 'email, password, and full_name are required' }), { status: 400, headers: { ...CORS, 'Content-Type': 'application/json' } });
+    // Only email and password are required; the name and phone numbers are optional.
+    if (!email || !password) {
+      return new Response(JSON.stringify({ error: 'الإيميل والباسورد مطلوبين' }), { status: 400, headers: { ...CORS, 'Content-Type': 'application/json' } });
     }
-    if (password.length < 8) {
-      return new Response(JSON.stringify({ error: 'Password must be at least 8 characters' }), { status: 400, headers: { ...CORS, 'Content-Type': 'application/json' } });
+    // Same rule as the project's Auth password policy: 8+ characters with a lowercase letter,
+    // an uppercase letter, a digit and a symbol.
+    if (password.length < 8 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
+      return new Response(JSON.stringify({ error: 'الباسورد لازم يكون 8 حروف على الأقل وفيه حرف إنجليزي صغير وحرف كبير ورقم ورمز (مثل ! @ #)' }), { status: 400, headers: { ...CORS, 'Content-Type': 'application/json' } });
     }
 
     const adminClient = createClient(supabaseUrl, serviceKey);
@@ -46,15 +49,19 @@ Deno.serve(async (req) => {
       email, password, email_confirm: true,
     });
     if (createErr || !newUser?.user) {
-      return new Response(JSON.stringify({ error: createErr?.message || 'Failed to create auth user' }), { status: 400, headers: { ...CORS, 'Content-Type': 'application/json' } });
+      const msg = createErr?.message || 'Failed to create auth user';
+      const friendly = /already (been )?registered|already exists/i.test(msg) ? 'الإيميل ده متسجل قبل كده'
+        : /password/i.test(msg) ? 'الباسورد ضعيف: لازم 8 حروف على الأقل وفيه حرف صغير وحرف كبير ورقم ورمز'
+        : msg;
+      return new Response(JSON.stringify({ error: friendly }), { status: 400, headers: { ...CORS, 'Content-Type': 'application/json' } });
     }
 
     // The handle_new_user() trigger on auth.users already creates a base
     // users_profile row automatically — update it with the admin-supplied
     // details instead of inserting a duplicate.
-    const { error: updateErr } = await adminClient.from('users_profile').update({
-      full_name, whatsapp: whatsapp || null, phone: phone || null, email,
-    }).eq('user_id', newUser.user.id);
+    const profile: Record<string, unknown> = { whatsapp: whatsapp || null, phone: phone || null, email };
+    if (full_name && String(full_name).trim()) profile.full_name = String(full_name).trim();
+    const { error: updateErr } = await adminClient.from('users_profile').update(profile).eq('user_id', newUser.user.id);
     if (updateErr) {
       await adminClient.auth.admin.deleteUser(newUser.user.id);
       return new Response(JSON.stringify({ error: updateErr.message }), { status: 400, headers: { ...CORS, 'Content-Type': 'application/json' } });
