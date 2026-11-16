@@ -3598,8 +3598,12 @@
   } catch (e) {}
 })();
 (function showCorrectTabImmediately(){
-  // New check is the main tab: the dashboard always opens on it (after login and after a refresh).
-  const savedTab = 'new-check';
+  // A refresh keeps the tab the customer was on; opening the dashboard fresh (first visit, a link,
+  // after login) starts on New check. A tab that no longer exists also falls back to New check.
+  let isReload = false;
+  try { isReload = (performance.getEntriesByType('navigation')[0] || {}).type === 'reload'; } catch (e) {}
+  let savedTab = isReload ? (localStorage.getItem('prokeys-active-tab') || 'new-check') : 'new-check';
+  if (!document.getElementById('pane-' + savedTab)) savedTab = 'new-check';
   localStorage.setItem('prokeys-active-tab', savedTab);
   document.querySelectorAll('.navtab[data-tab]').forEach(el => {
     el.classList.toggle('on', el.dataset.tab === savedTab);
