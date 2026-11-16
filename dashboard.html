@@ -2613,8 +2613,8 @@
       .mob-nav-item .soon-badge{ margin-inline-start:0; margin-top:1px; font-size:6.5px; padding:0 4px; }
 
       /* Academic Tools: shared */
-      #pane-academic{ --ac-gold:#d4930a; --ac-gold2:#e8a317; --ac-card:#fff; --ac-line:#eceef3; --ac-ink:#111827; --ac-sub:#6b7280; }
-      [data-theme="dark"] #pane-academic{ --ac-card:#141c2f; --ac-line:rgba(255,255,255,.08); --ac-ink:#f3f4f6; --ac-sub:#9ca3af; }
+      #pane-academic{ --ac-gold:#d4930a; --ac-gold2:#e8a317; --ac-card:#fff; --ac-line:#eceef3; --ac-ink:#111827; --ac-sub:#6b7280; --ac-cat-bg:#DDEBF5; }
+      [data-theme="dark"] #pane-academic{ --ac-card:#141c2f; --ac-line:rgba(255,255,255,.08); --ac-ink:#f3f4f6; --ac-sub:#9ca3af; --ac-cat-bg:rgba(221,235,245,.14); }
       .ac-subtabs{ display:flex; gap:6px; background:var(--ac-card); border:1px solid var(--ac-line); border-radius:14px; padding:5px; margin-bottom:18px; width:max-content; max-width:100%; overflow-x:auto; }
       .ac-subtab{ border:none; background:transparent; padding:8px 18px; border-radius:10px; font-family:'Cairo',sans-serif; font-weight:700; font-size:13px; color:var(--ac-sub); cursor:pointer; white-space:nowrap; }
       .ac-subtab.on{ background:var(--ac-gold); color:#fff; box-shadow:0 4px 12px rgba(212,147,10,.3); }
@@ -2637,7 +2637,7 @@
       .ac-cats{ display:flex; gap:22px; overflow-x:auto; scroll-behavior:smooth; padding:4px 2px 8px; scrollbar-width:none; }
       .ac-cats::-webkit-scrollbar{ display:none; }
       .ac-cat{ flex:0 0 auto; width:125px; text-align:center; cursor:pointer; background:none; border:none; padding:0; font-family:'Cairo',sans-serif; }
-      .ac-cat-img{ width:125px; height:125px; border-radius:16px; overflow:hidden; background:var(--ac-line); display:flex; align-items:center; justify-content:center; font-size:34px; border:2px solid transparent; transition:transform .2s; }
+      .ac-cat-img{ width:125px; height:125px; border-radius:16px; overflow:hidden; background:var(--ac-cat-bg); display:flex; align-items:center; justify-content:center; font-size:34px; border:2px solid transparent; transition:transform .2s; }
       .ac-cat-img img{ width:100%; height:100%; object-fit:cover; }
       .ac-cat:hover .ac-cat-img{ transform:translateY(-3px); }
       .ac-cat.on .ac-cat-img{ border-color:var(--ac-gold); }
@@ -2745,7 +2745,52 @@
       .aco-copy{ border:1px solid rgba(212,147,10,.4); background:#fff; color:var(--ac-gold); border-radius:8px; padding:3px 9px; font-size:11px; font-weight:800; cursor:pointer; font-family:'Cairo',sans-serif; }
 
       /* Wallet */
-      .acw-card{ border-radius:20px; padding:26px 28px; color:#fff; background:linear-gradient(135deg,#1b2556,#0e7afe); display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; }
+      .acw-card{ position:relative; overflow:hidden; border-radius:20px; padding:26px 28px; color:#fff; background:linear-gradient(135deg,#d99401 0%,#e8a317 55%,#f5c04a 100%); box-shadow:0 10px 32px rgba(217,148,1,.33); display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; }
+      .acw-card::after{ content:''; position:absolute; inset:0; background:radial-gradient(circle at bottom left,rgba(255,255,255,.22),transparent 60%); pointer-events:none; }
+      .acw-card > *{ position:relative; z-index:1; }
+      .acw-topup{ display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:14px; border:2px solid rgba(255,255,255,.75); background:#fff; color:#b37700; font-family:'Cairo',sans-serif; font-weight:800; font-size:14px; cursor:pointer; box-shadow:0 6px 18px rgba(0,0,0,.12); transition:transform .15s; }
+      .acw-topup:hover{ transform:translateY(-2px); }
+      .acw-top{ margin-top:14px; background:var(--ac-card); border:1px solid var(--ac-line); border-radius:18px; padding:18px 20px; }
+      .acw-top-h{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+      .acw-top-h b{ font-size:16px; color:var(--ac-ink); }
+      .acw-x{ width:32px; height:32px; border-radius:50%; border:1px solid var(--ac-line); background:transparent; color:var(--ac-sub); font-size:18px; cursor:pointer; }
+      .acw-top label{ display:block; font-size:12px; font-weight:700; color:var(--ac-sub); margin-bottom:6px; }
+      .acw-amt-in{ display:flex; align-items:center; gap:8px; max-width:360px; padding:4px 14px; border:1.5px solid var(--ac-line); border-radius:12px; background:var(--ac-card); }
+      .acw-amt-in:focus-within{ border-color:#d99401; }
+      .acw-amt-in input{ flex:1; min-width:0; border:none; outline:none; background:transparent; padding:10px 0; font-size:20px; font-weight:800; color:var(--ac-ink); font-family:'Space Grotesk','Cairo',sans-serif; }
+      .acw-amt-in span{ font-weight:800; color:var(--ac-sub); }
+      .acw-chips{ display:flex; gap:8px; flex-wrap:wrap; margin:12px 0 16px; }
+      .acw-chips button{ padding:7px 14px; border-radius:99px; border:1px solid var(--ac-line); background:transparent; color:var(--ac-ink); font-family:'Cairo',sans-serif; font-weight:700; cursor:pointer; }
+      .acw-chips button:hover{ border-color:#d99401; color:#b37700; background:rgba(217,148,1,.08); }
+      .acw-top-sum{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; padding:10px 14px; border-radius:12px; background:rgba(217,148,1,.08); border:1px solid rgba(217,148,1,.25); margin-bottom:14px; font-size:13.5px; color:var(--ac-ink); }
+      .acw-top-sum button{ border:none; background:none; color:#b37700; font-weight:800; cursor:pointer; font-family:'Cairo',sans-serif; text-decoration:underline; }
+      /* Store payment history table */
+      .acx-card{ margin-top:16px; background:var(--ac-card); border:1px solid var(--ac-line); border-radius:18px; overflow:hidden; }
+      .acx-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:16px 20px; border-bottom:1px solid var(--ac-line); }
+      .acx-head h3{ margin:0; font-size:15px; font-weight:800; color:var(--ac-ink); }
+      .acx-head p{ margin:2px 0 0; font-size:12px; color:var(--ac-sub); }
+      .acx-show{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ac-sub); }
+      .acx-show select{ padding:4px 8px; border-radius:8px; border:1px solid var(--ac-line); background:var(--ac-card); color:var(--ac-ink); font-size:12px; }
+      .acx-scroll{ overflow-x:auto; }
+      .acx-tbl{ width:100%; min-width:820px; border-collapse:collapse; white-space:nowrap; }
+      .acx-tbl th{ text-align:start; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ac-sub); padding:12px 16px; background:rgba(148,163,184,.08); }
+      .acx-tbl td{ padding:12px 16px; border-top:1px solid var(--ac-line); font-size:13.5px; color:var(--ac-sub); }
+      .acx-tbl tr:hover td{ background:rgba(148,163,184,.06); }
+      .acx-code{ display:inline-block; font-size:12px; font-weight:800; letter-spacing:.4px; padding:4px 8px; border-radius:7px; font-family:'Space Grotesk',sans-serif; direction:ltr; }
+      .acx-code.ord{ background:rgba(217,148,1,.1); color:#d99401; border:1px solid rgba(217,148,1,.25); }
+      .acx-code.wal{ background:rgba(34,197,94,.1); color:#16a34a; border:1px solid rgba(34,197,94,.25); }
+      .acx-desc{ font-weight:700; color:var(--ac-ink) !important; max-width:220px; overflow:hidden; text-overflow:ellipsis; }
+      .acx-amt{ font-weight:800; color:var(--ac-ink) !important; font-family:'Space Grotesk','Cairo',sans-serif; }
+      .acx-st{ display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:99px; font-size:12px; font-weight:800; }
+      .acx-st.ok{ background:#DCFCE7; color:#166534; } .acx-st.pend{ background:#FEF3C7; color:#92400E; } .acx-st.bad{ background:#FEE2E2; color:#991B1B; }
+      .acx-pdf{ display:inline-flex; align-items:center; gap:4px; padding:5px 10px; border-radius:8px; border:1px solid var(--ac-line); background:rgba(148,163,184,.08); color:var(--ac-sub); font-size:11px; font-weight:800; cursor:pointer; font-family:'Cairo',sans-serif; }
+      .acx-pdf:hover{ background:rgba(217,148,1,.1); color:#d99401; border-color:rgba(217,148,1,.3); }
+      .acx-pdf:disabled{ opacity:.5; cursor:wait; }
+      .acx-foot{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; padding:14px 20px; border-top:1px solid var(--ac-line); font-size:12px; color:var(--ac-sub); }
+      .acx-pages{ display:flex; gap:4px; align-items:center; }
+      .acx-pages button{ min-width:28px; height:28px; border-radius:8px; border:1px solid var(--ac-line); background:transparent; color:var(--ac-ink); font-size:12px; font-weight:700; cursor:pointer; }
+      .acx-pages button.on{ background:#d99401; border-color:#d99401; color:#fff; }
+      .acx-pages button:disabled{ opacity:.4; cursor:default; }
       .acw-card small{ display:block; font-size:12px; opacity:.8; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
       .acw-card b{ font-family:'Space Grotesk',sans-serif; font-size:36px; font-weight:800; }
       .acw-note{ font-size:12px; opacity:.85; max-width:320px; line-height:1.6; }
@@ -2902,9 +2947,21 @@
       </div>
       <div id="acViewCheckout" style="display:none;"></div>
       <div id="acViewWallet" style="display:none;">
-        <div class="acw-card"><div><small id="acwLbl"></small><b><span id="acwBal">0.00</span> <span style="font-size:16px;" id="acwCur"></span></b></div><div class="acw-note" id="acwNote"></div></div>
-        <div class="aco-head"><h3 id="acwTxTitle"></h3></div>
-        <div class="acw-list" id="acwList"></div>
+        <div class="acw-card">
+          <div><small id="acwLbl"></small><b><span id="acwBal">0.00</span> <span style="font-size:16px;" id="acwCur"></span></b><div class="acw-note" id="acwNote" style="margin-top:6px;"></div></div>
+          <button class="acw-topup" id="acwTopBtn" onclick="acwToggleTopup()"></button>
+        </div>
+        <div class="acw-top" id="acwTop" style="display:none;"></div>
+        <div class="acx-card">
+          <div class="acx-head">
+            <div><h3 id="acwTxTitle"></h3><p id="acxCount"></p></div>
+            <div class="acx-show"><span id="acxShowLbl"></span>
+              <select id="acxPer" onchange="acxPage=1;renderAcTx()"><option>5</option><option selected>10</option><option>20</option><option>50</option></select>
+              <span id="acxRowsLbl"></span></div>
+          </div>
+          <div class="acx-scroll"><table class="acx-tbl"><thead><tr id="acxHead"></tr></thead><tbody id="acxBody"></tbody></table></div>
+          <div class="acx-foot" id="acxFoot"></div>
+        </div>
       </div>
     </div>
 
@@ -3281,7 +3338,7 @@
             <div id="profileTabStatus" style="font-size:12px;color:var(--ok);min-height:16px;"></div>
             <div id="profileTabPassStatus" style="font-size:12px;color:var(--ok);min-height:16px;"></div>
             <button class="btn btn-gold" style="padding:9px 28px;" onclick="saveProfileFromTab();changePasswordFromTab();">
-              <span>حفظ التغييرات</span>
+              <span data-i18n="profile_save">حفظ التغييرات</span>
             </button>
           </div>
 
@@ -5839,7 +5896,7 @@ document.addEventListener('click', (e)=>{
    Old pane exits (pane-exiting, 0.22s), then new pane enters (pane-entering, 0.22s). */
 let _goTabLock = false;
 function goTab(tab, persist = true){
-  if (tab !== 'academic' && typeof acUnmountPayBlock === 'function') acUnmountPayBlock();
+  if (tab !== 'academic' && typeof acUnmountPayBlock === 'function') { if (typeof acTop !== 'undefined' && acTop) acwCloseTopup(); acUnmountPayBlock(); }
   if (tab === 'my-profile' && typeof renderPushCard === 'function') setTimeout(renderPushCard, 0);
   if(_goTabLock) return;
   const currentPane = document.querySelector('.tabpane[style*="block"]') ||
@@ -5914,7 +5971,8 @@ async function loadPaymentHistory(){
       .neq('status', 'superseded')
       .order('created_at', { ascending: false });
     if (error) throw error;
-    paymentHistoryList = data || [];
+    // Store payments (order or wallet top-up) are listed in Academic Tools → Wallet, not here.
+    paymentHistoryList = (data || []).filter(p => !String(p.pack_id || '').startsWith('store'));
     renderPaymentHistory();
   } catch (err) {
     console.error('loadPaymentHistory failed:', err);
@@ -7821,7 +7879,10 @@ function renderAcShell(){
   document.getElementById('acwLbl').textContent = hx('رصيد المحفظة', 'Wallet balance');
   document.getElementById('acwCur').textContent = currentCurrency === 'USD' ? 'USD' : hx('ج.م', 'EGP');
   document.getElementById('acwNote').textContent = hx('رصيد المحفظة دي للمتجر بس، ومنفصل عن رصيد الفحوصات.', 'This balance is for the store only, separate from your check slots.');
-  document.getElementById('acwTxTitle').textContent = hx('حركات المحفظة', 'Wallet activity');
+  document.getElementById('acwTxTitle').textContent = hx('سجل المدفوعات', 'Payment History');
+  document.getElementById('acwTopBtn').innerHTML = `<span style="font-size:18px;line-height:1;">＋</span> ${hx('شحن المحفظة', 'Top up')}`;
+  document.getElementById('acxShowLbl').textContent = hx('عرض', 'Show');
+  document.getElementById('acxRowsLbl').textContent = hx('صف', 'rows');
   const sorts = [['top', '☆', hx('الأعلى تقييماً', 'Top Rated')], ['low', '↘', hx('الأقل سعراً', 'Low Price')],
                  ['high', '↗', hx('الأعلى سعراً', 'High Price')], ['new', '🕘', hx('الأحدث', 'New')]];
   document.getElementById('acSortBtns').innerHTML = sorts.map(([k, i, l]) =>
@@ -7831,6 +7892,7 @@ function renderAcShell(){
 function acSub(view){
   if (view === 'checkout' && !acCk) view = 'store';
   if (view !== 'checkout') acUnmountPayBlock();
+  if (typeof acTop !== 'undefined' && acTop) acwCloseTopup(); // the top-up panel never outlives its view
   acS.view = view;
   [['store', 'acViewStore'], ['orders', 'acViewOrders'], ['wallet', 'acViewWallet'], ['checkout', 'acViewCheckout']].forEach(([k, id]) => {
     document.getElementById(id).style.display = k === view ? 'block' : 'none';
@@ -8141,23 +8203,259 @@ async function acoCreds(id){
 }
 function acCopy(btn){ navigator.clipboard?.writeText(btn.dataset.v).then(() => toast(hx('اتنسخ', 'Copied'), 'success')); }
 
-/* Wallet */
+/* Wallet: balance card, top-up, and the store payment history (orders, top-ups, admin changes) */
+// Store codes are separate from the check-payment codes (PKC-…): AT- for orders, AW- for wallet movements.
+const acxOrderCode = id => 'AT-' + String(id).replace(/-/g, '').slice(0, 8).toUpperCase();
+const acxWalletCode = id => (/^\d+$/.test(String(id)) ? 'AW-' + String(id).padStart(8, '0') : 'AW-' + String(id).replace(/-/g, '').slice(0, 8).toUpperCase());
+const ACX_GATEWAYS = { binance: 'Binance Pay', bybit: 'Bybit Pay', bep20: 'BEP20 / BSC', easykash: 'EasyKash', instapay: 'InstaPay', vodafone: 'Vodafone Cash' };
+var acxRows = [], acxPage = 1;
+
+function acxMethod(m){
+  if (!m) return '—';
+  if (m === 'wallet') return hx('المحفظة', 'wallet');
+  if (m === 'admin') return hx('الإدارة', 'Admin');
+  if (String(m).startsWith('coupon')) return hx('كوبون', 'coupon');
+  return ACX_GATEWAYS[m] || m;
+}
+// Amounts are stored in EGP, or in USD for crypto gateways; shown in the site currency.
+const acxEgp = (amount, cur) => (['USD', 'USDT'].includes(String(cur || 'EGP').toUpperCase()) ? Number(amount) * exchangeRate : Number(amount));
+
 async function loadAcWallet(){
-  const [wal, tx] = await Promise.all([
+  const [wal, tx, orders, pays] = await Promise.all([
     supabaseClient.from('store_wallet').select('balance_egp').maybeSingle(),
-    supabaseClient.from('store_wallet_tx').select('*').order('created_at', { ascending: false }).limit(100),
+    supabaseClient.from('store_wallet_tx').select('*').order('created_at', { ascending: false }).limit(500),
+    supabaseClient.from('store_orders').select('id, product_id, product_name, plan_name, price_egp, list_price_egp, discount_egp, coupon_code, status, duration_days, created_at, payment_method').order('created_at', { ascending: false }).limit(500),
+    supabaseClient.from('payments').select('id, pack_id, amount, currency, gateway, status, created_at, reference').like('pack_id', 'store%').neq('status', 'superseded').order('created_at', { ascending: false }).limit(500),
   ]);
   acS.wallet = Number(wal.data?.balance_egp || 0);
   document.getElementById('acwBal').textContent = acMoneyNum(acS.wallet);
-  const kinds = { topup: hx('شحن', 'Top-up'), purchase: hx('شراء', 'Purchase'), refund: hx('استرجاع', 'Refund'), admin_adjust: hx('تعديل من الإدارة', 'Adjustment') };
-  const rows = tx.data || [];
-  document.getElementById('acwList').innerHTML = rows.length ? rows.map(r => {
-    const plus = Number(r.amount_egp) > 0;
-    const note = r.kind === 'purchase' && r.note ? ` · ${escapeHtml(r.note)}` : '';
-    return `<div class="acw-row"><div><div class="t">${kinds[r.kind] || r.kind}${note}</div><div class="d">${fmtDateTime(r.created_at)}</div></div>
-      <div class="acw-amt ${plus ? 'plus' : 'minus'}">${plus ? '+' : ''}${acMoney(r.amount_egp)}</div></div>`;
-  }).join('') : `<div class="ac-empty">${hx('مفيش حركات لسه', 'No activity yet')}</div>`;
+
+  const rows = [];
+  const ordById = {};
+  (orders.data || []).forEach(o => { ordById[o.id] = o; });
+  // Completed and refunded orders.
+  (orders.data || []).filter(o => o.status !== 'pending_payment').forEach(o => rows.push({
+    key: 'o:' + o.id, kind: 'order', code: acxOrderCode(o.id), desc: o.product_name, sub: o.plan_name,
+    egp: Number(o.price_egp), method: o.payment_method || (Number(o.price_egp) === 0 && o.coupon_code ? 'coupon' : 'wallet'),
+    status: o.status === 'refunded' ? 'refunded' : 'completed', at: o.created_at, ord: o,
+  }));
+  // Gateway payments: wallet top-ups, and order payments that have not completed the order (pending or failed).
+  (pays.data || []).forEach(p => {
+    const isOrder = String(p.pack_id).startsWith('store-order:');
+    if (isOrder) {
+      const o = ordById[String(p.pack_id).slice(12)];
+      if (p.status === 'completed' && o && o.status !== 'pending_payment') return; // already listed as the order
+      rows.push({ key: 'p:' + p.id, kind: 'orderpay', code: o ? acxOrderCode(o.id) : acxWalletCode(p.id), desc: o ? o.product_name : hx('طلب من المتجر', 'Store order'),
+        sub: o?.plan_name || '', egp: acxEgp(p.amount, p.currency), method: p.gateway, status: p.status, at: p.created_at, pay: p });
+    } else {
+      rows.push({ key: 'p:' + p.id, kind: 'topup', code: acxWalletCode(p.id), desc: hx('شحن المحفظة', 'Wallet Top-up'), sub: '',
+        egp: acxEgp(p.amount, p.currency), method: p.gateway, status: p.status, at: p.created_at, pay: p });
+    }
+  });
+  // Changes made by the admin, and refunds back to the wallet.
+  (tx.data || []).filter(t => ['admin_adjust', 'refund'].includes(t.kind)).forEach(t => rows.push({
+    key: 't:' + t.id, kind: t.kind, code: acxWalletCode(t.id),
+    desc: t.kind === 'refund' ? hx('استرجاع للمحفظة', 'Refund to wallet') : (Number(t.amount_egp) >= 0 ? hx('إضافة رصيد', 'Add Balance') : hx('خصم رصيد', 'Deduct Balance')),
+    sub: '', egp: Math.abs(Number(t.amount_egp)), method: t.kind === 'refund' ? 'wallet' : 'admin', status: 'completed', at: t.created_at,
+  }));
+  rows.sort((a, b) => new Date(b.at) - new Date(a.at));
+  acxRows = rows;
+  renderAcTx();
+  if (acTop && acTop.step === 'amount') renderAcwTopup();
 }
+
+function renderAcTx(){
+  const per = parseInt(document.getElementById('acxPer')?.value, 10) || 10;
+  const total = acxRows.length;
+  const pages = Math.max(1, Math.ceil(total / per));
+  if (acxPage > pages) acxPage = pages;
+  const list = acxRows.slice((acxPage - 1) * per, acxPage * per);
+  document.getElementById('acxCount').textContent = `${total} ${hx('عملية', 'transactions')}`;
+  document.getElementById('acxHead').innerHTML = [hx('الكود', 'Code'), hx('البيان', 'Description'), hx('المبلغ', 'Amount'), hx('وسيلة الدفع', 'Method'), hx('الحالة', 'Status'), hx('التاريخ', 'Date'), '']
+    .map(h => `<th>${h}</th>`).join('');
+  const ST = {
+    completed: ['ok', '✓', hx('مكتمل', 'Completed')],
+    pending:   ['pend', '🕒', hx('معلق', 'Pending')],
+    rejected:  ['bad', '✕', hx('فشل', 'Failed')],
+    refunded:  ['bad', '↩', hx('مسترد', 'Refunded')],
+  };
+  const fmt = iso => new Date(iso).toLocaleString(currentLang === 'ar' ? 'ar-EG-u-nu-latn' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+  document.getElementById('acxBody').innerHTML = list.length ? list.map(r => {
+    const [cls, ic, lbl] = ST[r.status] || ST.pending;
+    const canPdf = r.status === 'completed' && (r.kind === 'order' || r.kind === 'topup');
+    return `<tr>
+      <td><span class="acx-code ${r.kind === 'order' || r.kind === 'orderpay' ? 'ord' : 'wal'}">${escapeHtml(r.code)}</span></td>
+      <td class="acx-desc" title="${escapeHtml(r.sub || '')}">${escapeHtml(r.desc || '—')}</td>
+      <td class="acx-amt">${acMoney(r.egp)}</td>
+      <td>${escapeHtml(acxMethod(r.method))}</td>
+      <td><span class="acx-st ${cls}">${ic} ${lbl}</span></td>
+      <td>${fmt(r.at)}</td>
+      <td>${canPdf ? `<button class="acx-pdf" onclick="acInvoice('${r.key}', this)" title="${hx('تحميل الفاتورة', 'Download Invoice')}">⬇ PDF</button>` : ''}</td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="7" style="text-align:center;padding:40px;">${hx('لا توجد مدفوعات بعد', 'No payments yet')}</td></tr>`;
+
+  const foot = document.getElementById('acxFoot');
+  if (pages <= 1) { foot.innerHTML = ''; foot.style.display = 'none'; return; }
+  foot.style.display = '';
+  const nums = [];
+  for (let n = 1; n <= pages; n++) if (n === 1 || n === pages || Math.abs(n - acxPage) <= 1) {
+    if (nums.length && n - nums[nums.length - 1] > 1) nums.push('…');
+    nums.push(n);
+  }
+  const rtl = currentLang === 'ar';
+  foot.innerHTML = `<span>${(acxPage - 1) * per + 1}–${Math.min(acxPage * per, total)} ${hx('من', 'of')} ${total}</span>
+    <div class="acx-pages">
+      <button ${acxPage === 1 ? 'disabled' : ''} onclick="acxGo(${acxPage - 1})">${rtl ? '›' : '‹'}</button>
+      ${nums.map(n => n === '…' ? '<span>…</span>' : `<button class="${n === acxPage ? 'on' : ''}" onclick="acxGo(${n})">${n}</button>`).join('')}
+      <button ${acxPage === pages ? 'disabled' : ''} onclick="acxGo(${acxPage + 1})">${rtl ? '‹' : '›'}</button>
+    </div>`;
+}
+function acxGo(n){ acxPage = n; renderAcTx(); }
+
+/* Top-up: pick an amount, then pay with the site's payment block (same 3 tabs and gateways). */
+var acTop = null;
+const ACW_MIN_EGP = 50, ACW_MAX_EGP = 50000;
+function acwToggleTopup(){
+  if (acTop) { acwCloseTopup(); return; }
+  acTop = { step: 'amount', egp: 0 };
+  document.getElementById('acwTop').style.display = 'block';
+  renderAcwTopup();
+  document.getElementById('acwTop').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function acwCloseTopup(){
+  acUnmountPayBlock();
+  acTop = null;
+  const box = document.getElementById('acwTop');
+  if (box) { box.style.display = 'none'; box.innerHTML = ''; }
+}
+function renderAcwTopup(){
+  const box = document.getElementById('acwTop');
+  if (!box || !acTop) return;
+  const usd = currentCurrency === 'USD';
+  const head = `<div class="acw-top-h"><b>💰 ${hx('شحن محفظة المتجر', 'Top up your store wallet')}</b><button class="acw-x" onclick="acwCloseTopup()" aria-label="Close">×</button></div>`;
+  if (acTop.step === 'amount') {
+    const chips = usd ? [2, 5, 10, 20, 50] : [100, 250, 500, 1000, 2500];
+    const val = acTop.egp ? (usd ? +(acTop.egp / exchangeRate).toFixed(2) : acTop.egp) : '';
+    box.innerHTML = `${head}
+      <label for="acwAmt">${hx('المبلغ', 'Amount')}</label>
+      <div class="acw-amt-in"><input id="acwAmt" type="number" inputmode="decimal" min="0" step="${usd ? '0.5' : '10'}" value="${val}" placeholder="0" onkeydown="if(event.key==='Enter')acwTopContinue()"><span>${usd ? 'USD' : hx('ج.م', 'EGP')}</span></div>
+      <div class="acw-chips">${chips.map(v => `<button type="button" onclick="acwSetAmt(${v})">${usd ? '$' + v : v + ' ' + hx('ج.م', 'EGP')}</button>`).join('')}</div>
+      <button class="ck-main" style="max-width:360px;" onclick="acwTopContinue()">${hx('متابعة للدفع ←', 'Continue to payment →')}</button>
+      <p style="margin:10px 0 0;font-size:12px;color:var(--ac-sub);">${hx(`أقل مبلغ ${acMoney(ACW_MIN_EGP)}. الرصيد بيتضاف للمحفظة أول ما الدفع يتأكد.`, `Minimum ${acMoney(ACW_MIN_EGP)}. The balance is added as soon as the payment is confirmed.`)}</p>`;
+    return;
+  }
+  box.innerHTML = `${head}
+    <div class="acw-top-sum"><span>${hx('هتشحن', 'You are adding')} <b>${acMoney(acTop.egp)}</b> ${hx('لمحفظة المتجر', 'to your store wallet')}</span>
+      <button type="button" onclick="acwTopBack()">${hx('تغيير المبلغ', 'Change amount')}</button></div>
+    <div id="acwPayMount"></div>`;
+  acPayInto('acwPayMount', {
+    id: 'store-topup', priceEgp: acTop.egp, credits: 0, bonus: 0, tab: 'store', store: true, topup: true,
+    label: hx('شحن محفظة المتجر', 'Store wallet top-up'),
+  });
+}
+function acwSetAmt(v){
+  const i = document.getElementById('acwAmt');
+  if (i) { i.value = v; i.focus(); }
+}
+function acwTopContinue(){
+  const v = Number(document.getElementById('acwAmt')?.value || 0);
+  const egp = Math.round(currentCurrency === 'USD' ? v * exchangeRate : v);
+  if (!(egp >= ACW_MIN_EGP)) { toast(hx(`أقل مبلغ للشحن ${acMoney(ACW_MIN_EGP)}`, `The minimum top-up is ${acMoney(ACW_MIN_EGP)}`), 'error'); return; }
+  if (egp > ACW_MAX_EGP) { toast(hx(`أقصى مبلغ للشحن ${acMoney(ACW_MAX_EGP)}`, `The maximum top-up is ${acMoney(ACW_MAX_EGP)}`), 'error'); return; }
+  acTop.egp = egp;
+  acTop.step = 'pay';
+  renderAcwTopup();
+}
+function acwTopBack(){ acUnmountPayBlock(); acTop.step = 'amount'; renderAcwTopup(); }
+
+// Called by the payment code once a top-up payment is verified.
+async function acTopupPaid(){
+  const before = acS.wallet;
+  acwCloseTopup();
+  await loadAcWallet();
+  if (acS.wallet > before) {
+    if (typeof launchConfetti === 'function') launchConfetti();
+    await appAlert(hx(`تم شحن المحفظة ✅ رصيدك دلوقتي ${acMoney(acS.wallet)}`, `Wallet topped up ✅ Your balance is now ${acMoney(acS.wallet)}`), { icon: 'success' });
+  } else {
+    await appAlert(hx('تم استلام الدفع وهيتضاف لرصيدك أول ما يتأكد.', 'Payment received. It will be added to your balance once confirmed.'), { icon: 'success' });
+  }
+}
+
+/* Invoice: the same PDF for an order or a top-up, built in the browser. */
+function acInvoiceHtml(r){
+  const ar = currentLang === 'ar';
+  const o = r.ord;
+  const items = o
+    ? [[`${o.product_name}${o.plan_name ? ' — ' + o.plan_name : ''}`, acDur(o.duration_days), acMoney(o.list_price_egp ?? o.price_egp)]]
+    : [[hx('شحن محفظة المتجر', 'Store wallet top-up'), '—', acMoney(r.egp)]];
+  const disc = o ? Number(o.discount_egp || 0) : 0;
+  const sub = o ? Number(o.list_price_egp ?? o.price_egp) : r.egp;
+  const row = (l, v, strong) => `<tr><td style="padding:6px 0;color:${strong ? '#111827' : '#6b7280'};font-weight:${strong ? 800 : 600};">${l}</td><td style="padding:6px 0;text-align:${ar ? 'left' : 'right'};font-weight:${strong ? 900 : 700};color:#111827;font-size:${strong ? '17px' : '13px'};">${v}</td></tr>`;
+  return `<div dir="${ar ? 'rtl' : 'ltr'}" style="width:720px;padding:40px 44px;background:#fff;color:#111827;font-family:'Cairo','Segoe UI',Arial,sans-serif;box-sizing:border-box;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px;border-bottom:3px solid #d99401;padding-bottom:18px;">
+      <div><div style="font-size:26px;font-weight:900;letter-spacing:-.5px;">PK <span style="color:#d99401;">Checker</span></div>
+        <div style="font-size:12px;color:#6b7280;margin-top:2px;">Academic Tools · www.pkchecker.com</div></div>
+      <div style="text-align:${ar ? 'left' : 'right'};"><div style="font-size:22px;font-weight:900;color:#d99401;">${hx('فاتورة', 'INVOICE')}</div>
+        <div style="font-size:13px;font-weight:800;margin-top:4px;direction:ltr;">${escapeHtml(r.code)}</div>
+        <div style="font-size:12px;color:#6b7280;">${acDate(r.at)}</div></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;gap:20px;margin:22px 0;">
+      <div><div style="font-size:11px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.8px;">${hx('فاتورة إلى', 'Billed to')}</div>
+        <div style="font-size:15px;font-weight:800;margin-top:4px;">${escapeHtml(currentUser.name || '—')}</div>
+        <div style="font-size:12.5px;color:#4b5563;direction:ltr;text-align:${ar ? 'right' : 'left'};">${escapeHtml(currentUser.email || '')}</div>
+        <div style="font-size:12.5px;color:#4b5563;direction:ltr;text-align:${ar ? 'right' : 'left'};">${escapeHtml(currentUser.id || '')}</div></div>
+      <div style="text-align:${ar ? 'left' : 'right'};"><div style="font-size:11px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.8px;">${hx('الحالة', 'Status')}</div>
+        <div style="display:inline-block;margin-top:6px;padding:4px 14px;border-radius:99px;background:#DCFCE7;color:#166534;font-weight:900;font-size:13px;">✓ ${hx('مدفوعة', 'PAID')}</div>
+        <div style="font-size:12.5px;color:#4b5563;margin-top:8px;">${hx('وسيلة الدفع', 'Payment method')}: <b>${escapeHtml(acxMethod(r.method))}</b></div></div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead><tr style="background:#fdf6e7;">
+        <th style="padding:10px 12px;text-align:start;">${hx('البيان', 'Description')}</th>
+        <th style="padding:10px 12px;text-align:start;">${hx('المدة', 'Duration')}</th>
+        <th style="padding:10px 12px;text-align:end;">${hx('المبلغ', 'Amount')}</th></tr></thead>
+      <tbody>${items.map(([d, du, a]) => `<tr><td style="padding:12px;border-bottom:1px solid #eceef3;font-weight:700;">${escapeHtml(d)}</td><td style="padding:12px;border-bottom:1px solid #eceef3;">${escapeHtml(du)}</td><td style="padding:12px;border-bottom:1px solid #eceef3;text-align:end;font-weight:800;">${a}</td></tr>`).join('')}</tbody>
+    </table>
+    <table style="width:280px;margin-${ar ? 'right' : 'left'}:auto;margin-top:16px;border-collapse:collapse;font-size:13px;">
+      ${row(hx('المجموع', 'Subtotal'), acMoney(sub))}
+      ${disc > 0 ? row(`${hx('الخصم', 'Discount')}${o.coupon_code ? ` (${escapeHtml(o.coupon_code)})` : ''}`, '-' + acMoney(disc)) : ''}
+      <tr><td colspan="2" style="border-top:2px solid #111827;padding:0;"></td></tr>
+      ${row(hx('الإجمالي', 'Total'), acMoney(r.egp), true)}
+    </table>
+    <div style="margin-top:36px;padding-top:14px;border-top:1px dashed #d1d5db;font-size:11.5px;color:#9ca3af;text-align:center;">
+      ${hx('شكراً لتعاملك معانا 💛 الفاتورة دي اتعملت أوتوماتيك ومش محتاجة توقيع.', 'Thank you for your purchase 💛 This invoice was generated automatically and needs no signature.')}</div>
+  </div>`;
+}
+function acLoadScript(src){
+  return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
+}
+async function acInvoice(key, btn){
+  const r = acxRows.find(x => x.key === key);
+  if (!r) return;
+  if (btn) btn.disabled = true;
+  try {
+    if (!window.html2pdf) await acLoadScript('https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.2/dist/html2pdf.bundle.min.js');
+    const holder = document.createElement('div');
+    holder.style.cssText = 'position:fixed;left:-10000px;top:0;';
+    holder.innerHTML = acInvoiceHtml(r);
+    document.body.appendChild(holder);
+    await window.html2pdf().set({
+      margin: 0, filename: `${r.code}.pdf`, image: { type: 'jpeg', quality: 0.96 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+      jsPDF: { unit: 'px', format: [720, 1018], orientation: 'portrait', hotfixes: ['px_scaling'] },
+    }).from(holder.firstElementChild).save();
+    holder.remove();
+  } catch (e) {
+    // Fallback: open the invoice in a new window and let the browser print / save it as PDF.
+    const w = window.open('', '_blank');
+    if (w) {
+      w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(r.code)}</title></head><body style="margin:0;">${acInvoiceHtml(r)}</body></html>`);
+      w.document.close(); w.focus(); setTimeout(() => w.print(), 400);
+    } else toast(hx('تعذر تحميل الفاتورة', 'Could not download the invoice'), 'error');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
 
 /* ── Academic Tools: checkout (Order details → Payment → Done) ─────────────── */
 let acCk = null;
@@ -8329,17 +8627,22 @@ function acCkDone(){
 // moved into the checkout while it is open, with the order as the "pack" (pack_id store-order:<id>).
 let acPayHome = null;
 function acMountPayBlock(){
+  if (!acCk || !acCk.orderId) return;
+  acPayInto('acPayMount', {
+    id: 'store-order:' + acCk.orderId, priceEgp: acCk.total, credits: 0, bonus: 0, tab: 'store', store: true,
+    label: `${acName(acCk.prod)} — ${acDur(acCk.plan.duration_days)}`,
+  });
+}
+// Moves the shared payment block into `mountId` and makes `pack` the thing being paid for.
+function acPayInto(mountId, pack){
   const blk = document.getElementById('walletPayBlock');
-  const mount = document.getElementById('acPayMount');
-  if (!blk || !mount || !acCk || !acCk.orderId) return;
+  const mount = document.getElementById(mountId);
+  if (!blk || !mount) return;
   if (!acPayHome) acPayHome = { parent: blk.parentNode, next: blk.nextSibling, margin: blk.style.marginTop };
   mount.appendChild(blk);
   blk.style.display = 'block';
   blk.style.marginTop = '0';
-  selectedPack = {
-    id: 'store-order:' + acCk.orderId, priceEgp: acCk.total, credits: 0, bonus: 0, tab: 'store', store: true,
-    label: `${acName(acCk.prod)} — ${acDur(acCk.plan.duration_days)}`,
-  };
+  selectedPack = pack;
   currentPayRef = null;
   currentPayId = null;
   if (typeof refreshPayTabs === 'function') refreshPayTabs();
@@ -8357,6 +8660,7 @@ function acUnmountPayBlock(){
 
 // Called by the existing payment code once a store payment is verified.
 async function acCheckoutPaid(){
+  if (selectedPack && selectedPack.topup) { await acTopupPaid(); return; }
   if (!acCk || !acCk.orderId) { toast(hx('تم استلام الدفع', 'Payment received'), 'success'); return; }
   const { data } = await supabaseClient.from('store_orders').select('status').eq('id', acCk.orderId).maybeSingle();
   if (data && data.status !== 'pending_payment') { acCkDone(); return; }
@@ -12674,11 +12978,13 @@ async function togglePushCustomer(){
     await appAlert((ar ? 'تعذّر تفعيل الإشعارات: ' : 'Could not turn notifications on: ') + (e.message || e), { icon: 'error' });
   }
 }
+// Declared before anything renders the install box: renderPwaInstallBox() reads it, and a
+// `let` read before its line runs throws "Cannot access ... before initialization".
+var pwaDeferredPrompt = null;
 pushRegistration().then(renderPushCard);
 renderPwaInstallBox();
 
 // ---- How to install the site as an app (shown inside the notifications card) ----
-let pwaDeferredPrompt = null;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   pwaDeferredPrompt = e;
