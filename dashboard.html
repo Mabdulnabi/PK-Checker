@@ -2904,11 +2904,14 @@
       .fx-search{ flex:1; min-width:260px; display:flex; align-items:center; gap:6px; padding:6px; padding-inline-start:10px; border-radius:16px; border:1px solid #c7d7fb; background:#eef4ff; }
       [data-theme="dark"] .fx-search{ background:rgba(59,130,246,.08); border-color:rgba(147,197,253,.25); }
       .fx-eng{ width:30px; height:30px; border-radius:9px; border:none; background:transparent; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:.5; flex:none; }
-      .fx-eng.on{ opacity:1; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.08); outline:2px solid #bfdbfe; }
-      .fx-eng svg{ width:20px; height:20px; }
-      .fx-search .sep{ width:1px; height:22px; background:#c7d7fb; margin:0 4px; flex:none; }
+      .fx-eng.on{ opacity:1; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.08); outline:2px solid color-mix(in srgb, var(--se, #3b82f6) 45%, transparent); }
+      .fx-eng svg, .fx-eng img{ width:20px; height:20px; object-fit:contain; display:block; }
+      [data-theme="dark"] .fx-eng{ background:rgba(255,255,255,.88); opacity:.55; }
+      [data-theme="dark"] .fx-eng.on{ opacity:1; }
+      .fx-search{ transition:border-color .25s, background .25s; }
+      .fx-search .sep{ width:1px; height:22px; background:var(--se, #3b82f6); opacity:.3; margin:0 4px; flex:none; }
       .fx-search input{ flex:1; min-width:0; border:none; background:transparent; outline:none; font-family:'Cairo',sans-serif; font-size:14px; color:var(--fx-ink); }
-      .fx-search .go{ width:34px; height:34px; border-radius:10px; border:none; background:#3b82f6; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; flex:none; }
+      .fx-search .go{ width:34px; height:34px; border-radius:10px; border:none; background:var(--se, #3b82f6); color:#fff; transition:background .25s; cursor:pointer; display:flex; align-items:center; justify-content:center; flex:none; }
       .fx-notice{ display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:12px; border:1px solid #10b98140; background:#10b9810d; color:#059669; font-size:12.5px; margin-bottom:14px; }
       .fx-bar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
       .fx-seg{ display:flex; padding:3px; border-radius:12px; background:var(--fx-soft); }
@@ -8422,11 +8425,11 @@ const FX_IC = {
   alarm: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M5 3L2 6M22 6l-3-3"/></svg>',
 };
 const FX_ENGINES = [
-  { id: 'google', label: 'Google', url: 'https://www.google.com/search?q=', logo: '<svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>' },
-  { id: 'youtube', label: 'YouTube', url: 'https://www.youtube.com/results?search_query=', logo: '<svg viewBox="0 0 90 63"><rect width="90" height="63" rx="14" fill="#FF0000"/><polygon points="33,12 33,51 65,31.5" fill="#fff"/></svg>' },
-  { id: 'chatgpt', label: 'ChatGPT', url: 'https://chatgpt.com/?q=', logo: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#10a37f"/><path d="M12 6l5 2.9v6.2L12 18l-5-2.9V8.9z" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/></svg>' },
-  { id: 'claude', label: 'Claude', url: 'https://claude.ai/new?q=', logo: '<svg viewBox="0 0 100 100">' + [0, 27, 55, 82, 110, 138, 165, 192, 220, 248, 275, 302, 330].map(a => `<rect x="45.5" y="5" width="9" height="43" rx="4.5" fill="#CC7858" transform="rotate(${a} 50 50)"/>`).join('') + '</svg>' },
-  { id: 'perplexity', label: 'Perplexity', url: 'https://www.perplexity.ai/search?q=', logo: '<svg viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#20C8D8"/><path d="M7 6.5l5 4 5-4v11l-5-4-5 4z" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/></svg>' },
+  { id: 'google', label: 'Google', color: '#4285F4', url: 'https://www.google.com/search?q=', logo: '<svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>' },
+  { id: 'youtube', label: 'YouTube', color: '#FF0000', url: 'https://www.youtube.com/results?search_query=', logo: '<svg viewBox="0 0 90 63"><rect width="90" height="63" rx="14" fill="#FF0000"/><polygon points="33,12 33,51 65,31.5" fill="#fff"/></svg>' },
+  { id: 'chatgpt', label: 'ChatGPT', color: '#10a37f', url: 'https://chatgpt.com/?q=', logo: '<img src="assets/focus/chatgpt.webp" alt="ChatGPT">' },
+  { id: 'claude', label: 'Claude', color: '#CC7858', url: 'https://claude.ai/new?q=', logo: '<svg viewBox="0 0 100 100">' + [0, 27, 55, 82, 110, 138, 165, 192, 220, 248, 275, 302, 330].map(a => `<rect x="45.5" y="5" width="9" height="43" rx="4.5" fill="#CC7858" transform="rotate(${a} 50 50)"/>`).join('') + '</svg>' },
+  { id: 'perplexity', label: 'Perplexity', color: '#20B8CD', url: 'https://www.perplexity.ai/search?q=', logo: '<img src="assets/focus/perplexity.webp" alt="Perplexity">' },
 ];
 
 /* Note HTML from a shared board is shown to other members, so only simple formatting survives. */
@@ -8499,6 +8502,9 @@ function fxRenderSearch(){
   const box = document.getElementById('fxSearch');
   if (!box) return;
   const eng = FX_ENGINES.find(e => e.id === FX.engine) || FX_ENGINES[0];
+  box.style.setProperty('--se', eng.color);
+  box.style.borderColor = eng.color + '66';
+  box.style.background = eng.color + '12';
   box.innerHTML = FX_ENGINES.map(e => `<button class="fx-eng${e.id === eng.id ? ' on' : ''}" title="${e.label}" onclick="fxSetEngine('${e.id}')">${e.logo}</button>`).join('')
     + `<span class="sep"></span><input id="fxSearchIn" placeholder="${hx(`ابحث في ${eng.label}...`, `Search on ${eng.label}...`)}" onkeydown="if(event.key==='Enter')fxSearch()">
       <button class="go" onclick="fxSearch()" aria-label="Search">${FX_IC.search}</button>`;
