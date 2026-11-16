@@ -1978,7 +1978,7 @@
         <div class="sid-chip sid-gold">
           <svg data-icon-key="tab_academic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>
         </div>
-        <span data-i18n="nav_academic">Academic Tools</span>
+        <span data-i18n="nav_academic">الأدوات الأكاديمية</span>
       </div>
       <div class="navtab sidebar-item" data-tab="focus">
         <div class="sid-chip sid-cyan">
@@ -2011,7 +2011,6 @@
       </div>
       <svg data-icon-key="sidebar_code_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" width="14" height="14" style="flex:none;color:var(--muted);"><path d="M208,160H48l80-80Z" opacity="0.2"/><path d="M213.66,154.34l-80-80a8,8,0,0,0-11.32,0l-80,80A8,8,0,0,0,48,168H208a8,8,0,0,0,5.66-13.66ZM67.31,152,128,91.31,188.69,152Z"/></svg>
     </div>
-    <div class="pkv-title" data-pkv-title style="margin-top:-10px;"><span class="pkv-code">&lt;/&gt;</span> <span class="pkv-lbl-ar">تطوير - </span><span class="pkv-lbl-en"><b>DEV</b> – </span><a class="pkv-link" href="https://wa.me/201035707561" target="_blank" rel="noopener">Pro Keys</a></div>
     </div><!-- /sidebar-inner -->
   </aside>
   <!-- Collapse button — outside sidebar so it can float on the edge without clipping -->
@@ -3732,7 +3731,7 @@ function applyCustomIcons(){
 const I18N = {
   ar: {
     loading_ellipsis:"جاري التحميل...", lifetime_validity:"صلاحية مدى الحياة", profile_save_ok:"تم حفظ التغييرات", profile_pass_short:"كلمة المرور قصيرة (6 أحرف على الأقل)", profile_pass_error:"تعذر تغيير كلمة المرور",
-    nav_sec_checking:"منطقة الفحص", nav_sec_tools:"الأدوات والخدمات", nav_focus:"وضع التركيز", nav_academic:"Academic Tools", nav_my_orders:"طلباتي", ac_title:"Academic Tools", ac_wallet:"رصيد Academic Tools", ac_egp:"ج.م", ac_active_subs:"الاشتراكات النشطة", ac_all_orders:"كل الطلبات",
+    nav_sec_checking:"منطقة الفحص", nav_sec_tools:"الأدوات والخدمات", nav_focus:"وضع التركيز", nav_academic:"الأدوات الأكاديمية", nav_my_orders:"طلباتي", ac_title:"الأدوات الأكاديمية", ac_wallet:"رصيد الأدوات الأكاديمية", ac_egp:"ج.م", ac_active_subs:"الاشتراكات النشطة", ac_all_orders:"كل الطلبات",
     nav_home:"الرئيسية", nav_new_check:"فحص جديد", nav_orders:"ملفاتي", nav_wallet:"المحفظة", nav_my_history:"السجل", plan_ai_tab:"فحص إقتباس + AI", plan_only_tab:"فحص إقتباس فقط", plan_soon:"قريباً", plan_title:"فحص Turnitin Plag + AI", plan_pill:"تقرير Plag + AI", plan_auto:"تفعيل فوري تلقائي", nav_support:"الدعم", nav_my_profile:"حسابي",
     sup_lang:"اللغة", sup_currency:"العملة", sup_settings:"الإعدادات",
     profile_modal_title:"الملف الشخصي", profile_save_btn:"حفظ", profile_cancel_btn:"إلغاء",
@@ -7540,6 +7539,10 @@ const APP_MODAL_ICONS = {
 
 function showAppModal({ icon = 'info', title, body = '', buttons, autoDismissMs }) {
   const overlay = document.getElementById('appModalOverlay');
+  // In fullscreen only the fullscreen element is visible, so the popup moves inside it while needed.
+  const fs = document.fullscreenElement;
+  if (fs && !fs.contains(overlay)) fs.appendChild(overlay);
+  else if (!fs && overlay.parentNode !== document.body) document.body.appendChild(overlay);
   document.getElementById('appModalIcon').className = 'app-modal-icon ' + icon;
   document.getElementById('appModalIcon').innerHTML = APP_MODAL_ICONS[icon] || APP_MODAL_ICONS.info;
   document.getElementById('appModalTitle').textContent = title;
@@ -7930,7 +7933,7 @@ function acCardHtml(p){
 /* Buying: from the store wallet for now (the checkout page comes next) */
 async function acDoBuy(planId, label, price){
   if (!planId) return false;
-  if (!confirm(hx(`تأكيد شراء ${label} بـ ${acMoney(price)} من رصيد المحفظة؟`, `Buy ${label} for ${acMoney(price)} from your wallet balance?`))) return false;
+  if (!(await appConfirm(hx(`تأكيد شراء ${label} بـ ${acMoney(price)} من رصيد المحفظة؟`, `Buy ${label} for ${acMoney(price)} from your wallet balance?`), { confirmLabel: hx('شراء', 'Buy') }))) return false;
   const { error } = await supabaseClient.rpc('store_buy', { p_plan_id: planId });
   if (error) {
     const m = error.message || '';
@@ -8781,6 +8784,15 @@ function fxChime(){
   } catch (e) {}
 }
 
+/* Every delete asks first, in the site's own popup. On a shared board the item is gone for every member. */
+function fxConfirmDelete(msg){
+  const shared = !!FX.boardId;
+  return appConfirm(shared
+      ? `${msg} ${hx('⚠️ ده في اللوحة المشتركة، وهيتمسح عند كل الأعضاء.', '⚠️ This is on the shared board and will be removed for every member.')}`
+      : msg,
+    { danger: true, title: shared ? hx('حذف من اللوحة المشتركة', 'Delete from the shared board') : hx('تأكيد الحذف', 'Confirm delete'), confirmLabel: hx('حذف', 'Delete') });
+}
+
 /* ── Bookmarks ── */
 const fxFav = url => { try { return `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=64`; } catch (e) { return ''; } };
 const fxNormUrl = raw => { const s = raw.trim(); if (!s) return ''; const u = /^https?:\/\//i.test(s) ? s : 'https://' + s; try { new URL(u); return u; } catch (e) { return ''; } };
@@ -8863,7 +8875,7 @@ function fxBmEdit(id){
 }
 async function fxBmDelete(id){
   const b = FX.bm.find(x => x.id === id);
-  if (!b || !confirm(b.type === 'folder' ? hx('هيتمسح المجلد واللي جواه. متأكد؟', 'Delete this folder and everything in it?') : hx('تمسح المفضلة دي؟', 'Delete this bookmark?'))) return;
+  if (!b || !(await fxConfirmDelete(b.type === 'folder' ? hx('هيتمسح المجلد واللي جواه. متأكد؟', 'Delete this folder and everything in it?') : hx('تمسح المفضلة دي؟', 'Delete this bookmark?')))) return;
   const { error } = await supabaseClient.from('focus_bookmarks').delete().eq('id', id);
   if (error) { toast(hx('تعذر المسح', 'Could not delete'), 'error'); return; }
   FX.bm = FX.bm.filter(x => x.id !== id && x.folder_id !== id);
@@ -8944,7 +8956,7 @@ async function fxNoteFlush(){
   if (st) { st.style.color = ''; st.textContent = hx('اتحفظ ✓', 'Saved ✓'); setTimeout(() => { if (st.isConnected) st.textContent = ''; }, 2000); }
 }
 async function fxNoteDelete(id){
-  if (!confirm(hx('تمسح الملاحظة دي؟', 'Delete this note?'))) return;
+  if (!(await fxConfirmDelete(hx('تمسح الملاحظة دي؟', 'Delete this note?')))) return;
   const { error } = await supabaseClient.from('focus_notes').delete().eq('id', id);
   if (error) { toast(hx('تعذر المسح', 'Could not delete'), 'error'); return; }
   FX.notes = FX.notes.filter(n => n.id !== id);
@@ -9024,7 +9036,7 @@ function fxTaskEdit(id){
   }, '#8b5cf6');
 }
 async function fxTaskDelete(id){
-  if (!confirm(hx('تمسح المهمة دي؟', 'Delete this task?'))) return;
+  if (!(await fxConfirmDelete(hx('تمسح المهمة دي؟', 'Delete this task?')))) return;
   const { error } = await supabaseClient.from('focus_tasks').delete().eq('id', id);
   if (error) { toast(hx('تعذر المسح', 'Could not delete'), 'error'); return; }
   FX.tasks = FX.tasks.filter(t => t.id !== id); fxRenderTasks();
@@ -9124,7 +9136,7 @@ function fxEventModal(id, ymd){
     }, '#06b6d4');
 }
 async function fxEventDelete(id){
-  if (!confirm(hx('تمسح الحدث ده؟', 'Delete this event?'))) return;
+  if (!(await fxConfirmDelete(hx('تمسح الحدث ده؟', 'Delete this event?')))) return;
   const { error } = await supabaseClient.from('focus_events').delete().eq('id', id);
   if (error) { toast(hx('تعذر المسح', 'Could not delete'), 'error'); return; }
   FX.events = FX.events.filter(e => e.id !== id); fxRenderCal();
@@ -9205,7 +9217,7 @@ function fxImportPick(input){
       <div id="fxImpWarn" style="display:none;font-size:12px;color:#ef4444;font-weight:700">${hx('هيتمسح كل المفضلة والملاحظات والمهام والأحداث الخاصة بتاعتك وبعدين يتم الاستيراد.', 'All your private bookmarks, notes, tasks and events will be deleted first, then the file is imported.')}</div>`,
       hx('استيراد', 'Import'), async () => {
         const mode = document.querySelector('#fxImpMode button.on')?.dataset.m || 'merge';
-        if (mode === 'replace' && !confirm(hx('متأكد إنك عايز تمسح بياناتك الخاصة الحالية؟', 'Delete your current private data?'))) return false;
+        if (mode === 'replace' && !(await appConfirm(hx('هيتمسح كل المفضلة والملاحظات والمهام والأحداث الخاصة بتاعتك قبل الاستيراد. متأكد؟', 'All your private bookmarks, notes, tasks and events will be deleted before importing. Are you sure?'), { danger: true, title: hx('استبدال البيانات', 'Replace data'), confirmLabel: hx('امسح واستورد', 'Delete & import') }))) return false;
         const ok = await fxImportRun(p, mode);
         if (ok) { toast(hx('تم الاستيراد ✅', 'Import complete ✅'), 'success'); FX.mode = 'private'; FX.boardId = null; fxRenderBar(); await fxLoadData(); }
         return ok;
@@ -11924,7 +11936,7 @@ function maybeShowOnboarding(profileData){
     <div class="mob-icon" data-icon-key="tab_academic">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>
     </div>
-    <span class="mob-label" data-i18n="nav_academic">Academic Tools</span>
+    <span class="mob-label" data-i18n="nav_academic">الأدوات الأكاديمية</span>
   </div>
   <div class="mob-nav-item" data-tab="support" onclick="goTab('support')">
     <div class="mob-icon" data-icon-key="tab_support">
