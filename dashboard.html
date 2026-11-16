@@ -2927,6 +2927,15 @@
       .fx-link{ display:flex; align-items:center; gap:6px; padding:7px 10px; border:none; background:none; font-family:'Cairo',sans-serif; font-weight:700; font-size:12.5px; color:var(--fx-sub); cursor:pointer; }
       .fx-pick{ padding:6px 10px; border-radius:9px; border:1px solid var(--fx-line); background:var(--fx-card); color:var(--fx-ink); font-family:'Cairo',sans-serif; font-size:12.5px; }
       .fx-hint{ font-size:12px; color:var(--fx-sub); }
+      .fx-people{ display:flex; align-items:center; padding-inline-start:6px; }
+      .fx-av{ position:relative; width:32px; height:32px; border-radius:50%; margin-inline-start:-8px; border:2px solid var(--fx-card); display:inline-flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:13px; cursor:default; box-shadow:0 1px 3px rgba(0,0,0,.12); transition:transform .15s; outline:none; }
+      .fx-av:first-child{ margin-inline-start:0; }
+      .fx-av img{ position:absolute; inset:0; width:100%; height:100%; border-radius:50%; object-fit:cover; }
+      .fx-av.more{ background:var(--fx-soft) !important; color:var(--fx-sub); font-size:11.5px; }
+      .fx-av .fx-crown{ position:absolute; top:-10px; inset-inline-end:-5px; font-size:11px; font-style:normal; }
+      .fx-av:hover, .fx-av:focus{ z-index:3; transform:translateY(-2px); }
+      .fx-av::after{ content:attr(data-name); position:absolute; bottom:calc(100% + 9px); left:50%; transform:translateX(-50%); white-space:nowrap; background:#111827; color:#fff; font-size:11.5px; font-weight:700; padding:5px 9px; border-radius:8px; opacity:0; pointer-events:none; transition:opacity .15s; z-index:5; font-family:'Cairo',sans-serif; }
+      .fx-av:hover::after, .fx-av:focus::after{ opacity:1; }
       .fx-invite-bar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px 14px; border-radius:12px; border:1px solid #06b6d440; background:#06b6d40d; color:var(--fx-ink); font-size:13px; margin-bottom:10px; }
       .fx-invite-bar b{ flex:1; min-width:180px; }
       .fx-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 18px; }
@@ -8408,7 +8417,7 @@ function acmCopyAll(){
    with an optional shared board others join by invitation. ─────────────────────────────── */
 const FX_PANELS = ['pomodoro', 'bookmarks', 'notes', 'tasks', 'calendar'];
 const FX = {
-  ready: false, uid: null, mode: 'private', boardId: null, boards: [], invites: [],
+  ready: false, uid: null, mode: 'private', boardId: null, boards: [], invites: [], people: [],
   bm: [], notes: [], tasks: [], events: [],
   bmFolder: null, noteId: null, noteTimer: null, taskFilter: 'all', taskForm: false,
   calCur: null, calSel: null, drag: null,
@@ -8546,6 +8555,7 @@ function fxRenderBar(){
       <button class="${!shared ? 'on' : ''}" onclick="fxSetMode('private')">${FX_IC.lock} ${hx('خاص', 'Private')}</button>
       <button class="${shared ? 'on shared' : ''}" onclick="fxSetMode('shared')">${FX_IC.globe} ${hx('مشترك', 'Shared')}</button>
     </div>
+    ${shared ? fxPeopleHtml() : ''}
     ${shared && FX.boards.length > 1 ? `<select class="fx-pick" onchange="fxPickBoard(this.value)">${FX.boards.map(b =>
       `<option value="${b.id}" ${b.id === FX.boardId ? 'selected' : ''}>${fxE(b.name)} — ${b.role === 'owner' ? hx('لوحتي', 'Mine') : hx('مدعو', 'Invited')}</option>`).join('')}</select>` : ''}
     <button class="fx-link" onclick="fxInviteModal()">${FX_IC.userplus} ${hx('دعوة', 'Invite')}</button>
@@ -8557,6 +8567,21 @@ function fxRenderInvites(){
   box.innerHTML = FX.invites.map(i => `<div class="fx-invite-bar">👋 <b>${hx('عندك دعوة للانضمام لـ', 'You are invited to join')} "${fxE(i.board_name)}"</b>
     <button class="fx-btn" style="background:var(--fx-cyan)" onclick="fxRespond('${i.id}', true)">${hx('قبول', 'Accept')}</button>
     <button class="fx-btn ghost" onclick="fxRespond('${i.id}', false)">${hx('رفض', 'Decline')}</button></div>`).join('');
+}
+
+/* Members of the shared board as round avatars; the name shows on hover. */
+function fxPeopleHtml(){
+  if (!FX.people.length) return '';
+  const colors = ['#06b6d4', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#6366f1', '#d99401'];
+  const avatar = (p, i) => {
+    const label = `${p.name}${p.user_id === FX.uid ? ' ' + hx('(إنت)', '(you)') : ''}${p.role === 'owner' ? ' · ' + hx('صاحب اللوحة', 'Owner') : ''}`;
+    const initial = fxE((p.name || '?').trim().charAt(0).toUpperCase());
+    const img = p.avatar_url ? `<img src="${fxE(p.avatar_url)}" alt="" onerror="this.remove()">` : '';
+    return `<span class="fx-av" style="background:${colors[i % colors.length]}" data-name="${fxE(label)}" tabindex="0" aria-label="${fxE(label)}">${initial}${img}${p.role === 'owner' ? '<i class="fx-crown">👑</i>' : ''}</span>`;
+  };
+  const extra = FX.people.slice(8);
+  return `<div class="fx-people">${FX.people.slice(0, 8).map(avatar).join('')}${extra.length
+    ? `<span class="fx-av more" data-name="${fxE(extra.map(p => p.name).join('، '))}" tabindex="0">+${extra.length}</span>` : ''}</div>`;
 }
 
 /* ── Boards and invitations ── */
@@ -8624,6 +8649,12 @@ async function fxLoadData(){
   ]);
   if (bm.error || nt.error || tk.error || ev.error) { toast(hx('تعذر تحميل بيانات وضع التركيز', 'Could not load Focus mode data'), 'error'); return; }
   FX.bm = bm.data || []; FX.notes = nt.data || []; FX.tasks = tk.data || []; FX.events = ev.data || [];
+  FX.people = [];
+  if (FX.boardId) {
+    const { data: ppl } = await supabaseClient.rpc('focus_board_people', { p_board: FX.boardId });
+    FX.people = ppl || [];
+  }
+  fxRenderBar();
   fxRenderBm(); if (!FX.noteId) fxRenderNotes(); fxRenderTasks(); fxRenderCal();
 }
 const fxNew = row => (FX.boardId ? { ...row, board_id: FX.boardId } : row);
