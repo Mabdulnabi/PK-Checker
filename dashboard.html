@@ -8501,6 +8501,11 @@ function acOpenCheckout(planId){
   if (!plan || !prod) { toast(hx('الباقة دي مش متاحة دلوقتي', 'This plan is not available now'), 'error'); return; }
   acUnmountPayBlock();
   acCk = { plan, prod, step: 'details', coupon: '', pct: 0, cpDisc: 0, cpLabel: '', couponMsg: '', orderId: null, total: Number(plan.price_egp), discount: 0, busy: false };
+  // Meta pixel (only with cookie consent): the customer opened the store checkout for this plan.
+  if (typeof pkTrack === 'function') pkTrack('InitiateCheckout', {
+    value: Number(plan.price_egp) || 0, currency: 'EGP', content_ids: [String(plan.id)], content_type: 'product',
+    content_name: `${prod.name_en || prod.name_ar} — ${plan.name_en || plan.name_ar}`, content_category: 'Academic Tools', num_items: 1,
+  });
   acSub('checkout');
 }
 
