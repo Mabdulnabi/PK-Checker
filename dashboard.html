@@ -1901,10 +1901,9 @@
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
 <script defer src="/_vercel/insights/script.js"></script>
 <script>
-// Meta Pixel: loads only after the visitor accepts cookies. Server-side events (Purchase, CompleteRegistration) come from the database.
+// Meta Pixel: loads for every visitor as the page opens. Server-side events (Purchase, CompleteRegistration) come from the database.
 (function(){
   var PIXEL_ID = '1174873375104920';
-  var KEY = 'pk-cookie-consent';
   function loadPixel(){
     if (window.fbq) return;
     // An ad click saved by the home or sign-in page (see shared/pk-pixel.js) becomes Meta's _fbc cookie.
@@ -1919,46 +1918,23 @@
     fbq('track', 'PageView');
   }
   // Sends the browser IDs to the server so Purchase / CompleteRegistration (sent from the database)
-  // can be matched by Meta. Without consent no IDs are sent; the call still releases a queued
-  // registration. With consent it waits a few seconds for Meta's _fbp cookie to appear.
+  // can be matched by Meta. Waits a few seconds for Meta's _fbp cookie to appear; the call also
+  // releases a queued registration.
   var idsSaved = false;
   window.pkSaveMetaIds = function(tries){
     if (idsSaved || typeof supabaseClient === 'undefined') return;
-    var consent = localStorage.getItem(KEY) === 'yes';
     var get = function(n){ var m = document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)')); return m ? decodeURIComponent(m[1]) : null; };
-    var fbp = consent ? get('_fbp') : null, fbc = consent ? get('_fbc') : null;
-    if (consent && !fbp && (tries || 0) < 6) { setTimeout(function(){ window.pkSaveMetaIds((tries || 0) + 1); }, 1000); return; }
-    idsSaved = !!(fbp || fbc) || !consent;
-    supabaseClient.rpc('meta_save_browser_ids', { p_fbp: fbp, p_fbc: fbc, p_user_agent: consent ? navigator.userAgent : null })
+    var fbp = get('_fbp'), fbc = get('_fbc');
+    if (!fbp && (tries || 0) < 6) { setTimeout(function(){ window.pkSaveMetaIds((tries || 0) + 1); }, 1000); return; }
+    idsSaved = true;
+    supabaseClient.rpc('meta_save_browser_ids', { p_fbp: fbp, p_fbc: fbc, p_user_agent: navigator.userAgent })
       .then(function(r){ if (r && r.error) { idsSaved = false; console.warn('meta ids:', r.error.message); } });
   };
-  // Used by the dashboard for conversion steps. Does nothing without consent.
+  // Used by the dashboard for conversion steps.
   window.pkTrack = function(event, params){
-    if (window.fbq && localStorage.getItem(KEY) === 'yes') fbq('track', event, params || {});
+    if (window.fbq) fbq('track', event, params || {});
   };
-  function banner(){
-    var ar = (localStorage.getItem('prokeys-lang') || 'ar') !== 'en';
-    var box = document.createElement('div');
-    box.id = 'pkCookieBanner';
-    box.setAttribute('style', 'position:fixed;left:12px;right:12px;bottom:12px;z-index:9999;max-width:560px;margin:auto;background:#fff;color:#1B2556;border:1px solid #DCE4F1;border-radius:14px;box-shadow:0 12px 32px rgba(27,37,86,.18);padding:14px 16px;font-family:Cairo,sans-serif;font-size:13px;line-height:1.6;display:flex;gap:12px;align-items:center;flex-wrap:wrap;direction:' + (ar ? 'rtl' : 'ltr') + ';');
-    box.innerHTML = '<div style="flex:1;min-width:200px;">' + (ar
-        ? 'بنستخدم كوكيز لقياس الإعلانات وتحسين تجربتك. تقدر ترفض.'
-        : 'We use cookies to measure ads and improve your experience. You can decline.') + '</div>' +
-      '<div style="display:flex;gap:8px;">' +
-        '<button id="pkCkNo" style="padding:8px 14px;border-radius:9px;border:1.5px solid #DCE4F1;background:#fff;color:#6B7494;font-family:Cairo,sans-serif;font-weight:700;cursor:pointer;">' + (ar ? 'رفض' : 'Decline') + '</button>' +
-        '<button id="pkCkYes" style="padding:8px 14px;border-radius:9px;border:none;background:#0E7AFE;color:#fff;font-family:Cairo,sans-serif;font-weight:700;cursor:pointer;">' + (ar ? 'موافق' : 'Accept') + '</button>' +
-      '</div>';
-    document.body.appendChild(box);
-    document.getElementById('pkCkYes').onclick = function(){ localStorage.setItem(KEY, 'yes'); box.remove(); loadPixel(); idsSaved = false; window.pkSaveMetaIds(); };
-    document.getElementById('pkCkNo').onclick = function(){ localStorage.setItem(KEY, 'no'); box.remove(); };
-  }
-  var choice = localStorage.getItem(KEY);
-  if (choice === 'yes') loadPixel();
-  else if (choice !== 'no') document.addEventListener('DOMContentLoaded', function(){
-    // First visit: the guided tour runs first, the banner waits until it ends.
-    if (localStorage.getItem('prokeys-tour-seen-v2')) banner();
-    else window.addEventListener('pk-tour-ended', banner, { once: true });
-  });
+  loadPixel();
 })();
 </script>
 <link rel="manifest" href="/dashboard-manifest.json">
