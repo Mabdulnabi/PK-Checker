@@ -367,6 +367,11 @@
   .sidebar.collapsed .sidebar-user-info,
   .sidebar.collapsed .sidebar-logo img{ display:none; }
   .sidebar.collapsed .sidebar-item > span{ display:none; }
+  /* Sidebar section headings; a thin divider when the sidebar is collapsed */
+  .sid-section{ padding:14px 14px 4px; font-family:'Cairo',sans-serif; font-size:10.5px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .sidebar-nav .sid-section:first-of-type{ padding-top:4px; }
+  .sidebar.collapsed .sid-section{ font-size:0; padding:10px 10px 6px; }
+  .sidebar.collapsed .sid-section::after{ content:''; display:block; height:1px; background:var(--paper-line); }
   .sidebar.collapsed .sidebar-item{
     justify-content:center;padding:10px 0;
     width:100%;overflow:hidden;gap:0;
@@ -1940,6 +1945,7 @@
       <!-- Animated pill (framer-motion layoutId="nav-pill" equivalent) -->
       <div class="nav-pill" id="navPill"></div>
 
+      <div class="sid-section" data-i18n="nav_sec_checking">منطقة الفحص</div>
       <div class="navtab sidebar-item on" data-tab="new-check">
         <div class="sid-chip sid-indigo">
           <!-- ph-magnifying-glass duotone -->
@@ -1967,6 +1973,7 @@
         </div>
         <span data-i18n="nav_my_history">السجل</span>
       </div>
+      <div class="sid-section" data-i18n="nav_sec_tools">الأدوات والخدمات</div>
       <div class="navtab sidebar-item" data-tab="academic">
         <div class="sid-chip sid-gold">
           <svg data-icon-key="tab_academic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>
@@ -3725,7 +3732,7 @@ function applyCustomIcons(){
 const I18N = {
   ar: {
     loading_ellipsis:"جاري التحميل...", lifetime_validity:"صلاحية مدى الحياة", profile_save_ok:"تم حفظ التغييرات", profile_pass_short:"كلمة المرور قصيرة (6 أحرف على الأقل)", profile_pass_error:"تعذر تغيير كلمة المرور",
-    nav_focus:"وضع التركيز", nav_academic:"Academic Tools", nav_my_orders:"طلباتي", ac_title:"Academic Tools", ac_wallet:"رصيد Academic Tools", ac_egp:"ج.م", ac_active_subs:"الاشتراكات النشطة", ac_all_orders:"كل الطلبات",
+    nav_sec_checking:"منطقة الفحص", nav_sec_tools:"الأدوات والخدمات", nav_focus:"وضع التركيز", nav_academic:"Academic Tools", nav_my_orders:"طلباتي", ac_title:"Academic Tools", ac_wallet:"رصيد Academic Tools", ac_egp:"ج.م", ac_active_subs:"الاشتراكات النشطة", ac_all_orders:"كل الطلبات",
     nav_home:"الرئيسية", nav_new_check:"فحص جديد", nav_orders:"ملفاتي", nav_wallet:"المحفظة", nav_my_history:"السجل", plan_ai_tab:"فحص إقتباس + AI", plan_only_tab:"فحص إقتباس فقط", plan_soon:"قريباً", plan_title:"فحص Turnitin Plag + AI", plan_pill:"تقرير Plag + AI", plan_auto:"تفعيل فوري تلقائي", nav_support:"الدعم", nav_my_profile:"حسابي",
     sup_lang:"اللغة", sup_currency:"العملة", sup_settings:"الإعدادات",
     profile_modal_title:"الملف الشخصي", profile_save_btn:"حفظ", profile_cancel_btn:"إلغاء",
@@ -3932,7 +3939,7 @@ const I18N = {
   },
   en: {
     loading_ellipsis:"Loading...", lifetime_validity:"Lifetime validity", profile_save_ok:"Changes saved", profile_pass_short:"Password too short (at least 6 characters)", profile_pass_error:"Could not change the password",
-    nav_focus:"Focus mode", nav_academic:"Academic Tools", nav_my_orders:"My orders", ac_title:"Academic Tools", ac_wallet:"Academic Tools balance", ac_egp:"EGP", ac_active_subs:"Active subscriptions", ac_all_orders:"All orders",
+    nav_sec_checking:"Checking Area", nav_sec_tools:"Tools & Services", nav_focus:"Focus mode", nav_academic:"Academic Tools", nav_my_orders:"My orders", ac_title:"Academic Tools", ac_wallet:"Academic Tools balance", ac_egp:"EGP", ac_active_subs:"Active subscriptions", ac_all_orders:"All orders",
     nav_home:"Home", nav_new_check:"New Check", nav_orders:"My orders", nav_wallet:"Wallet", nav_my_history:"History", plan_ai_tab:"Plag + AI Report", plan_only_tab:"Only Plag Report", plan_soon:"Soon", plan_title:"Turnitin Plag + AI Check", plan_pill:"PLAG + AI REPORT", plan_auto:"Automated Instant Activation", nav_support:"Support", nav_my_profile:"My Account",
     sup_lang:"Language", sup_currency:"Currency", sup_settings:"Settings",
     profile_modal_title:"Account Settings", profile_save_btn:"Save", profile_cancel_btn:"Cancel",
