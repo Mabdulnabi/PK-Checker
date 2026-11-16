@@ -8168,14 +8168,14 @@ function acOpenCheckout(planId){
   const prod = plan && acS.prods.find(x => x.id === plan.product_id);
   if (!plan || !prod) { toast(hx('الباقة دي مش متاحة دلوقتي', 'This plan is not available now'), 'error'); return; }
   acUnmountPayBlock();
-  acCk = { plan, prod, step: 'details', coupon: '', pct: 0, couponMsg: '', orderId: null, total: Number(plan.price_egp), discount: 0, busy: false };
+  acCk = { plan, prod, step: 'details', coupon: '', pct: 0, cpDisc: 0, cpLabel: '', couponMsg: '', orderId: null, total: Number(plan.price_egp), discount: 0, busy: false };
   acSub('checkout');
 }
 
 function acCkPreview(){
   const list = Number(acCk.plan.price_egp);
-  const total = acCk.pct > 0 ? Math.round(list * (100 - acCk.pct) / 100) : list;
-  return { list, total, discount: list - total };
+  const discount = acCk.pct > 0 ? Math.min(list, Number(acCk.cpDisc) || 0) : 0;
+  return { list, total: list - discount, discount };
 }
 
 function acStepper(){
@@ -8196,7 +8196,7 @@ function acCkSummary(v){
       <div class="ck-sum-item"><div class="ck-logo">${acLogo(acCk.prod)}</div>
         <div><b>${escapeHtml(acName(acCk.prod))}</b><small>${acDur(acCk.plan.duration_days)}</small></div></div>
       <div class="ck-row"><span>${hx('السعر', 'Price')}</span><span>${acMoney(v.list)}</span></div>
-      ${v.discount > 0 ? `<div class="ck-row ok"><span>${hx('الخصم', 'Discount')} (${acCk.pct}%)</span><span dir="ltr">-${acMoney(v.discount)}</span></div>` : ''}
+      ${v.discount > 0 ? `<div class="ck-row ok"><span>${hx('الخصم', 'Discount')} (${escapeHtml(acCk.cpLabel)})</span><span dir="ltr">-${acMoney(v.discount)}</span></div>` : ''}
       <div class="ck-row total"><span>${hx('الإجمالي', 'Total')}</span><span>${acMoney(v.total)}</span></div>
       ${currentCurrency === 'USD'
         ? `<div class="ck-row muted"><span>${hx('المبلغ بالجنيه', 'Amount (EGP)')}</span><b dir="ltr">${Number(v.total).toLocaleString('en-US')} EGP</b></div>`
@@ -8221,7 +8221,7 @@ function renderAcCheckout(){
         <div class="ck-item-txt"><b>${escapeHtml(acName(acCk.prod))}</b><small>${acDur(acCk.plan.duration_days)}</small></div>
         <span class="ck-item-price">${acMoney(v.list)}</span></div>
       <div class="ck-row"><span>${hx('السعر الأصلي', 'Original Price')}</span><span>${acMoney(v.list)}</span></div>
-      ${v.discount > 0 ? `<div class="ck-row ok"><span>${hx('الخصم', 'Discount')} (${acCk.pct}%)</span><span dir="ltr">-${acMoney(v.discount)}</span></div>` : ''}
+      ${v.discount > 0 ? `<div class="ck-row ok"><span>${hx('الخصم', 'Discount')} (${escapeHtml(acCk.cpLabel)})</span><span dir="ltr">-${acMoney(v.discount)}</span></div>` : ''}
       <div class="ck-row total big"><span>${hx('الإجمالي', 'Total')}</span><span>${acMoney(v.total)}</span></div>
       <div class="ck-coupon">
         <input id="ckCoupon" dir="ltr" value="${escapeHtml(acCk.coupon)}" placeholder="${hx('كود الخصم (اختياري)', 'Coupon code (optional)')}" oninput="this.value=this.value.toUpperCase()">
@@ -8258,14 +8258,19 @@ function renderAcCheckout(){
 async function acCkApplyCoupon(){
   const code = (document.getElementById('ckCoupon').value || '').trim().toUpperCase();
   acCk.coupon = code;
-  if (!code) { acCk.pct = 0; acCk.couponMsg = ''; renderAcCheckout(); return; }
-  const { data, error } = await supabaseClient.rpc('store_coupon_check', { p_code: code });
-  if (error || !data?.valid) {
-    acCk.pct = 0;
-    acCk.couponMsg = hx('✗ كود الخصم مش صالح', '✗ Invalid coupon code');
+  if (!code) { acCk.pct = 0; acCk.cpDisc = 0; acCk.cpLabel = ''; acCk.couponMsg = ''; renderAcCheckout(); return; }
+  const { data, error } = await supabaseClient.rpc('store_coupon_check', { p_code: code, p_plan_id: acCk.plan.id });
+  if (error || !data?.valid || !(Number(data.discount) > 0)) {
+    acCk.pct = 0; acCk.cpDisc = 0; acCk.cpLabel = '';
+    acCk.couponMsg = hx('✗ كود الخصم مش صالح للباقة دي', '✗ This coupon is not valid for this plan');
   } else {
-    acCk.pct = Number(data.percent);
-    acCk.couponMsg = hx(`✓ تم تطبيق الكوبون — خصم ${acCk.pct}%`, `✓ Coupon applied — ${acCk.pct}% off`);
+    // pct > 0 means "a coupon is applied"; the amount itself comes from the server (percent or fixed).
+    acCk.pct = data.type === 'percent' ? Number(data.percent) : 1;
+    acCk.cpDisc = Number(data.discount);
+    acCk.cpLabel = data.type === 'percent' ? `${Number(data.percent)}%` : code;
+    acCk.couponMsg = data.type === 'percent'
+      ? hx(`✓ تم تطبيق الكوبون — خصم ${Number(data.percent)}%`, `✓ Coupon applied — ${Number(data.percent)}% off`)
+      : hx(`✓ تم تطبيق الكوبون — خصم ${acMoney(data.discount)}`, `✓ Coupon applied — ${acMoney(data.discount)} off`);
   }
   renderAcCheckout();
 }
@@ -8397,11 +8402,12 @@ function acOpenCredModal(o, data){
   acCloseCredModal();
   const p = acOrderProds[o.product_id];
   const left = o.end_date ? acDaysLeft(o.end_date) : null;
-  const rows = Object.entries(data || {}).filter(([, v]) => v !== null && v !== '');
+  const AC_CRED_LBL = { email: hx('الإيميل', 'Email'), password: hx('الباسورد', 'Password'), key: hx('المفتاح', 'Key'), note: hx('ملاحظات', 'Notes') };
+  const rows = Object.entries(data || {}).filter(([k, v]) => k !== 'type' && v !== null && v !== '');
   const mask = v => '•'.repeat(Math.min(12, Math.max(6, String(v).length)));
   const field = ([k, v], i) => {
     const pwd = /pass/i.test(k);
-    return `<div class="acm-lbl">${escapeHtml(k)}</div>
+    return `<div class="acm-lbl">${escapeHtml(AC_CRED_LBL[k] || k)}</div>
       <div class="acm-field"><code dir="ltr" id="acmV${i}" data-v="${escapeHtml(String(v))}" data-masked="${pwd ? 1 : 0}">${pwd ? mask(v) : escapeHtml(String(v))}</code>
         ${pwd ? `<button class="acm-ic" onclick="acmToggle(${i})" title="${hx('إظهار', 'Show')}">👁</button>` : ''}
         <button class="acm-ic" onclick="acmCopy(${i})" title="${hx('نسخ', 'Copy')}">⧉</button></div>`;
