@@ -2269,10 +2269,33 @@ document.addEventListener('click', (e) => {
   }
 });
 
+let _adminLoggingOut = false, _adminSessionEnded = false;
 async function handleLogout(){
+  _adminLoggingOut = true;
   await supabaseClient.auth.signOut();
   window.location.href = 'auth.html#admin';
 }
+
+// The admin sign-in can end while the page stays open (it expired, or another admin tab
+// refreshed it first). Without it every save is refused by the server ("not allowed"),
+// so tell the admin and send them to sign in again instead of failing quietly.
+function adminSessionEnded(){
+  if (_adminLoggingOut || _adminSessionEnded) return;
+  _adminSessionEnded = true;
+  const go = () => { window.location.href = 'auth.html#admin'; };
+  Promise.resolve(adminAlert(currentLang === 'en'
+    ? 'Your sign-in has ended. Sign in again to keep working; nothing you were about to save was saved.'
+    : 'انتهت جلسة الدخول. سجل دخول تاني علشان تكمل، وأي حاجة كنت بتحفظها ماتحفظتش.', { icon: '🔒' })).then(go, go);
+}
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_OUT' || (event !== 'INITIAL_SESSION' && !session)) adminSessionEnded();
+});
+// Coming back to the tab: make sure the sign-in is still there (this also refreshes it).
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState !== 'visible' || _adminLoggingOut) return;
+  const { data } = await supabaseClient.auth.getSession();
+  if (!data?.session) adminSessionEnded();
+});
 
 (async function checkAdminSession(){
   const { data, error } = await supabaseClient.auth.getSession();
@@ -2296,6 +2319,7 @@ async function handleLogout(){
   if (!adminRow) {
     // Valid Supabase session, but this account isn't registered as an
     // admin — sign out so a stray user session doesn't loop back here.
+    _adminLoggingOut = true;
     await supabaseClient.auth.signOut();
     window.location.href = 'auth.html#admin';
     return;
