@@ -73,6 +73,14 @@
       "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/verify-bep20"
     },
     {
+      "source": "/api/fn/paypal-create-order",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/paypal-create-order"
+    },
+    {
+      "source": "/api/fn/paypal-capture-order",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/paypal-capture-order"
+    },
+    {
       "source": "/api/fn/verify-sms",
       "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/verify-sms"
     },
