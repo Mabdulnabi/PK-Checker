@@ -44,6 +44,12 @@ async function paypalToken(): Promise<string> {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   try {
+    const body = await req.json().catch(() => ({}));
+    // Health check: can we sign in to PayPal with PAYPAL_CLIENT_ID + PAYPAL_SECRET? Answers ok/not ok only.
+    if (body?.ping === true) {
+      try { await paypalToken(); return json({ ok: true }); }
+      catch (e) { return json({ ok: false, error: e instanceof Error ? e.message : 'PayPal sign-in failed' }); }
+    }
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) return json({ success: false, error: 'Missing Authorization header' }, 401);
     const url = Deno.env.get('SUPABASE_URL') ?? '';
@@ -53,7 +59,7 @@ Deno.serve(async (req) => {
     if (userErr || !userData?.user) return json({ success: false, error: 'Invalid or expired session' }, 401);
     const userId = userData.user.id;
 
-    const { payment_id } = await req.json().catch(() => ({}));
+    const { payment_id } = body;
     if (!payment_id) return json({ success: false, error: 'payment_id is required' }, 400);
 
     const { data: pay } = await admin.from('payments')
