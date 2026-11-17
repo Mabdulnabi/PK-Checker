@@ -4980,21 +4980,9 @@ async function renderPaypalButtons(){
       if (!res.success || !res.orderID) throw new Error(res.error || 'create failed');
       return res.orderID;
     },
-    onApprove: async (data, actions) => {
-      const msg = document.getElementById('walletPaypalMsg');
-      if (msg) msg.textContent = ar ? 'جاري تأكيد الدفع...' : 'Confirming your payment...';
-      const res = await paypalCall('paypal-capture-order', { payment_id: _ppPaymentId, order_id: data.orderID });
-      if (msg) msg.textContent = '';
-      if (res.retry) {
-        await appAlert(ar ? 'PayPal رفض وسيلة الدفع دي. جرب كارت تاني أو رصيد PayPal.' : 'PayPal declined this funding source. Try another card or your PayPal balance.', { icon: 'error' });
-        return actions.restart();
-      }
-      if (res.success && res.verified) return paypalPaid();
-      await appAlert(ar
-        ? 'الدفع ماتأكدش. لو المبلغ اتخصم منك، تواصل مع الدعم وابعت كود الدفعة من سجل المدفوعات.'
-        : 'The payment was not confirmed. If you were charged, contact support with the payment code from your payment history.', { icon: 'error' });
-      loadPaymentHistory?.();
-    },
+    // Return at once: PayPal keeps its window open (loading) until onApprove resolves, and
+    // our messages would sit hidden behind it. The payment is confirmed on our page instead.
+    onApprove: (data) => { setTimeout(() => paypalFinish(data.orderID), 0); },
     onCancel: () => { toast(ar ? 'اتلغى الدفع بـ PayPal' : 'PayPal payment cancelled', 'info'); },
     onError: (err) => {
       console.error('PayPal error', err);
@@ -5004,13 +4992,45 @@ async function renderPaypalButtons(){
   try { await _ppButtons.render('#walletPaypalBtns'); } catch (e) { console.error('PayPal render failed', e); }
 }
 // Paid and credited: the store flows finish their own way; check packages show the new balance.
+async function paypalFinish(orderID){
+  const ar = currentLang === 'ar';
+  const box = document.getElementById('walletPaypalBox');
+  if (box) box.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:16px;font-size:13px;font-weight:600;color:var(--muted);"><span class="pp-spin" style="width:18px;height:18px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;display:inline-block;animation:ppSpin .8s linear infinite;"></span>${ar ? 'جاري تأكيد الدفع...' : 'Confirming your payment...'}</div><style>@keyframes ppSpin{to{transform:rotate(360deg)}}</style>`;
+  let res;
+  try { res = await paypalCall('paypal-capture-order', { payment_id: _ppPaymentId, order_id: orderID }); }
+  catch (e) { res = { success: false, error: 'network' }; }
+  if (res.success && res.verified) return paypalPaid();
+  loadPaymentHistory?.();
+  if (res.retry) {
+    await appAlert(ar ? 'PayPal رفض وسيلة الدفع دي. جرب كارت تاني أو رصيد PayPal.' : 'PayPal declined this funding source. Try another card or your PayPal balance.', { icon: 'error' });
+  } else if (res.reason === 'COMPLIANCE_VIOLATION') {
+    await appAlert(ar
+      ? 'PayPal رفض العملية دي ومتمش خصم أي مبلغ. لو ظهر مبلغ معلق في حسابك هيرجع تلقائي خلال أيام. جرب حساب PayPal أو كارت تاني، أو اختار وسيلة دفع تانية.'
+      : 'PayPal refused this payment and nothing was charged. If a pending amount shows in your account it will be released automatically. Try another PayPal account or card, or choose another payment method.', { icon: 'error' });
+  } else {
+    await appAlert(ar
+      ? 'الدفع ماتأكدش. لو المبلغ اتخصم منك، تواصل مع الدعم وابعت كود الدفعة من سجل المدفوعات.'
+      : 'The payment was not confirmed. If you were charged, contact support with the payment code from your payment history.', { icon: 'error' });
+  }
+  // Show fresh PayPal buttons so the customer can try again.
+  if (document.querySelector('#walletPayGrid .paycard.on')?.dataset.pay === 'paypal') renderPaypalButtons();
+}
+// Paid and credited: the store flows finish their own way; check packages show the success
+// message, then the payment block closes and the customer is back at the top of the wallet.
 async function paypalPaid(){
-  if (selectedPack && selectedPack.store) { await acCheckoutPaid(); return; }
+  if (selectedPack && selectedPack.store) { hidePaypalButtons(); await acCheckoutPaid(); return; }
   const ar = currentLang === 'ar';
   const credits = selectedPack ? selectedPack.credits + (selectedPack.bonus || 0) : 0;
+  hidePaypalButtons();
   if (typeof launchConfetti === 'function') launchConfetti();
-  await Promise.all([typeof loadSlots === 'function' ? loadSlots() : null, typeof loadPaymentHistory === 'function' ? loadPaymentHistory() : null]);
+  Promise.all([typeof loadSlots === 'function' ? loadSlots() : null, typeof loadPaymentHistory === 'function' ? loadPaymentHistory() : null]).catch(() => {});
   await appAlert(ar ? `تم الدفع بنجاح ✅ واتضاف ${credits} فحص لرصيدك.` : `Payment successful ✅ ${credits} checks were added to your balance.`, { icon: 'success' });
+  selectedPack = null;
+  const payBlock = document.getElementById('walletPayBlock');
+  if (payBlock) payBlock.style.display = 'none';
+  if (typeof renderPacks === 'function') renderPacks();
+  if (typeof goTab === 'function') goTab('wallet');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 const EASYKASH_LS_KEY = 'prokeys-easykash-pending-payment';
