@@ -818,6 +818,7 @@
         <div class="side-item" data-tab="payments" onclick="switchTab('payments')"><span class="ic" data-icon-key="admin_nav_payments">💳</span><span data-i18n="nav_payments">المدفوعات</span></div>
         <div class="side-item" data-tab="accounts" onclick="switchTab('accounts')"><span class="ic" data-icon-key="admin_nav_accounts">👤</span><span data-i18n="nav_accounts">إدارة الحسابات</span></div>
         <div class="side-item" data-tab="store" onclick="switchTab('store')"><span class="ic" data-icon-key="admin_nav_store">🛍️</span><span>المتجر</span></div>
+        <div class="side-item" data-tab="reviews" onclick="switchTab('reviews')"><span class="ic" data-icon-key="admin_nav_reviews">⭐</span><span>التقييمات</span></div>
         <div class="side-item" data-tab="slots" onclick="switchTab('slots')"><span class="ic" data-icon-key="admin_nav_checks">🎫</span><span data-i18n="nav_slots">الباقات</span></div>
         <div class="side-item" data-tab="broadcast" onclick="switchTab('broadcast')"><span class="ic" data-icon-key="admin_nav_broadcast">📢</span><span data-i18n="nav_broadcast">رسائل جماعية</span></div>
         <div class="side-item" data-tab="chat" onclick="switchTab('chat')"><span class="ic" data-icon-key="admin_nav_chat">💬</span><span data-i18n="nav_chat">الشات المباشر</span><span class="side-badge" id="chatSideBadge" style="display:none;"></span></div>
@@ -1532,6 +1533,55 @@
         </div>
 
         <div class="st-modal" id="stModal" onclick="if(event.target===this) stModalClose()"><div class="st-modal-box" id="stModalBox" role="dialog" aria-modal="true"></div></div>
+      </div>
+
+      <div class="tabpane" id="tab-reviews">
+        <style>
+          #tab-reviews .rv-kpis{ display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin-bottom:16px; }
+          #tab-reviews .rv-kpi{ background:var(--paper); border:1px solid var(--paper-line); border-radius:14px; padding:14px 16px; border-inline-start:4px solid var(--k,#0E7AFE); }
+          #tab-reviews .rv-kpi small{ display:block; font-size:12px; color:var(--muted); font-weight:700; }
+          #tab-reviews .rv-kpi b{ font-size:22px; color:var(--ink); }
+          #tab-reviews .rv-card{ margin-bottom:16px; padding:18px 20px; }
+          #tab-reviews .rv-title{ font-weight:800; font-size:15px; margin-bottom:4px; }
+          #tab-reviews .rv-sub{ font-size:12.5px; color:var(--muted); margin-bottom:14px; }
+          #tab-reviews .rv-list{ display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; }
+          #tab-reviews .rv-item{ position:relative; background:var(--paper); border:1.5px solid var(--paper-line); border-radius:14px; padding:14px 16px; display:flex; flex-direction:column; gap:10px; transition:border-color .15s; }
+          #tab-reviews .rv-item.on{ border-color:var(--ok); box-shadow:0 8px 22px -14px rgba(14,159,110,.6); }
+          #tab-reviews .rv-head{ display:flex; align-items:center; gap:10px; }
+          #tab-reviews .rv-av{ width:40px; height:40px; border-radius:50%; flex:none; background:var(--blue-wash); color:var(--blue-deep); display:flex; align-items:center; justify-content:center; font-weight:800; overflow:hidden; }
+          #tab-reviews .rv-av img{ width:100%; height:100%; object-fit:cover; }
+          #tab-reviews .rv-name{ font-weight:800; font-size:14px; color:var(--ink); }
+          #tab-reviews .rv-meta{ font-size:11.5px; color:var(--muted); }
+          #tab-reviews .rv-stars{ color:#E8A020; font-size:16px; letter-spacing:2px; direction:ltr; }
+          #tab-reviews .rv-stars i{ font-style:normal; color:#E2E6EF; }
+          #tab-reviews .rv-comment{ font-size:13px; color:var(--ink-soft); line-height:1.7; white-space:pre-wrap; overflow-wrap:anywhere; }
+          #tab-reviews .rv-comment.empty{ color:var(--muted); font-style:italic; }
+          #tab-reviews .rv-foot{ display:flex; align-items:center; justify-content:space-between; gap:8px; border-top:1px dashed var(--paper-line); padding-top:10px; font-size:12.5px; font-weight:700; color:var(--ink-soft); }
+          #tab-reviews .rv-switch{ position:relative; width:40px; height:22px; flex:none; }
+          #tab-reviews .rv-switch input{ opacity:0; width:0; height:0; }
+          #tab-reviews .rv-switch span{ position:absolute; inset:0; border-radius:99px; background:#c3cbe0; cursor:pointer; transition:.2s; }
+          #tab-reviews .rv-switch span::after{ content:''; position:absolute; top:3px; inset-inline-start:3px; width:16px; height:16px; border-radius:50%; background:#fff; transition:.2s; }
+          #tab-reviews .rv-switch input:checked + span{ background:var(--ok); }
+          #tab-reviews .rv-switch input:checked + span::after{ transform:translateX(18px); }
+          [dir="rtl"] #tab-reviews .rv-switch input:checked + span::after{ transform:translateX(-18px); }
+          #tab-reviews .rv-chips{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+          #tab-reviews .rv-chip{ padding:6px 12px; border-radius:99px; border:1px solid var(--paper-line); background:var(--paper); color:var(--ink-soft); font:inherit; font-size:12.5px; font-weight:700; cursor:pointer; }
+          #tab-reviews .rv-chip.on{ background:var(--navy); border-color:var(--navy); color:#fff; }
+          #tab-reviews .rv-empty{ text-align:center; color:var(--muted); padding:26px 10px; font-weight:700; grid-column:1/-1; }
+        </style>
+        <div class="sec-head"><h2>⭐ تقييمات العملاء</h2></div>
+        <div class="rv-kpis" id="rvKpis"></div>
+        <div class="tab-card rv-card">
+          <div class="rv-title">🌟 التقييمات العامة للخدمة</div>
+          <div class="rv-sub">من كارت "تحب تقييمك يظهر على صفحتنا الرئيسية؟" في لوحة العميل. فعّل الزرار علشان التقييم يظهر في قسم التقييمات في الصفحة الرئيسية.</div>
+          <div class="rv-chips" id="rvChips"></div>
+          <div class="rv-list" id="rvList"></div>
+        </div>
+        <div class="tab-card rv-card">
+          <div class="rv-title">🧾 تقييمات الطلبات</div>
+          <div class="rv-sub">التقييم اللي العميل بيديه للتقرير بعد ما الفحص يخلص (للعرض بس).</div>
+          <div style="overflow-x:auto;"><table class="data-tbl" id="rvOrdersTbl"></table></div>
+        </div>
       </div>
 
       <div class="tabpane" id="tab-slots">
@@ -2446,7 +2496,7 @@ function canUse(perm){
 const TAB_PERMISSION_MAP = {
   orders:'manage_orders', uidesign:'manage_ui_design', broadcast:'manage_broadcasts',
   activity:'view_activity_log', payments:'manage_credits', slots:'manage_credits', accounts:'manage_users',
-  chat:'manage_chat', tickets:'manage_tickets', store:'manage_store',
+  chat:'manage_chat', tickets:'manage_tickets', store:'manage_store', reviews:'manage_ui_design',
   backup:'manage_backup',
 };
 function applyPermissionGating(){
@@ -3471,6 +3521,7 @@ function switchTab(tab){
   if (tab === 'payments') { initCreditsTab(); initPayGatewaysTab(); }
   if (tab === 'slots') initSlotsTab();
   if (tab === 'store') initStoreTab();
+  if (tab === 'reviews') loadReviewsTab();
   if (tab === 'broadcast') initBroadcastTab();
   if (tab === 'activity') initActivityTab();
   if (tab === 'accounts') { initUsersTab(); initAdminMgmtTab(); }
@@ -4931,6 +4982,7 @@ const UI_ICON_MAP=[
   {key:'admin_nav_accounts',imgSize:'18px',label_ar:'أيقونة "إدارة الحسابات"',label_en:'"Accounts" nav icon',context_ar:'القائمة الجانبية للأدمن',context_en:'Admin sidebar',defaultSvg:'<span style="font-size:18px;">👤</span>',section:'admin_nav',section_ar:'أيقونات القائمة الجانبية (لوحة الأدمن)',section_en:'Admin sidebar icons'},
   {key:'admin_nav_backup',imgSize:'18px',label_ar:'أيقونة "النسخ الاحتياطي"',label_en:'"Backup" nav icon',context_ar:'القائمة الجانبية للأدمن',context_en:'Admin sidebar',defaultSvg:'<span style="font-size:18px;">💾</span>',section:'admin_nav',section_ar:'أيقونات القائمة الجانبية (لوحة الأدمن)',section_en:'Admin sidebar icons'},
   {key:'admin_nav_store',imgSize:'18px',label_ar:'أيقونة "المتجر"',label_en:'"Store" nav icon',context_ar:'القائمة الجانبية للأدمن — تاب المتجر',context_en:'Admin sidebar — Store tab',defaultSvg:'<span style="font-size:18px;">🛍️</span>',section:'admin_nav',section_ar:'أيقونات القائمة الجانبية (لوحة الأدمن)',section_en:'Admin sidebar icons'},
+  {key:'admin_nav_reviews',imgSize:'18px',label_ar:'أيقونة "التقييمات"',label_en:'"Reviews" nav icon',context_ar:'القائمة الجانبية للأدمن — تاب التقييمات',context_en:'Admin sidebar — Reviews tab',defaultSvg:'<span style="font-size:18px;">⭐</span>',section:'admin_nav',section_ar:'أيقونات القائمة الجانبية (لوحة الأدمن)',section_en:'Admin sidebar icons'},
   {key:'admin_nav_chat',imgSize:'18px',label_ar:'أيقونة "الشات المباشر"',label_en:'"Live chat" nav icon',context_ar:'القائمة الجانبية للأدمن',context_en:'Admin sidebar',defaultSvg:'<span style="font-size:18px;">💬</span>',section:'admin_nav',section_ar:'أيقونات القائمة الجانبية (لوحة الأدمن)',section_en:'Admin sidebar icons'},
   {key:'admin_nav_tickets',imgSize:'18px',label_ar:'أيقونة "تذاكر الدعم"',label_en:'"Tickets" nav icon',context_ar:'القائمة الجانبية للأدمن',context_en:'Admin sidebar',defaultSvg:'<span style="font-size:18px;">🎫</span>',section:'admin_nav',section_ar:'أيقونات القائمة الجانبية (لوحة الأدمن)',section_en:'Admin sidebar icons'},
   {key:'doc',imgSize:'20px',label_ar:'أيقونة الملف',label_en:'File / Document',context_ar:'صفوف الطلبات والرفع',context_en:'Order rows & upload area',defaultSvg:'<svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>',section:'generic',section_ar:'أيقونات عامة (مستخدمة في أكثر من مكان)',section_en:'Generic icons (reused across pages)'},
@@ -7512,6 +7564,85 @@ async function adjustStoreWallet(){
   document.getElementById('stWalAmt').value = '';
   document.getElementById('stWalNote').value = '';
   adminAlert(`✅ الرصيد الجديد: ${Number(data).toLocaleString('en-US')} ج.م`, {icon:'✅'});
+}
+
+
+/* ── Customer reviews: general service reviews (choose which show on the landing page) and order ratings ── */
+const rvS = { reviews: [], orders: [], people: {}, filter: 'all' };
+function rvStars(n){
+  n = Math.max(0, Math.min(5, Math.round(Number(n) || 0)));
+  return '★'.repeat(n) + `<i>${'★'.repeat(5 - n)}</i>`;
+}
+async function loadReviewsTab(){
+  const list = document.getElementById('rvList');
+  list.innerHTML = '<div class="rv-empty">جاري التحميل...</div>';
+  const [rv, od] = await Promise.all([
+    supabaseClient.from('public_reviews').select('*').order('created_at', { ascending: false }),
+    supabaseClient.from('orders').select('id, display_id, user_id, rating, rating_comment, completed_at, created_at')
+      .not('rating', 'is', null).order('created_at', { ascending: false }).limit(500),
+  ]);
+  if (rv.error) { list.innerHTML = `<div class="rv-empty" style="color:var(--danger);">${escapeHtml(rv.error.message)}</div>`; return; }
+  rvS.reviews = rv.data || [];
+  rvS.orders = od.data || [];
+  const ids = [...new Set([...rvS.reviews, ...rvS.orders].map(r => r.user_id).filter(id => id && !rvS.people[id]))];
+  for (let i = 0; i < ids.length; i += 150) {
+    const { data } = await supabaseClient.from('users_profile_numbered').select('user_id, full_name, pk_number').in('user_id', ids.slice(i, i + 150));
+    (data || []).forEach(p => { rvS.people[p.user_id] = p; });
+  }
+  renderReviewsTab();
+}
+function renderReviewsTab(){
+  const all = rvS.reviews, shown = all.filter(r => r.show_on_landing);
+  const avg = arr => arr.length ? (arr.reduce((s, r) => s + Number(r.rating || 0), 0) / arr.length).toFixed(1) : '—';
+  document.getElementById('rvKpis').innerHTML = [
+    ['🌟 تقييمات عامة', all.length, '#E8A020'],
+    ['⭐ متوسط التقييم العام', avg(all), '#E8A020'],
+    ['🏠 معروضة في الصفحة الرئيسية', shown.length, '#0E9F6E'],
+    ['🧾 تقييمات الطلبات', rvS.orders.length, '#0E7AFE'],
+    ['⭐ متوسط تقييم الطلبات', avg(rvS.orders), '#0E7AFE'],
+  ].map(([l, v, k]) => `<div class="rv-kpi" style="--k:${k}"><small>${l}</small><b>${v}</b></div>`).join('');
+
+  const f = rvS.filter;
+  const chips = [['all', 'الكل', all.length], ['shown', '🏠 معروضة', shown.length], ['hidden', 'مش معروضة', all.length - shown.length], ['comment', '💬 فيها تعليق', all.filter(r => (r.comment || '').trim()).length]];
+  document.getElementById('rvChips').innerHTML = chips.map(([k, l, n]) =>
+    `<button class="rv-chip${f === k ? ' on' : ''}" onclick="rvS.filter='${k}';renderReviewsTab()">${l} <span style="opacity:.7;">${n}</span></button>`).join('');
+  const list = all.filter(r => f === 'all' || (f === 'shown' && r.show_on_landing) || (f === 'hidden' && !r.show_on_landing) || (f === 'comment' && (r.comment || '').trim()));
+
+  document.getElementById('rvList').innerHTML = list.length ? list.map(r => {
+    const p = rvS.people[r.user_id] || {};
+    const name = r.full_name || p.full_name || '—';
+    const pk = p.pk_number != null ? 'PK' + formatPkNumber(p.pk_number) : '';
+    const av = /^https:\/\//i.test(r.avatar_url || '') ? `<img src="${escapeHtml(r.avatar_url)}" alt="" referrerpolicy="no-referrer">` : escapeHtml((name.trim()[0] || '?').toUpperCase());
+    return `<div class="rv-item${r.show_on_landing ? ' on' : ''}">
+      <div class="rv-head"><div class="rv-av">${av}</div>
+        <div style="min-width:0;"><div class="rv-name">${escapeHtml(name)}</div><div class="rv-meta">${pk ? `<span class="mono">${pk}</span> · ` : ''}${fmtDateTime(r.created_at)}</div></div></div>
+      <div class="rv-stars">${rvStars(r.rating)}</div>
+      <div class="rv-comment${(r.comment || '').trim() ? '' : ' empty'}">${(r.comment || '').trim() ? escapeHtml(r.comment) : 'من غير تعليق'}</div>
+      <div class="rv-foot"><span>🏠 اعرضه في الصفحة الرئيسية</span>
+        <label class="rv-switch"><input type="checkbox" ${r.show_on_landing ? 'checked' : ''} onchange="toggleReviewOnLanding('${r.id}', this.checked, this)"><span></span></label></div>
+    </div>`;
+  }).join('') : `<div class="rv-empty">${all.length ? 'مفيش تقييمات بالفلتر ده' : 'مفيش تقييمات عامة لسه'}</div>`;
+
+  document.getElementById('rvOrdersTbl').innerHTML = '<thead><tr><th>رقم الطلب</th><th>العميل</th><th>التقييم</th><th>التعليق</th><th>التاريخ</th></tr></thead><tbody>'
+    + (rvS.orders.length ? rvS.orders.map(o => {
+        const p = rvS.people[o.user_id] || {};
+        return `<tr><td class="mono" style="font-size:11.5px;">${escapeHtml(o.display_id || String(o.id).slice(0, 8))}</td>
+          <td>${escapeHtml(p.full_name || '—')}${p.pk_number != null ? ` <span class="mono" style="color:var(--muted);font-size:11px;">PK${formatPkNumber(p.pk_number)}</span>` : ''}</td>
+          <td><span style="color:#E8A020;letter-spacing:1px;direction:ltr;display:inline-block;">${rvStars(o.rating).replace('<i>', '<i style="font-style:normal;color:#E2E6EF;">')}</span></td>
+          <td style="max-width:320px;white-space:normal;overflow-wrap:anywhere;">${o.rating_comment ? escapeHtml(o.rating_comment) : '<span style="color:var(--muted);">—</span>'}</td>
+          <td style="font-size:11.5px;white-space:nowrap;">${fmtDateTime(o.completed_at || o.created_at)}</td></tr>`;
+      }).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--muted);">مفيش تقييمات طلبات لسه</td></tr>') + '</tbody>';
+}
+async function toggleReviewOnLanding(id, on, input){
+  input.disabled = true;
+  const { error } = await supabaseClient.from('public_reviews').update({ show_on_landing: on }).eq('id', id);
+  input.disabled = false;
+  if (error) { input.checked = !on; return adminAlert('فشل التحديث: ' + error.message, {icon:'❌', danger:true}); }
+  const r = rvS.reviews.find(x => x.id === id);
+  if (r) r.show_on_landing = on;
+  await logAdminActivity('setting_change', r?.user_id || null, '', (on ? 'عرض تقييم في الصفحة الرئيسية' : 'إخفاء تقييم من الصفحة الرئيسية'));
+  toast(on ? '✅ التقييم هيظهر في الصفحة الرئيسية' : 'التقييم اتشال من الصفحة الرئيسية');
+  renderReviewsTab();
 }
 
 async function loadCreditsTab(){

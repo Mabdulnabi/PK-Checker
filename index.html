@@ -228,10 +228,29 @@
   .plan-skel{height:330px;border-radius:18px;background:linear-gradient(90deg,var(--paper-soft) 25%,var(--paper) 50%,var(--paper-soft) 75%);background-size:200% 100%;animation:planShimmer 1.2s infinite linear;border:1px solid var(--paper-line);}
   @keyframes planShimmer{from{background-position:200% 0}to{background-position:-200% 0}}
   @media (max-width:1100px){ .plans-grid{grid-template-columns:repeat(2,1fr);row-gap:28px;} }
+  /* ===== CUSTOMER REVIEWS (chosen by the admin) ===== */
+  .reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .review-card{position:relative;display:flex;flex-direction:column;gap:14px;background:var(--paper);border:1.5px solid var(--paper-line);border-radius:18px;padding:26px 24px 22px;transition:transform .2s,box-shadow .2s,border-color .2s;}
+  .review-card:hover{transform:translateY(-4px);box-shadow:0 18px 36px -14px rgba(27,37,86,.18);border-color:var(--blue-wash);}
+  .review-quote{position:absolute;top:18px;inset-inline-end:20px;width:34px;height:34px;color:var(--blue-wash);}
+  .review-stars{display:flex;gap:3px;direction:ltr;justify-content:flex-start;}
+  html[dir="rtl"] .review-stars{justify-content:flex-end;}
+  .review-stars svg{width:18px;height:18px;}
+  .review-stars .on{color:var(--gold);} .review-stars .off{color:var(--paper-line);}
+  .review-text{font-size:15px;line-height:1.85;color:var(--ink-soft);margin:0;flex:1;overflow-wrap:anywhere;}
+  .review-text.muted{color:var(--muted);font-style:italic;}
+  .review-who{display:flex;align-items:center;gap:12px;padding-top:14px;border-top:1px solid var(--paper-line);}
+  .review-av{width:44px;height:44px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--blue),var(--cyan));color:#fff;font-weight:800;font-size:17px;overflow:hidden;}
+  .review-av img{width:100%;height:100%;object-fit:cover;}
+  .review-name{font-weight:800;color:var(--navy);font-size:14.5px;}
+  .review-tag{font-size:12px;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:5px;}
+  .review-tag svg{width:13px;height:13px;color:var(--ok);}
+  @media (max-width:1100px){ .reviews-grid{grid-template-columns:repeat(2,1fr);} }
 
   @media (max-width:860px){
     .hero-grid{grid-template-columns:1fr;}
     .plans-grid{grid-template-columns:1fr;}
+    .reviews-grid{grid-template-columns:1fr;}
     .plans-tab{padding:10px 14px;font-size:13px;}
     .hero h1{font-size:28px;}
     .features-grid{grid-template-columns:1fr;}
@@ -703,6 +722,17 @@
   </div>
 </section>
 
+<section class="features-bg" id="reviews" style="display:none;">
+  <div class="wrap">
+    <div class="section-head" data-aos="fade-up">
+      <span class="eyebrow"><span class="dot"></span> <span data-i18n="reviews_eyebrow">آراء العملاء</span></span>
+      <h2 class="why-title"><span data-i18n="reviews_title_1">عملاؤنا</span> <span class="grad-text" data-i18n="reviews_title_2">بيقولوا إيه؟</span></h2>
+      <p data-i18n="reviews_sub">تقييمات حقيقية من عملاء استخدموا الخدمة.</p>
+    </div>
+    <div class="reviews-grid" id="reviewsGrid"></div>
+  </div>
+</section>
+
 <section id="faq">
   <div class="wrap">
     <div class="section-head" data-aos="fade-up">
@@ -741,6 +771,7 @@ const LANG_DICT = {
     idx_nav_features:"المميزات", idx_nav_services:"الخدمات المتاحة", idx_nav_how:"إزاي بيشتغل", idx_nav_faq:"أسئلة شائعة",
     plans_eyebrow:"الباقات", plans_title_1:"اختار", plans_title_2:"باقة الفحص", plans_sub:"اختار عدد الفحوصات اللي يناسبك، وكل فحص بيطلعلك تقرير اقتباس وذكاء اصطناعي كامل.",
     plans_tab_ai:"اقتباس + ذكاء اصطناعي", plans_tab_plag:"اقتباس فقط", plans_soon:"قريبًا",
+    reviews_eyebrow:"آراء العملاء", reviews_title_1:"عملاؤنا", reviews_title_2:"بيقولوا إيه؟", reviews_sub:"تقييمات حقيقية من عملاء استخدموا الخدمة.",
     idx_store_btn:"متجر Pro Keys", idx_signin_btn:"تسجيل الدخول",
     hero_badge:"تكامل رسمي مع Turnitin Instructor API",
     hero_title_1:"تقارير الاقتباس و AI", hero_title_2:"في دقائق",
@@ -781,6 +812,7 @@ const LANG_DICT = {
     idx_nav_features:"Features", idx_nav_services:"Services", idx_nav_how:"How it works", idx_nav_faq:"FAQ",
     plans_eyebrow:"Packages", plans_title_1:"Choose your", plans_title_2:"check package", plans_sub:"Pick the number of checks that suits you. Each check gives you a full plagiarism and AI report.",
     plans_tab_ai:"Plag + AI Report", plans_tab_plag:"Only Plag Report", plans_soon:"Soon",
+    reviews_eyebrow:"Customer reviews", reviews_title_1:"What our", reviews_title_2:"customers say", reviews_sub:"Real reviews from customers who used the service.",
     idx_store_btn:"Pro Keys Store", idx_signin_btn:"Sign in",
     hero_badge:"Official Turnitin Instructor API Integration",
     hero_title_1:"Plagiarism & AI Reports", hero_title_2:"in minutes",
@@ -926,9 +958,46 @@ function renderLandingPlans(){
   if (window.AOS) AOS.refreshHard();
 }
 
+// Customer reviews: only the ones an admin chose (public_reviews.show_on_landing). Hidden when there are none.
+let landingReviews = [];
+async function loadLandingReviews(){
+  const { data, error } = await supabaseClient.from('public_reviews')
+    .select('id, full_name, avatar_url, rating, comment, created_at')
+    .eq('show_on_landing', true).order('created_at', { ascending: false }).limit(12);
+  if (error) { console.error('loadLandingReviews failed:', error); return; }
+  landingReviews = data || [];
+  renderLandingReviews();
+}
+function renderLandingReviews(){
+  const sec = document.getElementById('reviews'), grid = document.getElementById('reviewsGrid');
+  if (!sec || !grid) return;
+  if (!landingReviews.length) { sec.style.display = 'none'; return; }
+  sec.style.display = '';
+  const ar = currentLang === 'ar';
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const STAR = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
+  const QUOTE = '<svg class="review-quote" viewBox="0 0 24 24" fill="currentColor"><path d="M7.2 6C4.9 7.2 3.5 9.5 3.5 12.3V18h6.2v-6.1H6.8c0-1.6.8-2.9 2.3-3.7zm10 0c-2.3 1.2-3.7 3.5-3.7 6.3V18h6.2v-6.1h-2.9c0-1.6.8-2.9 2.3-3.7z"/></svg>';
+  const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
+  grid.innerHTML = landingReviews.map((r, i) => {
+    const n = Math.max(0, Math.min(5, Math.round(Number(r.rating) || 0)));
+    const name = (r.full_name || '').trim() || (ar ? 'عميل' : 'Customer');
+    const av = /^https:\/\//i.test(r.avatar_url || '') ? `<img src="${esc(r.avatar_url)}" alt="" referrerpolicy="no-referrer" loading="lazy">` : esc(name[0].toUpperCase());
+    const text = (r.comment || '').trim();
+    return `<div class="review-card" data-aos="fade-up" data-aos-delay="${(i % 3) * 90}">
+      ${QUOTE}
+      <div class="review-stars" aria-label="${n}/5">${[1, 2, 3, 4, 5].map(k => `<span class="${k <= n ? 'on' : 'off'}">${STAR}</span>`).join('')}</div>
+      <p class="review-text${text ? '' : ' muted'}" dir="auto">${text ? esc(text) : (ar ? `قيّم الخدمة ${n} من 5` : `Rated the service ${n} out of 5`)}</p>
+      <div class="review-who"><div class="review-av">${av}</div>
+        <div><div class="review-name"><bdi>${esc(name)}</bdi></div><div class="review-tag">${CHECK} ${ar ? 'عميل موثّق' : 'Verified customer'}</div></div></div>
+    </div>`;
+  }).join('');
+  if (window.AOS) AOS.refreshHard();
+}
+
 function applyLang(){
   PK.translateDom(currentLang, t);
   renderLandingPlans();
+  renderLandingReviews();
   document.getElementById('langBtn').textContent = currentLang === 'ar' ? '🇬🇧 EN' : '🇪🇬 AR';
   const langBtnMobile = document.getElementById('langBtnMobile');
   if (langBtnMobile) langBtnMobile.textContent = currentLang === 'ar' ? '🇬🇧 EN' : '🇪🇬 AR';
@@ -1063,6 +1132,7 @@ applyCustomIcons();
 applyFavicon();
 loadUIConfig();
 loadLandingPlans();
+loadLandingReviews();
 
 if (window.AOS) {
   AOS.init({
