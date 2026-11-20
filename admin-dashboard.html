@@ -785,6 +785,131 @@
     table.cards-tbl tbody td::before{content:attr(data-label);font-size:10px;font-weight:700;color:var(--muted);margin-bottom:3px;}
     table.cards-tbl tbody td:last-child{display:none;}
   }
+
+  /* ===== Dashboard: compact KPI cards ===== */
+  .kpi-row{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+  .kpi{padding:10px 12px;border-radius:12px;}
+  .kpi::before{width:90px;height:90px;right:-28px;bottom:-34px;}
+  /* the icon sits in the card's corner instead of on its own line */
+  .kpi .icon{position:absolute;top:9px;inset-inline-end:9px;width:26px;height:26px;border-radius:8px;margin:0;font-size:12px;}
+  .kpi > .num, .kpi > .lbl{padding-inline-end:32px;}
+  .kpi .icon svg{width:15px;height:15px;}
+  .kpi .num{font-size:19px;}
+  #kpiValidity{font-size:15px !important;}
+  .kpi .lbl{font-size:11px;margin-top:2px;}
+  .kpi-subcaption{font-size:10.5px;}
+  .kpi-seg{margin-top:8px;padding:2px;}
+  .kpi-seg button{padding:3px 2px;font-size:10px;}
+  @media (max-width:860px){
+    .kpi-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+    .kpi{padding:10px 11px;}
+    .kpi .num{font-size:17px;}
+  }
+
+  /* ===== Dashboard head: live refresh time + visits ===== */
+  #tab-overview .main-head{align-items:center;}
+  #overviewSub{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+  #overviewSub b{color:var(--navy);font-weight:700;}
+  .ov-live-dot{width:7px;height:7px;border-radius:50%;background:#0E9F6E;box-shadow:0 0 0 3px rgba(14,159,110,.2);animation:ovPulse 2s ease-in-out infinite;flex:none;}
+  @keyframes ovPulse{0%,100%{box-shadow:0 0 0 3px rgba(14,159,110,.22);}50%{box-shadow:0 0 0 6px rgba(14,159,110,.04);}}
+  .ov-updating{color:var(--blue-deep);font-weight:700;}
+  .ov-visitors{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;background:var(--paper);border:1px solid var(--paper-line);box-shadow:0 6px 18px -10px rgba(27,37,86,.35);font-size:12.5px;font-weight:700;color:var(--navy);white-space:nowrap;}
+  .ov-visitors svg{width:16px;height:16px;stroke:var(--blue-deep);fill:none;stroke-width:2;flex:none;}
+  .ov-visitors b{font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-weight:800;font-size:14px;color:var(--blue-deep);}
+  [data-theme="dark"] .ov-visitors{color:var(--ink);}
+  @media (max-width:860px){ #tab-overview .main-head{flex-direction:row;align-items:center;justify-content:space-between;} }
+
+  /* ===== Problem orders: the file name stays inside its own column ===== */
+  .prob-tbl td.prob-file{max-width:220px;min-width:120px;}
+  .prob-file-name{max-width:220px;font-size:11px;white-space:normal;overflow-wrap:anywhere;word-break:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.45;}
+  @media (max-width:860px){ .prob-tbl td.prob-file,.prob-file-name{max-width:150px;} }
+
+  /* ===== Refresh button + pull-to-refresh indicator ===== */
+  .admin-refresh-btn{display:flex;align-items:center;justify-content:center;height:34px;width:34px;padding:0;border-radius:10px;background:var(--paper);border:1px solid var(--paper-line);cursor:pointer;transition:all .2s;}
+  .admin-refresh-btn:hover{border-color:var(--blue);background:var(--paper-soft);}
+  .admin-refresh-btn svg{width:19px;height:19px;stroke:var(--ink);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+  .admin-refresh-btn.spin svg{animation:admSpin .8s linear infinite;stroke:var(--blue-deep);}
+  @keyframes admSpin{to{transform:rotate(360deg);}}
+  #admPtr{position:fixed;top:0;left:50%;z-index:300;width:40px;height:40px;border-radius:50%;background:var(--paper);border:1px solid var(--paper-line);box-shadow:0 8px 22px -8px rgba(15,23,42,.35);display:flex;align-items:center;justify-content:center;transform:translate(-50%,-56px);transition:transform .2s ease;pointer-events:none;}
+  #admPtr.pulling{transition:none;}
+  #admPtr svg{width:20px;height:20px;stroke:var(--muted);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;}
+  #admPtr.ready svg{stroke:var(--blue-deep);}
+  #admPtr.busy svg{stroke:var(--blue-deep);animation:admSpin .8s linear infinite;}
+
+  /* ===== Activity alerts (Toastify) ===== */
+  .toastify.act-toastify{max-width:min(360px,calc(100vw - 30px));border:1px solid var(--paper-line);border-inline-start:4px solid var(--act,#2563EB);cursor:pointer;}
+  .act-toastify .toast-close{color:var(--muted);opacity:.7;padding:0 10px;font-size:15px;}
+  .act-toast{display:flex;align-items:flex-start;gap:10px;padding:11px 4px 11px 12px;font-family:'Cairo',sans-serif;text-align:start;}
+  html[dir="rtl"] .act-toast{padding:11px 12px 11px 4px;}
+  .act-ic{width:30px;height:30px;border-radius:9px;background:var(--act,#2563EB);display:flex;align-items:center;justify-content:center;flex:none;}
+  .act-ic svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+  .act-txt{display:flex;flex-direction:column;min-width:0;}
+  .act-txt b{font-size:12.5px;font-weight:800;color:var(--navy);line-height:1.4;}
+  .act-txt span{font-size:11.5px;color:var(--muted);line-height:1.45;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  [data-theme="dark"] .act-txt b{color:var(--ink);}
+
+  /* ===== Floating live chat (same size/place as the customer chat window) ===== */
+  .adm-chat-bubble{position:fixed;bottom:22px;left:22px;width:54px;height:54px;border-radius:50%;background:linear-gradient(150deg,var(--navy),var(--blue-deep));display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 10px 24px -8px rgba(27,37,86,.45);z-index:900;transition:transform .2s ease;}
+  .adm-chat-bubble:hover{transform:translateY(-2px);}
+  html[dir="ltr"] .adm-chat-bubble{left:auto;right:22px;}
+  .adm-chat-bubble svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .adm-chat-bubble .ic-close{display:none;}
+  .adm-chat-bubble.is-open .ic-chat{display:none;}
+  .adm-chat-bubble.is-open .ic-close{display:block;}
+  .adm-chat-badge{position:absolute;top:-3px;right:-3px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--danger);color:#fff;font-size:10.5px;font-weight:800;display:none;align-items:center;justify-content:center;border:2px solid var(--paper);font-family:'Space Grotesk',sans-serif;}
+  .adm-chat-window{position:fixed;bottom:84px;left:22px;width:320px;max-width:88vw;height:420px;max-height:calc(100vh - 110px);background:var(--paper);border-radius:16px;box-shadow:0 24px 48px rgba(0,0,0,.18);border:1px solid var(--paper-line);z-index:900;display:none;flex-direction:column;overflow:hidden;}
+  html[dir="ltr"] .adm-chat-window{left:auto;right:22px;}
+  .adm-chat-window.open{display:flex;}
+  .adm-chat-head{display:flex;align-items:center;gap:8px;padding:12px 14px;background:linear-gradient(150deg,var(--navy) 0%,#2A3A78 100%);flex:none;}
+  .adm-chat-head-info{flex:1;min-width:0;color:#fff;}
+  .adm-chat-head-info b{display:block;font-family:'Cairo',sans-serif;font-size:13px;}
+  .adm-chat-head-info span{font-size:10.5px;color:#A9C4F2;}
+  .adm-chat-hbtn{width:28px;height:28px;border-radius:8px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.1);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;}
+  .adm-chat-hbtn:hover{background:rgba(255,255,255,.2);}
+  .adm-chat-hbtn svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+  .adm-chat-host{flex:1;min-height:0;position:relative;}
+  .chat-shell.in-float{display:block;height:100%;border:none;border-radius:0;position:relative;overflow:hidden;}
+  .chat-shell.in-float .conv-sidebar{position:absolute;inset:0;width:100%;max-height:none;border:none;}
+  .chat-shell.in-float .chat-main{position:absolute;inset:0;width:100%;background:var(--paper);transform:translateX(100%);transition:transform .25s ease;z-index:2;display:flex;flex-direction:column;}
+  html[dir="ltr"] .chat-shell.in-float .chat-main{transform:translateX(-100%);}
+  .chat-shell.in-float.conv-open .chat-main{transform:translateX(0) !important;}
+  .chat-shell.in-float .chat-back-btn{display:inline-flex;}
+  .chat-shell.in-float .cp-head{padding:9px 12px;gap:6px;}
+  .chat-shell.in-float .cp-head-row1{gap:9px;}
+  .chat-shell.in-float .cp-head-row2{flex-wrap:nowrap;overflow-x:auto;row-gap:0;padding-bottom:2px;}
+  .chat-shell.in-float .cp-head-row2 > *{flex:none;}
+  .chat-shell.in-float .conv-item{padding:11px 13px;}
+  .chat-shell.in-float .cp-foot{padding:8px;}
+  @media (max-width:860px){
+    .adm-chat-bubble{bottom:18px;left:16px;width:50px;height:50px;}
+    html[dir="ltr"] .adm-chat-bubble{right:16px;}
+    .adm-chat-window{bottom:78px;left:12px;}
+    html[dir="ltr"] .adm-chat-window{right:12px;}
+  }
+
+  /* ===== Orders + Today orders on mobile: one labelled card per order ===== */
+  @media (max-width:860px){
+    table.tbl.orders-tbl thead{display:none;}
+    table.tbl.orders-tbl, table.tbl.orders-tbl tbody{display:block;width:100%;min-width:0;}
+    table.tbl.orders-tbl tbody tr{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"order status" "user sent" "file file" "sim ai" "act act";gap:8px 10px;align-items:start;padding:12px;margin-bottom:10px;background:var(--paper);border:1px solid var(--paper-line);border-inline-start:4px solid var(--blue);border-radius:12px;box-shadow:0 6px 16px -12px rgba(15,23,42,.35);}
+    table.tbl.orders-tbl tbody tr.row-ok{border-inline-start-color:var(--ok);}
+    table.tbl.orders-tbl tbody tr.row-bad{border-inline-start-color:var(--danger);}
+    table.tbl.orders-tbl tbody tr.row-run{border-inline-start-color:#D99401;}
+    table.tbl.orders-tbl tbody tr td{display:block;padding:0 !important;border:none !important;min-width:0 !important;max-width:none !important;background:transparent !important;white-space:normal !important;text-align:start !important;}
+    table.tbl.orders-tbl tbody tr td.oc-order{grid-area:order;font-size:11.5px;align-self:center;}
+    table.tbl.orders-tbl tbody tr td.oc-status{grid-area:status;justify-self:end;}
+    table.tbl.orders-tbl tbody tr td.oc-user{grid-area:user;align-self:center;}
+    table.tbl.orders-tbl tbody tr td.oc-sent{grid-area:sent;justify-self:end;text-align:end !important;font-size:10.5px !important;}
+    table.tbl.orders-tbl tbody tr td.oc-file{grid-area:file;padding-top:8px !important;border-top:1px dashed var(--paper-line) !important;overflow-wrap:anywhere;font-size:12px;}
+    table.tbl.orders-tbl tbody tr td.oc-sim{grid-area:sim;}
+    table.tbl.orders-tbl tbody tr td.oc-ai{grid-area:ai;}
+    table.tbl.orders-tbl tbody tr td.oc-act{grid-area:act;}
+    table.tbl.orders-tbl tbody tr td.oc-act:not(:has(button)){display:none;}
+    table.tbl.orders-tbl tbody tr td[data-l]::before{content:attr(data-l);display:block;font-size:10px;font-weight:700;color:var(--muted);margin-bottom:4px;}
+    table.tbl.orders-tbl tbody tr td.oc-sim, table.tbl.orders-tbl tbody tr td.oc-ai{background:var(--paper-soft) !important;border-radius:9px;padding:7px 8px !important;}
+    table.tbl.orders-tbl tbody tr:has(> td[colspan]){display:block;}
+    [data-theme="dark"] table.tbl.orders-tbl tbody tr{background:rgba(15,20,36,.72);}
+  }
 </style>
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -813,7 +938,7 @@
         <span class="side-collapse-btn" onclick="toggleDesktopSidebar()" title="طي/فتح القائمة">☰</span>
       </div>
       <div class="side-nav">
-        <div class="side-item on" data-tab="overview" onclick="switchTab('overview')"><span class="ic" data-icon-key="admin_nav_overview">◷</span><span data-i18n="nav_overview">نظرة عامة</span></div>
+        <div class="side-item on" data-tab="overview" onclick="switchTab('overview')"><span class="ic" data-icon-key="admin_nav_overview">◷</span><span data-i18n="nav_overview">Dashboard</span></div>
         <div class="side-item" data-tab="orders" onclick="switchTab('orders')"><span class="ic" data-icon-key="admin_nav_orders">▤</span><span data-i18n="nav_orders">الطلبات</span></div>
         <div class="side-item" data-tab="payments" onclick="switchTab('payments')"><span class="ic" data-icon-key="admin_nav_payments">💳</span><span data-i18n="nav_payments">المدفوعات</span></div>
         <div class="side-item" data-tab="accounts" onclick="switchTab('accounts')"><span class="ic" data-icon-key="admin_nav_accounts">👤</span><span data-i18n="nav_accounts">إدارة الحسابات</span></div>
@@ -869,6 +994,11 @@
       <span id="toolbarAnchor" style="display:none;"></span>
       <div class="toolbar">
         <div class="tb-item">
+          <button class="admin-refresh-btn" id="adminRefreshBtn" onclick="refreshCurrentTab(true)" data-i18n-title="refresh_now" title="تحديث الآن">
+            <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+          </button>
+        </div>
+        <div class="tb-item">
           <button class="admin-bell-btn" onclick="toggleAdminNotifPanel()" id="adminBellBtn" data-i18n-title="notif_bell_title" title="الإشعارات">
             <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             <span class="admin-bell-dot" id="adminBellDot"></span>
@@ -894,6 +1024,7 @@
             <div class="admin-menu-item" onclick="toggleAdminMenu(false);qaSendBroadcast()"><span class="ami-ic">📢</span><span class="ami-label" data-i18n="broadcast_btn" data-i18n-title="broadcast_title">رسالة</span></div>
             <div class="admin-menu-item" onclick="toggleAdminMenu(false);qaAddCredit()"><span class="ami-ic">💳</span><span class="ami-label" data-i18n="add_credit_btn" data-i18n-title="add_credit_title">إضافة فحص</span></div>
             <div class="admin-menu-item" id="pushMenuItem" onclick="toggleAdminMenu(false);togglePushNotifications()"><span class="ami-ic">🔔</span><span class="ami-label" id="pushMenuLabel">تفعيل الإشعارات</span></div>
+            <div class="admin-menu-item" onclick="toggleActivityToasts()"><span class="ami-ic">⚡</span><span class="ami-label" data-i18n="act_toasts_lbl">تنبيهات النشاط</span><span class="ami-val" id="actToastVal">شغالة</span></div>
             <div class="admin-menu-divider"></div>
             <div class="admin-menu-item danger" onclick="handleLogout()"><span class="ami-ic">🚪</span><span class="ami-label" data-i18n="logout">تسجيل الخروج</span></div>
           </div>
@@ -903,7 +1034,11 @@
       <!-- OVERVIEW -->
       <div class="tabpane on" id="tab-overview">
         <div class="main-head">
-          <div><h1 data-i18n="overview_title">نظرة عامة</h1><div class="sub" id="overviewSub" data-i18n="overview_sub">أداء المنصة</div></div>
+          <div><h1 data-i18n="overview_title">Dashboard</h1><div class="sub" id="overviewSub">آخر تحديث: —</div></div>
+          <div class="ov-visitors" title="عدد زيارات الموقع (زيارة واحدة لكل جهاز في اليوم)">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span data-i18n="ov_visitors">الزيارات</span><b id="ovVisitors">—</b>
+          </div>
         </div>
 
         <div class="section-title" data-i18n="sec_credits">الفحوصات والطلبات الآن</div>
@@ -1042,7 +1177,7 @@
       <!-- CHAT -->
       <div class="tabpane" id="tab-chat">
         <div class="main-head"><div><h1 data-i18n="nav_chat">الشات المباشر</h1></div></div>
-        <div class="chat-shell">
+        <div class="chat-shell" id="chatShell">
           <div class="conv-sidebar">
             <div class="conv-list" id="convList"></div>
           </div>
@@ -1853,9 +1988,9 @@ let lastOverviewSnapshot = null;
 
 const I18N = {
   ar: {
-    nav_overview:'نظرة عامة', nav_orders:'الطلبات', nav_chat:'الشات المباشر', nav_tickets:'تذاكر الدعم', nav_uidesign:'تصميم الواجهة', nav_checksettings:'إعدادات الفحص',
+    nav_overview:'Dashboard', nav_orders:'الطلبات', nav_chat:'الشات المباشر', nav_tickets:'تذاكر الدعم', nav_uidesign:'تصميم الواجهة', nav_checksettings:'إعدادات الفحص',
     logout:'تسجيل الخروج', refresh:'⟲ تحديث', user_profile:'ملف الأدمن', currency_btn_lbl:'العملة', lang_btn_lbl:'اللغة', presence_online:'متصل الآن', presence_offline:'غير متصل',
-    overview_title:'نظرة عامة', overview_sub:'أداء المنصة',
+    overview_title:'Dashboard', overview_sub:'آخر تحديث: —',
     sec_credits:'الفحوصات والطلبات الآن', sec_orders_count:'عدد الطلبات', sec_revenue:'الإيرادات (من شحن المحفظة)',
     lbl_validity:'صلاحية الفحوصات (API)', lbl_api_credits:'الفحوصات المتبقي في الـ API', lbl_floating:'معلّق', lbl_processing:'قيد التنفيذ',
     lbl_completed:'مكتملة (كل الوقت)', lbl_problem:'طلبات فيها مشكلة', lbl_stuck:'طلبات عالقة', lbl_users:'عدد المستخدمين',
@@ -1972,9 +2107,9 @@ const I18N = {
     cs_toggle_service:'الخدمة مفعلة', cs_toggle_api:'API مفعل', cs_toggle_sim:'اقتباس فقط',
   },
   en: {
-    nav_overview:'Overview', nav_orders:'Orders', nav_chat:'Live Chat', nav_tickets:'Support Tickets', nav_uidesign:'UI Design', nav_checksettings:'Check Settings',
+    nav_overview:'Dashboard', nav_orders:'Orders', nav_chat:'Live Chat', nav_tickets:'Support Tickets', nav_uidesign:'UI Design', nav_checksettings:'Check Settings',
     logout:'Logout', refresh:'⟲ Refresh', user_profile:'Admin Profile', currency_btn_lbl:'Currency', lang_btn_lbl:'Language', presence_online:'Online now', presence_offline:'Offline',
-    overview_title:'Overview', overview_sub:'Platform performance',
+    overview_title:'Dashboard', overview_sub:'Last refreshed: —',
     sec_credits:'Checks & current orders', sec_orders_count:'Order count', sec_revenue:'Revenue (from wallet top-ups)',
     lbl_validity:'API credit validity', lbl_api_credits:'Remaining API credits', lbl_floating:'Floating', lbl_processing:'Processing',
     lbl_completed:'Completed (all time)', lbl_problem:'Problem orders', lbl_stuck:'Stuck orders', lbl_users:'Total users',
@@ -2231,7 +2366,7 @@ function formatMoney(amountEgp){
 // whether a valid admin session already exists; if not, we bounce to
 // auth.html#admin, and back here again once that login succeeds.
 function closeConvMobile(which){
-  const shell = document.querySelector('#tab-' + which + ' .chat-shell');
+  const shell = which === 'chat' ? document.getElementById('chatShell') : document.querySelector('#tab-' + which + ' .chat-shell');
   if (shell) shell.classList.remove('conv-open');
 }
 function fitChatShellHeight(){
@@ -2612,6 +2747,7 @@ function subscribeMessagesChannel(){
         renderChatThread();
       }
       if (row.sender_type !== 'admin') playBellSound();
+      if (typeof admOnChatMessage === 'function') admOnChatMessage(row);
     })
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'chat_messages' }, (payload) => {
       // Read receipts: when the customer opens the conversation, the
@@ -2626,7 +2762,7 @@ function subscribeMessagesChannel(){
 
 function subscribeTicketsChannel(){
   supabaseClient.channel('admin-tickets-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'support_tickets' }, () => { loadTickets(); })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'support_tickets' }, (payload) => { loadTickets(); if (typeof admOnTicketEvent === 'function') admOnTicketEvent(payload); })
     .subscribe();
 }
 
@@ -2645,11 +2781,13 @@ function subscribeWalletChannel(){
       if (document.getElementById('tab-overview')?.classList.contains('on')) loadOverview();
       if (document.getElementById('tab-accounts')?.classList.contains('on')) loadUsersTab();
     })
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'payments' }, () => {
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'payments' }, (payload) => {
+      if (typeof admOnPaymentEvent === 'function') admOnPaymentEvent(payload);
       // New payment arrived — refresh pending list if credits tab is visible
       if (document.getElementById('tab-payments')?.classList.contains('on')) loadCreditsTab();
     })
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'payments' }, () => {
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'payments' }, (payload) => {
+      if (typeof admOnPaymentEvent === 'function') admOnPaymentEvent(payload);
       if (document.getElementById('tab-payments')?.classList.contains('on')) loadCreditsTab();
     })
     .subscribe();
@@ -2660,9 +2798,11 @@ function subscribeWalletChannel(){
 // manual refresh button.
 function subscribeOrdersChannel(){
   supabaseClient.channel('admin-orders-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
-      if (document.getElementById('tab-orders')?.classList.contains('on')) loadOrders();
-      if (document.getElementById('tab-overview')?.classList.contains('on')) loadOverview();
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
+      if (typeof admOnOrderEvent === 'function') admOnOrderEvent(payload);
+      // The Dashboard (today + problem orders) and the Orders tab both read the orders list.
+      if (typeof scheduleAdmRefresh === 'function') scheduleAdmRefresh(document.getElementById('tab-overview')?.classList.contains('on') ? 'overview' : 'orders');
+      else loadOrders();
     }).subscribe();
   // Fallback while the Orders tab is open: if a realtime event is missed (e.g. the socket
   // dropped), the table still catches up within 8 seconds.
@@ -2686,7 +2826,8 @@ function subscribeActivityChannel(){
 // tab's user list current.
 function subscribeUsersChannel(){
   supabaseClient.channel('admin-users-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'users_profile' }, async () => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'users_profile' }, async (payload) => {
+      if (typeof admOnProfileEvent === 'function') admOnProfileEvent(payload);
       if (document.getElementById('tab-accounts')?.classList.contains('on')) loadUsersTab();
       // Refresh profilesByUserId so online users table shows updated credits
       const { data } = await supabaseClient.from('users_profile_numbered').select('user_id,credits,full_name,pk_number,email,whatsapp,avatar_url');
@@ -2746,6 +2887,7 @@ function renderChatSidebar(){
   const list = document.getElementById('convList');
   const totalUnread = conversations.reduce((s,c)=>s + (c.unread_by_admin||0), 0);
   updateSideBadge('chatSideBadge', totalUnread);
+  if (typeof admChatBubbleSync === 'function') admChatBubbleSync(totalUnread);
   if (conversations.length === 0) { list.innerHTML = '<div class="empty-list">لا توجد محادثات بعد</div>'; return; }
   list.innerHTML = conversations.map(c => `
     <div class="conv-item ${c.status==='closed'?'closed':''} ${c.id===openConversationId?'active':''}" onclick="openConversation('${c.id}')">
@@ -2768,9 +2910,9 @@ function updateSideBadge(id, count){
 }
 
 async function openConversation(id){
-  if (window.innerWidth <= 860) {
-    const shell = document.querySelector('#tab-chat .chat-shell');
-    if (shell) shell.classList.add('conv-open');
+  const chatShell = document.getElementById('chatShell');
+  if (window.innerWidth <= 860 || chatShell?.classList.contains('in-float')) {
+    if (chatShell) chatShell.classList.add('conv-open');
   }
   openConversationId = id;
   document.getElementById('chatEmptyState').style.display = 'none';
@@ -3466,6 +3608,7 @@ function timeAgo(dateStr){
 }
 
 function switchTab(tab){
+  if (tab === 'chat' && typeof closeAdmChat === 'function') closeAdmChat(); // the chat panel goes back to its tab
   document.querySelectorAll('.side-item').forEach(x=>x.classList.remove('on'));
   document.querySelector(`.side-item[data-tab="${tab}"]`).classList.add('on');
   document.querySelectorAll('.tabpane').forEach(p=>p.classList.remove('on'));
@@ -3483,6 +3626,7 @@ function switchTab(tab){
   if (tab === 'chat' || tab === 'tickets') setTimeout(fitChatShellHeight, 30);
   localStorage.setItem('prokeys-admin-tab', tab);
   restoreTabScroll(tab);
+  if (typeof admChatBubbleSync === 'function') admChatBubbleSync();
 }
 
 // Remember which tab was open and how far scrolled, per tab, so a refresh
@@ -3611,7 +3755,7 @@ function renderOverviewStatusKpis(orders, usersCount){
 }
 
 async function loadOverview(){
-  document.getElementById('overviewSub').textContent = 'جاري التحميل...';
+  if (typeof ovSetLoading === 'function') ovSetLoading(true);
   await loadSlotData();
 
   const [ordersRes, profilesRes, walletRes] = await Promise.all([
@@ -3643,8 +3787,7 @@ async function loadOverview(){
   // Function so the turnitin.blog token never reaches the browser.
   loadApiCredits();
 
-  document.getElementById('overviewSub').textContent =
-    (currentLang === 'ar' ? 'آخر تحديث: ' : 'Last updated: ') + fmtDateTime(now);
+  if (typeof ovLoadVisitors === 'function') ovLoadVisitors();
 
   // Snapshot for CSV export — kept in EGP (the ledger's real currency);
   // exportOverviewCSV() converts to USD at export time if that's selected.
@@ -3655,9 +3798,11 @@ async function loadOverview(){
     floating, processing, completed, problem, usersCount,
   };
 
-  // Problem orders list (need order + user info, so reuse loadOrders' data if available)
-  if (allOrders.length === 0) await loadOrders(); else { renderProblemOrdersList(); renderTodayOrders(); }
-  loadApiLog();
+  // Today orders and problem orders come from a fresh read of the orders (it used to reuse the
+  // first load, so these two tables stayed the same until the page was reloaded).
+  await loadOrders();
+  await loadApiLog();
+  if (typeof ovMarkRefreshed === 'function') ovMarkRefreshed(new Date());
 
   // Revenue analysis section (merged into Overview from the old standalone Revenue tab)
   initRevenueTab(wallet);
@@ -3755,7 +3900,7 @@ function renderProblemOrdersList(){
       <td class="mono" style="font-size:10.5px;color:var(--muted);white-space:nowrap;">${escapeHtml(o.display_id||o.id.slice(0,8))}</td>
       <td class="mono" style="color:var(--blue-deep);font-weight:700;white-space:nowrap;">${clickablePk(o.user_id, p.pk_number)}</td>
       <td style="white-space:nowrap;"><b style="font-size:12px;">${escapeHtml(p.full_name||'—')}</b></td>
-      <td style="font-size:11px;word-break:break-word;max-width:220px;">${escapeHtml(o.file_name||'—')}</td>
+      <td class="prob-file"><div class="prob-file-name" title="${escapeHtml(o.file_name||'')}">${escapeHtml(o.file_name||'—')}</div></td>
       <td class="prob-reason">${reason}</td>
       <td class="prob-act">${o.user_id ? `<button class="msg-btn" onclick="composeMessage('${o.user_id}','${o.display_id||o.id.slice(0,8)}')">✉</button>` : ''}</td>
     </tr>`;
@@ -3845,6 +3990,7 @@ function initOnlinePresence(){
     _renderOnlineUsers();
   })
   .on('presence', { event: 'join' }, ({ newPresences }) => {
+    if (typeof admOnPresenceJoin === 'function') admOnPresenceJoin(newPresences);
     newPresences.forEach(p => { if (p.user_id) _onlinePresenceMap[p.presence_ref || p.user_id] = p; });
     _renderOnlineUsers();
   })
@@ -3873,7 +4019,9 @@ function _renderOnlineUsers(){
   const countEl = document.getElementById('onlineCountNum');
   if (countEl) countEl.textContent = users.length;
   _fetchMissingOnlineProfiles(); // async, re-renders once profiles land
-  if (!Object.keys(slotBalanceByUser).length) loadSlotData().then(() => _renderOnlineUsers());
+  // Load the slot balances once if they are not there yet. (Retrying on every render looped
+  // forever when no customer had any slots: load, still empty, render, load again...)
+  if (!Object.keys(slotBalanceByUser).length && !_slotDataTried) { _slotDataTried = true; loadSlotData().then(() => _renderOnlineUsers()); }
 
   const page = paginateList('onlineUsers', users, _renderOnlineUsers);
   const tbody = document.getElementById('onlineUsersBody');
@@ -3941,14 +4089,14 @@ function buildAdminOrderRow(o){
     : ['error','rejected','failed_invalid'].includes(o.status) ? 'row-bad'
     : ['run','processing','pending','checking','uploading','floating'].includes(o.status) ? 'row-run' : '';
   return `<tr class="${rowCls}">
-    <td class="mono" style="font-size:11px;">${escapeHtml(o.display_id || o.id.slice(0,8))} <span class="copy-btn" data-clipboard-text="${escapeHtml(o.display_id || o.id.slice(0,8))}" title="نسخ">📋</span></td>
-    <td class="u-cell">${userCell}</td>
-    <td class="file-col">${fileCell}<br>${checkTypeBadge(o.check_type)}${filterBadges(o)}</td>
-    <td style="white-space:nowrap;padding:6px 8px;">${reportButton(o, 'sim')}</td>
-    <td style="white-space:nowrap;padding:6px 8px;">${reportButton(o, 'ai')}</td>
-    <td><span class="badge ${badgeClass}"><span class="dot"></span>${badgeLabel}</span></td>
-    <td style="font-size:11px;color:var(--muted);">${submittedCell}</td>
-    <td><div style="display:flex;flex-wrap:wrap;gap:6px;">
+    <td class="mono oc-order" style="font-size:11px;">${escapeHtml(o.display_id || o.id.slice(0,8))} <span class="copy-btn" data-clipboard-text="${escapeHtml(o.display_id || o.id.slice(0,8))}" title="نسخ">📋</span></td>
+    <td class="u-cell oc-user">${userCell}</td>
+    <td class="file-col oc-file">${fileCell}<br>${checkTypeBadge(o.check_type)}${filterBadges(o)}</td>
+    <td class="oc-sim" data-l="${escapeHtml(t('th_sim'))}" style="white-space:nowrap;padding:6px 8px;">${reportButton(o, 'sim')}</td>
+    <td class="oc-ai" data-l="${escapeHtml(t('th_ai'))}" style="white-space:nowrap;padding:6px 8px;">${reportButton(o, 'ai')}</td>
+    <td class="oc-status"><span class="badge ${badgeClass}"><span class="dot"></span>${badgeLabel}</span></td>
+    <td class="oc-sent" style="font-size:11px;color:var(--muted);">${submittedCell}</td>
+    <td class="oc-act"><div style="display:flex;flex-wrap:wrap;gap:6px;">
       ${(['error','failed_invalid'].includes(o.status) && o.source_file_path) ? `<button class="msg-btn" onclick="resendOrderToApi('${o.id}')" title="إعادة إرسال نفس الملف للفحص">🔁 إعادة إرسال</button>` : ''}
       ${(['error','failed_invalid'].includes(o.status) && o.processing_mode === 'api') ? `<button class="msg-btn" style="color:var(--blue-deep);border-color:var(--blue-light);" onclick="adoptOrderManually('${o.id}')" title="تولى الطلب يدوياً ورفع التقارير بنفسك">🖐 يدوي</button>` : ''}
     </div></td>
@@ -3964,43 +4112,76 @@ async function loadApiLog(){
   _apiLogRows = data || [];
   renderApiLog();
 }
+// One row per order: its events (sent → completed / failed) merged into a single line.
+// API before = the balance before the first event, API after = the balance after the last one,
+// difference = all the changes added up. Rows without an order stay on their own.
+function apiLogGroups(){
+  const groups = [], byOrder = {};
+  _apiLogRows.forEach(r => { // newest first, so groups come out newest first too
+    if (!r.order_id) { groups.push({ key: 'r-' + r.id, rows: [r] }); return; }
+    let g = byOrder[r.order_id];
+    if (!g) { g = byOrder[r.order_id] = { key: r.order_id, rows: [] }; groups.push(g); }
+    g.rows.push(r);
+  });
+  groups.forEach(g => g.rows.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)));
+  return groups;
+}
 function renderApiLog(){
   const body = document.getElementById('apiLogBody');
   if (!body) return;
   const ar = currentLang === 'ar';
+  const groups = apiLogGroups();
   const cnt = document.getElementById('apiLogCount');
-  if (cnt) cnt.textContent = _apiLogRows.length;
-  if (!_apiLogRows.length) {
+  if (cnt) cnt.textContent = groups.length;
+  if (!groups.length) {
     body.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px;">${ar ? 'مفيش سجل بعد' : 'No log entries yet'}</td></tr>`;
     document.getElementById('apiLogPagination').innerHTML = '';
     return;
   }
   const orderById = {};
   (allOrders || []).forEach(o => { orderById[o.id] = o.display_id || String(o.id).slice(0, 8); });
-  const pageList = paginateList('apilog', _apiLogRows, renderApiLog);
+  const pageList = paginateList('apilog', groups, renderApiLog);
   const EVENT = { submit: ar ? 'إرسال للمزود' : 'Sent to provider', completed: ar ? 'اكتمل' : 'Completed', failed: ar ? 'فشل' : 'Failed' };
-  body.innerHTML = pageList.map(r => {
-    const delta = r.api_delta != null ? Number(r.api_delta) : null;
-    const slots = r.slots_reserved;
-    // Flags: charged on a refused or failed check, more than one check charged, or more than one slot reserved.
-    let cls = '', flag = '';
-    if (r.event === 'submit' && delta != null && delta < 0 && r.note !== 'accepted') { cls = 'row-bad'; flag = ar ? 'اتخصم رغم إن الفحص ماتقبلش' : 'Charged although refused'; }
-    else if (delta != null && delta <= -2) { cls = 'row-warn'; flag = ar ? 'اتخصم أكتر من فحص' : 'More than one check charged'; }
-    else if (slots != null && slots > 1) { cls = 'row-warn'; flag = ar ? 'أكتر من slot محجوز' : 'More than one slot reserved'; }
+  const EVENT_CLS = { submit: 'badge-run', completed: 'badge-ok', failed: 'badge-no' };
+  const num = v => (v != null ? Number(v) : null);
+  body.innerHTML = pageList.map(g => {
+    const rows = g.rows, first = rows[0], last = rows[rows.length - 1];
+    // Flags, per event as before, then on the order as a whole.
+    let bad = false, warn = false;
+    const flags = [];
+    rows.forEach(r => {
+      const d = num(r.api_delta), slots = r.slots_reserved;
+      if (r.event === 'submit' && d != null && d < 0 && r.note !== 'accepted') { bad = true; flags.push(ar ? 'اتخصم رغم إن الفحص ماتقبلش' : 'Charged although refused'); }
+      else if (d != null && d <= -2) { warn = true; flags.push(ar ? 'اتخصم أكتر من فحص' : 'More than one check charged'); }
+      else if (slots != null && slots > 1) { warn = true; flags.push(ar ? 'أكتر من slot محجوز' : 'More than one slot reserved'); }
+    });
+    const deltas = rows.map(r => num(r.api_delta)).filter(d => d != null);
+    const delta = deltas.length ? deltas.reduce((s, d) => s + d, 0) : null;
+    if (delta != null && delta <= -2 && !flags.length) { warn = true; flags.push(ar ? 'الطلب اتخصم عليه أكتر من فحص' : 'Order charged more than one check'); }
+    const before = rows.map(r => num(r.api_before)).find(v => v != null);
+    const after = rows.map(r => num(r.api_after)).filter(v => v != null).pop();
+    const slotVals = rows.map(r => r.slots_reserved).filter(v => v != null);
+    const slots = slotVals.length ? Math.max(...slotVals) : null;
+    const notes = [...new Set(rows.map(r => r.note).filter(Boolean))];
     const deltaTxt = delta == null ? '—' : (delta > 0 ? '+' : '') + delta;
-    const dt = new Date(r.created_at);
-    return `<tr class="${cls}">
-      <td style="font-size:11px;white-space:nowrap;">${fmtDate(dt)}<div style="color:var(--muted);font-size:10.5px;">${fmtTime(dt)}</div></td>
-      <td class="mono" style="font-size:11px;">${escapeHtml(orderById[r.order_id] || (r.order_id ? String(r.order_id).slice(0, 8) : '—'))}</td>
-      <td style="font-size:11.5px;">${escapeHtml(EVENT[r.event] || r.event)}</td>
-      <td class="mono">${r.api_before != null ? Number(r.api_before) : '—'}</td>
-      <td class="mono">${r.api_after != null ? Number(r.api_after) : '—'}</td>
+    const dt = new Date(last.created_at);
+    const spanS = Math.round((new Date(last.created_at) - new Date(first.created_at)) / 1000);
+    const spanTxt = rows.length > 1 && spanS > 0
+      ? `<div style="color:var(--muted);font-size:10px;">${ar ? 'خلال' : 'over'} ${spanS >= 60 ? Math.floor(spanS / 60) + (ar ? 'د ' : 'm ') : ''}${spanS % 60}${ar ? 'ث' : 's'}</div>` : '';
+    const events = rows.map(r => `<span class="badge ${EVENT_CLS[r.event] || 'badge-wait'}" style="font-size:10px;padding:2px 7px;" title="${escapeHtml(fmtTime(new Date(r.created_at)))}">${escapeHtml(EVENT[r.event] || r.event)}</span>`)
+      .join(`<span style="color:var(--muted);font-size:10px;margin:0 3px;">${ar ? '←' : '→'}</span>`);
+    return `<tr class="${bad ? 'row-bad' : warn ? 'row-warn' : ''}">
+      <td style="font-size:11px;white-space:nowrap;">${fmtDate(dt)}<div style="color:var(--muted);font-size:10.5px;">${fmtTime(dt)}</div>${spanTxt}</td>
+      <td class="mono" style="font-size:11px;">${escapeHtml(orderById[first.order_id] || (first.order_id ? String(first.order_id).slice(0, 8) : '—'))}</td>
+      <td style="font-size:11.5px;"><div style="display:flex;flex-wrap:wrap;align-items:center;gap:2px;">${events}</div></td>
+      <td class="mono">${before != null ? before : '—'}</td>
+      <td class="mono">${after != null ? after : '—'}</td>
       <td class="mono" style="font-weight:800;color:${delta != null && delta < 0 ? 'var(--danger)' : 'var(--ok)'};">${deltaTxt}</td>
       <td class="mono">${slots != null ? slots : '—'}</td>
-      <td style="font-size:11px;">${flag ? `<b style="color:var(--danger);">${escapeHtml(flag)}</b><br>` : ''}<span style="color:var(--muted);">${escapeHtml(r.note || '')}</span></td>
+      <td style="font-size:11px;">${[...new Set(flags)].map(f => `<b style="color:var(--danger);">${escapeHtml(f)}</b><br>`).join('')}<span style="color:var(--muted);">${escapeHtml(notes.join(' · '))}</span></td>
     </tr>`;
   }).join('');
-  renderPaginationBar('apilog', 'apiLogPagination', _apiLogRows.length);
+  renderPaginationBar('apilog', 'apiLogPagination', groups.length);
 }
 
 // Today table: the orders submitted today (local day), same columns as the Orders tab.
@@ -4881,6 +5062,23 @@ function deliveryTime(o){
     </div>
   </div>
 
+  <!-- Pull-down-to-refresh indicator -->
+  <div id="admPtr" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></div>
+
+  <!-- Floating live chat: the Chat tab's own panel moves in here while it is open -->
+  <div class="adm-chat-bubble" id="admChatBubble" onclick="toggleAdmChat()" title="الشات المباشر" style="display:none;">
+    <svg class="ic-chat" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+    <svg class="ic-close" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    <span class="adm-chat-badge" id="admChatBadge"></span>
+  </div>
+  <div class="adm-chat-window" id="admChatWindow">
+    <div class="adm-chat-head">
+      <div class="adm-chat-head-info"><b data-i18n="nav_chat">الشات المباشر</b><span data-i18n="chat_float_sub">رسايل العملاء</span></div>
+      <button type="button" class="adm-chat-hbtn" onclick="openFullChat()" data-i18n-title="chat_float_full" title="فتح صفحة الشات"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button>
+      <button type="button" class="adm-chat-hbtn" onclick="closeAdmChat()" data-i18n-title="chat_float_close" title="إغلاق"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="adm-chat-host" id="admChatHost"></div>
+  </div>
 
 </body>
 </html>
@@ -9111,7 +9309,9 @@ window.adminAdjustCredit = async function(action){
 // Slot data shared by the admin tabs: remaining slots per customer, slots per package key.
 let slotBalanceByUser = {};
 let slotPackSlots = {};
+let _slotDataTried = false;
 async function loadSlotData(){
+  _slotDataTried = true;
   const [bal, pk] = await Promise.all([
     supabaseClient.rpc('admin_slot_balances'),
     supabaseClient.from('slot_packages').select('id, legacy_pack_id, slots'),
@@ -9420,4 +9620,349 @@ async function togglePushNotifications(){
 }
 registerAdminSW().then(refreshPushMenu);
 </script>
+<script>
+/* ================================================================
+   Admin live layer: refresh button + pull-to-refresh on every tab,
+   live "last refreshed" time and visitor count on the Dashboard,
+   activity alerts (toasts), and the floating live chat window.
+   ================================================================ */
+Object.assign(I18N.ar, {
+  refresh_now: 'تحديث الآن', ov_visitors: 'الزيارات', act_toasts_lbl: 'تنبيهات النشاط',
+  chat_float_sub: 'رسايل العملاء', chat_float_full: 'فتح صفحة الشات', chat_float_close: 'إغلاق',
+});
+Object.assign(I18N.en, {
+  refresh_now: 'Refresh now', ov_visitors: 'Visits', act_toasts_lbl: 'Activity alerts',
+  chat_float_sub: 'Customer messages', chat_float_full: 'Open the chat page', chat_float_close: 'Close',
+});
+const admAr = () => currentLang === 'ar';
+const admTabOn = (tab) => !!document.getElementById('tab-' + tab)?.classList.contains('on');
+function admCurrentTab(){
+  const pane = document.querySelector('.tabpane.on');
+  return pane ? pane.id.replace(/^tab-/, '') : 'overview';
+}
 
+/* ---------- Refresh: button, per-tab loaders, realtime debounce ---------- */
+const ADM_TAB_LOADERS = {
+  overview:  () => loadOverview(),
+  orders:    () => loadOrders(),
+  payments:  () => Promise.all([loadCreditsTab(), initPayGatewaysTab()]),
+  accounts:  () => Promise.all([loadUsersTab(), initAdminMgmtTab()]),
+  store:     () => loadStoreAdmin(),
+  reviews:   () => loadReviewsTab(),
+  slots:     () => initSlotsTab(),
+  broadcast: () => loadBroadcastHistory(),
+  chat:      () => loadConversations(),
+  tickets:   () => loadTickets(),
+  uidesign:  () => initUIDesignTab(),   // re-renders only: unsaved edits are kept
+  activity:  () => loadActivityTab(),
+  backup:    () => loadCreditBackupsList(),
+};
+let _admRefreshing = false;
+async function refreshCurrentTab(manual){
+  if (_admRefreshing) return;
+  _admRefreshing = true;
+  const btn = document.getElementById('adminRefreshBtn');
+  btn?.classList.add('spin');
+  document.getElementById('admPtr')?.classList.add('busy');
+  try {
+    const fn = ADM_TAB_LOADERS[admCurrentTab()];
+    if (fn) await fn();
+    if (manual) toast(admAr() ? 'اتحدثت ✓' : 'Refreshed ✓', 'success');
+  } catch (e) {
+    console.error('refreshCurrentTab failed:', e);
+    if (manual) toast(admAr() ? 'التحديث فشل، جرب تاني' : 'Refresh failed, try again', 'error');
+  } finally {
+    _admRefreshing = false;
+    btn?.classList.remove('spin');
+    admPtrReset();
+  }
+}
+
+// Realtime changes come in bursts (one check = several row updates): refresh once per burst.
+const _admPending = new Set();
+let _admRefreshTimer = null, _admOverviewBusy = false;
+function scheduleAdmRefresh(what){
+  _admPending.add(what);
+  clearTimeout(_admRefreshTimer);
+  _admRefreshTimer = setTimeout(async () => {
+    const jobs = new Set(_admPending); _admPending.clear();
+    try {
+      if (jobs.has('overview') && admTabOn('overview')) {
+        if (_admOverviewBusy) { _admPending.add('overview'); return; }
+        _admOverviewBusy = true;
+        try { await loadOverview(); } finally { _admOverviewBusy = false; } // also reloads orders
+      } else if (jobs.has('orders') || jobs.has('overview')) {
+        await loadOrders();
+      }
+      if (jobs.has('apilog') && admTabOn('overview')) await loadApiLog();
+    } catch (e) { console.error('scheduleAdmRefresh failed:', e); }
+  }, 500);
+}
+
+/* ---------- Dashboard: live "last refreshed" time + visits ---------- */
+let _ovLastRefresh = null, _ovLoading = false;
+function ovSetLoading(on){ _ovLoading = !!on; ovPaintRefreshed(); }
+function ovMarkRefreshed(d){ _ovLastRefresh = d || new Date(); _ovLoading = false; ovPaintRefreshed(); }
+function ovPaintRefreshed(){
+  const el = document.getElementById('overviewSub');
+  if (!el) return;
+  const ar = admAr();
+  if (!_ovLastRefresh) { el.textContent = ar ? 'جاري التحميل...' : 'Loading...'; return; }
+  const s = Math.max(0, Math.round((Date.now() - _ovLastRefresh.getTime()) / 1000));
+  const ago = s < 5 ? (ar ? 'الآن' : 'just now')
+    : s < 60 ? (ar ? `منذ ${s} ثانية` : `${s}s ago`)
+    : s < 3600 ? (ar ? `منذ ${Math.floor(s / 60)} دقيقة` : `${Math.floor(s / 60)}m ago`)
+    : (ar ? `منذ ${Math.floor(s / 3600)} ساعة` : `${Math.floor(s / 3600)}h ago`);
+  el.innerHTML = `<span class="ov-live-dot"></span>${ar ? 'آخر تحديث' : 'Last refreshed'}: <b>${ago}</b> · <span class="mono">${escapeHtml(fmtTime(_ovLastRefresh))}</span>`
+    + (_ovLoading ? ` <span class="ov-updating">${ar ? 'جاري التحديث...' : 'updating...'}</span>` : '');
+}
+setInterval(() => { if (admTabOn('overview')) ovPaintRefreshed(); }, 1000);
+
+async function ovLoadVisitors(){
+  try {
+    const { data, error } = await supabaseClient.rpc('visitor_count_get');
+    if (!error && data != null) {
+      const el = document.getElementById('ovVisitors');
+      if (el) el.textContent = Number(data).toLocaleString('en-US');
+    }
+  } catch (e) { /* optional */ }
+}
+
+/* ---------- Pull down to refresh (touch) ---------- */
+const _ptr = { y0: null, dy: 0, ready: false };
+function admScrollTop(){
+  const main = document.querySelector('.main');
+  return Math.max(window.scrollY || 0, main ? main.scrollTop : 0);
+}
+function admPtrReset(){
+  const el = document.getElementById('admPtr');
+  if (!el) return;
+  el.classList.remove('ready', 'busy', 'pulling');
+  el.style.transform = '';
+}
+document.addEventListener('touchstart', (e) => {
+  _ptr.y0 = null; _ptr.ready = false;
+  if (_admRefreshing || e.touches.length !== 1) return;
+  if (e.target.closest('.adm-chat-window, .chat-shell, .admin-notif-panel, .admin-menu-panel, .sidebar.mobile-open, input, textarea, select, [contenteditable]')) return;
+  if (document.querySelector('.adm-modal-overlay.open, .adm-modal-overlay[style*="flex"]')) return;
+  if (admScrollTop() > 0) return;
+  _ptr.y0 = e.touches[0].clientY;
+}, { passive: true });
+document.addEventListener('touchmove', (e) => {
+  if (_ptr.y0 == null) return;
+  const el = document.getElementById('admPtr');
+  const dy = e.touches[0].clientY - _ptr.y0;
+  if (dy <= 0 || admScrollTop() > 0) { _ptr.y0 = null; admPtrReset(); return; }
+  const pull = Math.min(dy * 0.5, 90);
+  _ptr.ready = pull >= 60;
+  if (el) {
+    el.classList.add('pulling');
+    el.classList.toggle('ready', _ptr.ready);
+    el.style.transform = `translate(-50%, ${pull - 56}px) rotate(${dy * 1.6}deg)`;
+  }
+}, { passive: true });
+document.addEventListener('touchend', () => {
+  if (_ptr.y0 == null) return;
+  const go = _ptr.ready;
+  _ptr.y0 = null; _ptr.ready = false;
+  if (go) {
+    const el = document.getElementById('admPtr');
+    if (el) { el.classList.remove('pulling'); el.style.transform = 'translate(-50%, 14px)'; }
+    refreshCurrentTab(true);
+  } else admPtrReset();
+});
+
+/* ---------- Activity alerts (Toastify, same library as the customer site) ---------- */
+const ACT_TOAST_KEY = 'pk-admin-activity-toasts';
+const actToastsOn = () => localStorage.getItem(ACT_TOAST_KEY) !== '0';
+function paintActToastsMenu(){
+  const v = document.getElementById('actToastVal');
+  if (v) v.textContent = actToastsOn() ? (admAr() ? 'شغالة' : 'On') : (admAr() ? 'مقفولة' : 'Off');
+}
+function toggleActivityToasts(){
+  localStorage.setItem(ACT_TOAST_KEY, actToastsOn() ? '0' : '1');
+  paintActToastsMenu();
+  toast(actToastsOn() ? (admAr() ? 'تنبيهات النشاط اشتغلت' : 'Activity alerts on') : (admAr() ? 'تنبيهات النشاط اتقفلت' : 'Activity alerts off'), 'info');
+}
+const ACT_COLORS = { online: '#0E9F6E', order: '#2563EB', done: '#0E9F6E', fail: '#E0445B', pay: '#D99401', paid: '#0E9F6E', user: '#7C3AED', chat: '#0EA5E9', ticket: '#F97316', store: '#D4930A' };
+const ACT_ICONS = {
+  online: '<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/>',
+  order: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15l3-3 3 3"/>',
+  done: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/>',
+  fail: '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>',
+  pay: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',
+  paid: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M8 15l2 2 4-4"/>',
+  user: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>',
+  chat: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  ticket: '<path d="M2 9a3 3 0 0 0 0 6v3a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-3a3 3 0 0 0 0-6V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/>',
+  store: '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/>',
+};
+const _actSeen = new Set();
+function activityToast(kind, title, body, onClick, dedupeKey){
+  if (dedupeKey) { if (_actSeen.has(dedupeKey)) return; _actSeen.add(dedupeKey); }
+  if (!actToastsOn() || !window.Toastify) return;
+  const node = document.createElement('div');
+  node.className = 'act-toast';
+  node.style.setProperty('--act', ACT_COLORS[kind] || '#2563EB');
+  node.innerHTML = `<span class="act-ic"><svg viewBox="0 0 24 24">${ACT_ICONS[kind] || ACT_ICONS.order}</svg></span><span class="act-txt"><b></b><span></span></span>`;
+  node.querySelector('b').textContent = title;
+  node.querySelector('.act-txt span').textContent = body || '';
+  const tst = Toastify({
+    node, duration: 6500, close: true, gravity: 'top', position: admAr() ? 'left' : 'right', stopOnFocus: true,
+    className: 'act-toastify',
+    style: { background: 'var(--paper)', color: 'var(--ink)', borderRadius: '12px', padding: '0', boxShadow: '0 14px 36px -12px rgba(15,23,42,.35)' },
+    onClick: () => { try { onClick && onClick(); } finally { tst.hideToast(); } },
+  });
+  tst.showToast();
+}
+function actWho(userId, fallback){
+  const p = (userId && profilesByUserId[userId]) || {};
+  const name = p.full_name || p.email || fallback || (admAr() ? 'عميل' : 'A customer');
+  const pk = p.pk_number >= 1 ? ' · PK' + String(p.pk_number).padStart(3, '0') : '';
+  return name + pk;
+}
+const ORDER_FAIL_STATUSES = ['error', 'failed_invalid', 'rejected'];
+function admOnOrderEvent(payload){
+  const row = payload.new || {};
+  if (!row.id) return;
+  const status = apiStatus(row.status);
+  const before = (allOrders.find(o => o.id === row.id) || {}).status;
+  const who = actWho(row.user_id);
+  const file = row.file_name || '';
+  const go = () => switchTab('orders');
+  if (payload.eventType === 'INSERT') {
+    activityToast('order', admAr() ? `${who} رفع ملف للفحص` : `${who} submitted a file`, file, go, `o-${row.id}-new`);
+  } else if (payload.eventType === 'UPDATE' && status !== before) {
+    if (status === 'completed') activityToast('done', admAr() ? `اتفحص ملف ${who}` : `${who}'s file was checked`, file, go, `o-${row.id}-done`);
+    else if (ORDER_FAIL_STATUSES.includes(status)) activityToast('fail', admAr() ? `فشل فحص ملف ${who}` : `${who}'s check failed`, file, go, `o-${row.id}-fail`);
+  }
+}
+function admOnPaymentEvent(payload){
+  const row = payload.new || {};
+  if (!row.id) return;
+  const pack = String(row.pack_id || '');
+  const what = pack === 'store-topup' ? (admAr() ? 'شحن محفظة المتجر' : 'store wallet top-up')
+    : pack.startsWith('store-order:') ? (admAr() ? 'طلب متجر' : 'store order')
+    : (admAr() ? 'باقة فحوصات' : 'check package');
+  const money = `${row.amount != null ? Number(row.amount) : '—'} ${row.currency || ''} · ${row.gateway || ''} · ${what}`;
+  const go = () => switchTab('payments');
+  const who = actWho(row.user_id);
+  if (payload.eventType === 'INSERT' && row.status === 'pending') activityToast('pay', admAr() ? `${who} بدأ عملية شحن` : `${who} started a payment`, money, go, `p-${row.id}-new`);
+  else if (row.status === 'completed') activityToast('paid', admAr() ? `تم شحن رصيد ${who}` : `${who}'s payment was confirmed`, money, go, `p-${row.id}-done`);
+  scheduleAdmRefresh('overview');
+}
+function admOnProfileEvent(payload){
+  if (payload.eventType !== 'INSERT') return;
+  const row = payload.new || {};
+  activityToast('user', admAr() ? 'عميل جديد سجل في الموقع' : 'New customer signed up', row.full_name || row.email || '', () => switchTab('accounts'), `u-${row.user_id || row.id}`);
+  scheduleAdmRefresh('overview');
+}
+function admOnTicketEvent(payload){
+  if (payload.eventType !== 'INSERT') return;
+  const row = payload.new || {};
+  activityToast('ticket', admAr() ? `تذكرة دعم جديدة من ${actWho(row.user_id)}` : `New support ticket from ${actWho(row.user_id)}`, row.subject || '', () => switchTab('tickets'), `t-${row.id}`);
+}
+// Customers coming online: the first presence sync lists everyone already online, so it is skipped.
+const _admPresenceQuietUntil = Date.now() + 8000;
+const _onlineToastAt = {};
+function admOnPresenceJoin(newPresences){
+  if (Date.now() < _admPresenceQuietUntil) return;
+  (newPresences || []).forEach(p => {
+    if (!p.user_id) return;
+    if (Object.values(_onlinePresenceMap).some(x => x.user_id === p.user_id)) return; // another tab of the same customer
+    if (_onlineToastAt[p.user_id] && Date.now() - _onlineToastAt[p.user_id] < 15 * 60 * 1000) return;
+    _onlineToastAt[p.user_id] = Date.now();
+    activityToast('online', admAr() ? `${actWho(p.user_id, p.name)} أونلاين دلوقتي` : `${actWho(p.user_id, p.name)} is online`, p.email || '', () => switchTab('overview'));
+  });
+}
+function admOnChatMessage(row){
+  if (!row || row.sender_type === 'admin') return;
+  const convo = conversations.find(c => c.id === row.conversation_id) || {};
+  const who = actWho(convo.user_id, convo.user_name);
+  const text = row.content || row.message || row.body || (row.file_name ? '📎 ' + row.file_name : '');
+  if (admTabOn('chat')) {
+    if (row.conversation_id !== openConversationId) activityToast('chat', admAr() ? `رسالة جديدة من ${who}` : `New message from ${who}`, text, () => openConversation(row.conversation_id), `m-${row.id}`);
+    return;
+  }
+  if (!canUseChat()) return;
+  const win = document.getElementById('admChatWindow');
+  const shell = document.getElementById('chatShell');
+  const openOnOther = win?.classList.contains('open') && shell?.classList.contains('conv-open') && openConversationId && openConversationId !== row.conversation_id;
+  if (openOnOther) {
+    activityToast('chat', admAr() ? `رسالة جديدة من ${who}` : `New message from ${who}`, text, () => openAdmChat(row.conversation_id), `m-${row.id}`);
+  } else if (!(win?.classList.contains('open') && openConversationId === row.conversation_id && shell?.classList.contains('conv-open'))) {
+    openAdmChat(row.conversation_id); // the message opens in the floating window
+  }
+}
+function subscribeAdminLiveExtras(){
+  supabaseClient.channel('admin-live-extras')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'api_credit_log' }, () => scheduleAdmRefresh('apilog'))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'store_orders' }, (payload) => {
+      const row = payload.new || {};
+      if (!row.id || !['paid', 'delivered'].includes(row.status)) return;
+      if (payload.eventType === 'UPDATE' && row.status === 'delivered' && row.delivery_type === 'subscription') return; // delivered by an admin
+      activityToast('store', admAr() ? `طلب متجر جديد من ${actWho(row.user_id)}` : `New store order from ${actWho(row.user_id)}`,
+        `${row.product_name || ''}${row.plan_name ? ' - ' + row.plan_name : ''} · ${row.price_egp ?? ''} ${admAr() ? 'ج.م' : 'EGP'}`,
+        () => { switchTab('store'); if (typeof stGo === 'function') stGo('orders'); }, `so-${row.id}`);
+      if (admTabOn('store') && typeof loadStoreOrders === 'function') loadStoreOrders();
+    })
+    .subscribe();
+}
+
+/* ---------- Floating live chat (same size and place as the customer's chat window) ---------- */
+let _admChatHome = null;
+function canUseChat(){ return !!(currentAdmin && (currentAdmin.isSuperAdmin || canUse('manage_chat'))); }
+function admChatMount(){
+  const shell = document.getElementById('chatShell'), host = document.getElementById('admChatHost');
+  if (!shell || !host || shell.parentNode === host) return;
+  _admChatHome = { parent: shell.parentNode, next: shell.nextSibling };
+  host.appendChild(shell);
+  shell.classList.add('in-float');
+}
+function admChatUnmount(){
+  const shell = document.getElementById('chatShell');
+  if (!shell || !_admChatHome || shell.parentNode === _admChatHome.parent) return;
+  _admChatHome.parent.insertBefore(shell, _admChatHome.next && _admChatHome.next.parentNode === _admChatHome.parent ? _admChatHome.next : null);
+  shell.classList.remove('in-float');
+}
+function openAdmChat(convId){
+  if (!canUseChat()) return;
+  if (admTabOn('chat')) { if (convId) openConversation(convId); return; }
+  admChatMount();
+  document.getElementById('admChatWindow')?.classList.add('open');
+  admChatBubbleSync();
+  if (convId) openConversation(convId);
+}
+function closeAdmChat(){
+  document.getElementById('admChatWindow')?.classList.remove('open');
+  admChatUnmount();
+  admChatBubbleSync();
+}
+function toggleAdmChat(){
+  if (document.getElementById('admChatWindow')?.classList.contains('open')) closeAdmChat(); else openAdmChat();
+}
+function openFullChat(){
+  closeAdmChat();
+  switchTab('chat');
+}
+function admChatBubbleSync(unread){
+  const bubble = document.getElementById('admChatBubble');
+  if (!bubble) return;
+  const show = canUseChat() && !admTabOn('chat');
+  bubble.style.display = show ? 'flex' : 'none';
+  if (!show) { document.getElementById('admChatWindow')?.classList.remove('open'); admChatUnmount(); }
+  bubble.classList.toggle('is-open', !!document.getElementById('admChatWindow')?.classList.contains('open'));
+  const n = unread != null ? unread : (conversations || []).reduce((s, c) => s + (c.unread_by_admin || 0), 0);
+  const badge = document.getElementById('admChatBadge');
+  if (badge) { badge.textContent = n > 99 ? '99+' : n; badge.style.display = n > 0 ? 'flex' : 'none'; }
+}
+
+/* ---------- Start: runs once the admin app is up ---------- */
+(function waitForAdminApp(){
+  if (!currentAdmin || document.getElementById('appScreen')?.style.display !== 'block') { setTimeout(waitForAdminApp, 300); return; }
+  subscribeAdminLiveExtras();
+  paintActToastsMenu();
+  admChatBubbleSync();
+  ovPaintRefreshed();
+})();
+</script>
