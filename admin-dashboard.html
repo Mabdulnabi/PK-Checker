@@ -5603,8 +5603,13 @@ function renderUISections(){
     });
   });
 }
+// Text and icons the site no longer uses: hidden here (their saved values are kept, nothing is deleted).
+const UID_HIDDEN_KEYS = new Set(["nav_home", "welcome_message", "credit_unit_singular", "kpi_processing", "kpi_floating", "file_req_notice_title", "file_req_li1", "file_req_li2", "file_req_li3", "file_req_li4", "file_privacy_notice_title", "file_privacy_li1", "file_privacy_li2", "file_requirements_chip", "txid_label", "txid_placeholder", "col_completed", "wallet_available", "wallet_sim_credits", "wallet_daily_credits", "wallet_total_done", "topup_title", "most_popular", "packs_topup_tab", "packs_daily_tab", "packs_topup_desc", "packs_daily_desc", "chat_title", "faq_title", "sf_slot_label", "sf_opt_label", "sf_terms_title", "ph_col_method", "ph_col_credits", "ph_col_bal_before", "ph_col_bal_after", "ac_title", "ac_wallet", "ac_egp", "ac_active_subs", "ac_all_orders", "order_tx_title", "order_tx_desc", "order_tx_debit", "order_tx_credit", "sup_settings", "nav_my_orders", "loading_ellipsis", "hero_title", "srv_sim_unavailable", "how_title"]);
+const UID_HIDDEN_ICONS = new Set(["tab_my_orders", "wal_copy", "mock_sim_icon", "mock_download_icon", "mock_star_icon", "mock_file_icon"]);
 function buildSectionHTML(sec){
-  const rows=sec.keys.map(key=>{
+  const keys = sec.keys.filter(k => !UID_HIDDEN_KEYS.has(k));
+  if (!keys.length) return '';
+  const rows=keys.map(key=>{
     const arDef=(DASH_I18N.ar||{})[key]||'',enDef=(DASH_I18N.en||{})[key]||'';
     const arVal=uiConfigState.i18n_ar[key]!==undefined?uiConfigState.i18n_ar[key]:arDef;
     const enVal=uiConfigState.i18n_en[key]!==undefined?uiConfigState.i18n_en[key]:enDef;
@@ -5690,7 +5695,7 @@ function resetUIColor(key){
 function renderUIIcons(){
   const g=document.getElementById('uiIconsGrid');if(!g) return;
   const sectionOrder=[]; const bySection={};
-  UI_ICON_MAP.forEach(ic=>{
+  UI_ICON_MAP.filter(ic => !UID_HIDDEN_ICONS.has(ic.key)).forEach(ic=>{
     if(!bySection[ic.section]){ bySection[ic.section]=[]; sectionOrder.push(ic.section); }
     bySection[ic.section].push(ic);
   });
@@ -5916,7 +5921,7 @@ function toast(msg, type = 'success'){
     text: msg,
     duration: 3200,
     gravity: 'top',
-    position: currentLang === 'ar' ? 'left' : 'right',
+    position: 'center', // top center, on desktop and phone
     style: { background: colors[type] || colors.info, borderRadius: '10px', fontFamily: "'Cairo',sans-serif", fontWeight: '600' },
     stopOnFocus: true,
   }).showToast();
@@ -10065,7 +10070,7 @@ function activityToast(kind, title, body, onClick, dedupeKey){
   node.querySelector('b').textContent = title;
   node.querySelector('.act-txt span').textContent = body || '';
   const tst = Toastify({
-    node, duration: 6500, close: true, gravity: 'top', position: admAr() ? 'left' : 'right', stopOnFocus: true,
+    node, duration: 6500, close: true, gravity: 'top', position: 'center', stopOnFocus: true,
     className: 'act-toastify',
     style: { background: 'var(--paper)', color: 'var(--ink)', borderRadius: '12px', padding: '0', boxShadow: '0 14px 36px -12px rgba(15,23,42,.35)' },
     onClick: () => { try { onClick && onClick(); } finally { tst.hideToast(); } },

@@ -7945,8 +7945,10 @@ function toast(msg, type = 'success'){
   Toastify({
     text: msg,
     duration: 3200,
-    gravity: 'top',
-    position: currentLang === 'ar' ? 'left' : 'right',
+    // Desktop: top center. Phones (floating nav bar shown, <= 640px): bottom center, just above the nav bar.
+    ...(window.innerWidth <= 640
+      ? { gravity: 'bottom', position: 'center', offset: { x: 0, y: 96 } }
+      : { gravity: 'top', position: 'center' }),
     style: { background: colors[type] || colors.info, borderRadius: '10px', fontFamily: "'Cairo',sans-serif", fontWeight: '600' },
     stopOnFocus: true,
   }).showToast();
