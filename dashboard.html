@@ -1656,6 +1656,10 @@
   .chat-attach-menu.show::before{display:none;}
   .chat-msg-meta{display:flex;align-items:center;gap:6px;font-size:9.5px;color:var(--muted);opacity:.85;margin-top:3px;font-family:'Cairo',sans-serif;}
   .chat-msg-row.mine .chat-msg-meta{justify-content:flex-end;}
+  .msg-tick{display:inline-flex;align-items:center;flex:none;line-height:1;}
+  .msg-tick svg{height:13px;width:auto;display:block;}
+  .msg-tick.sent{color:#8a94a6;}
+  .msg-tick.read{color:#34B7F1;}
   .chat-acts{display:flex;gap:4px;margin-top:3px;opacity:0;transition:opacity .15s;}
   .chat-msg-row:hover .chat-acts, .chat-msg-admin-row:hover .chat-acts, .chat-acts:focus-within{opacity:1;}
   @media (hover:none){ .chat-acts{opacity:1;} }
@@ -7237,9 +7241,8 @@ function renderChat(){
     }
 
     const isDeleted = !!m.deletedAt;
-    const receipt = m.from === 'user'
-      ? `<span style="font-size:10px;margin-inline-start:4px;color:${m.readAt?'var(--blue)':'inherit'};opacity:${m.readAt?'1':'.6'};">${m.readAt?'✓✓':'✓'}</span>`
-      : '';
+    const receipt = ''; // the tick sits next to the time, under the message
+    const tick = (m.from === 'user' && !isDeleted) ? chatTick(!!m.readAt) : '';
 
     let bubbleInner;
     const isChatImg = !!(m.fileName && /\.(jpe?g|png|gif|webp|svg)$/i.test(m.fileName));
@@ -7267,7 +7270,7 @@ function renderChat(){
       acts.push(`<button type="button" class="chat-act del" onclick="deleteChatMsg('${m.id}')" title="${ar?'حذف':'Delete'}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 4.25 L4.105 11.907 C4.187 12.948 5.055 13.75 6.098 13.75 L9.902 13.75 C10.945 13.75 11.813 12.948 11.895 11.907 L12.5 4.25"/><line x1="2.25" y1="4.25" x2="13.75" y2="4.25"/><path d="M6 4.25 L6 3.25 C6 2.698 6.448 2.25 7 2.25 L9 2.25 C9.552 2.25 10 2.698 10 3.25 L10 4.25"/><line x1="6.75" y1="7" x2="6.75" y2="11"/><line x1="9.25" y1="7" x2="9.25" y2="11"/></svg></button>`);
     }
     const actsHtml = acts.length ? `<div class="chat-acts">${acts.join('')}</div>` : '';
-    const timeSpan = (msgTimeStr ? `<div class="chat-msg-meta"><span>${msgTimeStr}</span></div>` : '') + actsHtml;
+    const timeSpan = (msgTimeStr ? `<div class="chat-msg-meta"><span>${msgTimeStr}</span>${tick}</div>` : '') + actsHtml;
 
     if (m.from === 'user') {
       // User message with hover edit/delete actions
@@ -7350,6 +7353,14 @@ async function loadChatImageThumbnails(){
 }
 
 let chatEditingId = null;
+
+// WhatsApp-style ticks: one = sent, two overlapping = seen by the other side (IconMCP check).
+function chatTick(read){
+  const ar = currentLang === 'ar';
+  const one = '<path d="M2.75 8.5 L6.25 12 L13.25 4.5"/>';
+  const two = '<path d="M1.25 8.5 L4.75 12 L11.75 4.5"/><path d="M8.6 11.35 L9.25 12 L16.25 4.5"/>';
+  return `<span class="msg-tick ${read ? 'read' : 'sent'}" title="${read ? (ar ? 'اتشافت' : 'Seen') : (ar ? 'اتبعتت' : 'Sent')}"><svg viewBox="0 0 ${read ? 18 : 16} 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${read ? two : one}</svg></span>`;
+}
 // Copies one message's text (the copy button under each message).
 async function copyChatText(btn){
   const text = btn.getAttribute('data-copy') || '';

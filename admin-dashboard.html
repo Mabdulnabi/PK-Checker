@@ -402,6 +402,10 @@
   .chat-shell.in-float .cp-msg-wrap{max-width:86%;}
   .chat-shell.in-float .cp-act span{display:none;}
   .chat-shell.in-float .cp-act{width:28px;padding:0;justify-content:center;}
+  .msg-tick{display:inline-flex;align-items:center;flex:none;line-height:1;}
+  .msg-tick svg{height:13px;width:auto;display:block;}
+  .cp-msg .msg-tick.sent{color:rgba(255,255,255,.72);}
+  .cp-msg .msg-tick.read{color:#9EF0FF;filter:drop-shadow(0 0 1px rgba(0,0,0,.15));}
   .cp-msg-controls{display:inline-flex;gap:6px;}
   .cp-msg-controls span{cursor:pointer;font-size:10.5px;}
   .cp-copy-btn{border:none;background:transparent;color:inherit;padding:0 1px;cursor:pointer;display:inline-flex;opacity:.9;}
@@ -2881,6 +2885,13 @@ function subscribeMessagesChannel(){
       if (row.conversation_id === openConversationId) {
         openMessages.push(row);
         renderChatThread();
+        const shell = document.getElementById('chatShell');
+        const onScreen = document.visibilityState === 'visible' && (document.getElementById('tab-chat')?.classList.contains('on')
+          || (document.getElementById('admChatWindow')?.classList.contains('open') && shell?.classList.contains('conv-open')));
+        if (row.sender_type === 'user' && onScreen) {
+          supabaseClient.from('chat_messages').update({ read_at: new Date().toISOString() }).eq('id', row.id).is('read_at', null).then(() => {});
+          supabaseClient.from('chat_conversations').update({ unread_by_admin: 0 }).eq('id', row.conversation_id).then(() => {});
+        }
       }
       if (row.sender_type !== 'admin') playBellSound();
       if (typeof admOnChatMessage === 'function') admOnChatMessage(row);
@@ -3178,9 +3189,7 @@ function renderChatThread(){
   body.innerHTML = openMessages.map(m => {
     const senderLabel = m.sender_type === 'admin' ? `<span class="cp-msg-sender">${escapeHtml(m.sender_name || 'Admin')}</span>` : '';
     // Read receipts on the admin's messages: one check = delivered, two (colored) = the customer opened it.
-    const receipt = m.sender_type === 'admin'
-      ? `<span class="cp-msg-receipt" style="color:${m.read_at ? 'var(--cyan, #7dd3fc)' : 'inherit'};opacity:${m.read_at ? '1' : '.7'};">${m.read_at ? '✓✓' : '✓'}</span>`
-      : '';
+    const receipt = m.sender_type === 'admin' ? chatTick(!!m.read_at) : '';
     // Only the admin's own text messages can be edited or deleted.
     // Actions under the message: copy (text), edit and delete (the admin's own text messages).
     const acts = [];
@@ -3234,6 +3243,14 @@ async function copyAdminChatText(btn){
   try { await navigator.clipboard.writeText(text); }
   catch (e) { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (_) {} ta.remove(); }
   toast(currentLang === 'ar' ? 'اتنسخت الرسالة ✓' : 'Message copied ✓', 'success');
+}
+
+// WhatsApp-style ticks: one = sent, two overlapping = seen by the other side (IconMCP check).
+function chatTick(read){
+  const ar = currentLang === 'ar';
+  const one = '<path d="M2.75 8.5 L6.25 12 L13.25 4.5"/>';
+  const two = '<path d="M1.25 8.5 L4.75 12 L11.75 4.5"/><path d="M8.6 11.35 L9.25 12 L16.25 4.5"/>';
+  return `<span class="msg-tick ${read ? 'read' : 'sent'}" title="${read ? (ar ? 'اتشافت' : 'Seen') : (ar ? 'اتبعتت' : 'Sent')}"><svg viewBox="0 0 ${read ? 18 : 16} 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${read ? two : one}</svg></span>`;
 }
 let editingChatMessageId = null;
 function startEditChatMessage(msgId){
