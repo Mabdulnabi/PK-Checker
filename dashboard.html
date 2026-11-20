@@ -1348,6 +1348,10 @@
   .oid-code-wrap{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;flex:none;}
   .copy-btn{cursor:pointer;opacity:.55;font-size:11px;transition:opacity .15s;}
   .copy-btn:hover{opacity:1;}
+  .cp-ic{display:inline-flex !important;align-items:center;justify-content:center;width:22px;height:22px;padding:0;margin-inline-start:4px;border-radius:6px;border:1px solid var(--paper-line);background:var(--paper);color:var(--muted);cursor:pointer;vertical-align:middle;opacity:1 !important;flex:none;transition:color .15s,border-color .15s,background .15s;}
+  .cp-ic svg{width:13px;height:13px;}
+  .cp-ic:hover{color:var(--blue-deep);border-color:var(--blue);background:var(--blue-wash);}
+
   .order-row-highlighted{background:var(--blue-wash);border-radius:10px;box-shadow:inset 3px 0 0 var(--blue);}
   [dir="rtl"] .order-row-highlighted{box-shadow:inset -3px 0 0 var(--blue);}
   .new-order-badge{display:block;font-size:10px;color:var(--blue-deep);font-weight:700;margin-top:3px;white-space:nowrap;}
@@ -1646,6 +1650,23 @@
   .chat-attach-btn:hover{border-color:var(--blue);color:var(--blue-deep);}
   .chat-attach-menu{position:fixed;z-index:1001;background:var(--paper);border:1px solid var(--paper-line);border-radius:12px;box-shadow:0 20px 50px rgba(27,37,86,0.4);padding:6px;display:none;flex-direction:column;gap:2px;min-width:160px;top:auto;bottom:auto;left:auto;right:auto;}
   .chat-attach-menu.show{display:flex;}
+  .chat-attach-menu{position:absolute !important;bottom:calc(100% + 8px) !important;top:auto !important;inset-inline-start:0;}
+  html[dir="rtl"] .chat-attach-menu{right:0 !important;left:auto !important;}
+  html[dir="ltr"] .chat-attach-menu{left:0 !important;right:auto !important;}
+  .chat-attach-menu.show::before{display:none;}
+  .chat-msg-meta{display:flex;align-items:center;gap:6px;font-size:9.5px;color:var(--muted);opacity:.85;margin-top:3px;font-family:'Cairo',sans-serif;}
+  .chat-msg-row.mine .chat-msg-meta{justify-content:flex-end;}
+  .chat-acts{display:flex;gap:4px;margin-top:3px;opacity:0;transition:opacity .15s;}
+  .chat-msg-row:hover .chat-acts, .chat-msg-admin-row:hover .chat-acts, .chat-acts:focus-within{opacity:1;}
+  @media (hover:none){ .chat-acts{opacity:1;} }
+  .chat-msg-row.mine .chat-acts{justify-content:flex-end;}
+  .chat-act{width:28px;height:26px;border-radius:8px;border:1px solid var(--paper-line);background:var(--paper);color:var(--muted);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;box-shadow:0 2px 6px -3px rgba(15,23,42,.25);}
+  .chat-act svg{width:14px;height:14px;}
+  .chat-act:hover{border-color:var(--blue);color:var(--blue-deep);}
+  .chat-act.del:hover{border-color:var(--danger);color:var(--danger);}
+  .chat-copy-btn{border:none;background:transparent;padding:0 2px;cursor:pointer;color:var(--muted);display:inline-flex;align-items:center;line-height:1;}
+  .chat-copy-btn:hover{color:var(--blue-deep);}
+  .chat-copy-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;}
   .chat-attach-menu.show::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:transparent;z-index:-1;cursor:default;}
   .chat-attach-menu button{width:auto;height:auto;border-radius:8px;background:transparent;display:flex;align-items:center;gap:9px;padding:9px 10px;font-family:'Cairo',sans-serif;font-size:12.5px;font-weight:600;color:var(--navy);justify-content:flex-start;}
   .chat-attach-menu button:hover{background:var(--paper-soft);}
@@ -4476,6 +4497,14 @@ async function loadPaymentMethodsConfig(){
     const { data, error } = await supabaseClient.from('payment_methods').select('*').order('sort_order');
     if (error || !data) return;
 
+    // Customers only receive the methods the admin left visible, so a built-in card that is not
+    // in the list was turned off: hide it (before, only cards that came back were updated, and
+    // a turned-off method such as PayPal stayed on the page).
+    const shownKeys = new Set(data.filter(m => m.visible).map(m => m.key));
+    document.querySelectorAll('.paycard[data-builtin="1"]').forEach(card => {
+      if (!shownKeys.has(card.dataset.pay)) card.style.display = 'none';
+    });
+
     data.filter(m => m.is_builtin).forEach(m => {
       const card = document.querySelector(`.paycard[data-pay="${m.key}"][data-builtin="1"]`);
       if (!card) return;
@@ -4536,6 +4565,14 @@ async function loadPaymentMethodsConfig(){
       });
     }
     refreshPayTabs();
+    // If the selected method was just hidden, select the first one still shown.
+    const sel = document.querySelector('#walletPayGrid .paycard.on');
+    if (sel && sel.style.display === 'none') {
+      const panel = document.querySelector('.pay-tab-panel.on') || document;
+      const next = [...panel.querySelectorAll('.paycard')].find(c => c.style.display !== 'none')
+        || [...document.querySelectorAll('#walletPayGrid .paycard')].find(c => c.style.display !== 'none');
+      if (next) next.click();
+    }
   } catch (e) { console.warn('loadPaymentMethodsConfig failed (non-fatal):', e); }
 }
 
@@ -4755,6 +4792,25 @@ document.addEventListener('click', e=>{
 // the customer sees in the payment history, so support can match the two directly.
 let currentPayRef = null;
 let currentPayId = null;
+
+// Copy button next to a code (PK, order, payment...). ClipboardJS handles every .copy-btn on the page.
+const CP_ICON = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5.25" y="5.25" width="8.5" height="8.5" rx="2"/><path d="M3.5 10.75 L2.875 10.75 C2.53 10.75 2.25 10.47 2.25 10.125 L2.25 4.25 C2.25 3.145 3.145 2.25 4.25 2.25 L10.125 2.25 C10.47 2.25 10.75 2.53 10.75 2.875 L10.75 3.5"/></svg>';
+function cpBtn(text){
+  if (text == null || text === '' || text === '—') return '';
+  const t2 = String(text);
+  return `<button type="button" class="copy-btn cp-ic" data-clipboard-text="${escapeHtml(t2)}" title="${currentLang === 'ar' ? 'نسخ' : 'Copy'} ${escapeHtml(t2)}" aria-label="${currentLang === 'ar' ? 'نسخ' : 'Copy'}">${CP_ICON}</button>`;
+}
+// Keeps one copy button right after an element that shows a code.
+function pkAttachCopy(el, text){
+  if (!el || !text) return;
+  let b = el.nextElementSibling;
+  if (!b || !b.classList.contains('cp-ic')) { el.insertAdjacentHTML('afterend', cpBtn(text)); b = el.nextElementSibling; }
+  if (!b) return;
+  // Copies by itself (inside clickable cards the click must not open the card too).
+  b.classList.remove('copy-btn');
+  b.setAttribute('data-clipboard-text', text);
+  b.onclick = (e) => { e.stopPropagation(); e.preventDefault(); navigator.clipboard?.writeText(text).then(() => toast(currentLang === 'ar' ? 'اتنسخ ✓' : 'Copied ✓', 'success')); };
+}
 function payCodeFromId(id){ return 'PKC-' + String(id).replace(/-/g, '').slice(0, 8).toUpperCase(); }
 function newPayReference(){
   currentPayId = crypto.randomUUID();
@@ -6036,10 +6092,46 @@ document.addEventListener('click', (e)=>{
 /* Page transition: AnimatePresence mode="wait" equivalent.
    Old pane exits (pane-exiting, 0.22s), then new pane enters (pane-entering, 0.22s). */
 let _goTabLock = false;
+// Runs fn once the pane's own enter/exit animation ends. Waits for the pane itself (animations
+// inside it, like the store banner, send the same event) and never longer than 700 ms: if the
+// event never came (animations paused while the browser tab was hidden, etc.) the tab lock below
+// stayed on and no other tab could be opened.
+function afterPaneAnim(el, fn){
+  let done = false, timer = null;
+  const onEnd = (e) => { if (e.target === el) finish(); };
+  function finish(){ if (done) return; done = true; clearTimeout(timer); el.removeEventListener('animationend', onEnd); fn(); }
+  el.addEventListener('animationend', onEnd);
+  timer = setTimeout(finish, 700);
+}
+// Where the customer is right now: shown live to the admin (online users) and used for the heatmap.
+// Area keys: a tab ('wallet', 'my-files', ...) or 'academic:<view>[:<product>]'.
+window._pkArea = 'home';
+function pkAreaLabel(area){
+  const [tab, sub, extra] = String(area).split(':');
+  const nav = document.querySelector(`.navtab[data-tab="${tab}"]`);
+  let label = ((nav && (nav.innerText || nav.textContent)) || tab).replace(/\s+/g, ' ').trim();
+  const SUB = { store: hx('المتجر', 'Store'), orders: hx('طلباتي', 'My orders'), wallet: hx('المحفظة', 'Wallet'), checkout: hx('الدفع', 'Checkout') };
+  if (sub) label += ' › ' + (SUB[sub] || sub);
+  if (extra) label += ' › ' + extra;
+  return label.slice(0, 90);
+}
+function pkSetArea(area){
+  if (!area || area === window._pkArea) return;
+  window._pkArea = area;
+  try { if (window.PKTrack) PKTrack.setArea(area); } catch (e) {}
+  try {
+    if (window._pkOnlineCh && window._pkPresence) {
+      Object.assign(window._pkPresence, { page: area, page_label: pkAreaLabel(area), page_at: new Date().toISOString() });
+      window._pkOnlineCh.track(window._pkPresence);
+    }
+  } catch (e) {}
+}
+let _goTabLockAt = 0;
 function goTab(tab, persist = true){
   if (tab !== 'academic' && typeof acUnmountPayBlock === 'function') { if (typeof acTop !== 'undefined' && acTop) acwCloseTopup(); acUnmountPayBlock(); }
   if (tab === 'my-profile' && typeof renderPushCard === 'function') setTimeout(renderPushCard, 0);
-  if(_goTabLock) return;
+  if(_goTabLock && Date.now() - _goTabLockAt < 1500) return; // a stale lock never blocks the menu
+  _goTabLock = false;
   const currentPane = document.querySelector('.tabpane[style*="block"]') ||
                       document.querySelector('.tabpane.pane-entering') ||
                       [...document.querySelectorAll('.tabpane')].find(e => e.style.display === 'block');
@@ -6056,13 +6148,14 @@ function goTab(tab, persist = true){
   if(activeNavEl && typeof movePill === 'function') movePill(activeNavEl);
 
   if(persist) localStorage.setItem('prokeys-active-tab', tab);
+  pkSetArea(tab === 'academic' && typeof acS !== 'undefined' ? 'academic:' + (acS.view || 'store') : tab);
 
   /* If same pane or no current pane — just show */
   if(!currentPane || currentPane === nextPane){
     nextPane.style.display = 'block';
     nextPane.classList.remove('pane-exiting');
     nextPane.classList.add('pane-entering');
-    nextPane.addEventListener('animationend', () => nextPane.classList.remove('pane-entering'), {once:true});
+    afterPaneAnim(nextPane, () => nextPane.classList.remove('pane-entering'));
     (document.querySelector('.main-wrap')||window).scrollTo({top:0,behavior:'smooth'});
     if(tab === 'wallet'){ loadPaymentHistory(); }
     if(tab === 'my-history'){ loadMyHistory(); }
@@ -6073,20 +6166,20 @@ function goTab(tab, persist = true){
   }
 
   /* Exit current, then enter next */
-  _goTabLock = true;
+  _goTabLock = true; _goTabLockAt = Date.now();
   currentPane.classList.remove('pane-entering');
   currentPane.classList.add('pane-exiting');
-  currentPane.addEventListener('animationend', () => {
+  afterPaneAnim(currentPane, () => {
     currentPane.classList.remove('pane-exiting');
     currentPane.style.display = 'none';
 
     nextPane.style.display = 'block';
     nextPane.classList.remove('pane-exiting');
     nextPane.classList.add('pane-entering');
-    nextPane.addEventListener('animationend', () => {
+    afterPaneAnim(nextPane, () => {
       nextPane.classList.remove('pane-entering');
       _goTabLock = false;
-    }, {once:true});
+    });
 
     (document.querySelector('.main-wrap')||window).scrollTo({top:0,behavior:'smooth'});
     if(tab === 'wallet'){ loadPaymentHistory(); }
@@ -6094,7 +6187,7 @@ function goTab(tab, persist = true){
     if(tab === 'academic'){ loadAcademic(); }
     if(tab === 'focus'){ loadFocus(); }
     if(tab === 'my-profile'){ openMyProfileTab(); }
-  }, {once:true});
+  });
 }
 document.querySelectorAll('.navtab[data-tab]').forEach(el => {
   el.addEventListener('click', () => goTab(el.dataset.tab));
@@ -6173,7 +6266,7 @@ function renderPaymentHistory(){
     const charged = p.gateway === 'paypal' && p.amount != null ? paypalCharge(p.amount) : p.amount;
     const amount = charged != null ? `${Number(charged).toFixed(2)} ${p.currency || ''}` : '—';
     return `<div class="hist-row hist-entry is-purchase">
-      <div class="hist-cell start"><div class="hist-activity"><span class="hist-chip green">${CART}</span><div><div class="hist-act-name">${escapeHtml(ar ? 'شراء أونلاين' : 'Online Order Purchase')}</div><div class="hist-act-sub">${escapeHtml(code)}</div></div></div></div>
+      <div class="hist-cell start"><div class="hist-activity"><span class="hist-chip green">${CART}</span><div><div class="hist-act-name">${escapeHtml(ar ? 'شراء أونلاين' : 'Online Order Purchase')}</div><div class="hist-act-sub">${escapeHtml(code)}${cpBtn(code)}</div></div></div></div>
       <div class="hist-cell start"><div class="hist-item-name">${escapeHtml(p.pack_id ? packName(p.pack_id) : '—')}</div><div class="hist-sub">${escapeHtml(GATEWAY_LABELS[p.gateway] || p.gateway || '—')}</div></div>
       <div class="hist-cell" data-label="${ar ? 'فحوصات' : 'Slots'}"><span class="hist-change plus">${typeof slots === 'number' ? '+' + slots : '—'}</span></div>
       <div class="hist-cell" data-label="${escapeHtml(t('ph_col_amount'))}"><span class="hist-bal">${escapeHtml(amount)}</span></div>
@@ -6289,7 +6382,7 @@ function updateSidebarUserPopup(){
   const sbUid = document.getElementById('sidebarUid');
   const sbAv = document.getElementById('sidebarAv');
   if(sbName) sbName.textContent = name;
-  if(sbUid) sbUid.textContent = uid;
+  if(sbUid) { sbUid.textContent = uid; pkAttachCopy(sbUid, uid); }
   if(sbAv) renderUserAvatar(sbAv);
   // Popup header
   const supName = document.getElementById('supName');
@@ -7165,16 +7258,20 @@ function renderChat(){
       bubbleInner = `${escapeHtml(m.text||'')}${m.editedAt?` <i style="font-size:9px;opacity:.6;">(${currentLang==='ar'?'معدّلة':'edited'})</i>`:''}${receipt}`;
     }
 
-    const msgTimeStr = m.createdAt ? fmtTime(m.createdAt) : '';
-    const timeSpan = msgTimeStr ? `<span style="display:block;font-size:9.5px;color:var(--muted);opacity:.75;margin-top:3px;font-family:'Cairo',sans-serif;">${msgTimeStr}</span>` : '';
+    const msgTimeStr = m.createdAt ? `${fmtDayMonthYear(new Date(m.createdAt))} · ${fmtTime(m.createdAt)}` : '';
+    // Actions under the message: copy (any text), edit and delete (the customer's own text messages).
+    const ar = currentLang === 'ar', acts = [];
+    if (!isDeleted && !m.fileName && m.text) acts.push(`<button type="button" class="chat-act" data-copy="${escapeHtml(m.text)}" onclick="copyChatText(this)" title="${ar?'نسخ':'Copy'}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5.25" y="5.25" width="8.5" height="8.5" rx="2"/><path d="M3.5 10.75 L2.875 10.75 C2.53 10.75 2.25 10.47 2.25 10.125 L2.25 4.25 C2.25 3.145 3.145 2.25 4.25 2.25 L10.125 2.25 C10.47 2.25 10.75 2.53 10.75 2.875 L10.75 3.5"/></svg></button>`);
+    if (m.from === 'user' && !isDeleted && !m.fileName) {
+      acts.push(`<button type="button" class="chat-act" onclick="startChatEdit('${m.id}')" title="${ar?'تعديل':'Edit'}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.957 3.457 L12.543 5.043 C12.933 5.433 12.933 6.067 12.543 6.457 L5.793 13.207 C5.605 13.395 5.351 13.5 5.086 13.5 L2.5 13.5 L2.5 10.914 C2.5 10.649 2.605 10.395 2.793 10.207 L9.543 3.457 C9.933 3.067 10.567 3.067 10.957 3.457 Z"/><line x1="8.75" y1="4.25" x2="11.75" y2="7.25"/></svg></button>`);
+      acts.push(`<button type="button" class="chat-act del" onclick="deleteChatMsg('${m.id}')" title="${ar?'حذف':'Delete'}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 4.25 L4.105 11.907 C4.187 12.948 5.055 13.75 6.098 13.75 L9.902 13.75 C10.945 13.75 11.813 12.948 11.895 11.907 L12.5 4.25"/><line x1="2.25" y1="4.25" x2="13.75" y2="4.25"/><path d="M6 4.25 L6 3.25 C6 2.698 6.448 2.25 7 2.25 L9 2.25 C9.552 2.25 10 2.698 10 3.25 L10 4.25"/><line x1="6.75" y1="7" x2="6.75" y2="11"/><line x1="9.25" y1="7" x2="9.25" y2="11"/></svg></button>`);
+    }
+    const actsHtml = acts.length ? `<div class="chat-acts">${acts.join('')}</div>` : '';
+    const timeSpan = (msgTimeStr ? `<div class="chat-msg-meta"><span>${msgTimeStr}</span></div>` : '') + actsHtml;
 
     if (m.from === 'user') {
       // User message with hover edit/delete actions
-      const actions = !isDeleted && !m.fileName ? `
-        <div class="chat-msg-actions" style="display:none;flex-direction:column;gap:3px;">
-          <button class="chat-msg-action-btn" onclick="startChatEdit('${m.id}')" title="${currentLang==='ar'?'تعديل':'Edit'}">${currentLang==='ar'?'✏️':'✏️'}</button>
-          <button class="chat-msg-action-btn del" onclick="deleteChatMsg('${m.id}')" title="${currentLang==='ar'?'حذف':'Delete'}">🗑</button>
-        </div>` : '';
+      const actions = ''; // edit / delete / copy now sit under the message (actsHtml)
       const imgCls = isChatImg ? ' img-msg' : '';
       html += `<div class="chat-msg-row mine" onmouseenter="this.querySelector('.chat-msg-actions')&&(this.querySelector('.chat-msg-actions').style.display='flex')" onmouseleave="this.querySelector('.chat-msg-actions')&&(this.querySelector('.chat-msg-actions').style.display='none')">
         ${actions}
@@ -7253,6 +7350,13 @@ async function loadChatImageThumbnails(){
 }
 
 let chatEditingId = null;
+// Copies one message's text (the copy button under each message).
+async function copyChatText(btn){
+  const text = btn.getAttribute('data-copy') || '';
+  try { await navigator.clipboard.writeText(text); }
+  catch (e) { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (_) {} ta.remove(); }
+  toast(currentLang==='ar' ? 'اتنسخت الرسالة' : 'Message copied', 'success');
+}
 
 function playChatSound(){
   try {
@@ -7409,7 +7513,9 @@ let pendingChatAttachType = 'file';
 chatAttachBtn.addEventListener('click', (e)=>{
   e.stopPropagation();
   const isOpen = chatAttachMenu.classList.toggle('show');
-  if(isOpen){
+  // Placed by CSS, right above the button (see .chat-attach-menu below).
+  chatAttachMenu.style.top = chatAttachMenu.style.left = chatAttachMenu.style.right = chatAttachMenu.style.bottom = '';
+  if(false){
     const rect = chatAttachBtn.getBoundingClientRect();
     // Position menu above the button with proper offset
     const menuHeight = 100; // approximate height of menu
@@ -7443,9 +7549,18 @@ function triggerChatAttach(type){
 chatFileInput.addEventListener('change', async ()=>{
   const file = chatFileInput.files[0];
   chatFileInput.value = '';
-  if(!file || !chatConversationId) return;
-
-  const path = `${chatConversationId}/${Date.now()}_${file.name}`;
+  if(!file) return;
+  if(!chatConversationId) await initChat();
+  if(!chatConversationId) { await appAlert(t('chat_upload_error'), {icon:'error'}); return; }
+  if(file.size > 10 * 1024 * 1024) {
+    await appAlert(currentLang==='ar' ? 'الملف أكبر من 10 ميجا. ابعت ملف أصغر.' : 'The file is larger than 10 MB. Please send a smaller file.', {icon:'warning'});
+    return;
+  }
+  // Storage only accepts plain Latin names: keep the extension, the real name is saved in file_name.
+  const ext = (file.name.match(/\.[A-Za-z0-9]{1,8}$/) || [''])[0].toLowerCase();
+  const base = file.name.slice(0, file.name.length - ext.length).normalize('NFKD').replace(/[^\w-]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 60) || 'file';
+  const path = `${chatConversationId}/${Date.now()}_${base}${ext}`;
+  toast(currentLang==='ar' ? 'جاري إرسال الملف...' : 'Sending the file...', 'info');
   try {
     const { error: upErr } = await supabaseClient.storage.from('chat-attachments').upload(path, file);
     if (upErr) throw upErr;
@@ -7457,7 +7572,7 @@ chatFileInput.addEventListener('change', async ()=>{
       sender_name: currentUser.name,
       file_url: path,
       file_name: file.name,
-    }).select('id').single();
+    }).select('id,created_at').single();
     if (msgErr) throw msgErr;
 
     await supabaseClient.rpc('chat_new_user_message', {
@@ -7465,7 +7580,8 @@ chatFileInput.addEventListener('change', async ()=>{
       p_preview: currentLang==='ar' ? '📎 مرفق' : '📎 Attachment',
     });
 
-    chatMessages.push({ id: msgData?.id, from: 'user', fileName: file.name, fileUrl: path });
+    if (!chatMessages.some(m => m.id === msgData?.id))
+      chatMessages.push({ id: msgData?.id, from: 'user', fileName: file.name, fileUrl: path, createdAt: msgData?.created_at || new Date().toISOString() });
     renderChat();
   } catch (err) {
     console.error('chat attachment upload failed:', err);
@@ -7510,6 +7626,7 @@ function applyLang(){
   updateTopbarGreeting();
   document.getElementById('langSwitch').textContent = currentLang==='ar' ? 'EN' : 'AR';
   document.getElementById('userIdTag').textContent = currentUser.id;
+  pkAttachCopy(document.getElementById('userIdTag'), currentUser.id);
   document.getElementById('userNameDropdown').textContent = currentUser.name;
   document.getElementById('userEmailDropdown').textContent = currentUser.email || '—';
   renderUserAvatar(document.getElementById('userAvatar'));
@@ -8036,6 +8153,8 @@ function acSub(view){
   if (view !== 'checkout') acUnmountPayBlock();
   if (typeof acTop !== 'undefined' && acTop) acwCloseTopup(); // the top-up panel never outlives its view
   acS.view = view;
+  if (document.getElementById('pane-academic')?.style.display === 'block' && typeof pkSetArea === 'function')
+    pkSetArea('academic:' + view + (view === 'checkout' && acCk && acCk.prod ? ':' + (acCk.prod.name_en || acCk.prod.name_ar || '') : ''));
   [['store', 'acViewStore'], ['orders', 'acViewOrders'], ['wallet', 'acViewWallet'], ['checkout', 'acViewCheckout']].forEach(([k, id]) => {
     document.getElementById(id).style.display = k === view ? 'block' : 'none';
   });
@@ -8426,7 +8545,7 @@ function renderAcTx(){
     const [cls, ic, lbl] = ST[r.status] || ST.pending;
     const canPdf = r.status === 'completed' && (r.kind === 'order' || r.kind === 'topup');
     return `<tr>
-      <td><span class="acx-code ${r.kind === 'order' || r.kind === 'orderpay' ? 'ord' : 'wal'}">${escapeHtml(r.code)}</span></td>
+      <td style="white-space:nowrap;"><span class="acx-code ${r.kind === 'order' || r.kind === 'orderpay' ? 'ord' : 'wal'}">${escapeHtml(r.code)}</span>${cpBtn(r.code)}</td>
       <td class="acx-desc" title="${escapeHtml(r.sub || '')}">${escapeHtml(r.desc || '—')}</td>
       <td class="acx-amt">${acMoney(r.egp)}</td>
       <td>${escapeHtml(acxMethod(r.method))}</td>
@@ -10547,7 +10666,7 @@ function buildOrderRow(o){
 
   return `<div class="order-row${isJustSubmitted ? ' order-row-highlighted' : ''}">
     <div class="stat-ic ${o.phase}">${statusIconFor(o.phase)}</div>
-    <div class="ocell oid-cell"><span class="oid-code-wrap"><b class="mono">${o.displayId || o.id}</b> <span class="copy-btn" data-clipboard-text="${escapeHtml(o.displayId || o.id)}" title="${currentLang==='ar'?'نسخ':'Copy'}">📋</span></span>${newBadge}</div>
+    <div class="ocell oid-cell"><span class="oid-code-wrap"><b class="mono">${o.displayId || o.id}</b> ${cpBtn(o.displayId || o.id)}</span>${newBadge}</div>
     <div class="ofile">
       <div class="oname-row">
         ${ICONS.doc}
@@ -11716,16 +11835,18 @@ async function refreshCheckSettings(){
         ? parseInt(currentUser.id.replace('PK',''), 10)
         : 0;
       const onlineCh = supabaseClient.channel('prokeys-online');
+      // The page they are on travels with it, and is updated on every tab change (pkSetArea).
+      window._pkPresence = {
+        user_id: PROKEYS_USER_ID,
+        name: currentUser.name || '',
+        pk: pkNum || 0,
+        email: currentUser.email || '',
+        joined_at: new Date().toISOString(),
+        page: window._pkArea, page_label: pkAreaLabel(window._pkArea), page_at: new Date().toISOString(),
+      };
+      window._pkOnlineCh = onlineCh;
       onlineCh.subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
-          await onlineCh.track({
-            user_id: PROKEYS_USER_ID,
-            name: currentUser.name || '',
-            pk: pkNum || 0,
-            email: currentUser.email || '',
-            joined_at: new Date().toISOString(),
-          });
-        }
+        if (status === 'SUBSCRIBED') await onlineCh.track(window._pkPresence);
       });
       window.addEventListener('beforeunload', () => supabaseClient.removeChannel(onlineCh));
     }, 1500);
@@ -13184,5 +13305,6 @@ async function pwaInstallNow(){
 }
 </script>
 <script src="/shared/pk-visitors.js"></script>
+<script src="/shared/pk-track.js"></script>
 </body>
 </html>

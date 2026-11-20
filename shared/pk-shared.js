@@ -27,9 +27,12 @@ PK.applyIcons = function (getOverrides, sizeMap, extraLogoKeys) {
   const sizes = overrides.iconSizes || {};
   const logoKeys = new Set(['site_favicon', ...(extraLogoKeys || [])]);
 
+  // Images that failed once are not tried again: putting the original icon back is itself a
+  // change to the page, and pages that re-apply icons on every change looped forever.
+  const broken = PK._brokenIconUrls || (PK._brokenIconUrls = new Set());
   document.querySelectorAll('[data-icon-key]').forEach((el) => {
     const key = el.dataset.iconKey;
-    const url = icons[key];
+    const url = icons[key] && !broken.has(icons[key]) ? icons[key] : null;
     const overridePx = sizes[key];
     const size = (overridePx ? overridePx + 'px' : null) || sizeMap[key] || '18px';
     const isLogo = key.indexOf('logo') === 0 || logoKeys.has(key);
@@ -54,8 +57,9 @@ PK.applyIcons = function (getOverrides, sizeMap, extraLogoKeys) {
           : `width:${size};height:${size};object-fit:contain;flex:none;display:inline-block;vertical-align:middle;border-radius:6px;`;
         // If the uploaded file is broken or loads empty, keep the original
         // fallback content instead of showing a blank icon.
-        img.onerror = () => { img.replaceWith(el); };
-        img.onload = () => { if (!img.naturalWidth) img.replaceWith(el); };
+        img.onerror = () => { broken.add(url); img.replaceWith(el); };
+        // SVG files can report no natural width and still draw fine: only raster images count as empty.
+        img.onload = () => { if (!img.naturalWidth && !/\.svg(\?|$)|^data:image\/svg/i.test(url)) { broken.add(url); img.replaceWith(el); } };
         el.replaceWith(img);
       }
     } else if (overridePx) {

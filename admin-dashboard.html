@@ -77,6 +77,9 @@
   .side-nav{display:flex;flex-direction:column;gap:3px;}
   .side-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;color:var(--muted);font-size:13.5px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;position:relative;}
   .side-item .ic{width:18px;text-align:center;}
+  .side-site-link{text-decoration:none;color:var(--blue-deep) !important;border:1px dashed #bcd2f7;margin-top:8px;background:var(--blue-wash);}
+  .side-site-link .ic svg{width:17px;height:17px;display:block;margin:auto;}
+  .side-site-link:hover{background:#e3edfd !important;}
   .side-item.on{background:var(--navy);color:#fff;}
   .side-item.on .ic{color:var(--cyan);}
   .side-item:hover:not(.on){background:var(--paper-soft);}
@@ -318,8 +321,14 @@
   table.tbl tbody tr.row-run td:first-child{border-inline-start-color:#2563eb !important;}
   table.tbl tbody tr.row-warn td:first-child{border-inline-start-color:#E8A20B !important;}
   table.tbl tbody tr.row-bad td:first-child{border-inline-start-color:#E11D48 !important;}
-  table.tbl tbody tr.row-bad{background:linear-gradient(90deg,#fff5f7 0%,var(--paper) 40%);}
-  table.tbl tbody tr.row-warn{background:linear-gradient(90deg,#fff9ec 0%,var(--paper) 40%);}
+  table.tbl tbody tr.row-ok{background:linear-gradient(90deg,rgba(14,159,110,.09) 0%,transparent 45%);}
+  table.tbl tbody tr.row-run{background:linear-gradient(90deg,rgba(37,99,235,.08) 0%,transparent 45%);}
+  table.tbl tbody tr.row-bad{background:linear-gradient(90deg,rgba(225,29,72,.09) 0%,transparent 45%);}
+  table.tbl tbody tr.row-warn{background:linear-gradient(90deg,rgba(232,162,11,.1) 0%,transparent 45%);}
+  html[dir="rtl"] table.tbl tbody tr.row-ok{background:linear-gradient(270deg,rgba(14,159,110,.09) 0%,transparent 45%);}
+  html[dir="rtl"] table.tbl tbody tr.row-run{background:linear-gradient(270deg,rgba(37,99,235,.08) 0%,transparent 45%);}
+  html[dir="rtl"] table.tbl tbody tr.row-bad{background:linear-gradient(270deg,rgba(225,29,72,.09) 0%,transparent 45%);}
+  html[dir="rtl"] table.tbl tbody tr.row-warn{background:linear-gradient(270deg,rgba(232,162,11,.1) 0%,transparent 45%);}
   .kpi-row-wide{grid-template-columns:repeat(2,minmax(0,1fr));}
   .kpi-period .lbl{margin-bottom:6px;}
   .kpi-periods{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
@@ -377,6 +386,30 @@
   .cp-msg.from-admin{background:var(--blue);color:#fff;align-self:flex-end;border-bottom-right-radius:3px;}
   .cp-msg .cp-msg-sender{display:block;font-size:10px;opacity:0.75;margin-bottom:3px;font-weight:700;}
   .cp-msg-file{display:flex;align-items:center;gap:8px;cursor:pointer;}
+  .cp-msg-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px;font-size:9.5px;opacity:.78;white-space:nowrap;}
+  .cp-msg.from-admin .cp-msg-meta{justify-content:flex-end;}
+  .cp-msg-wrap{display:flex;flex-direction:column;max-width:62%;}
+  .cp-msg-wrap.from-user{align-self:flex-start;align-items:flex-start;}
+  .cp-msg-wrap.from-admin{align-self:flex-end;align-items:flex-end;}
+  .cp-msg-wrap .cp-msg{max-width:100%;align-self:auto;}
+  .cp-msg-acts{display:flex;gap:5px;margin-top:4px;opacity:0;transform:translateY(-2px);transition:opacity .15s,transform .15s;}
+  .cp-msg-wrap:hover .cp-msg-acts, .cp-msg-wrap:focus-within .cp-msg-acts{opacity:1;transform:none;}
+  @media (hover:none){ .cp-msg-acts{opacity:1;transform:none;} }
+  .cp-act{display:inline-flex;align-items:center;gap:4px;height:26px;padding:0 9px;border-radius:8px;border:1px solid var(--paper-line);background:var(--paper);color:var(--ink-soft,var(--ink));font-family:'Cairo',sans-serif;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 2px 6px -3px rgba(15,23,42,.25);}
+  .cp-act svg{width:14px;height:14px;flex:none;}
+  .cp-act:hover{border-color:var(--blue);color:var(--blue-deep);}
+  .cp-act.del:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-wash);}
+  .chat-shell.in-float .cp-msg-wrap{max-width:86%;}
+  .chat-shell.in-float .cp-act span{display:none;}
+  .chat-shell.in-float .cp-act{width:28px;padding:0;justify-content:center;}
+  .cp-msg-controls{display:inline-flex;gap:6px;}
+  .cp-msg-controls span{cursor:pointer;font-size:10.5px;}
+  .cp-copy-btn{border:none;background:transparent;color:inherit;padding:0 1px;cursor:pointer;display:inline-flex;opacity:.9;}
+  .cp-copy-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;}
+  .cp-copy-btn:hover{opacity:1;transform:scale(1.1);}
+  .cp-msg.has-img{padding:5px;}
+  .cp-msg-img{display:block;max-width:100%;width:230px;max-height:260px;object-fit:cover;border-radius:9px;cursor:zoom-in;background:rgba(0,0,0,.08);min-height:90px;}
+  .cp-msg.has-img .cp-msg-meta{padding:0 6px 2px;}
   .cp-foot{display:flex;gap:9px;padding:14px 18px;border-top:1px solid var(--paper-line);background:var(--paper);flex:none;}
   .cp-foot input[type=text], .cp-foot textarea.cp-reply-input{flex:1;background:var(--paper-soft);border:1.5px solid var(--paper-line);border-radius:20px;padding:11px 16px;font-size:13px;font-family:'Cairo',sans-serif;resize:none;max-height:120px;line-height:1.5;}
   .cp-foot input[type=text]:focus, .cp-foot textarea.cp-reply-input:focus{outline:none;border-color:var(--blue);}
@@ -559,6 +592,12 @@
   .cr-badge-ded{background:var(--danger-wash);color:var(--danger);border-radius:5px;font-size:10px;font-weight:700;padding:2px 7px;}
   .cr-badge-adm{background:var(--blue-wash);color:var(--blue-deep);border-radius:5px;font-size:10px;font-weight:700;padding:2px 7px;}
   .usr-search{width:100%;max-width:400px;padding:9px 14px;border-radius:20px;border:1.5px solid var(--paper-line);font-family:'Cairo',sans-serif;font-size:12.5px;margin-bottom:14px;}
+  .usr-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;margin:0 0 14px;}
+  .usr-toolbar .usr-search{flex:1;min-width:160px;max-width:420px;margin:0;margin-inline-start:6px;padding-inline-start:34px;
+    background:var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%236B7494' stroke-width='1.6' stroke-linecap='round'%3E%3Ccircle cx='7' cy='7' r='4.75'/%3E%3Cpath d='M10.5 10.5 L13.75 13.75'/%3E%3C/svg%3E") no-repeat;background-size:15px;background-position:right 12px center;}
+  html[dir="ltr"] .usr-toolbar .usr-search{background-position:left 12px center;}
+  .usr-toolbar > span, .usr-toolbar select, .usr-toolbar .btn{flex:none;white-space:nowrap;}
+  @media (max-width:640px){ .usr-toolbar{flex-wrap:wrap;} .usr-toolbar .usr-search{flex-basis:100%;max-width:none;margin-inline-start:0;} }
   .usr-search:focus{outline:none;border-color:var(--blue);}
   .tab-card{background:var(--paper);border:1px solid var(--paper-line);border-radius:14px;padding:22px 24px;}
   .cr-save-banner{display:none;padding:9px 14px;border-radius:8px;margin-bottom:14px;font-size:12.5px;font-weight:700;}
@@ -794,16 +833,19 @@
   .kpi .icon{position:absolute;top:9px;inset-inline-end:9px;width:26px;height:26px;border-radius:8px;margin:0;font-size:12px;}
   .kpi > .num, .kpi > .lbl{padding-inline-end:32px;}
   .kpi .icon svg{width:15px;height:15px;}
-  .kpi .num{font-size:19px;}
-  #kpiValidity{font-size:15px !important;}
-  .kpi .lbl{font-size:11px;margin-top:2px;}
-  .kpi-subcaption{font-size:10.5px;}
+  .kpi .icon svg{width:16px;height:16px;stroke:currentColor;fill:none;}
+  .kpi .num{font-size:24px;line-height:1.25;}
+  #kpiValidity{font-size:18px !important;}
+  .kpi .lbl{font-size:12.5px;margin-top:3px;}
+  .kpi-subcaption{font-size:11.5px;font-weight:600;}
   .kpi-seg{margin-top:8px;padding:2px;}
-  .kpi-seg button{padding:3px 2px;font-size:10px;}
+  .kpi-seg button{padding:4px 2px;font-size:11px;}
   @media (max-width:860px){
     .kpi-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
     .kpi{padding:10px 11px;}
-    .kpi .num{font-size:17px;}
+    .kpi .num{font-size:20px;}
+    #kpiValidity{font-size:15px !important;}
+    .kpi .lbl{font-size:11.5px;}
   }
 
   /* ===== Dashboard head: live refresh time + visits ===== */
@@ -821,6 +863,56 @@
 
   /* ===== Problem orders: the file name stays inside its own column ===== */
   .prob-tbl td.prob-file{max-width:220px;min-width:120px;}
+  .rv-reply{margin-top:10px;}
+  .rv-reply-btn{border:1px dashed #c9d9f5;background:var(--blue-wash);color:var(--blue-deep);border-radius:8px;padding:6px 12px;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;}
+  .rv-reply-box{background:var(--paper-soft);border-inline-start:3px solid var(--blue);border-radius:9px;padding:9px 12px;}
+  .rv-reply-head{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--muted);}
+  .rv-reply-head b{color:var(--blue-deep);font-size:12px;}
+  .rv-reply-text{font-size:12.5px;line-height:1.7;margin-top:4px;white-space:pre-wrap;overflow-wrap:anywhere;}
+  .rv-reply-form textarea{width:100%;box-sizing:border-box;border:1.5px solid var(--paper-line);border-radius:9px;padding:8px 10px;font-family:'Cairo',sans-serif;font-size:12.5px;resize:vertical;background:var(--paper);color:var(--ink);}
+  .rv-reply-form{margin-top:8px;}
+  .rv-reply-acts{display:flex;gap:6px;margin-top:6px;}
+  .rv-reply-acts button{border:1px solid var(--paper-line);background:var(--paper);border-radius:7px;padding:4px 11px;font-family:'Cairo',sans-serif;font-size:11.5px;font-weight:700;cursor:pointer;color:var(--ink);}
+  .rv-reply-acts button.primary{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .rv-reply-acts button.del{color:var(--danger);}
+  .live-page{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:12px;color:var(--navy);}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:#0E9F6E;box-shadow:0 0 0 3px rgba(14,159,110,.2);flex:none;animation:ovPulse 2s ease-in-out infinite;}
+  .live-page-at{font-size:10.5px;color:var(--muted);margin-inline-start:13px;}
+  .hm-filters{display:flex;gap:8px;flex-wrap:wrap;}
+  .hm-filters select{height:34px;border:1.5px solid var(--paper-line);border-radius:9px;padding:0 10px;font-family:'Cairo',sans-serif;font-size:12.5px;font-weight:700;background:var(--paper);color:var(--ink);cursor:pointer;}
+  .hm-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .hm-list{display:flex;flex-direction:column;gap:9px;}
+  .hm-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;}
+  .hm-row .hm-name{font-size:12.5px;font-weight:700;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .hm-row .hm-val{font-size:11.5px;color:var(--muted);white-space:nowrap;font-family:'Space Grotesk',sans-serif;}
+  .hm-bar{grid-column:1/-1;height:7px;border-radius:99px;background:var(--paper-soft);overflow:hidden;}
+  .hm-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#f59e0b,#ef4444);}
+  .hm-sub{grid-column:1/-1;font-size:10.5px;color:var(--muted);margin-top:-2px;}
+  .hm-empty{color:var(--muted);font-size:12.5px;text-align:center;padding:24px 8px;}
+  .hm-visual{display:grid;grid-template-columns:minmax(0,1fr) 210px;gap:16px;align-items:start;}
+  .hm-stage-wrap{position:relative;border:1px solid var(--paper-line);border-radius:12px;overflow:hidden;background:#fff;max-height:760px;overflow-y:auto;}
+  .hm-stage{position:relative;transform-origin:top left;}
+  html[dir="rtl"] .hm-stage{transform-origin:top right;}
+  .hm-stage iframe{display:block;border:0;pointer-events:none;background:#fff;}
+  .hm-stage canvas{position:absolute;inset:0;pointer-events:none;}
+  .hm-legend{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
+  .hm-legend i, .hm-legend b{display:inline-block;width:60px;height:8px;border-radius:99px;background:linear-gradient(90deg,rgba(59,130,246,.5),#22c55e,#facc15,#ef4444);}
+  .hm-legend b{display:none;}
+  .hm-scroll-title{font-size:12px;font-weight:800;color:var(--navy);margin-bottom:8px;}
+  .hm-sc-row{display:grid;grid-template-columns:44px minmax(0,1fr) 38px;gap:6px;align-items:center;font-size:11px;color:var(--muted);margin-bottom:5px;}
+  .hm-sc-row .hm-bar{grid-column:auto;height:9px;}
+  .hm-sc-row .hm-bar i{background:linear-gradient(90deg,#60a5fa,#2563eb);}
+  @media (max-width:860px){ .hm-grid,.hm-visual{grid-template-columns:1fr;} }
+
+  .cp-ic{display:inline-flex !important;align-items:center;justify-content:center;width:22px;height:22px;padding:0;margin-inline-start:4px;border-radius:6px;border:1px solid var(--paper-line);background:var(--paper);color:var(--muted);cursor:pointer;vertical-align:middle;opacity:1 !important;flex:none;transition:color .15s,border-color .15s,background .15s;}
+  .cp-ic svg{width:13px;height:13px;}
+  .cp-ic:hover{color:var(--blue-deep);border-color:var(--blue);background:var(--blue-wash);}
+  .prob-reason .cp-ic{margin-inline-start:6px;}
+  .ttl-ic{display:inline-flex;align-items:center;justify-content:center;width:1.1em;height:1.1em;margin-inline-end:7px;vertical-align:-0.18em;color:var(--blue-deep);flex:none;}
+  .ttl-ic svg{width:100%;height:100%;}
+  [data-theme="dark"] .ttl-ic{color:#7fb0ff;}
+  .api-pk{display:inline-flex;align-items:center;padding:1px 7px;border-radius:999px;background:var(--blue-wash);border:1px solid #cfe0fb;font-size:10.5px;font-weight:700;}
+  .api-pk a, .api-pk span{color:var(--blue-deep) !important;text-decoration:none !important;}
   .prob-file-name{max-width:220px;font-size:11px;white-space:normal;overflow-wrap:anywhere;word-break:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.45;}
   @media (max-width:860px){ .prob-tbl td.prob-file,.prob-file-name{max-width:150px;} }
 
@@ -857,13 +949,14 @@
   .adm-chat-bubble.is-open .ic-chat{display:none;}
   .adm-chat-bubble.is-open .ic-close{display:block;}
   .adm-chat-badge{position:absolute;top:-3px;right:-3px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--danger);color:#fff;font-size:10.5px;font-weight:800;display:none;align-items:center;justify-content:center;border:2px solid var(--paper);font-family:'Space Grotesk',sans-serif;}
-  .adm-chat-window{position:fixed;bottom:84px;left:22px;width:320px;max-width:88vw;height:420px;max-height:calc(100vh - 110px);background:var(--paper);border-radius:16px;box-shadow:0 24px 48px rgba(0,0,0,.18);border:1px solid var(--paper-line);z-index:900;display:none;flex-direction:column;overflow:hidden;}
+  .adm-chat-window{position:fixed;bottom:84px;left:22px;width:350px;max-width:calc(100vw - 24px);height:540px;max-height:calc(100vh - 100px);background:var(--paper);border-radius:16px;box-shadow:0 24px 48px rgba(0,0,0,.18);border:1px solid var(--paper-line);z-index:900;display:none;flex-direction:column;overflow:hidden;}
   html[dir="ltr"] .adm-chat-window{left:auto;right:22px;}
   .adm-chat-window.open{display:flex;}
-  .adm-chat-head{display:flex;align-items:center;gap:8px;padding:12px 14px;background:linear-gradient(150deg,var(--navy) 0%,#2A3A78 100%);flex:none;}
+  .adm-chat-head{display:flex;align-items:center;gap:8px;padding:7px 10px 7px 12px;background:linear-gradient(150deg,var(--navy) 0%,#2A3A78 100%);flex:none;}
   .adm-chat-head-info{flex:1;min-width:0;color:#fff;}
   .adm-chat-head-info b{display:block;font-family:'Cairo',sans-serif;font-size:13px;}
-  .adm-chat-head-info span{font-size:10.5px;color:#A9C4F2;}
+  .adm-chat-head-info span{font-size:10px;color:#A9C4F2;}
+  .adm-chat-window:has(.chat-shell.conv-open) .adm-chat-head-info span{display:none;}
   .adm-chat-hbtn{width:28px;height:28px;border-radius:8px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.1);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;}
   .adm-chat-hbtn:hover{background:rgba(255,255,255,.2);}
   .adm-chat-hbtn svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
@@ -874,12 +967,23 @@
   html[dir="ltr"] .chat-shell.in-float .chat-main{transform:translateX(-100%);}
   .chat-shell.in-float.conv-open .chat-main{transform:translateX(0) !important;}
   .chat-shell.in-float .chat-back-btn{display:inline-flex;}
-  .chat-shell.in-float .cp-head{padding:9px 12px;gap:6px;}
+  .chat-shell.in-float .cp-head{padding:6px 10px;gap:5px;}
+  .chat-shell.in-float .cp-head-av{width:28px !important;height:28px !important;font-size:11px !important;}
+  .chat-shell.in-float .cp-head-info b{font-size:12px;}
+  .chat-shell.in-float .cp-head-info span{font-size:9.5px;}
+  .chat-shell.in-float #cpHeadId{display:none;}
+  .chat-shell.in-float .chat-back-btn{font-size:17px;padding:2px;}
+  .chat-shell.in-float .cp-head-row2 .msg-btn, .chat-shell.in-float .cp-head-row2 .cp-close-btn, .chat-shell.in-float .cp-head-row2 select{font-size:10.5px !important;padding:3px 7px !important;height:26px;}
+  .chat-shell.in-float .cp-body{padding:10px 10px;gap:8px;}
+  .chat-shell.in-float .cp-msg{padding:7px 10px;font-size:12.5px;}
+  .chat-shell.in-float .cp-msg.has-img{padding:4px;}
+  .chat-shell.in-float .cp-msg-img{width:200px;}
+  .chat-shell.in-float .cp-foot{padding:6px 8px;gap:6px;}
+  .chat-shell.in-float .cp-attach-btn{width:32px;height:32px;}
   .chat-shell.in-float .cp-head-row1{gap:9px;}
   .chat-shell.in-float .cp-head-row2{flex-wrap:nowrap;overflow-x:auto;row-gap:0;padding-bottom:2px;}
   .chat-shell.in-float .cp-head-row2 > *{flex:none;}
   .chat-shell.in-float .conv-item{padding:11px 13px;}
-  .chat-shell.in-float .cp-foot{padding:8px;}
   @media (max-width:860px){
     .adm-chat-bubble{bottom:18px;left:16px;width:50px;height:50px;}
     html[dir="ltr"] .adm-chat-bubble{right:16px;}
@@ -894,7 +998,7 @@
     table.tbl.orders-tbl tbody tr{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"order status" "user sent" "file file" "sim ai" "act act";gap:8px 10px;align-items:start;padding:12px;margin-bottom:10px;background:var(--paper);border:1px solid var(--paper-line);border-inline-start:4px solid var(--blue);border-radius:12px;box-shadow:0 6px 16px -12px rgba(15,23,42,.35);}
     table.tbl.orders-tbl tbody tr.row-ok{border-inline-start-color:var(--ok);}
     table.tbl.orders-tbl tbody tr.row-bad{border-inline-start-color:var(--danger);}
-    table.tbl.orders-tbl tbody tr.row-run{border-inline-start-color:#D99401;}
+    table.tbl.orders-tbl tbody tr.row-run{border-inline-start-color:#2563eb;}
     table.tbl.orders-tbl tbody tr td{display:block;padding:0 !important;border:none !important;min-width:0 !important;max-width:none !important;background:transparent !important;white-space:normal !important;text-align:start !important;}
     table.tbl.orders-tbl tbody tr td.oc-order{grid-area:order;font-size:11.5px;align-self:center;}
     table.tbl.orders-tbl tbody tr td.oc-status{grid-area:status;justify-self:end;}
@@ -942,8 +1046,9 @@
         <div class="side-item" data-tab="orders" onclick="switchTab('orders')"><span class="ic" data-icon-key="admin_nav_orders">▤</span><span data-i18n="nav_orders">الطلبات</span></div>
         <div class="side-item" data-tab="payments" onclick="switchTab('payments')"><span class="ic" data-icon-key="admin_nav_payments">💳</span><span data-i18n="nav_payments">المدفوعات</span></div>
         <div class="side-item" data-tab="accounts" onclick="switchTab('accounts')"><span class="ic" data-icon-key="admin_nav_accounts">👤</span><span data-i18n="nav_accounts">إدارة الحسابات</span></div>
-        <div class="side-item" data-tab="store" onclick="switchTab('store')"><span class="ic" data-icon-key="admin_nav_store">🛍️</span><span>المتجر</span></div>
-        <div class="side-item" data-tab="reviews" onclick="switchTab('reviews')"><span class="ic" data-icon-key="admin_nav_reviews">⭐</span><span>التقييمات</span></div>
+        <div class="side-item" data-tab="store" onclick="switchTab('store')"><span class="ic" data-icon-key="admin_nav_store">🛍️</span><span data-i18n="nav_store">المتجر</span></div>
+        <div class="side-item" data-tab="reviews" onclick="switchTab('reviews')"><span class="ic" data-icon-key="admin_nav_reviews">⭐</span><span data-i18n="nav_reviews">التقييمات</span></div>
+        <div class="side-item" data-tab="heatmap" onclick="switchTab('heatmap')"><span class="ic" data-icon-key="admin_nav_heatmap"><svg viewBox="0 0 16 16" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 14.25c2.9 0 4.75-1.95 4.75-4.6 0-2.4-1.6-3.6-2.35-5.65-.25 1.6-1.15 2.5-2 2.75C8.6 4.6 7.6 2.6 5.9 1.75c.2 2.2-2.65 3.85-2.65 7.6 0 2.95 1.85 4.9 4.75 4.9z"/><path d="M8 14.25c-1.2 0-2-.9-2-2.05 0-1.4 1.25-2 1.5-3.2.75.55 2.5 1.6 2.5 3.2 0 1.15-.8 2.05-2 2.05z"/></svg></span><span data-i18n="nav_heatmap">خريطة الحرارة</span></div>
         <div class="side-item" data-tab="slots" onclick="switchTab('slots')"><span class="ic" data-icon-key="admin_nav_checks">🎫</span><span data-i18n="nav_slots">الباقات</span></div>
         <div class="side-item" data-tab="broadcast" onclick="switchTab('broadcast')"><span class="ic" data-icon-key="admin_nav_broadcast">📢</span><span data-i18n="nav_broadcast">رسائل جماعية</span></div>
         <div class="side-item" data-tab="chat" onclick="switchTab('chat')"><span class="ic" data-icon-key="admin_nav_chat">💬</span><span data-i18n="nav_chat">الشات المباشر</span><span class="side-badge" id="chatSideBadge" style="display:none;"></span></div>
@@ -951,6 +1056,11 @@
         <div class="side-item" data-tab="uidesign" onclick="switchTab('uidesign')"><span class="ic" data-icon-key="admin_nav_uidesign">🎨</span><span data-i18n="nav_uidesign">تصميم الواجهة</span></div>
         <div class="side-item" data-tab="activity" onclick="switchTab('activity')"><span class="ic" data-icon-key="admin_nav_activity">📋</span><span data-i18n="nav_activity">سجل النشاط</span></div>
         <div class="side-item" data-tab="backup" onclick="switchTab('backup')"><span class="ic" data-icon-key="admin_nav_backup">💾</span><span data-i18n="nav_backup">النسخ الاحتياطي</span></div>
+        <!-- Opens the customer site (new tab) -->
+        <a class="side-item side-site-link" href="/dashboard.html" target="_blank" rel="noopener" data-i18n-title="nav_customer_site_title" title="فتح واجهة العميل في تاب جديد">
+          <span class="ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2.75 L4.75 2.75 C3.645 2.75 2.75 3.645 2.75 4.75 L2.75 11.25 C2.75 12.355 3.645 13.25 4.75 13.25 L11.25 13.25 C12.355 13.25 13.25 12.355 13.25 11.25 L13.25 9"/><line x1="7.5" y1="8.5" x2="13.25" y2="2.75"/><path d="M9.25 2.75 L13.25 2.75 L13.25 6.75"/></svg></span>
+          <span data-i18n="nav_customer_site">واجهة العميل</span>
+        </a>
       </div>
       <!-- Check settings — inline toggles (replaces the old dedicated tab) -->
       <div class="side-divider"></div>
@@ -1043,10 +1153,10 @@
 
         <div class="section-title" data-i18n="sec_credits">الفحوصات والطلبات الآن</div>
         <div class="kpi-row">
-          <div class="kpi gold"><div class="icon">💳</div><div class="num" id="kpiApiCredits">—</div><div class="lbl" data-i18n="lbl_api_credits">الفحوصات المتبقي في الـ API</div></div>
-          <div class="kpi"><div class="icon">📅</div><div class="num" id="kpiValidity" style="font-size:20px;">—</div><div class="kpi-subcaption" id="kpiValidityDays"></div><div class="lbl" data-i18n="lbl_validity">صلاحية الفحوصات (API)</div></div>
+          <div class="kpi gold"><div class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.25" cy="6.25" r="4.25"/><path d="M6.25 4 Q6.25 6.25 8.5 6.25 Q6.25 6.25 6.25 8.5 Q6.25 6.25 4 6.25 Q6.25 6.25 6.25 4 Z"/><path d="M12.4 6.55 A4.25 4.25 0 1 1 6.55 12.4"/></svg></div><div class="num" id="kpiApiCredits">—</div><div class="lbl" data-i18n="lbl_api_credits">الفحوصات المتبقي في الـ API</div></div>
+          <div class="kpi"><div class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.25" y="3.25" width="11.5" height="10.5" rx="2"/><line x1="5.5" y1="1.75" x2="5.5" y2="4.5"/><line x1="10.5" y1="1.75" x2="10.5" y2="4.5"/><line x1="2.25" y1="7" x2="13.75" y2="7"/></svg></div><div class="num" id="kpiValidity" style="font-size:20px;">—</div><div class="kpi-subcaption" id="kpiValidityDays"></div><div class="lbl" data-i18n="lbl_validity">صلاحية الفحوصات (API)</div></div>
           <div class="kpi kpi-period">
-            <div class="icon">🧾</div>
+            <div class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.25 2 L10.75 2 C11.855 2 12.75 2.895 12.75 4 L12.75 14 L11.15 13 L9.6 14 L8 13 L6.4 14 L4.85 13 L3.25 14 L3.25 4 C3.25 2.895 4.145 2 5.25 2 Z"/><line x1="5.75" y1="5.25" x2="10.25" y2="5.25"/><line x1="5.75" y1="8" x2="10.25" y2="8"/><line x1="5.75" y1="10.5" x2="8.25" y2="10.5"/></svg></div>
             <div class="num" id="kpiOrdersNum">—</div>
             <div class="kpi-subcaption" id="kpiOrdersSub"></div>
             <div class="lbl" data-i18n="kpi_orders_count">Order count</div>
@@ -1058,7 +1168,7 @@
             </div>
           </div>
           <div class="kpi kpi-period">
-            <div class="icon">💰</div>
+            <div class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.25 5.25 C3.5 7 2.25 9.25 2.25 11 C2.25 12.75 3.5 13.75 5.25 13.75 H10.75 C12.5 13.75 13.75 12.75 13.75 11 C13.75 9.25 12.5 7 9.75 5.25 Z"/><path d="M6.25 5.25 L5.462 3.358 C5.242 2.831 5.629 2.25 6.2 2.25 L9.8 2.25 C10.371 2.25 10.758 2.831 10.538 3.358 L9.75 5.25"/><path d="M9.365 8.135 C9.155 7.715 8.672 7.505 8 7.505 C7.16 7.505 6.635 7.925 6.635 8.492 C6.635 9.92 9.365 9.185 9.365 10.508 C9.365 11.075 8.84 11.495 8 11.495 C7.265 11.495 6.74 11.222 6.53 10.76 M8 6.875 V7.505 M8 11.495 V12.125"/></svg></div>
             <div class="num" id="kpiRevNum">—</div>
             <div class="kpi-subcaption" id="kpiRevSub"></div>
             <div class="lbl" data-i18n="kpi_revenue">Revenue</div>
@@ -1069,7 +1179,7 @@
               <button type="button" data-p="year" onclick="setKpiPeriod('rev','year')" data-i18n="lbl_year">السنة</button>
             </div>
           </div>
-          <div class="kpi"><div class="icon">👥</div><div class="num" id="kpiUsers">—</div><div class="lbl" data-i18n="lbl_users">عدد المستخدمين</div></div>
+          <div class="kpi"><div class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5.25" r="2.5"/><path d="M1.75 13.5 C2.25 11.25 3.9 9.75 6 9.75 C8.1 9.75 9.75 11.25 10.25 13.5"/><path d="M10.25 2.85 A2.5 2.5 0 0 1 10.25 7.65"/><path d="M11.75 10 C12.9 10.5 13.7 11.8 14 13.5"/></svg></div><div class="num" id="kpiUsers">—</div><div class="lbl" data-i18n="lbl_users">عدد المستخدمين</div></div>
         </div>
 
         <!-- TODAY ORDERS: same table as the Orders tab, only today's orders -->
@@ -1108,6 +1218,7 @@
                 <th data-i18n="online_col_name">الاسم</th>
                 <th data-i18n="online_col_email">الإيميل</th>
                 <th data-i18n="online_col_credits">الفحوصات</th>
+                <th data-i18n="online_col_page">الصفحة دلوقتي</th>
                 <th data-i18n="online_col_since">دخل منذ</th>
                 <th></th>
               </tr></thead>
@@ -1130,7 +1241,7 @@
       <!-- ORDERS -->
       <div class="tabpane" id="tab-orders">
         <div class="main-head">
-          <div><h1 data-i18n="orders_title">الطلبات</h1><div class="sub" id="ordersSub" data-i18n="orders_sub">كل طلبات كل العملاء</div></div>
+          <div><h1 data-i18n="orders_title">الطلبات</h1><div class="sub" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><span id="ordersSub" data-i18n="orders_sub">كل طلبات كل العملاء</span><span id="ordersRefreshed"></span></div></div>
         </div>
 
         <!-- MANUAL REVIEW QUEUE — shown only when there are manual-mode orders
@@ -1605,6 +1716,30 @@
         </div>
       </div>
 
+      <!-- HEATMAP: where customers click and what they spend time on -->
+      <div class="tabpane" id="tab-heatmap">
+        <div class="main-head">
+          <div><h1 data-i18n="nav_heatmap">خريطة الحرارة</h1><div class="sub" data-i18n="hm_sub">اهتمامات العملاء: الأماكن اللي بيزوروها أكتر والأزرار اللي بيضغطوا عليها</div></div>
+          <div class="hm-filters">
+            <select id="hmPage" onchange="loadHeatmap()"><option value="index" data-i18n="hm_page_index">الصفحة الرئيسية</option><option value="dashboard" data-i18n="hm_page_dash">لوحة العميل</option></select>
+            <select id="hmDevice" onchange="loadHeatmap()"><option value="all" data-i18n="hm_dev_all">كل الأجهزة</option><option value="desktop" data-i18n="hm_dev_desktop">كمبيوتر</option><option value="mobile" data-i18n="hm_dev_mobile">موبايل</option></select>
+            <select id="hmDays" onchange="loadHeatmap()"><option value="1" data-i18n="hm_d1">آخر 24 ساعة</option><option value="7" selected data-i18n="hm_d7">آخر 7 أيام</option><option value="30" data-i18n="hm_d30">آخر 30 يوم</option><option value="90" data-i18n="hm_d90">آخر 90 يوم</option></select>
+          </div>
+        </div>
+        <div class="kpi-row" id="hmKpis"></div>
+        <div class="hm-grid">
+          <div class="panel"><div class="panel-head"><h3 data-i18n="hm_areas">أكتر الأماكن زيارة</h3></div><div id="hmAreas" class="hm-list"></div></div>
+          <div class="panel"><div class="panel-head"><h3 data-i18n="hm_labels">أكتر الأزرار ضغطاً</h3></div><div id="hmLabels" class="hm-list"></div></div>
+        </div>
+        <div class="panel" id="hmVisualPanel">
+          <div class="panel-head"><h3 data-i18n="hm_visual">خريطة الضغطات على الصفحة الرئيسية</h3><span class="hm-legend"><i></i><span data-i18n="hm_less">أقل</span><b></b><span data-i18n="hm_more">أكتر</span></span></div>
+          <div class="hm-visual">
+            <div class="hm-stage-wrap" id="hmStageWrap"><div class="hm-stage" id="hmStage"><iframe id="hmFrame" title="preview" scrolling="no"></iframe><canvas id="hmCanvas"></canvas></div></div>
+            <div class="hm-scroll"><div class="hm-scroll-title" data-i18n="hm_scroll">العملاء وصلوا لحد فين في الصفحة</div><div id="hmScroll"></div></div>
+          </div>
+        </div>
+      </div>
+
       <div class="tabpane" id="tab-reviews">
         <style>
           #tab-reviews .rv-kpis{ display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin-bottom:16px; }
@@ -1857,8 +1992,8 @@
           <button class="btn btn-primary" onclick="openAddUserPopup()" data-i18n="usr_add_btn">+ إضافة مستخدم</button>
         </div>
         <div class="tab-card">
-          <input type="text" class="usr-search" id="usersSearch" autocomplete="off" data-i18n-ph="usr_search_ph" placeholder="🔍 ابحث باسم أو إيميل أو PK أو واتساب..." oninput="filterUsersTable(this.value)">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px;">
+          <!-- Sort by, then the search bar: one row -->
+          <div class="usr-toolbar">
             <span style="font-size:12px;color:var(--muted);font-weight:700;" data-i18n="usr_sort_by">ترتيب حسب:</span>
             <select id="usersSortKey" onchange="setUsersSort(this.value)" style="padding:6px 10px;border:1.5px solid var(--paper-line);border-radius:8px;font-family:'Cairo',sans-serif;font-size:12px;">
               <option value="pk" data-i18n="usr_sort_pk">كود PK</option>
@@ -1867,6 +2002,7 @@
               <option value="joined" data-i18n="usr_sort_joined">تاريخ الانضمام</option>
             </select>
             <button type="button" class="btn btn-outline" id="usersSortDir" onclick="toggleUsersSortDir()" style="font-size:12px;padding:6px 12px;">↓ تنازلي</button>
+            <input type="text" class="usr-search" id="usersSearch" autocomplete="off" data-i18n-ph="usr_search_ph" placeholder="ابحث باسم أو إيميل أو PK أو واتساب..." oninput="filterUsersTable(this.value)">
           </div>
           <div style="overflow-x:auto;">
             <table class="data-tbl" id="usersTbl">
@@ -2041,7 +2177,7 @@ const I18N = {
     cr_log_title:'سجل عمليات الشحن والتعديل',
     cr_col_txcode:'كود العملية', cr_col_name:'الاسم', cr_col_plan:'الخطة / السبب', cr_col_method:'وسيلة الدفع',
     cr_col_amount:'المبلغ', cr_col_credits:'الفحوصات', cr_col_type:'النوع', cr_col_date:'التاريخ',
-    usr_title:'👥 المستخدمون', usr_subtitle:'جميع بيانات عملاء المنصة', usr_search_ph:'🔍 ابحث باسم أو إيميل أو PK أو واتساب...',
+    usr_title:'👥 المستخدمون', usr_subtitle:'جميع بيانات عملاء المنصة', usr_search_ph:'ابحث باسم أو إيميل أو PK أو واتساب...',
     usr_add_btn:'+ إضافة مستخدم', adm_col_password:'الباسورد', adm_col_permissions:'الصلاحيات',
     side_lifetime_validity:'صلاحية مدى الحياة',
     usr_sort_by:'ترتيب حسب:', usr_sort_pk:'كود PK', usr_sort_credits:'عدد الـ slots', usr_sort_completed:'الطلبات المكتملة', usr_sort_joined:'تاريخ الانضمام',
@@ -2160,7 +2296,7 @@ const I18N = {
     cr_log_title:'Top-up & adjustment log',
     cr_col_txcode:'Transaction code', cr_col_name:'Name', cr_col_plan:'Plan / Reason', cr_col_method:'Payment method',
     cr_col_amount:'Amount', cr_col_credits:'Checks', cr_col_type:'Type', cr_col_date:'Date',
-    usr_title:'👥 Users', usr_subtitle:'All platform customer data', usr_search_ph:'🔍 Search by name, email, PK, or WhatsApp...',
+    usr_title:'👥 Users', usr_subtitle:'All platform customer data', usr_search_ph:'Search by name, email, PK, or WhatsApp...',
     usr_add_btn:'+ Add User', adm_col_password:'Password', adm_col_permissions:'Permissions',
     side_lifetime_validity:'Lifetime validity',
     usr_sort_by:'Sort by:', usr_sort_pk:'PK code', usr_sort_credits:'Slots', usr_sort_completed:'Completed orders', usr_sort_joined:'Joined date',
@@ -2585,7 +2721,7 @@ function canUse(perm){
 const TAB_PERMISSION_MAP = {
   orders:'manage_orders', uidesign:'manage_ui_design', broadcast:'manage_broadcasts',
   activity:'view_activity_log', payments:'manage_credits', slots:'manage_credits', accounts:'manage_users',
-  chat:'manage_chat', tickets:'manage_tickets', store:'manage_store', reviews:'manage_ui_design',
+  chat:'manage_chat', tickets:'manage_tickets', store:'manage_store', reviews:'manage_ui_design', heatmap:'manage_ui_design',
   backup:'manage_backup',
 };
 function applyPermissionGating(){
@@ -3036,31 +3172,68 @@ async function transferConversation(targetAdminId){
 }
 function renderChatThread(){
   const body = document.getElementById('cpBody');
+  const ar = currentLang === 'ar';
+  const isImg = n => /\.(jpe?g|png|gif|webp|svg|heic)$/i.test(n || '');
+  const IC = { copy: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5.25" y="5.25" width="8.5" height="8.5" rx="2"/><path d="M3.5 10.75 L2.875 10.75 C2.53 10.75 2.25 10.47 2.25 10.125 L2.25 4.25 C2.25 3.145 3.145 2.25 4.25 2.25 L10.125 2.25 C10.47 2.25 10.75 2.53 10.75 2.875 L10.75 3.5"/></svg>', edit: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.957 3.457 L12.543 5.043 C12.933 5.433 12.933 6.067 12.543 6.457 L5.793 13.207 C5.605 13.395 5.351 13.5 5.086 13.5 L2.5 13.5 L2.5 10.914 C2.5 10.649 2.605 10.395 2.793 10.207 L9.543 3.457 C9.933 3.067 10.567 3.067 10.957 3.457 Z"/><line x1="8.75" y1="4.25" x2="11.75" y2="7.25"/></svg>', del: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 4.25 L4.105 11.907 C4.187 12.948 5.055 13.75 6.098 13.75 L9.902 13.75 C10.945 13.75 11.813 12.948 11.895 11.907 L12.5 4.25"/><line x1="2.25" y1="4.25" x2="13.75" y2="4.25"/><path d="M6 4.25 L6 3.25 C6 2.698 6.448 2.25 7 2.25 L9 2.25 C9.552 2.25 10 2.698 10 3.25 L10 4.25"/><line x1="6.75" y1="7" x2="6.75" y2="11"/><line x1="9.25" y1="7" x2="9.25" y2="11"/></svg>' };
   body.innerHTML = openMessages.map(m => {
     const senderLabel = m.sender_type === 'admin' ? `<span class="cp-msg-sender">${escapeHtml(m.sender_name || 'Admin')}</span>` : '';
-    // Read receipts only make sense on messages the admin sent — a
-    // single check means delivered, a double check (colored) means the
-    // customer has actually opened the conversation since it arrived.
+    // Read receipts on the admin's messages: one check = delivered, two (colored) = the customer opened it.
     const receipt = m.sender_type === 'admin'
-      ? `<span class="cp-msg-receipt" style="color:${m.read_at ? 'var(--blue)' : 'inherit'};opacity:${m.read_at ? '1' : '.6'};">${m.read_at ? '✓✓' : '✓'}</span>`
+      ? `<span class="cp-msg-receipt" style="color:${m.read_at ? 'var(--cyan, #7dd3fc)' : 'inherit'};opacity:${m.read_at ? '1' : '.7'};">${m.read_at ? '✓✓' : '✓'}</span>`
       : '';
-    // Only the admin's OWN text messages can be edited/deleted (matches
-    // "edit shows on the customer's side too" — file messages are left
-    // as-is for simplicity, and customer messages are never editable).
-    const controls = (m.sender_type === 'admin' && !m.file_name)
-      ? `<span class="cp-msg-controls" style="display:inline-flex;gap:5px;margin-right:6px;opacity:.6;">
-          <span style="cursor:pointer;font-size:10px;" onclick="startEditChatMessage('${m.id}')" title="تعديل">✎</span>
-          <span style="cursor:pointer;font-size:10px;" onclick="deleteChatMessage('${m.id}')" title="حذف">🗑</span>
-        </span>`
-      : '';
-    if (m.file_name) {
-      return `<div class="cp-msg from-${m.sender_type}">${senderLabel}<div class="cp-msg-file" data-a="${escapeHtml(encodeURIComponent(m.file_url))}" onclick="runWithData(this, openAdminChatFile)">
-        <svg viewBox="0 0 24 24" style="width:15px;height:15px;" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-        <span>${escapeHtml(m.file_name)}</span></div>${receipt}</div>`;
+    // Only the admin's own text messages can be edited or deleted.
+    // Actions under the message: copy (text), edit and delete (the admin's own text messages).
+    const acts = [];
+    if (!m.file_name && m.message) acts.push(`<button type="button" class="cp-act" data-copy="${escapeHtml(m.message)}" onclick="copyAdminChatText(this)" title="${ar ? 'نسخ' : 'Copy'}">${IC.copy}<span>${ar ? 'نسخ' : 'Copy'}</span></button>`);
+    if (m.sender_type === 'admin' && !m.file_name) {
+      acts.push(`<button type="button" class="cp-act" onclick="startEditChatMessage('${m.id}')" title="${ar ? 'تعديل' : 'Edit'}">${IC.edit}<span>${ar ? 'تعديل' : 'Edit'}</span></button>`);
+      acts.push(`<button type="button" class="cp-act del" onclick="deleteChatMessage('${m.id}')" title="${ar ? 'حذف' : 'Delete'}">${IC.del}<span>${ar ? 'حذف' : 'Delete'}</span></button>`);
     }
-    return `<div class="cp-msg from-${m.sender_type}" id="chatmsg-${m.id}">${senderLabel}<span id="chatmsg-text-${m.id}">${escapeHtml(m.message || '')}${m.edited_at ? ` <i style="font-size:9px;opacity:.6;">(معدّلة)</i>` : ''}</span>${controls}${receipt}</div>`;
-  }).join('') + `<div id="cpTypingIndicator" style="display:none;font-size:11px;color:var(--muted);padding:4px 12px;font-style:italic;">العميل بيكتب دلوقتي...</div>`;
+    const when = m.created_at ? `${fmtDate(m.created_at)} · ${fmtTime(m.created_at)}` : '';
+    const meta = `<div class="cp-msg-meta"><span>${escapeHtml(when)}</span>${receipt}</div>`;
+    let content;
+    if (m.file_name && isImg(m.file_name)) {
+      const cached = _adminChatUrlCache[m.file_url];
+      content = `<img class="cp-msg-img" alt="${escapeHtml(m.file_name)}" data-chat-path="${escapeHtml(m.file_url)}"${cached ? ` src="${escapeHtml(cached)}"` : ''} onclick="openAdminChatImage(this)">`;
+    } else if (m.file_name) {
+      content = `<div class="cp-msg-file" data-a="${escapeHtml(encodeURIComponent(m.file_url))}" onclick="runWithData(this, openAdminChatFile)">
+        <svg viewBox="0 0 24 24" style="width:15px;height:15px;" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        <span>${escapeHtml(m.file_name)}</span></div>`;
+    } else {
+      content = `<span id="chatmsg-text-${m.id}">${escapeHtml(m.message || '')}${m.edited_at ? ` <i style="font-size:9px;opacity:.6;">(${ar ? 'معدّلة' : 'edited'})</i>` : ''}</span>`;
+    }
+    return `<div class="cp-msg-wrap from-${m.sender_type}"><div class="cp-msg from-${m.sender_type}${m.file_name && isImg(m.file_name) ? ' has-img' : ''}" id="chatmsg-${m.id}">${senderLabel}${content}${meta}</div>${acts.length ? `<div class="cp-msg-acts">${acts.join('')}</div>` : ''}</div>`;
+  }).join('') + `<div id="cpTypingIndicator" style="display:none;font-size:11px;color:var(--muted);padding:4px 12px;font-style:italic;">${ar ? 'العميل بيكتب دلوقتي...' : 'The customer is typing...'}</div>`;
   body.scrollTop = body.scrollHeight;
+  loadAdminChatImages();
+}
+// Images in the chat: signed links (the bucket is private), cached for the hour they stay valid.
+const _adminChatUrlCache = {};
+async function adminChatSignedUrl(path){
+  if (_adminChatUrlCache[path]) return _adminChatUrlCache[path];
+  const { data, error } = await supabaseClient.storage.from('chat-attachments').createSignedUrl(path, 3600);
+  if (error || !data) return null;
+  return (_adminChatUrlCache[path] = data.signedUrl);
+}
+async function loadAdminChatImages(){
+  const body = document.getElementById('cpBody');
+  for (const img of document.querySelectorAll('#cpBody img.cp-msg-img[data-chat-path]:not([src])')) {
+    const url = await adminChatSignedUrl(img.dataset.chatPath);
+    if (url) { img.src = url; img.addEventListener('load', () => { body.scrollTop = body.scrollHeight; }, { once: true }); }
+  }
+}
+function openAdminChatImage(img){
+  if (!img.src) return;
+  if (window.PhotoSwipeLightbox && window.PhotoSwipe) {
+    const pswp = new window.PhotoSwipe({ dataSource: [{ src: img.src, width: img.naturalWidth || 1200, height: img.naturalHeight || 900 }], index: 0 });
+    pswp.init();
+  } else window.open(img.src, '_blank');
+}
+async function copyAdminChatText(btn){
+  const text = btn.getAttribute('data-copy') || '';
+  try { await navigator.clipboard.writeText(text); }
+  catch (e) { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (_) {} ta.remove(); }
+  toast(currentLang === 'ar' ? 'اتنسخت الرسالة ✓' : 'Message copied ✓', 'success');
 }
 let editingChatMessageId = null;
 function startEditChatMessage(msgId){
@@ -3145,7 +3318,12 @@ async function handleAdminAttach(){
   const file = fileInput.files[0];
   fileInput.value = '';
   if (!file || !openConversationId) return;
-  const path = `${openConversationId}/${Date.now()}_${file.name}`;
+  if (file.size > 10 * 1024 * 1024) { await adminAlert(currentLang === 'ar' ? 'الملف أكبر من 10 ميجا.' : 'The file is larger than 10 MB.', {icon:'⚠️'}); return; }
+  // Storage only accepts plain Latin names: keep the extension, the real name is saved in file_name.
+  const ext = (file.name.match(/\.[A-Za-z0-9]{1,8}$/) || [''])[0].toLowerCase();
+  const base = file.name.slice(0, file.name.length - ext.length).normalize('NFKD').replace(/[^\w-]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 60) || 'file';
+  const path = `${openConversationId}/${Date.now()}_${base}${ext}`;
+  toast(currentLang === 'ar' ? 'جاري إرسال الملف...' : 'Sending the file...', 'info');
   try {
     const { error: upErr } = await supabaseClient.storage.from('chat-attachments').upload(path, file);
     if (upErr) throw upErr;
@@ -3619,6 +3797,7 @@ function switchTab(tab){
   if (tab === 'slots') initSlotsTab();
   if (tab === 'store') initStoreTab();
   if (tab === 'reviews') loadReviewsTab();
+  if (tab === 'heatmap' && typeof loadHeatmap === 'function') loadHeatmap();
   if (tab === 'broadcast') initBroadcastTab();
   if (tab === 'activity') initActivityTab();
   if (tab === 'accounts') { initUsersTab(); initAdminMgmtTab(); }
@@ -3896,12 +4075,12 @@ function renderProblemOrdersList(){
     const p = profilesByUserId[o.user_id] || {};
     const shown = o.provider_error || localizeAdminOrderError(o.error_reason);
     const reason = shown ? escapeHtml(shown) : (currentLang === 'ar' ? 'غير معروف' : 'Unknown');
-    return `<tr>
-      <td class="mono" style="font-size:10.5px;color:var(--muted);white-space:nowrap;">${escapeHtml(o.display_id||o.id.slice(0,8))}</td>
+    return `<tr class="row-bad">
+      <td class="mono" style="font-size:10.5px;color:var(--muted);white-space:nowrap;">${escapeHtml(o.display_id||o.id.slice(0,8))}${cpBtn(o.display_id||o.id.slice(0,8))}</td>
       <td class="mono" style="color:var(--blue-deep);font-weight:700;white-space:nowrap;">${clickablePk(o.user_id, p.pk_number)}</td>
       <td style="white-space:nowrap;"><b style="font-size:12px;">${escapeHtml(p.full_name||'—')}</b></td>
       <td class="prob-file"><div class="prob-file-name" title="${escapeHtml(o.file_name||'')}">${escapeHtml(o.file_name||'—')}</div></td>
-      <td class="prob-reason">${reason}</td>
+      <td class="prob-reason"><span class="prob-reason-txt">${reason}</span>${shown ? cpBtn(shown) : ''}</td>
       <td class="prob-act">${o.user_id ? `<button class="msg-btn" onclick="composeMessage('${o.user_id}','${o.display_id||o.id.slice(0,8)}')">✉</button>` : ''}</td>
     </tr>`;
   }).join('') + `</tbody></table></div>`;
@@ -3936,6 +4115,7 @@ async function loadOrders(){
   renderOrdersTable();
   renderProblemOrdersList();
   renderTodayOrders();
+  if (typeof markOrdersRefreshed === 'function') markOrdersRefreshed();
 }
 
 function setOrderTypeFilter(v){
@@ -4015,7 +4195,12 @@ async function _fetchMissingOnlineProfiles(){
 }
 
 function _renderOnlineUsers(){
-  const users = Object.values(_onlinePresenceMap);
+  const byUser = {};
+  Object.values(_onlinePresenceMap).forEach(p => {
+    const cur = byUser[p.user_id];
+    if (!cur || String(p.page_at || p.joined_at || '') > String(cur.page_at || cur.joined_at || '')) byUser[p.user_id] = p;
+  });
+  const users = Object.values(byUser);
   const countEl = document.getElementById('onlineCountNum');
   if (countEl) countEl.textContent = users.length;
   _fetchMissingOnlineProfiles(); // async, re-renders once profiles land
@@ -4028,7 +4213,7 @@ function _renderOnlineUsers(){
   if (!tbody) return;
 
   if (!users.length) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;">${t('online_empty')}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px;">${t('online_empty')}</td></tr>`;
     document.getElementById('onlineUsersPagination').innerHTML = '';
     return;
   }
@@ -4043,7 +4228,10 @@ function _renderOnlineUsers(){
       ? `<span style="font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--ok);">${credits}</span>`
       : '—';
     const sendBtn = `<button class="icon-btn" title="${t('btn_send_msg')}" onclick="_openChatForOnlineUser('${escapeHtml(u.user_id)}')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>`;
-    return `<tr><td><b>${pk}</b></td><td>${name}</td><td style="direction:ltr;">${email}</td><td>${creditsHtml}</td><td>${since}</td><td>${sendBtn}</td></tr>`;
+    const pageCell = u.page_label
+      ? `<span class="live-page" title="${escapeHtml(u.page || '')}"><span class="live-dot"></span>${escapeHtml(u.page_label)}</span><div class="live-page-at">${u.page_at ? timeAgo(u.page_at) : ''}</div>`
+      : '<span style="color:var(--muted);">—</span>';
+    return `<tr class="row-ok"><td style="white-space:nowrap;"><b>${pk}</b>${pk !== '—' ? cpBtn(pk) : ''}</td><td>${name}</td><td style="direction:ltr;">${email}</td><td>${creditsHtml}</td><td>${pageCell}</td><td>${since}</td><td>${sendBtn}</td></tr>`;
   }).join('');
 
   renderPaginationBar('onlineUsers', 'onlineUsersPagination', users.length);
@@ -4064,9 +4252,9 @@ async function _openChatForOnlineUser(userId){
     .single();
   if (error || !convo) { await adminAlert('فشل فتح المحادثة: ' + (error?.message || ''), {icon:'❌', danger:true}); return; }
   if (!conversations.find(c => c.id === convo.id)) conversations.unshift(convo);
-  switchTab('chat');
   renderChatSidebar();
-  openConversation(convo.id);
+  if (typeof openAdmChat === 'function' && !document.getElementById('tab-chat')?.classList.contains('on')) openAdmChat(convo.id);
+  else { switchTab('chat'); openConversation(convo.id); }
 }
 
 // One order row, the same for the Orders tab and the Today table.
@@ -4089,7 +4277,7 @@ function buildAdminOrderRow(o){
     : ['error','rejected','failed_invalid'].includes(o.status) ? 'row-bad'
     : ['run','processing','pending','checking','uploading','floating'].includes(o.status) ? 'row-run' : '';
   return `<tr class="${rowCls}">
-    <td class="mono oc-order" style="font-size:11px;">${escapeHtml(o.display_id || o.id.slice(0,8))} <span class="copy-btn" data-clipboard-text="${escapeHtml(o.display_id || o.id.slice(0,8))}" title="نسخ">📋</span></td>
+    <td class="mono oc-order" style="font-size:11px;">${escapeHtml(o.display_id || o.id.slice(0,8))} ${cpBtn(o.display_id || o.id.slice(0,8))}</td>
     <td class="u-cell oc-user">${userCell}</td>
     <td class="file-col oc-file">${fileCell}<br>${checkTypeBadge(o.check_type)}${filterBadges(o)}</td>
     <td class="oc-sim" data-l="${escapeHtml(t('th_sim'))}" style="white-space:nowrap;padding:6px 8px;">${reportButton(o, 'sim')}</td>
@@ -4138,8 +4326,8 @@ function renderApiLog(){
     document.getElementById('apiLogPagination').innerHTML = '';
     return;
   }
-  const orderById = {};
-  (allOrders || []).forEach(o => { orderById[o.id] = o.display_id || String(o.id).slice(0, 8); });
+  const orderById = {}, orderUser = {};
+  (allOrders || []).forEach(o => { orderById[o.id] = o.display_id || String(o.id).slice(0, 8); orderUser[o.id] = o.user_id; });
   const pageList = paginateList('apilog', groups, renderApiLog);
   const EVENT = { submit: ar ? 'إرسال للمزود' : 'Sent to provider', completed: ar ? 'اكتمل' : 'Completed', failed: ar ? 'فشل' : 'Failed' };
   const EVENT_CLS = { submit: 'badge-run', completed: 'badge-ok', failed: 'badge-no' };
@@ -4170,9 +4358,12 @@ function renderApiLog(){
       ? `<div style="color:var(--muted);font-size:10px;">${ar ? 'خلال' : 'over'} ${spanS >= 60 ? Math.floor(spanS / 60) + (ar ? 'د ' : 'm ') : ''}${spanS % 60}${ar ? 'ث' : 's'}</div>` : '';
     const events = rows.map(r => `<span class="badge ${EVENT_CLS[r.event] || 'badge-wait'}" style="font-size:10px;padding:2px 7px;" title="${escapeHtml(fmtTime(new Date(r.created_at)))}">${escapeHtml(EVENT[r.event] || r.event)}</span>`)
       .join(`<span style="color:var(--muted);font-size:10px;margin:0 3px;">${ar ? '←' : '→'}</span>`);
-    return `<tr class="${bad ? 'row-bad' : warn ? 'row-warn' : ''}">
+    const ended = last.event === 'completed' ? 'row-ok' : last.event === 'failed' ? 'row-bad' : 'row-run';
+    const uid = orderUser[first.order_id], prof = uid ? (profilesByUserId[uid] || {}) : null;
+    const pkBadge = prof ? `<div style="margin-top:3px;"><span class="api-pk">${clickablePk(uid, prof.pk_number)}</span></div>` : '';
+    return `<tr class="${bad ? 'row-bad' : warn ? 'row-warn' : ended}">
       <td style="font-size:11px;white-space:nowrap;">${fmtDate(dt)}<div style="color:var(--muted);font-size:10.5px;">${fmtTime(dt)}</div>${spanTxt}</td>
-      <td class="mono" style="font-size:11px;">${escapeHtml(orderById[first.order_id] || (first.order_id ? String(first.order_id).slice(0, 8) : '—'))}</td>
+      <td class="mono" style="font-size:11px;white-space:nowrap;">${escapeHtml(orderById[first.order_id] || (first.order_id ? String(first.order_id).slice(0, 8) : '—'))}${first.order_id ? cpBtn(orderById[first.order_id] || String(first.order_id).slice(0, 8)) : ''}${pkBadge}</td>
       <td style="font-size:11.5px;"><div style="display:flex;flex-wrap:wrap;align-items:center;gap:2px;">${events}</div></td>
       <td class="mono">${before != null ? before : '—'}</td>
       <td class="mono">${after != null ? after : '—'}</td>
@@ -4285,7 +4476,7 @@ function renderManualQueue(){
         </div>`;
     }
 
-    return `<tr>
+    return `<tr class="row-run">
       <td>📄</td>
       <td class="mono" style="font-size:11px;">${escapeHtml(o.display_id || o.id.slice(0,8))}</td>
       <td class="u-cell">${userCell}</td>
@@ -4645,10 +4836,18 @@ function formatPkNumber(pk){
 // PK codes are clickable everywhere they appear — clicking one opens that
 // customer's profile popup. The message icon stays separate and is only
 // for composing a direct message.
+
+// Copy button next to a code (PK, order, payment...). ClipboardJS handles every .copy-btn on the page.
+const CP_ICON = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5.25" y="5.25" width="8.5" height="8.5" rx="2"/><path d="M3.5 10.75 L2.875 10.75 C2.53 10.75 2.25 10.47 2.25 10.125 L2.25 4.25 C2.25 3.145 3.145 2.25 4.25 2.25 L10.125 2.25 C10.47 2.25 10.75 2.53 10.75 2.875 L10.75 3.5"/></svg>';
+function cpBtn(text){
+  if (text == null || text === '' || text === '—') return '';
+  const t2 = String(text);
+  return `<button type="button" class="copy-btn cp-ic" data-clipboard-text="${escapeHtml(t2)}" title="${currentLang === 'ar' ? 'نسخ' : 'Copy'} ${escapeHtml(t2)}" aria-label="${currentLang === 'ar' ? 'نسخ' : 'Copy'}">${CP_ICON}</button>`;
+}
 function clickablePk(userId, pkNumber){
   const label = 'PK' + formatPkNumber(pkNumber);
   if (!userId || pkNumber == null) return label;
-  return '<span class="pk-click" onclick="openProfilePopup(\'' + userId + '\',\'' + label + '\')" title="عرض ملف العميل" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;">' + label + '</span>';
+  return '<span class="pk-click" onclick="openProfilePopup(\'' + userId + '\',\'' + label + '\')" title="عرض ملف العميل" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;">' + label + '</span>' + cpBtn(label);
 }
 
 /* ================================================================
@@ -5117,6 +5316,22 @@ const UI_SECTIONS_MAP=[
     'tour_support_title','tour_support_desc',
     'tour_done_title','tour_done_desc',
   ]},
+,
+  {id:'x_myfiles',icon:'📁',label_ar:'ملفاتي (My Files)',label_en:'My Files',keys:["mf_title","mf_col_doc","mf_col_order","mf_col_time","mf_col_ai","mf_col_sim","mf_col_action","mf_empty","mf_checking","mf_delivered","mf_delivered_plain","mf_failed","mf_not_included","mf_result_unavailable","mf_download","mf_delete","mf_confirm_title","mf_confirm_body","mf_delete_yes","mf_delete_no","mf_err_delete","mf_retention_note"]},
+  {id:'x_profile',icon:'👤',label_ar:'حسابي',label_en:'My Account',keys:["profile_save_ok","profile_pass_short","profile_pass_error","profile_modal_title","profile_save_btn","profile_cancel_btn","profile_name","profile_email","profile_whatsapp","profile_new_pass","profile_save","profile_save_success","profile_save_error","signout_confirm","profile_phone_label","profile_security_title","profile_email_label","profile_update_btn","profile_change_password_btn","profile_new_password_ph","profile_danger_title","profile_delete_account_btn"]},
+  {id:'x_tour',icon:'🧭',label_ar:'الجولة التعريفية',label_en:'Guided Tour',keys:["tour_ctype_title","tour_ctype_desc","tour_pick_package_title","tour_pick_package_desc","tour_submitfiles_title","tour_submitfiles_desc","tour_filters_title","tour_filters_desc","tour_pay_tabs_title","tour_pay_tabs_desc","tour_coupon_title","tour_coupon_desc"]},
+  {id:'x_redeem',icon:'🎟️',label_ar:'أكواد الشحن',label_en:'Redeem Codes',keys:["redeem_btn","redeem_modal_title","redeem_modal_sub","redeem_input_ph","redeem_submit","redeem_err_empty","redeem_err_used","redeem_err_invalid","redeem_err_limit","redeem_err_auth","redeem_err_generic","redeem_success"]},
+  {id:'x_errors',icon:'⚠️',label_ar:'رسائل الأخطاء',label_en:'Error Messages',keys:["err_no_slots","err_check_failed","err_provider_unavailable","err_submit_failed","err_unconfirmed","err_maintenance","err_cooldown","err_generic"]},
+  {id:'x_plans',icon:'📦',label_ar:'الباقات والصلاحية',label_en:'Packages & Validity',keys:["plans_eyebrow","plans_title_1","plans_title_2","plans_sub","plans_tab_ai","plans_tab_plag","plans_soon","lifetime_validity","plan_ai_tab","plan_only_tab","plan_soon","plan_title","plan_pill","plan_auto","expiry_days_left","slot_unit","slot_none_msg","slot_buy_btn","slot_maint_btn","slot_maint_default","wplan_swipe_hint","best_seller_label","best_value_label","pack_pack_1","pack_pack_5","pack_pack_10","pack_pack_25"]},
+  {id:'x_checkfilters',icon:'🔍',label_ar:'خيارات الفحص والفلاتر',label_en:'Check Options & Filters',keys:["sf_no_expiry","sf_no_slots_short","sf_open_btn","sf_opt_left","sf_opt_none","sf_opt_expired","sf_opt_until","sf_slot_pick","sf_pick_slot_err","sf_title","sf_slot_label","sf_no_slots","sf_opt_label","sf_pick","sf_formats","sf_browse","sf_err_format","sf_err_size","sf_terms_title","sf_filters_title","sf_f_bib","sf_f_quo","sf_f_cit","sf_f_small","sf_f_words","sf_notice_title","sf_notice_body","sf_upload_btn","exclude_abstract","exclude_citations","exclude_small_matches","words_unit"]},
+  {id:'x_placeholders',icon:'⌨️',label_ar:'النصوص داخل الحقول',label_en:'Field Placeholders',keys:["ph_col_code","ph_col_method","ph_col_amount","ph_col_credits","ph_col_pack","ph_col_datetime","ph_col_status","ph_status_completed","ph_status_pending","ph_status_rejected","ph_empty","ph_col_bal_before","ph_col_bal_after"]},
+  {id:'x_academic',icon:'🎓',label_ar:'الأدوات الأكاديمية',label_en:'Academic Tools',keys:["ac_title","ac_wallet","ac_egp","ac_active_subs","ac_all_orders"]},
+  {id:'x_reviews',icon:'⭐',label_ar:'التقييمات',label_en:'Reviews',keys:["reviews_eyebrow","reviews_title_1","reviews_title_2","reviews_sub"]},
+  {id:'x_payments',icon:'💳',label_ar:'الدفع والكوبونات',label_en:'Payments & Coupons',keys:["pay_tab_wallets","pay_tab_card","pay_tab_crypto","pay_card_note","coupon_title","coupon_sub","coupon_btn","payment_history_title","payment_history_desc"]},
+  {id:'x_orderstatus',icon:'📋',label_ar:'الطلبات (نصوص إضافية)',label_en:'Orders (more text)',keys:["order_tx_title","order_tx_desc","order_tx_debit","order_tx_credit","phase_checking","phase_run","col_rating"]},
+  {id:'x_supportx',icon:'🎫',label_ar:'الدعم (نصوص إضافية)',label_en:'Support (more text)',keys:["sup_lang","sup_currency","sup_settings","support_category"]},
+  {id:'x_navx',icon:'🧭',label_ar:'التنقل (نصوص إضافية)',label_en:'Navigation (more text)',keys:["nav_sec_checking","nav_sec_tools","nav_focus","nav_academic","nav_my_orders","nav_my_history","nav_my_profile"]},
+  {id:'x_other',icon:'🧩',label_ar:'نصوص متنوعة',label_en:'Other Text',keys:["loading_ellipsis","kpi_slots_label","kpi_expiry_label","kpi_api_status","api_active","api_inactive","api_maintenance","pg_rows_per_page","cat_general","cat_payment","cat_check","new_ticket_title","start_new_ticket","hero_title","srv_sim_unavailable","how_title"]}
 ];
 const UI_ICON_MAP=[
   {key:'logo_index',imgSize:'46px',label_ar:'اللوجو - صفحة الهبوط (index)',label_en:'Logo — Landing page (index)',context_ar:'الهيدر في index.html',context_en:'Header on index.html',defaultSvg:'',section:'brand',section_ar:'اللوجو والأيقونة (Favicon)',section_en:'Logo & Favicon'},
@@ -5322,22 +5537,7 @@ const UI_ICON_MAP=[
   {key:'idx_sample_pdf_drive_icon',imgSize:'18px',label_ar:'أيقونة Google Drive (زرار نموذج التقرير)',label_en:'Google Drive icon (sample report button)',context_ar:'الصفحة الرئيسية: تحت صورة الهيرو',context_en:'Landing page: under the hero image',defaultSvg:'<svg data-icon-key="idx_sample_pdf_drive_icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#0066DA" d="M8.3 2h7.4l6.3 11h-7.4z"/><path fill="#00AC47" d="M8.3 2L2 13l3.7 6.5L12 9.5z"/><path fill="#EA4335" d="M5.7 19.5h12.6l3.7-6.5H9.4z"/></svg>',section:'idx_icons',section_ar:'أيقونات الصفحة الرئيسية',section_en:'Landing page icons'},
   {key:'idx_sample_pdf_ext_icon',imgSize:'15px',label_ar:'أيقونة رابط خارجي (زرار نموذج التقرير)',label_en:'External link icon (sample report button)',context_ar:'الصفحة الرئيسية: تحت صورة الهيرو',context_en:'Landing page: under the hero image',defaultSvg:'<svg data-icon-key="idx_sample_pdf_ext_icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;" aria-hidden="true"><path d="M14 3h7v7M10 14L21 3M21 14v7H3V3h7"/></svg>',section:'idx_icons',section_ar:'أيقونات الصفحة الرئيسية',section_en:'Landing page icons'}
 ];
-const DASH_I18N={
-  ar:{nav_home:'الرئيسية',nav_new_check:'فحص جديد',nav_orders:'ملفاتي',nav_wallet:'المحفظة',nav_support:'الدعم',my_requests_title:'طلباتي',last_order_title:'آخر طلب لك',view_all_orders:'عرض كل الطلبات',welcome_message:'أهلاً بك مجدداً',kpi_topup:'شحن +',kpi_credits_unit:'فحص',credit_unit_singular:'فحص',kpi_balance:'رصيدك الحالي',kpi_processing:'قيد الفحص الآن',kpi_floating:'رصيد عائم (معلّق)',kpi_completed_label:'مكتمل بالكامل',kpi_rejected_word:'مرفوض',kpi_cancelled_word:'ملغي',balance_check_title:'الدفع من رصيدك',balance_current_label:'رصيدك الحالي',balance_needed_label:'الفحوصات المطلوب لهذا الطلب',balance_insufficient:'رصيدك غير كافٍ. اشحن محفظتك أولًا.',submit_to_queue:'أرسل الملف للفحص',topup_now:'اشحن المحفظة الآن',newcheck_title:'طلب فحص جديد',newcheck_hint:'ملف واحد في الطلب الواحد',upload_cta:'اختر الملف أو اسحبه هنا',upload_hint:'PDF, DOC, DOCX — حتى 100MB · ملف واحد لكل طلب',check_opts_title:'خيارات الفحص',check_type_label:'نوع الفحص',file_requirements_chip:'📋 شروط الملف',ct_sim:'اقتباس فقط',ct_both:'اقتباس + ذكاء اصطناعي',filters_label:'فلاتر الاقتباس (اختياري)',exclude_bib:'استبعاد المراجع',exclude_quotes:'استبعاد الاقتباسات المنصوصة',payment_title:'وسيلة الدفع',pay_auto:'تلقائي',pay_ref:'رقم مرجعي',vf_cash:'فودافون كاش',txid_label:'رقم العملية (TXID)',txid_placeholder:'الصق TXID هنا بعد التحويل',credits_deducted:'فحص ستُخصم',orders_count_suffix:'طلب',f_all:'الكل',f_wait:'معلّق',f_run:'قيد الفحص',f_ok:'مكتمل',f_no:'مرفوض',wallet_available:'فحص عام متاح',wallet_sim_credits:'فحص اقتباس (من الإحالات)',wallet_daily_credits:'فحص يومي',wallet_total_done:'طلب مكتمل كليًا',ref_program:'برنامج الإحالة — +1 فحص لكل دعوة ناجحة',copy:'نسخ',topup_title:'شحن الرصيد',most_popular:'الأكثر طلبًا',choose:'اختيار',trial_badge:'تجريبي',validity_prefix:'صلاحية',validity_days_unit:'يوم',validity_1day:'صلاحية 24 ساعة',feature_ai_plag:'تقرير Similarity + AI',usd_unit_short:'دولار',egp_unit:'جنيه مصري',best_seller_badge:'الأكثر مبيعاً',high_value_badge:'أفضل قيمة',packs_topup_tab:'باقات الشحن',packs_daily_tab:'الباقات اليومية',packs_topup_desc:'فحص لا تنتهي صلاحيتها — مثالية للأساتذة والباحثين',packs_daily_desc:'لعمليات الفحص الكثيفة — صلاحية 24 ساعة فقط',pack_single:'فحص واحد — Single Check',pack_starter:'Starter — البداية',pack_student:'Student — الطالب',pack_college:'College — الكلية',pack_professor:'Professor — الدكتور',pack_scholar:'Scholar — الباحث',pack_daily_starter:'Daily Starter',pack_daily_pro:'Daily Pro',pack_daily_master:'Daily Master',pack_daily_elite:'Daily Elite',pack_daily_ultimate:'Daily Ultimate',up_to:'حتى',files_unit:'ملف',daily_expiry_note:'تنتهي بعد 24 ساعة',credits_no_expiry:'لا تنتهي صلاحيتها',confirm_purchase:'تأكيد الشراء',sim_only_short:'اقتباس',ai_short:'AI',or_label:'أو',file_req_notice_title:'متطلبات Turnitin لقبول ملفات الفحص',file_req_li1:'شروط Turnitin: لتقارير الاقتباس فقط، لا توجد قيود على عدد الصفحات ويدعم النظام جميع اللغات بصيغة DOC أو DOCX.',file_req_li2:'أما إذا كان تقرير الذكاء الاصطناعي مطلوباً، فيشترط رفع ملف DOCX نصي فقط باللغة الإنجليزية أو الإسبانية أو اليابانية، بعدد كلمات يتراوح بين 300 و 30,000 كلمة، مع ضرورة حذف صفحة الغلاف التي تتضمن اسم وشعار الجامعة وكذلك الصور والجداول والمعادلات المعقدة.',file_req_li3:'وفي كافة الأحوال، يجب ألا يتجاوز حجم الملف 100 ميجابايت.',file_req_li4:'الالتزام بهذه الشروط هو مسؤولية الباحث بالكامل، وعدم التقيد بها سيؤدي إلى خصم الرصيد نظراً لاحتساب عملية الفحص تلقائياً.',file_privacy_notice_title:'خصوصية الملفات',file_privacy_li1:'يتم رفع الأبحاث بإعداد "No Repository" مفعل دائماً (آمن 100%).',file_privacy_li2:'ملفاتك آمنه تماماً ولن يتم حفظها أو تخزينها في أي قاعدة بيانات طلابية أو مستودع مؤسسي.',support_title:'الدعم الفني',support_hint:'افتح تذكرة وسيردّ عليك فريق الدعم في أقرب وقت',support_name:'الاسم',support_userid:'رقم حسابك',support_order:'رقم الطلب (اختياري)',support_message:'تفصيل المشكلة',support_message_ph:'اكتب مشكلتك بالتفصيل هنا...',support_submit:'إرسال التذكرة',support_attach:'إرفاق صورة أو ملف (اختياري)',support_attach_cta:'اختر صورة أو ملف',chat_attach_image:'إرسال صورة',chat_attach_file:'إرسال ملف',inbox_title:'تذاكري السابقة',inbox_empty:'لا توجد تذاكر سابقة',inbox_status_open:'مفتوحة',inbox_status_answered:'تم الرد',inbox_status_closed:'مغلقة',inbox_reply_ph:'اكتب ردك هنا...',inbox_reply_send:'إرسال',inbox_closed_note:'هذه التذكرة مغلقة',chat_title:'الدعم المباشر',chat_placeholder:'اكتب رسالتك...',chat_online:'متصل الآن',chat_offline:'سنرد عليك في أقرب وقت',chat_upload_error:'تعذر رفع الملف، حاول مرة أخرى',chat_send_error:'تعذر إرسال الرسالة، حاول مرة أخرى',notif_title:'الإشعارات',notif_mark_all:'تحديد الكل كمقروء',notif_empty:'لا توجد إشعارات حالياً',user_profile:'الملف الشخصي',user_signout:'تسجيل الخروج',phase_floating:'جاهز للإرسال',phase_uploading:'جاري الرفع',phase_pending:'في انتظار المعالجة',phase_processing:'قيد الفحص',phase_completed:'مكتمل',phase_error:'خطأ في الفحص',phase_failed_invalid:'ملف غير صالح',phase_rejected:'مرفوض',similarity:'اقتباس',ai:'AI',sim_only:'اقتباس فقط',sim_ai:'اقتباس + AI',col_order_id:'رقم الطلب',col_file:'اسم الملف',col_submitted:'وقت الإرسال',col_completed:'اكتمل',col_handle:'وقت المعالجة',stat_completed:'مكتمل',stat_pending:'قيد الانتظار',stat_rejected:'مرفوض',date_from:'من',date_to:'إلى',col_sim_short:'الاقتباس',col_ai_short:'AI',col_status:'الحالة',hero_badge:'تكامل رسمي مع Turnitin Instructor API',hero_title_1:'تقارير الاقتباس و AI',hero_title_2:'في دقائق',why_badge:'ليه تختارنا',why_title_1:'شريكك الموثوق في',why_title_2:'فحص الاقتباس',hero_sub:'فحوصات آلية رسمية 100% عبر Turnitin Instructor API · بدون أي تدخل بشري · تقارير دقيقة ومفصلة',hero_cta_secondary:'شاهد كيف يعمل',hero_video_url:'',hero_cta:'ابدأ فحص جديد الآن',g1_title:'No Repository',g1_sub:'فحص آلي بالكامل دون تخزين ملفك في مستودع Turnitin',g2_title:'تكامل رسمي مباشر',g2_sub:'عبر Turnitin Instructor API الرسمي بالكامل',g3_title:'الفحوصات لا تنتهي',g3_sub:'رصيدك يبقى محفوظًا لحين استخدامه بالكامل',services_title:'الخدمات المتاحة',srv_title_1:'اختار',srv_title_2:'الباقة المناسبة',srv_sim_title:'فحص الاقتباس فقط',srv_sim_unit:'/ فحص',srv_sim_price:'50 جنيه مصري أو 1 دولار',srv_ai_title:'اقتباس + ذكاء اصطناعي',srv_ai_unit:'/ فحص',srv_ai_price:'100 جنيه مصري أو 2 دولار',srv_ai_badge:'الأكثر طلبًا',srv_unavailable_badge:'قريبًا',how_title_1:'كيف تعمل',how_title_2:'الخدمة؟',how_sub:'احصل على تقرير الاقتباس في 5 خطوات بسيطة',step1:'اختر نوع الفحص',step1_desc:'حدد هتفحص اقتباس بس ولا اقتباس + ذكاء اصطناعي',step2:'حدّد الاستثناءات',step2_desc:'استبعد المراجع أو الاقتباسات المنصوصة لو حابب',step3:'ارفع ملفك',step3_desc:'ارفع ملف DOC أو DOCX بأمان في دقائق',step4:'يبدأ الفحص فورًا',step4_desc:'يُخصم الفحوصات من رصيدك فورًا ويبدأ الفحص',step5:'استلم تقريرك',step5_desc:'هيوصلك تقرير PDF رسمي خلال 10–30 دقيقة تقريبًا',faq_title_1:'الأسئلة',faq_title_2:'الشائعة',faq_q0:'هل البوت يوفر تقارير Turnitin رسمية؟',faq_a0:'نعم، نحن نستخدم واجهات Turnitin Instructor الرسمية مربوطة مباشرة بنظامنا لإصدار تقارير الذكاء الاصطناعي والانتحال.',faq_q1:'كيف يعمل هذا البوت؟',faq_a1:'يقوم النظام تلقائيًا بإجراء فحوصات بالتوازي من خلال عدد محدود من الفحوصات، بدون أي تعامل أو اطلاع بشري على الملفات. ويقوم فريق الدعم فقط بتأكيد الدفع ومتابعة العملية لضمان تسليم التقارير بنجاح، خاصة خلال أوقات الضغط.',faq_q2:'هل ملفاتي وبياناتي آمنة؟',faq_a2:'نعم بالكامل. ملفاتك لا يتم تخزينها داخل مستودع Turnitin، لذلك تبقى ملكيتك الفكرية محفوظة. جميع عمليات الفحص تعمل بنظام No Repository.',faq_q3:'ما المقصود بـ Non-Repository؟',faq_a3:'يعني أن ملفك لا يتم حفظه داخل أي قاعدة بيانات عالمية. يبقى الملف خاصًا بك، ويمكنك رفعه لاحقًا إلى جامعتك بأمان بدون أن يظهر بنسبة انتحال 100%.',faq_q4:'لماذا أسعاركم أعلى من بعض البدائل؟',faq_a4:'السعر يعكس جودة وأمان وموثوقية الخدمة. بعض الخدمات الأرخص تعتمد على التعامل اليدوي مع الملفات أو تستخدم مصادر غير موثوقة لا يمكن التحقق منها، كما أن بعض الحسابات قد تقوم بحفظ أعمالك داخل قواعد بيانات دائمة مما قد يسبب مشاكل مستقبلًا. تم تطوير هذا البوت بعناية مع تحديثات وتحسينات مستمرة لتوفير تقارير أصلية وآمنة وآلية بأقل قدر ممكن من المخاطر على عملك الأكاديمي.',faq_q5:'ما الفرق بين تقرير الـ Plagiarism/Similarity وتقرير الـ AI؟',faq_a5:'تقرير الانتحال (Similarity) يقارن النص بمصادر الإنترنت والأبحاث وأعمال الطلاب الأخرى. أما تقرير الـ AI فيقدّر ما إذا كانت أجزاء من النص قد كُتبت باستخدام أدوات ذكاء اصطناعي مثل ChatGPT. نحن نوفر التقريرين.',faq_q6:'ما مدة تسليم التقرير؟',faq_a6:'معظم التقارير يتم إنجازها خلال 10–30 دقيقة. وفي أوقات الضغط قد يستغرق الأمر وقتًا أطول قليلًا حسب عدد الطلبات والفحوصات المتاحة. يتم إرسال التقرير تلقائيًا فور اكتماله.',faq_q7:'ما المقصود بـ Cooling Period؟',faq_a7:'عند وجود ضغط مرتفع جدًا على الخوادم، قد يتوقف النظام لثوانٍ قليلة لإعطاء الـ API فرصة للتبريد. هذا يساعد على تجنب رفض الملف وضمان دقة التقرير.',faq_q8:'لماذا تم تصنيف عملي كمحتوى مولّد بالذكاء الاصطناعي رغم أنني لم أستخدم ChatGPT؟',faq_a8:'لا توجد أداة — بما فيها Turnitin — قادرة على كشف محتوى الذكاء الاصطناعي بدقة 100%. حتى أدوات المساعدة الكتابية مثل Grammarly أو Quillbot قد تؤثر على طريقة تحليل النص. لتقليل احتمالية ظهور Flag، يُفضّل تبسيط أو إعادة صياغة الجمل الرسمية أو الآلية بشكل مبالغ فيه.',faq_q9:'ماذا تعني علامة % في تقرير Turnitin AI؟',faq_a9:'منذ 16 يوليو 2024، إذا قدّر Turnitin أن نسبة محتوى الذكاء الاصطناعي تتراوح بين 1% و19%، فسيظهر الرمز % بدلًا من رقم محدد. النسبة الدقيقة تظهر فقط عند 0% أو 20% فأكثر، لأن دقة الكشف تكون أقل ضمن هذا النطاق.',
-    idx_nav_features:'المميزات',idx_nav_services:'الخدمات المتاحة',idx_nav_how:'إزاي بيشتغل',idx_nav_faq:'أسئلة شائعة',idx_store_btn:'متجر Pro Keys',idx_signin_btn:'تسجيل الدخول',
-    idx_feat4_title:'خصوصية تامة',idx_feat4_desc:'ملفك بيتفحص من غير ما يتضاف لأرشيف Turnitin العالمي — يفضل ملكك وبس.',
-    idx_feat5_title:'محفظة فحص مرنة',idx_feat5_desc:'اشحن رصيدك مرة واستخدمه في أي وقت، بوسائل دفع مصرية سهلة ومباشرة.',
-    idx_feat6_title:'دعم فني حقيقي',idx_feat6_desc:'لايف شات وتذاكر دعم بيرد عليها فريق حقيقي، مش بوت آلي.',
-    idx_final_title:'جاهز تطمّن على بحثك؟',idx_final_sub:'سجّل دلوقتي وابدأ أول فحص في أقل من دقيقتين.',idx_final_cta:'سجّل دخولك مجانًا',
-    idx_footer_text:'© 2026 — All rights reserved'},
-  en:{nav_home:'Home',nav_new_check:'New Check',nav_orders:'My orders',nav_wallet:'Wallet',nav_support:'Support',my_requests_title:'My requests',last_order_title:'Your last order',view_all_orders:'View all orders',welcome_message:'Welcome back',kpi_topup:'Top up',kpi_credits_unit:'credits',credit_unit_singular:'credit',kpi_balance:'Current balance',kpi_processing:'Processing now',kpi_floating:'Floating (pending)',kpi_completed_label:'Total completed',kpi_rejected_word:'rejected',kpi_cancelled_word:'cancelled',balance_check_title:'Pay from your balance',balance_current_label:'Your current balance',balance_needed_label:'Checks required',balance_insufficient:"Your balance isn't enough. Top up first.",submit_to_queue:'Send File for Check',topup_now:'Top up wallet now',newcheck_title:'New check request',newcheck_hint:'One file per request',upload_cta:'Choose or drag your file here',upload_hint:'PDF, DOC, DOCX — up to 100MB · one file per request',check_opts_title:'Check options',check_type_label:'Check type',file_requirements_chip:'📋 File Requirements',ct_sim:'Similarity only',ct_both:'Similarity + AI',filters_label:'Similarity filters (optional)',exclude_bib:'Exclude bibliography',exclude_quotes:'Exclude quoted text',payment_title:'Payment method',pay_auto:'Automatic',pay_ref:'Reference number',vf_cash:'Vodafone Cash',txid_label:'Transaction ID (TXID)',txid_placeholder:'Paste TXID here after transfer',credits_deducted:'checks will be deducted',orders_count_suffix:'orders',f_all:'All',f_wait:'Pending',f_run:'Processing',f_ok:'Completed',f_no:'Rejected',wallet_available:'general checks available',wallet_sim_credits:'Similarity credits (from referrals)',wallet_daily_credits:'Daily checks',wallet_total_done:'fully completed orders',ref_program:'Referral program — +1 check per successful invite',copy:'Copy',topup_title:'Top up checks',most_popular:'Most popular',choose:'Choose',trial_badge:'Trial',validity_prefix:'Validity',validity_days_unit:'days',validity_1day:'24h validity',feature_ai_plag:'Similarity + AI Report',usd_unit_short:'USD',egp_unit:'EGP',best_seller_badge:'Best Seller',high_value_badge:'High Value',packs_topup_tab:'Top-up packs',packs_daily_tab:'Daily packs',packs_topup_desc:'Checks that never expire — ideal for professors and researchers',packs_daily_desc:'For heavy-checking days — valid for 24 hours only',pack_single:'Single Check',pack_starter:'Starter',pack_student:'Student',pack_college:'College',pack_professor:'Professor',pack_scholar:'Scholar',pack_daily_starter:'Daily Starter',pack_daily_pro:'Daily Pro',pack_daily_master:'Daily Master',pack_daily_elite:'Daily Elite',pack_daily_ultimate:'Daily Ultimate',up_to:'Up to',files_unit:'files',daily_expiry_note:'expires after 24h',credits_no_expiry:'never expires',confirm_purchase:'Confirm purchase',sim_only_short:'Sim',ai_short:'AI',or_label:'or',file_req_notice_title:'Turnitin requirements for accepted files',file_req_li1:'Turnitin requirements: for Similarity-only reports, there is no page limit and the system supports all languages in DOC or DOCX format.',file_req_li2:'If an AI report is required, the file must be a text-only DOCX in English, Spanish, or Japanese, between 300 and 30,000 words, with the cover page (containing the university name/logo) removed, along with images, tables, and complex equations.',file_req_li3:'In all cases, the file size must not exceed 100 MB.',file_req_li4:'Compliance with these requirements is entirely the researcher\'s responsibility — failing to follow them will still result in a credit deduction, since the check is billed automatically.',file_privacy_notice_title:'File privacy',file_privacy_li1:'File privacy: papers are uploaded with "No Repository" always enabled (100% safe).',file_privacy_li2:'Your files are completely secure and will never be saved or stored in any student database or institutional repository.',support_title:'Technical support',support_hint:'Open a ticket and our support team will respond shortly',support_name:'Name',support_userid:'Account ID',support_order:'Order ID (optional)',support_message:'Describe the issue',support_message_ph:'Write your issue in detail here...',support_submit:'Submit ticket',support_attach:'Attach an image or file (optional)',support_attach_cta:'Choose an image or file',chat_attach_image:'Send a photo',chat_attach_file:'Send a file',inbox_title:'My previous tickets',inbox_empty:'No previous tickets',inbox_status_open:'Open',inbox_status_answered:'Answered',inbox_status_closed:'Closed',inbox_reply_ph:'Type your reply...',inbox_reply_send:'Send',inbox_closed_note:'This ticket is closed',chat_title:'Live support',chat_placeholder:'Type your message...',chat_online:'Online now',chat_offline:"We'll reply as soon as we can",chat_upload_error:"Couldn't upload the file",chat_send_error:"Couldn't send the message",notif_title:'Notifications',notif_mark_all:'Mark all as read',notif_empty:'No notifications yet',user_profile:'Profile',user_signout:'Sign out',phase_floating:'Ready to send',phase_uploading:'Uploading',phase_pending:'Awaiting processing',phase_processing:'Processing',phase_completed:'Completed',phase_error:'Check error',phase_failed_invalid:'Invalid file',phase_rejected:'Rejected',similarity:'Similarity',ai:'AI',sim_only:'Similarity only',sim_ai:'Similarity + AI',col_order_id:'Order ID',col_file:'File',col_submitted:'Submitted',col_completed:'Completed',col_handle:'Handle time',stat_completed:'Completed',stat_pending:'Pending',stat_rejected:'Rejected',date_from:'From',date_to:'To',col_sim_short:'Similarity',col_ai_short:'AI',col_status:'Status',hero_badge:'Official Turnitin Instructor API Integration',hero_title_1:'Plagiarism & AI Reports',hero_title_2:'in minutes',why_badge:'WHY CHOOSE US',why_title_1:'Your Trusted Partner for',why_title_2:'Plagiarism Checking',hero_sub:'Fully automated official Similarity and AI checks.',hero_cta_secondary:'See how it works',hero_video_url:'',hero_cta:'Start a new check now',g1_title:'No Repository',g1_sub:'Fully automated checks without storing your file in the Turnitin repository',g2_title:'Official direct integration',g2_sub:'Through the official Turnitin Instructor API',g3_title:'Checks never expire',g3_sub:'Your balance stays saved until you use it',services_title:'Available services',srv_title_1:'Choose',srv_title_2:'Your Plan',srv_sim_title:'Similarity only check',srv_sim_unit:'/ check',srv_sim_price:'50 EGP or $1',srv_ai_title:'Similarity + AI',srv_ai_unit:'/ check',srv_ai_price:'100 EGP or $2',srv_ai_badge:'Most popular',srv_unavailable_badge:'Soon',how_title_1:'How Does',how_title_2:'It Work?',how_sub:'Get your plagiarism report in 5 simple steps',step1:'Choose the check type',step1_desc:'Pick Similarity only or Similarity + AI',step2:'Pick your exclusions',step2_desc:'Exclude bibliography or quoted text if you like',step3:'Upload your file',step3_desc:'Upload your DOC or DOCX file safely in minutes',step4:'The check starts instantly',step4_desc:'Checks are deducted instantly and the check starts',step5:'Get your report',step5_desc:'Receive an official PDF report within roughly 10–30 minutes',faq_title_1:'Frequently',faq_title_2:'Asked Questions',faq_q0:'Is your bot providing official Turnitin reports?',faq_a0:'Yes. We use official Turnitin Instructor APIs integrated with our system to generate AI and Plagiarism reports.',faq_q1:'How does this bot work?',faq_a1:'Our system performs automatic checks in parallel through a limited number of slots, with no manual handling of your files. Our support team only supervises the process to confirm payment and ensure successful delivery, especially during high traffic.',faq_q2:'Is my data safe?',faq_a2:'Yes. Your files are not stored in the Turnitin repository, so your intellectual property remains yours. All checks are configured in No Repository mode.',faq_q3:'What is Non-Repository mode?',faq_a3:'Non-Repository means your file is not stored in any global database. Your submission remains private, and you can safely submit the same file to your university later without it appearing as 100% plagiarism.',faq_q4:'Why are your prices higher than some alternatives?',faq_a4:'Our pricing reflects the quality, security, and reliability of the service. Many cheaper alternatives require manual file handling or rely on unreliable sources. Some accounts may also store your work permanently, which can create problems later. Our bot was carefully developed and continuously improved to provide genuine, secure, and automated reports with minimal risk to your academic work.',faq_q5:'What is the difference between AI and Plagiarism/Similarity reports?',faq_a5:'Plagiarism/Similarity checks your text against internet sources, publications, and student papers. AI Detection estimates whether parts of the text may have been written by AI tools such as ChatGPT. We provide both reports.',faq_q6:'How fast is report delivery?',faq_a6:'Most reports are completed within 10–30 minutes. During peak hours, processing may take slightly longer depending on available slots and current order volume. Once completed, reports are delivered automatically.',faq_q7:'What does Cooling Period mean?',faq_a7:'During extremely high server load, the system may pause briefly to let the API cool down. This helps prevent file rejection and supports accurate report generation.',faq_q8:'Why was my work flagged as AI-generated even though I didn\'t use ChatGPT?',faq_a8:'No AI detection tool, including Turnitin, is 100% accurate. Writing assistants such as Grammarly or Quillbot may also affect how your text is interpreted. To reduce the risk of being flagged, consider simplifying or rewording overly formal or robotic-sounding passages.',faq_q9:'What does % mean in the Turnitin AI report?',faq_a9:'Since July 16, 2024, Turnitin displays % instead of an exact number when the estimated AI score is between 1%–19%. Exact percentages appear only for 0% or 20% and above, reflecting lower detection confidence in that range.',
-    idx_nav_features:'Features',idx_nav_services:'Services',idx_nav_how:'How it works',idx_nav_faq:'FAQ',idx_store_btn:'Pro Keys Store',idx_signin_btn:'Sign in',
-    idx_feat4_title:'Complete privacy',idx_feat4_desc:'Your file is checked without ever being added to Turnitin\'s global repository — it stays yours.',
-    idx_feat5_title:'Flexible credit wallet',idx_feat5_desc:'Top up once, use it whenever you need — simple, local Egyptian payment methods.',
-    idx_feat6_title:'Real support',idx_feat6_desc:'Live chat and support tickets answered by a real team, not a bot.',
-    idx_final_title:'Ready to check your paper?',idx_final_sub:'Sign up now and run your first check in under two minutes.',idx_final_cta:'Sign in for free',
-    idx_footer_text:'© 2026 — All rights reserved'},
-};
+const DASH_I18N={"ar":{"idx_nav_features":"المميزات","idx_nav_services":"الخدمات المتاحة","idx_nav_how":"إزاي بيشتغل","idx_nav_faq":"أسئلة شائعة","plans_eyebrow":"الباقات","plans_title_1":"اختار","plans_title_2":"باقة الفحص","plans_sub":"اختار عدد الفحوصات اللي يناسبك، وكل فحص بيطلعلك تقرير اقتباس وذكاء اصطناعي كامل.","plans_tab_ai":"اقتباس + ذكاء اصطناعي","plans_tab_plag":"اقتباس فقط","plans_soon":"قريبًا","reviews_eyebrow":"آراء العملاء","reviews_title_1":"عملاؤنا","reviews_title_2":"بيقولوا إيه؟","reviews_sub":"تقييمات حقيقية من عملاء استخدموا الخدمة.","idx_store_btn":"متجر Pro Keys","idx_signin_btn":"تسجيل الدخول","hero_badge":"تكامل رسمي مع Turnitin Instructor API","hero_title_1":"تقارير الاقتباس و AI","hero_title_2":"في دقائق","hero_sub":"فحوصات آلية رسمية 100% عبر Turnitin Instructor API · بدون أي تدخل بشري · تقارير دقيقة ومفصلة","hero_cta":"ابدأ فحص جديد الآن","hero_cta_secondary":"شاهد كيف يعمل","hero_video_url":"","sample_pdf_text":"اطّلع على نموذج من تقاريرنا (PDF)","sample_pdf_url":"https://drive.google.com/drive/u/1/folders/12VnVEEP_1hv-zQX21k2GGRrGeFwJqIow","services_title":"الخدمات المتاحة","srv_title_1":"اختار","srv_title_2":"الباقة المناسبة","why_badge":"ليه تختارنا","why_title_1":"شريكك الموثوق في","why_title_2":"فحص الاقتباس","g1_title":"No Repository","g1_sub":"فحص آلي بالكامل دون تخزين ملفك في مستودع Turnitin","g2_title":"تكامل رسمي مباشر","g2_sub":"عبر Turnitin Instructor API الرسمي بالكامل","g3_title":"الفحوصات لا تنتهي","g3_sub":"رصيدك يبقى محفوظًا لحين استخدامه بالكامل","idx_feat4_title":"خصوصية تامة","idx_feat4_desc":"ملفك بيتفحص من غير ما يتضاف لأرشيف Turnitin العالمي — يفضل ملكك وبس.","idx_feat5_title":"محفظة فحص مرنة","idx_feat5_desc":"اشحن رصيدك مرة واستخدمه في أي وقت، بوسائل دفع مصرية سهلة ومباشرة.","idx_feat6_title":"دعم فني حقيقي","idx_feat6_desc":"لايف شات وتذاكر دعم بيرد عليها فريق حقيقي، مش بوت آلي.","srv_sim_title":"فحص الاقتباس فقط","srv_sim_unit":"/ فحص","srv_sim_price":"50 جنيه مصري أو 1 دولار","srv_ai_title":"اقتباس + ذكاء اصطناعي","srv_ai_unit":"/ فحص","srv_ai_price":"100 جنيه مصري أو 2 دولار","srv_ai_badge":"الأكثر طلبًا","srv_unavailable_badge":"قريبًا","how_title_1":"كيف تعمل","how_title_2":"الخدمة؟","how_sub":"احصل على تقرير الاقتباس في 5 خطوات بسيطة","step1":"اختر نوع الفحص (اقتباس فقط أو اقتباس + AI)","step1_desc":"حدد هتفحص اقتباس بس ولا اقتباس + ذكاء اصطناعي","step2":"حدّد الاستثناءات المطلوبة (استبعاد مراجع/اقتباسات)","step2_desc":"استبعد المراجع أو الاقتباسات المنصوصة لو حابب","step3":"ارفع ملفك","step3_desc":"ارفع ملف DOC أو DOCX بأمان في دقائق","step4":"يُخصم الفحوصات من رصيدك فورًا ويبدأ الفحص","step4_desc":"يُخصم الفحوصات من رصيدك فورًا ويبدأ الفحص","step5":"استلم تقريرك خلال 10–30 دقيقة تقريبًا","step5_desc":"هيوصلك تقرير PDF رسمي خلال 10–30 دقيقة تقريبًا","faq_title_1":"الأسئلة","faq_title_2":"الشائعة","idx_final_title":"جاهز تطمّن على بحثك؟","idx_final_sub":"سجّل دلوقتي وابدأ أول فحص في أقل من دقيقتين.","idx_final_cta":"سجّل دخولك مجانًا","idx_footer_text":"© 2026 — All rights reserved","faq_q0":"هل البوت يوفر تقارير Turnitin رسمية؟","faq_a0":"نعم، نحن نستخدم واجهات Turnitin Instructor الرسمية مربوطة مباشرة بنظامنا لإصدار تقارير الذكاء الاصطناعي والانتحال.","faq_q1":"كيف يعمل هذا البوت؟","faq_a1":"يقوم النظام تلقائيًا بإجراء فحوصات بالتوازي من خلال عدد محدود من الـ Slots، بدون أي تعامل أو اطلاع بشري على الملفات. ويقوم فريق الدعم فقط بتأكيد الدفع ومتابعة العملية لضمان تسليم التقارير بنجاح، خاصة خلال أوقات الضغط.","faq_q2":"هل ملفاتي وبياناتي آمنة؟","faq_a2":"نعم بالكامل. ملفاتك لا يتم تخزينها داخل مستودع Turnitin، لذلك تبقى ملكيتك الفكرية محفوظة. جميع عمليات الفحص تعمل بنظام No Repository.","faq_q3":"ما المقصود بـ Non-Repository؟","faq_a3":"يعني أن ملفك لا يتم حفظه داخل أي قاعدة بيانات عالمية. يبقى الملف خاصًا بك، ويمكنك رفعه لاحقًا إلى جامعتك بأمان بدون أن يظهر بنسبة انتحال 100%.","faq_q4":"لماذا أسعاركم أعلى من بعض البدائل؟","faq_a4":"السعر يعكس جودة وأمان وموثوقية الخدمة. بعض الخدمات الأرخص تعتمد على التعامل اليدوي مع الملفات أو تستخدم مصادر غير موثوقة لا يمكن التحقق منها، كما أن بعض الحسابات قد تقوم بحفظ أعمالك داخل قواعد بيانات دائمة مما قد يسبب مشاكل مستقبلًا. تم تطوير هذا البوت بعناية مع تحديثات وتحسينات مستمرة لتوفير تقارير أصلية وآمنة وآلية بأقل قدر ممكن من المخاطر على عملك الأكاديمي.","faq_q5":"ما الفرق بين تقرير الـ Plagiarism/Similarity وتقرير الـ AI؟","faq_a5":"تقرير الانتحال (Similarity) يقارن النص بمصادر الإنترنت والأبحاث وأعمال الطلاب الأخرى. أما تقرير الـ AI فيقدّر ما إذا كانت أجزاء من النص قد كُتبت باستخدام أدوات ذكاء اصطناعي مثل ChatGPT. نحن نوفر التقريرين.","faq_q6":"ما مدة تسليم التقرير؟","faq_a6":"معظم التقارير يتم إنجازها خلال 10–30 دقيقة. وفي أوقات الضغط قد يستغرق الأمر وقتًا أطول قليلًا حسب عدد الطلبات والـ Slots المتاحة. يتم إرسال التقرير تلقائيًا فور اكتماله.","faq_q7":"ما المقصود بـ Cooling Period؟","faq_a7":"عند وجود ضغط مرتفع جدًا على الخوادم، قد يتوقف النظام لثوانٍ قليلة لإعطاء الـ API فرصة للتبريد. هذا يساعد على تجنب رفض الملف وضمان دقة التقرير.","faq_q8":"لماذا تم تصنيف عملي كمحتوى مولّد بالذكاء الاصطناعي رغم أنني لم أستخدم ChatGPT؟","faq_a8":"لا توجد أداة — بما فيها Turnitin — قادرة على كشف محتوى الذكاء الاصطناعي بدقة 100%. حتى أدوات المساعدة الكتابية مثل Grammarly أو Quillbot قد تؤثر على طريقة تحليل النص. لتقليل احتمالية ظهور Flag، يُفضّل تبسيط أو إعادة صياغة الجمل الرسمية أو الآلية بشكل مبالغ فيه.","faq_q9":"ماذا تعني علامة % في تقرير Turnitin AI؟","faq_a9":"منذ 16 يوليو 2024، إذا قدّر Turnitin أن نسبة محتوى الذكاء الاصطناعي تتراوح بين 1% و19%، فسيظهر الرمز % بدلًا من رقم محدد. النسبة الدقيقة تظهر فقط عند 0% أو 20% فأكثر، لأن دقة الكشف تكون أقل ضمن هذا النطاق.","loading_ellipsis":"جاري التحميل...","lifetime_validity":"صلاحية مدى الحياة","profile_save_ok":"تم حفظ التغييرات","profile_pass_short":"كلمة المرور قصيرة (6 أحرف على الأقل)","profile_pass_error":"تعذر تغيير كلمة المرور","nav_sec_checking":"منطقة الفحص","nav_sec_tools":"الأدوات والخدمات","nav_focus":"وضع التركيز","nav_academic":"الأدوات الأكاديمية","nav_my_orders":"طلباتي","ac_title":"الأدوات الأكاديمية","ac_wallet":"رصيد الأدوات الأكاديمية","ac_egp":"ج.م","ac_active_subs":"الاشتراكات النشطة","ac_all_orders":"كل الطلبات","nav_home":"الرئيسية","nav_new_check":"فحص جديد","nav_orders":"ملفاتي","nav_wallet":"المحفظة","nav_my_history":"السجل","plan_ai_tab":"فحص إقتباس + AI","plan_only_tab":"فحص إقتباس فقط","plan_soon":"قريباً","plan_title":"فحص Turnitin Plag + AI","plan_pill":"تقرير Plag + AI","plan_auto":"تفعيل فوري تلقائي","nav_support":"الدعم","nav_my_profile":"حسابي","sup_lang":"اللغة","sup_currency":"العملة","sup_settings":"الإعدادات","profile_modal_title":"الملف الشخصي","profile_save_btn":"حفظ","profile_cancel_btn":"إلغاء","profile_name":"الاسم الكامل","profile_email":"البريد الإلكتروني","profile_whatsapp":"واتساب","profile_new_pass":"كلمة المرور الجديدة","profile_save":"حفظ التغييرات","profile_save_success":"تم حفظ بياناتك بنجاح","profile_save_error":"تعذر حفظ البيانات","signout_confirm":"هل تريد تسجيل الخروج؟","my_requests_title":"طلباتي","last_order_title":"آخر طلب لك","view_all_orders":"عرض كل الطلبات","welcome_message":"أهلاً بك مجدداً","tour_btn_title":"جولة تعريفية","tour_skip":"تخطي الجولة","tour_back":"→ السابق","tour_next":"التالي ←","tour_finish":"ابدأ الآن 🚀","tour_welcome_title":"أهلاً بك في Pro Keys! 🎉","tour_welcome_desc":"هنريك في خطوات بسيطة إزاي تشحن رصيدك، ترفع ملفك، وتاخد تقرير Turnitin رسمي في دقائق.","tour_balance_title":"رصيدك الحالي","tour_balance_desc":"كل ملف بيتفحص بيخصم <b>1 slot</b> من الـ slots المتاحة ليك.","tour_topup_btn_title":"تاب المحفظة","tour_topup_btn_desc":"من تاب <b>المحفظة</b> تقدر تشوف باقات الشحن وتختار اللي يناسبك.","tour_ctype_title":"اختار نوع الفحص","tour_ctype_desc":"<b>اقتباس فقط</b> بيفحص التشابه مع المصادر، و<b>اقتباس + AI</b> بيضيف كشف المحتوى المولّد بالذكاء الاصطناعي.","tour_pick_package_title":"اختار الباقة اللي اشتريتها","tour_pick_package_desc":"من القايمة دي اختار <b>الباقة اللي اشتريتها</b>. كل باقة بتوضح الفحوصات المتبقية فيها.","tour_submitfiles_title":"ارفع ملفك بخطوة واحدة","tour_submitfiles_desc":"اضغط <b>Submit Files</b> عشان تفتح نافذة الرفع، وهناك هترفع ملفك.","tour_filters_title":"فلاتر التحليل","tour_filters_desc":"دي فلاتر اختيارية لو عايز نتيجة أدق: <b>استبعاد المراجع</b> و<b>الاقتباسات</b> و<b>الاستشهادات</b> و<b>الكلام القصير</b>.","tour_select_pack_title":"اختار الباقة المناسبة","tour_select_pack_desc":"اضغط <b>اشتري الآن</b> على الباقة اللي تناسبك — قسم الدفع هيظهر تحت تلقائياً.","tour_instapay_method_title":"اختار InstaPay","tour_instapay_method_desc":"انزل لتحت واختار <b>InstaPay</b> كوسيلة دفع. هيظهر رقم المحفظة اللي هتحوّل عليه.","tour_instapay_transfer_title":"حوّل المبلغ على الرقم ده","tour_instapay_transfer_desc":"افتح تطبيق InstaPay وحوّل المبلغ المطلوب على الرقم اللي شايفه. <b>احتفظ برقم العملية</b> اللي هييجيلك في الـ SMS.","tour_txid_input_title":"أدخل رقم العملية المرجعي","tour_txid_input_desc":"ادخل <b>رقم الـ Reference</b> اللي وصلك في الـ SMS بعد التحويل في الخانة دي.","tour_confirm_pay_title":"اضغط \"تأكيد الشراء\"","tour_confirm_pay_desc":"بعد ما تدخل الرقم المرجعي اضغط <b>تأكيد الشراء</b>. الفحوصات هيتضاف لرصيدك بعد مراجعة الأدمن وموافقته.","tour_upload_title":"ارفع ملفك","tour_upload_desc":"اسحب وأفلت ملفك هنا أو اضغط لتختاره. الملفات المسموح بيها <b>PDF</b> و<b>DOCX</b> بس.","tour_checktype_title":"اختار نوع الفحص","tour_checktype_desc":"\"اقتباس فقط\" بيفحص التشابه مع المصادر. \"اقتباس + AI\" بيضيف كشف المحتوى المولّد بالذكاء الاصطناعي.","tour_submit_title":"أرسل للفحص","tour_submit_desc":"لما تكون الملف محمّل والخيارات محددة، اضغط هنا لترسل الطلب. هيظهر في تاب \"ملفاتي\" مباشرةً.","tour_result_title":"نتائجك هنا","tour_result_desc":"بعد ما الفحص يكتمل هتلاقي طلبك هنا بالحالة. الطلبات بتتحدث تلقائياً من غير ما تعيد تحميل الصفحة.","tour_download_title":"حمّل التقرير وقيّم تجربتك","tour_download_desc":"زرار التحميل بيحملك التقرير مباشرةً. بعده هتظهر لك نجوم التقييم — رأيك بيساعدنا نتحسن!","tour_support_title":"محتاج مساعدة؟","tour_support_desc":"افتح تذكرة دعم أو كلمنا على اللايف شات من الفقاعة الزرقاء في أسفل الشاشة — فريقنا دايماً موجود.","tour_done_title":"كل حاجة واضحة؟","tour_done_desc":"الجولة التعريفية خلصت. تقدر تبدأ دلوقتي وترفع أول ملف بثقة. بالتوفيق! 🌟","kpi_slots_label":"فحوصات متبقية","kpi_expiry_label":"تاريخ انتهاء الفحوصات","kpi_api_status":"حالة الـ API","api_active":"نشط","api_inactive":"متوقف","api_maintenance":"صيانة","expiry_days_left":"باقي {d} يوم","sf_no_expiry":"بدون انتهاء","sf_no_slots_short":"لا توجد فحوصات","mf_title":"ملفاتي","mf_col_doc":"الملف","mf_col_order":"رقم الطلب","mf_col_time":"تاريخ الإرسال / التسليم","mf_col_ai":"كشف الذكاء الاصطناعي","mf_col_sim":"التشابه","mf_col_action":"إجراء","mf_empty":"لسه مفيش ملفات. ابعت ملف عشان تشوف النتايج هنا.","mf_checking":"جاري الفحص","mf_delivered":"تم التسليم في","mf_delivered_plain":"تم التسليم","mf_failed":"فشل الفحص","mf_not_included":"غير مضمّن","mf_result_unavailable":"النتيجة غير متاحة","mf_download":"تحميل","mf_delete":"حذف الملف","mf_confirm_title":"حذف الملف؟","mf_confirm_body":"هيتمسح الملف {f} والتقارير بتاعته نهائياً. متأكد؟","mf_delete_yes":"حذف","mf_delete_no":"إلغاء","mf_err_delete":"تعذر حذف الملف، حاول تاني.","mf_retention_note":"حمّل ملفاتك واحفظها، بتتمسح تلقائياً بعد 48 ساعة من انتهاء الفحص.","sf_open_btn":"إرسال الملفات","sf_opt_left":"{n} فحص متبقي","sf_opt_none":"خلصت","sf_opt_expired":"منتهية","sf_opt_until":"تنتهي: {d}","sf_slot_pick":"اختار الباقة","sf_pick_slot_err":"اختار باقة متاحة الأول","sf_title":"Pro Keys · رفع الملفات","sf_slot_label":"نوع الفحص","sf_no_slots":"مفيش فحوصات متاحة","sf_opt_label":"Plagiarism + AI ({n} فحص متبقي - تنتهي: {d})","sf_pick":"ارفع ورقتك البحثية أو رسالتك هنا","sf_formats":"PDF أو DOCX فقط، حتى 100MB","sf_browse":"تصفح الملف","sf_err_format":"الصيغة دي مش مدعومة. ارفع ملف DOCX أو PDF بس.","sf_err_size":"الملف أكبر من 100MB","sf_terms_title":"شروط الاستخدام","sf_filters_title":"فلاتر التحليل","sf_f_bib":"استبعاد المراجع","sf_f_quo":"استبعاد الاقتباسات","sf_f_cit":"استبعاد الاستشهادات داخل النص","sf_f_small":"استبعاد التطابقات الصغيرة أقل من","sf_f_words":"كلمة","sf_notice_title":"لا يتم حفظ الملف في أي مستودع","sf_notice_body":"ملفك آمن 100%، ولن يُحفظ في أي قاعدة بيانات للطلاب أو مستودع مؤسسي.","sf_upload_btn":"رفع الملف","slot_unit":"فحص","slot_none_msg":"ماعندكش فحوصات من النوع ده. اشتري باقة وهتظهر هنا.","slot_buy_btn":"اشتري باقة","slot_maint_btn":"الموقع تحت الصيانة","slot_maint_default":"النظام تحت الصيانة حالياً، حاول بعد قليل.","redeem_btn":"كود خصم","redeem_modal_title":"كود خصم","redeem_modal_sub":"فعّل الكود اللي معاك","redeem_input_ph":"أدخل الكود هنا","redeem_submit":"تفعيل الكود","redeem_err_empty":"من فضلك أدخل الكود","redeem_err_used":"الكود ده اتستخدم قبل كده","redeem_err_invalid":"الكود غير صحيح، اتأكد من كتابته","redeem_err_limit":"محاولات كتير غلط، استنى شوية وحاول تاني","redeem_err_auth":"انتهت جلستك، سجّل الدخول من جديد","redeem_err_generic":"حصلت مشكلة، حاول تاني","redeem_success":"اتضافت لك باقة {p} ({n} فحص) ✅","pay_tab_wallets":"محافظ إلكترونية","pay_tab_card":"Card","pay_tab_crypto":"Crypto","pay_card_note":"الدفع بالكارت يعمل داخل مصر فقط","tour_pay_tabs_title":"اختار طريقة الدفع","tour_pay_tabs_desc":"وسائل الدفع مقسّمة في 3 تابات: <b>محافظ إلكترونية</b> (InstaPay وفودافون كاش)، و<b>Card</b> (داخل مصر فقط)، و<b>Crypto</b>.","tour_coupon_title":"عندك كود خصم؟","tour_coupon_desc":"لو معاك كود خصم أو هدية، اكتبه في الخانة دي واضغط <b>تفعيل</b> — الفحوصات بتتضاف لرصيدك فوراً.","coupon_title":"عندك كود؟","coupon_sub":"أكواد الخصم بتضيف فحوصات لرصيدك فوراً","coupon_btn":"تفعيل","kpi_topup":"شحن +","kpi_credits_unit":"فحص","credit_unit_singular":"فحص","kpi_balance":"رصيدك الحالي","kpi_processing":"قيد الفحص الآن","kpi_floating":"رصيد عائم (معلّق)","kpi_completed_label":"مكتمل بالكامل","kpi_rejected_word":"مرفوض","kpi_cancelled_word":"ملغي","balance_check_title":"الدفع من رصيدك","balance_current_label":"رصيدك الحالي","balance_needed_label":"الفحوصات المطلوبة لهذا الطلب","balance_insufficient":"رصيدك غير كافٍ لإتمام هذا الطلب. اشحن محفظتك أولًا.","submit_to_queue":"أرسل الملف للفحص","topup_now":"اشحن المحفظة الآن","newcheck_title":"طلب فحص جديد","newcheck_hint":"ملف واحد في الطلب الواحد","upload_cta":"اختر الملف أو اسحبه هنا","upload_hint":"PDF, DOCX — حتى 100MB · ملف واحد لكل طلب","check_opts_title":"خيارات الفحص","check_type_label":"نوع الفحص","file_requirements_chip":"📋 شروط الملف","ct_sim":"اقتباس فقط","ct_both":"اقتباس + ذكاء اصطناعي","filters_label":"فلاتر الاقتباس (اختياري)","exclude_bib":"استبعاد المراجع","exclude_quotes":"استبعاد الاقتباسات المنصوصة","exclude_abstract":"استبعاد الملخص","exclude_citations":"استثناء الاقتباسات داخل النص","exclude_small_matches":"استبعاد التطابقات الصغيرة","words_unit":"كلمة","payment_title":"وسيلة الدفع","pay_auto":"تلقائي","pay_ref":"رقم مرجعي","vf_cash":"فودافون كاش","payment_history_title":"سجل المدفوعات","wplan_swipe_hint":"اسحب يمين وشمال عشان تشوف باقي الباقات","payment_history_desc":"كل عمليات الشحن اللي عملتها وحالتها","ph_col_code":"كود العملية","ph_col_method":"وسيلة الدفع","ph_col_amount":"القيمة","ph_col_credits":"الفحوصات","ph_col_pack":"اسم الباقة","ph_col_datetime":"التاريخ والوقت","ph_col_status":"الحالة","ph_status_completed":"مكتملة","ph_status_pending":"قيد المراجعة","ph_status_rejected":"مرفوضة","ph_empty":"لسه معملتش أي عملية شحن.","order_tx_title":"المعاملات","order_tx_desc":"عمليات خصم واسترداد الفحوصات على ملفات الفحص","ph_col_bal_before":"الرصيد قبل","ph_col_bal_after":"الرصيد بعد","order_tx_debit":"خصم","order_tx_credit":"استرداد","txid_label":"رقم العملية (TXID)","txid_placeholder":"الصق TXID هنا بعد التحويل","credits_deducted":"فحص هيتخصم","orders_count_suffix":"طلب","f_all":"الكل","f_wait":"معلّق","f_run":"قيد الفحص","f_ok":"مكتمل","f_no":"مرفوض","wallet_available":"فحص متاح للاستخدام","wallet_sim_credits":"فحص اقتباس (من الإحالات)","wallet_daily_credits":"فحص يومي","wallet_total_done":"طلب مكتمل كليًا","ref_program":"برنامج الإحالة — +1 فحص لكل دعوة ناجحة","copy":"نسخ","pg_rows_per_page":"عدد الصفوف","file_req_notice_title":"متطلبات Turnitin لقبول ملفات الفحص","file_req_li1":"شروط Turnitin: لتقارير الاقتباس فقط، لا توجد قيود على عدد الصفحات ويدعم النظام جميع اللغات بصيغة DOC أو DOCX.","file_req_li2":"أما إذا كان تقرير الذكاء الاصطناعي مطلوباً، فيشترط رفع ملف DOCX نصي فقط باللغة الإنجليزية أو الإسبانية أو اليابانية، بعدد كلمات يتراوح بين 300 و 30,000 كلمة، مع ضرورة حذف صفحة الغلاف التي تتضمن اسم وشعار الجامعة وكذلك الصور والجداول والمعادلات المعقدة.","file_req_li3":"وفي كافة الأحوال، يجب ألا يتجاوز حجم الملف 100 ميجابايت.","file_req_li4":"الالتزام بهذه الشروط هو مسؤولية الباحث بالكامل، وعدم التقيد بها سيؤدي إلى خصم الرصيد نظراً لاحتساب عملية الفحص تلقائياً.","file_privacy_notice_title":"خصوصية الملفات","file_privacy_li1":"يتم رفع الأبحاث بإعداد \"No Repository\" مفعل دائماً (آمن 100%).","file_privacy_li2":"ملفاتك آمنه تماماً ولن يتم حفظها أو تخزينها في أي قاعدة بيانات طلابية أو مستودع مؤسسي.","plan_limits_label":"حدود خطة Turnitin:","plan_limits_sim_pre":" كشف الاقتباس حتى ","plan_limits_words":" كلمة.","plan_limits_ai_pre":" كشف الذكاء الاصطناعي حتى ","plan_limits_words_end":" كلمة","plan_limits_note":" (قاعدة محرك الذكاء الاصطناعي الرسمي من Turnitin، وليست قاعدة منصتنا).","plan_limits_badge":"قاعدة Turnitin","req_card_title":"متطلبات كشف الذكاء الاصطناعي","req_card_badge":"Turnitin Standard","req_size_label":"الحجم:","req_size_val":"أقل من 100 ميجابايت","req_lang_label":"اللغة:","req_lang_val":"EN, ES, JA","req_min_label":"الحد الأدنى:","req_min_val":"300 كلمة (فقرة)","req_max_label":"حد الذكاء الاصطناعي:","req_max_val":"30,000 كلمة","req_privacy_label":"الخصوصية:","req_privacy_pre":"الملفات ","req_privacy_not_saved":"لا تُحفظ","req_privacy_post":" في أي مستودع (آمن 100%).","topup_title":"شحن الرصيد","most_popular":"الأكثر طلبًا","choose":"اختيار","trial_badge":"تجريبي","validity_prefix":"صلاحية","validity_days_unit":"يوم","validity_1day":"صلاحية 24 ساعة","feature_ai_plag":"تقرير Similarity + AI","usd_unit_short":"دولار","egp_unit":"جنيه مصري","best_seller_badge":"الأكثر مبيعاً","high_value_badge":"أفضل قيمة","best_seller_label":"الأكثر مبيعاً","best_value_label":"أفضل قيمة","packs_topup_tab":"باقات الشحن","packs_daily_tab":"الباقات اليومية","packs_topup_desc":"اختار الباقة اللي تناسبك — كل فحص بيخصم فحص واحد من رصيدك","packs_daily_desc":"لعمليات الفحص الكثيفة — صلاحية 24 ساعة فقط","pack_pack_1":"فحص واحد","pack_pack_5":"5 ملفات","pack_pack_10":"10 ملفات","pack_pack_25":"25 ملف","pack_single":"فحص واحد — Single Check","pack_starter":"Starter — البداية","pack_student":"Student — الطالب","pack_college":"College — الكلية","pack_professor":"Professor — الدكتور","pack_scholar":"Scholar — الباحث","pack_daily_starter":"Daily Starter","pack_daily_pro":"Daily Pro","pack_daily_master":"Daily Master","pack_daily_elite":"Daily Elite","pack_daily_ultimate":"Daily Ultimate","up_to":"حتى","files_unit":"ملف","daily_expiry_note":"تنتهي بعد 24 ساعة","credits_no_expiry":"لا تنتهي صلاحيتها","confirm_purchase":"تأكيد الشراء","sim_only_short":"اقتباس","ai_short":"AI","or_label":"أو","orders_files_note":"يُرجى تنزيل ملفاتك المفحوصة وحفظها. يتم حذف الملفات تلقائيًا بعد 48 ساعة.","footer_disclaimer":"إخلاء مسؤولية: Pkchecker.com هو مزوّد خدمة مستقل وغير تابع لـ Turnitin, LLC ولا معتمد منها. جميع أسماء المنتجات والعلامات التجارية هي ملك لأصحابها.","footer_rights":"Pro Keys Checker © 2026 — جميع الحقوق محفوظة","support_title":"الدعم الفني","support_hint":"افتح تذكرة وسيردّ عليك فريق الدعم في أقرب وقت","support_name":"الاسم","support_userid":"رقم حسابك","support_order":"رقم الطلب (اختياري)","support_message":"تفصيل المشكلة","support_category":"نوع المشكلة","cat_general":"💬 استفسار عام","cat_payment":"💳 مشكلة دفع","cat_check":"📄 مشكلة فحص","support_message_ph":"اكتب مشكلتك بالتفصيل هنا...","support_submit":"إرسال التذكرة","support_attach":"إرفاق صورة أو ملف (اختياري)","support_attach_cta":"اختر صورة أو ملف","chat_attach_image":"إرسال صورة","chat_attach_file":"إرسال ملف","inbox_title":"تذاكري السابقة","inbox_empty":"لا توجد تذاكر سابقة","new_ticket_title":"تذكرة جديدة","start_new_ticket":"ابدأ تذكرة جديدة","profile_phone_label":"رقم التليفون","profile_security_title":"أمان الحساب","profile_email_label":"الإيميل","profile_update_btn":"تحديث","profile_change_password_btn":"تغيير الباسورد","profile_new_password_ph":"الباسورد الجديد","profile_danger_title":"منطقة الخطر","profile_delete_account_btn":"حذف الحساب نهائيًا","inbox_status_open":"مفتوحة","inbox_status_answered":"تم الرد","inbox_status_closed":"مغلقة","inbox_reply_ph":"اكتب ردك هنا...","inbox_reply_send":"إرسال","inbox_closed_note":"هذه التذكرة مغلقة","chat_title":"الدعم المباشر","chat_placeholder":"اكتب رسالتك...","chat_online":"متصل الآن","chat_offline":"سنرد عليك في أقرب وقت","chat_upload_error":"تعذر رفع الملف، حاول مرة أخرى","chat_send_error":"تعذر إرسال الرسالة، حاول مرة أخرى","notif_title":"الإشعارات","notif_mark_all":"تحديد الكل كمقروء","notif_empty":"لا توجد إشعارات حالياً","user_profile":"حسابي","user_signout":"تسجيل الخروج","phase_checking":"جاري التأكد من استلام الملف","phase_run":"تم الإرسال، جاري الفحص","err_no_slots":"مفيش فحوصات كفاية في الباقة دي. اشحن باقة جديدة.","err_check_failed":"تعذّر إتمام الفحص. الخانة اترجعت لرصيدك.","err_provider_unavailable":"خدمة الفحص مش متاحة دلوقتي. جرّب بعد شوية، ومفيش فحص اتخصم.","err_submit_failed":"تعذّر إرسال الملف للفحص. جرّب تاني بعد شوية.","err_unconfirmed":"ماقدرناش نتأكد إن الملف وصل لخدمة الفحص، والخانة اترجعت لرصيدك.","err_maintenance":"الخدمة متوقفة مؤقتاً للصيانة.","err_cooldown":"الملف ده فشل قبل قليل. استنى دقيقة وجرّب تاني.","err_generic":"حصلت مشكلة في الطلب.","phase_floating":"جاهز للإرسال","phase_uploading":"جاري الرفع","phase_pending":"في انتظار المعالجة","phase_processing":"قيد الفحص","phase_completed":"مكتمل","phase_error":"خطأ في الفحص","phase_failed_invalid":"ملف غير صالح","phase_rejected":"مرفوض","similarity":"اقتباس","ai":"AI","sim_only":"اقتباس فقط","sim_ai":"اقتباس + AI","col_order_id":"رقم الطلب","col_file":"اسم الملف","col_submitted":"وقت الإرسال","col_completed":"اكتمل","col_handle":"وقت المعالجة","stat_completed":"مكتمل","stat_pending":"قيد الانتظار","stat_rejected":"مرفوض","date_from":"من","date_to":"إلى","col_sim_short":"الاقتباس","col_ai_short":"AI","col_status":"الحالة","col_rating":"التقييم","hero_title":"كشف التشابه والذكاء الاصطناعي بدقة Turnitin الأصلية","srv_sim_unavailable":"غير متاح حالياً","how_title":"كيف تعمل الخدمة؟","faq_title":"الأسئلة الشائعة"},"en":{"idx_nav_features":"Features","idx_nav_services":"Services","idx_nav_how":"How it works","idx_nav_faq":"FAQ","plans_eyebrow":"Packages","plans_title_1":"Choose your","plans_title_2":"check package","plans_sub":"Pick the number of checks that suits you. Each check gives you a full plagiarism and AI report.","plans_tab_ai":"Plag + AI Report","plans_tab_plag":"Only Plag Report","plans_soon":"Soon","reviews_eyebrow":"Customer reviews","reviews_title_1":"What our","reviews_title_2":"customers say","reviews_sub":"Real reviews from customers who used the service.","idx_store_btn":"Pro Keys Store","idx_signin_btn":"Sign in","hero_badge":"Official Turnitin Instructor API Integration","hero_title_1":"Plagiarism & AI Reports","hero_title_2":"in minutes","hero_sub":"Fully automated official Similarity and AI checks, via direct Turnitin Instructor API integration.","hero_cta":"Start a new check now","hero_cta_secondary":"See how it works","hero_video_url":"","sample_pdf_text":"Explore a Sample PDF Report","sample_pdf_url":"https://drive.google.com/drive/u/1/folders/12VnVEEP_1hv-zQX21k2GGRrGeFwJqIow","services_title":"Available services","srv_title_1":"Choose","srv_title_2":"Your Plan","why_badge":"WHY CHOOSE US","why_title_1":"Your Trusted Partner for","why_title_2":"Plagiarism Checking","g1_title":"No Repository","g1_sub":"Fully automated checks without storing your file in the Turnitin repository","g2_title":"Official direct integration","g2_sub":"Through the official Turnitin Instructor API","g3_title":"Slots never expire","g3_sub":"Your balance stays saved until you use it","idx_feat4_title":"Complete privacy","idx_feat4_desc":"Your file is checked without ever being added to Turnitin's global repository — it stays yours.","idx_feat5_title":"Flexible slot wallet","idx_feat5_desc":"Top up once, use it whenever you need — simple, local Egyptian payment methods.","idx_feat6_title":"Real support","idx_feat6_desc":"Live chat and support tickets answered by a real team, not a bot.","srv_sim_title":"Similarity only check","srv_sim_unit":"/ check","srv_sim_price":"50 EGP or $1","srv_ai_title":"Similarity + AI","srv_ai_unit":"/ check","srv_ai_price":"100 EGP or $2","srv_ai_badge":"Most popular","srv_unavailable_badge":"Soon","how_title_1":"How Does","how_title_2":"It Work?","how_sub":"Get your plagiarism report in 5 simple steps","step1":"Choose the check type (Similarity only or Similarity + AI)","step1_desc":"Pick Similarity only or Similarity + AI","step2":"Pick your exclusions (bibliography/quotes)","step2_desc":"Exclude bibliography or quoted text if you like","step3":"Upload your file","step3_desc":"Upload your DOC or DOCX file safely in minutes","step4":"Slots are deducted from your balance instantly and the check starts","step4_desc":"Slots are deducted instantly and the check starts","step5":"Receive your report within roughly 10–30 minutes","step5_desc":"Receive an official PDF report within roughly 10–30 minutes","faq_title_1":"Frequently","faq_title_2":"Asked Questions","idx_final_title":"Ready to check your paper?","idx_final_sub":"Sign up now and run your first check in under two minutes.","idx_final_cta":"Sign in for free","idx_footer_text":"© 2026 — All rights reserved","faq_q0":"Is your bot providing official Turnitin reports?","faq_a0":"Yes. We use official Turnitin Instructor APIs integrated with our system to generate AI and Plagiarism reports.","faq_q1":"How does this bot work?","faq_a1":"Our system performs automatic checks in parallel through a limited number of slots, with no manual handling of your files. Our support team only supervises the process to confirm payment and ensure successful delivery, especially during high traffic.","faq_q2":"Is my data safe?","faq_a2":"Yes. Your files are not stored in the Turnitin repository, so your intellectual property remains yours. All checks are configured in No Repository mode.","faq_q3":"What is Non-Repository mode?","faq_a3":"Non-Repository means your file is not stored in any global database. Your submission remains private, and you can safely submit the same file to your university later without it appearing as 100% plagiarism.","faq_q4":"Why are your prices higher than some alternatives?","faq_a4":"Our pricing reflects the quality, security, and reliability of the service. Many cheaper alternatives require manual file handling or rely on unreliable sources. Some accounts may also store your work permanently, which can create problems later. Our bot was carefully developed and continuously improved to provide genuine, secure, and automated reports with minimal risk to your academic work.","faq_q5":"What is the difference between AI and Plagiarism/Similarity reports?","faq_a5":"Plagiarism/Similarity checks your text against internet sources, publications, and student papers. AI Detection estimates whether parts of the text may have been written by AI tools such as ChatGPT. We provide both reports.","faq_q6":"How fast is report delivery?","faq_a6":"Most reports are completed within 10–30 minutes. During peak hours, processing may take slightly longer depending on available slots and current order volume. Once completed, reports are delivered automatically.","faq_q7":"What does Cooling Period mean?","faq_a7":"During extremely high server load, the system may pause briefly to let the API cool down. This helps prevent file rejection and supports accurate report generation.","faq_q8":"Why was my work flagged as AI-generated even though I didn't use ChatGPT?","faq_a8":"No AI detection tool, including Turnitin, is 100% accurate. Writing assistants such as Grammarly or Quillbot may also affect how your text is interpreted. To reduce the risk of being flagged, consider simplifying or rewording overly formal or robotic-sounding passages.","faq_q9":"What does % mean in the Turnitin AI report?","faq_a9":"Since July 16, 2024, Turnitin displays % instead of an exact number when the estimated AI score is between 1%–19%. Exact percentages appear only for 0% or 20% and above, reflecting lower detection confidence in that range.","loading_ellipsis":"Loading...","lifetime_validity":"Lifetime validity","profile_save_ok":"Changes saved","profile_pass_short":"Password too short (at least 6 characters)","profile_pass_error":"Could not change the password","nav_sec_checking":"Checking Area","nav_sec_tools":"Tools & Services","nav_focus":"Focus mode","nav_academic":"Academic Tools","nav_my_orders":"My orders","ac_title":"Academic Tools","ac_wallet":"Academic Tools balance","ac_egp":"EGP","ac_active_subs":"Active subscriptions","ac_all_orders":"All orders","nav_home":"Home","nav_new_check":"New Check","nav_orders":"My orders","nav_wallet":"Wallet","nav_my_history":"History","plan_ai_tab":"Plag + AI Report","plan_only_tab":"Only Plag Report","plan_soon":"Soon","plan_title":"Turnitin Plag + AI Check","plan_pill":"PLAG + AI REPORT","plan_auto":"Automated Instant Activation","nav_support":"Support","nav_my_profile":"My Account","sup_lang":"Language","sup_currency":"Currency","sup_settings":"Settings","profile_modal_title":"Account Settings","profile_save_btn":"Save","profile_cancel_btn":"Cancel","profile_name":"Full Name","profile_email":"Email Address","profile_whatsapp":"WhatsApp","profile_new_pass":"New Password","profile_save":"Save Changes","profile_save_success":"Your details were saved successfully","profile_save_error":"Couldn't save your details","signout_confirm":"Sign out of your account?","my_requests_title":"My requests","last_order_title":"Your last order","view_all_orders":"View all orders","welcome_message":"Welcome back","tour_btn_title":"Guided tour","tour_skip":"Skip tour","tour_back":"← Back","tour_next":"Next →","tour_finish":"Start now 🚀","tour_welcome_title":"Welcome to Pro Keys! 🎉","tour_welcome_desc":"Let's walk you through how to top up, upload your file, and receive an official Turnitin report in minutes.","tour_balance_title":"Your current balance","tour_balance_desc":"Each file checked uses <b>1 slot</b> from your available slots.","tour_topup_btn_title":"Wallet tab","tour_topup_btn_desc":"From the <b>Wallet</b> tab you can see the top-up packages and choose the one you need.","tour_ctype_title":"Choose the check type","tour_ctype_desc":"<b>Similarity only</b> checks matches with sources, and <b>Similarity + AI</b> adds AI-generated content detection.","tour_pick_package_title":"Choose the package you bought","tour_pick_package_desc":"From this list, pick the <b>package you purchased</b>. Each package shows its remaining checks.","tour_submitfiles_title":"Submit your file in one step","tour_submitfiles_desc":"Click <b>Submit Files</b> to open the upload window, where you upload your file.","tour_filters_title":"Analysis filters","tour_filters_desc":"Optional filters for a more precise result: exclude <b>references</b>, <b>quotes</b>, <b>citations</b> and <b>short phrases</b>.","tour_select_pack_title":"Choose a package","tour_select_pack_desc":"Click <b>BUY NOW</b> on the package that suits you — the payment section will appear below automatically.","tour_instapay_method_title":"Choose InstaPay","tour_instapay_method_desc":"Scroll down and select <b>InstaPay</b> as your payment method. The wallet number you need to transfer to will appear.","tour_instapay_transfer_title":"Transfer to this number","tour_instapay_transfer_desc":"Open the InstaPay app and transfer the required amount to the number shown here. <b>Keep the reference number</b> you receive in the SMS.","tour_txid_input_title":"Enter the reference number","tour_txid_input_desc":"Enter the <b>Reference number</b> you received in the SMS after the transfer into this field.","tour_confirm_pay_title":"Click \"Confirm Purchase\"","tour_confirm_pay_desc":"After entering the reference number click <b>Confirm Purchase</b>. Slots will be added to your balance once the admin reviews and approves.","tour_upload_title":"Upload your file","tour_upload_desc":"Drag & drop your file here or click to browse. Allowed files: <b>PDF</b> and <b>DOCX</b> only.","tour_checktype_title":"Choose check type","tour_checktype_desc":"\"Similarity only\" checks for matches with sources. \"Similarity + AI\" adds AI-generated content detection.","tour_submit_title":"Submit for checking","tour_submit_desc":"Once your file is uploaded and options selected, press here to submit. It will appear in \"My Files\" instantly.","tour_result_title":"Your results are here","tour_result_desc":"Once the check is complete you'll find your order here with its status. Orders update automatically without refreshing.","tour_download_title":"Download & rate your experience","tour_download_desc":"The download button fetches your report directly. Afterwards the star rating appears — your feedback helps us improve!","tour_support_title":"Need help?","tour_support_desc":"Open a support ticket or chat with us via the blue bubble at the bottom of the screen — our team is always here.","tour_done_title":"All set!","tour_done_desc":"The tour is complete. You're ready to upload your first file with confidence. Good luck! 🌟","kpi_slots_label":"Slots remaining","kpi_expiry_label":"Slots expiry date","kpi_api_status":"API status","api_active":"Active","api_inactive":"Inactive","api_maintenance":"Maintenance","expiry_days_left":"{d} days left","sf_no_expiry":"No expiry","sf_no_slots_short":"No slots","mf_title":"My Files","mf_col_doc":"Document","mf_col_order":"Order #","mf_col_time":"Submitted / Delivery time","mf_col_ai":"AI detection","mf_col_sim":"Similarity","mf_col_action":"Action","mf_empty":"No files yet. Submit a file to see your results here.","mf_checking":"Checking","mf_delivered":"Delivered in","mf_delivered_plain":"Delivered","mf_failed":"Failed","mf_not_included":"Not included","mf_result_unavailable":"Result unavailable","mf_download":"Download","mf_delete":"Delete file","mf_confirm_title":"Delete this file?","mf_confirm_body":"File {f} and its reports will be permanently deleted. Are you sure?","mf_delete_yes":"Delete","mf_delete_no":"Cancel","mf_err_delete":"Could not delete the file, please try again.","mf_retention_note":"Please download and save your checked files. They are automatically deleted 48 hours after the check finishes.","sf_open_btn":"Submit Files","sf_opt_left":"{n} checks left","sf_opt_none":"Used up","sf_opt_expired":"Expired","sf_opt_until":"Expires: {d}","sf_slot_pick":"Choose a package","sf_pick_slot_err":"Choose an available package first","sf_title":"Pro Keys · Submit Files","sf_slot_label":"Slot type","sf_no_slots":"No slots available","sf_opt_label":"Plagiarism + AI ({n} Slots Remaining - Next Expiry: {d})","sf_pick":"Drag & drop your research paper or thesis here","sf_formats":"PDF or DOCX only, up to 100MB","sf_browse":"Browse Local File","sf_err_format":"This file type isn't supported. Upload a DOCX or PDF file.","sf_err_size":"The file is larger than 100MB","sf_terms_title":"Terms & Conditions","sf_filters_title":"Analysis filters","sf_f_bib":"Exclude bibliography","sf_f_quo":"Exclude quotes","sf_f_cit":"Exclude citations","sf_f_small":"Exclude small matches under","sf_f_words":"words","sf_notice_title":"Your file is not saved in any repository","sf_notice_body":"Your file is 100% safe. It will NOT be saved in any student database or institutional repository.","sf_upload_btn":"Upload File","slot_unit":"slot","slot_none_msg":"You have no slots of this type. Buy a package and it will show here.","slot_buy_btn":"Buy a package","slot_maint_btn":"System under maintenance","slot_maint_default":"The system is under maintenance right now. Please try again shortly.","redeem_btn":"Redeem Code","redeem_modal_title":"Redeem Code","redeem_modal_sub":"Activate your purchased code","redeem_input_ph":"ENTER CODE","redeem_submit":"REDEEM NOW","redeem_err_empty":"Please enter the code","redeem_err_used":"This code has already been used","redeem_err_invalid":"Invalid code, please check it and try again","redeem_err_limit":"Too many failed attempts, please wait a bit and try again","redeem_err_auth":"Your session expired, please sign in again","redeem_err_generic":"Something went wrong, please try again","redeem_success":"{p} added to your account ({n} slot) ✅","pay_tab_wallets":"E-Wallets","pay_tab_card":"Card","pay_tab_crypto":"Crypto","pay_card_note":"Card payments work inside Egypt only","tour_pay_tabs_title":"Choose a payment method","tour_pay_tabs_desc":"Payment methods are split into 3 tabs: <b>E-Wallets</b> (InstaPay, Vodafone Cash), <b>Card</b> (inside Egypt only), and <b>Crypto</b>.","tour_coupon_title":"Have a discount code?","tour_coupon_desc":"If you have a discount or gift code, enter it in this box and press <b>Redeem</b> — the checks are added to your balance right away.","coupon_title":"Have a code?","coupon_sub":"Gift and promo codes add checks to your balance right away","coupon_btn":"Redeem","kpi_topup":"Top up","kpi_credits_unit":"slots","credit_unit_singular":"slot","kpi_balance":"Current balance","kpi_processing":"Processing now","kpi_floating":"Floating (pending)","kpi_completed_label":"Total completed","kpi_rejected_word":"rejected","kpi_cancelled_word":"cancelled","balance_check_title":"Pay from your balance","balance_current_label":"Your current balance","balance_needed_label":"Slots required for this order","balance_insufficient":"Your balance isn't enough to cover this order. Top up your wallet first.","submit_to_queue":"Send File for Check","topup_now":"Top up wallet now","newcheck_title":"New check request","newcheck_hint":"One file per request","upload_cta":"Choose or drag your file here","upload_hint":"PDF, DOCX — up to 100MB · one file per request","check_opts_title":"Check options","check_type_label":"Check type","file_requirements_chip":"📋 File Requirements","ct_sim":"Similarity only","ct_both":"Similarity + AI","filters_label":"Similarity filters (optional)","exclude_bib":"Exclude bibliography","exclude_quotes":"Exclude quoted text","exclude_abstract":"Exclude abstract","exclude_citations":"Exclude in-text citations","exclude_small_matches":"Exclude small matches","words_unit":"words","payment_title":"Payment method","pay_auto":"Automatic","pay_ref":"Reference number","vf_cash":"Vodafone Cash","payment_history_title":"Payment History","wplan_swipe_hint":"Swipe left and right to see more packages","payment_history_desc":"All your top-ups and their status","ph_col_code":"Transaction code","ph_col_method":"Payment method","ph_col_amount":"Amount","ph_col_credits":"Slots","ph_col_pack":"Package","ph_col_datetime":"Date & time","ph_col_status":"Status","ph_status_completed":"Completed","ph_status_pending":"Pending review","ph_status_rejected":"Rejected","ph_empty":"You haven't made any top-ups yet.","order_tx_title":"Transactions","order_tx_desc":"Slot debits and refunds on your check files","ph_col_bal_before":"Balance before","ph_col_bal_after":"Balance after","order_tx_debit":"Debit","order_tx_credit":"Refund","txid_label":"Transaction ID (TXID)","txid_placeholder":"Paste TXID here after transfer","credits_deducted":"slots will be deducted","orders_count_suffix":"orders","f_all":"All","f_wait":"Pending","f_run":"Processing","f_ok":"Completed","f_no":"Rejected","wallet_available":"checks available","wallet_sim_credits":"Similarity slots (from referrals)","wallet_daily_credits":"Daily slots","wallet_total_done":"fully completed orders","ref_program":"Referral program — +1 slot per successful invite","copy":"Copy","pg_rows_per_page":"Rows per page","file_req_notice_title":"Turnitin requirements for accepted files","file_req_li1":"Turnitin requirements: for Similarity-only reports, there is no page limit and the system supports all languages in DOC or DOCX format.","file_req_li2":"If an AI report is required, the file must be a text-only DOCX in English, Spanish, or Japanese, between 300 and 30,000 words, with the cover page (containing the university name/logo) removed, along with images, tables, and complex equations.","file_req_li3":"In all cases, the file size must not exceed 100 MB.","file_req_li4":"Compliance with these requirements is entirely the researcher's responsibility — failing to follow them will still result in a slot deduction, since the check is billed automatically.","file_privacy_notice_title":"File privacy","file_privacy_li1":"File privacy: papers are uploaded with \"No Repository\" always enabled (100% safe).","file_privacy_li2":"Your files are completely secure and will never be saved or stored in any student database or institutional repository.","plan_limits_label":"Turnitin Plan Limits:","plan_limits_sim_pre":" Plagiarism up to ","plan_limits_words":" words.","plan_limits_ai_pre":" AI Detection valid up to ","plan_limits_words_end":" words","plan_limits_note":" (Turnitin's official AI engine rule, not our platform limit).","plan_limits_badge":"Turnitin Rule","req_card_title":"Requirements for AI Detection","req_card_badge":"Turnitin Standard","req_size_label":"Size:","req_size_val":"Below 100 MB","req_lang_label":"Lang:","req_lang_val":"EN, ES, JA","req_min_label":"Min:","req_min_val":"300 words (para)","req_max_label":"AI Max:","req_max_val":"30,000 words","req_privacy_label":"Privacy:","req_privacy_pre":"Files are ","req_privacy_not_saved":"not saved","req_privacy_post":" in any repository (100% safe).","topup_title":"Top up slots","most_popular":"Most popular","choose":"Choose","trial_badge":"Trial","validity_prefix":"Validity","validity_days_unit":"days","validity_1day":"24h validity","feature_ai_plag":"Similarity + AI Report","usd_unit_short":"USD","egp_unit":"EGP","best_seller_badge":"Best Seller","high_value_badge":"High Value","best_seller_label":"Best Seller","best_value_label":"Best Value","packs_topup_tab":"Top-up packs","packs_daily_tab":"Daily packs","packs_topup_desc":"Choose the package that fits you — each check uses one slot","packs_daily_desc":"For heavy-checking days — valid for 24 hours only","pack_pack_1":"1 File","pack_pack_5":"5 Files","pack_pack_10":"10 Files","pack_pack_25":"25 Files","pack_single":"Single Check","pack_starter":"Starter","pack_student":"Student","pack_college":"College","pack_professor":"Professor","pack_scholar":"Scholar","pack_daily_starter":"Daily Starter","pack_daily_pro":"Daily Pro","pack_daily_master":"Daily Master","pack_daily_elite":"Daily Elite","pack_daily_ultimate":"Daily Ultimate","up_to":"Up to","files_unit":"files","daily_expiry_note":"expires after 24h","credits_no_expiry":"never expires","confirm_purchase":"Confirm purchase","sim_only_short":"Sim","ai_short":"AI","or_label":"or","orders_files_note":"Please download and save your checked files. Files are automatically cleaned after 48 hours.","footer_disclaimer":"Disclaimer: Pkchecker.com is an independent service provider not affiliated with or endorsed by Turnitin, LLC. All product names and trademarks belong to their respective owners.","footer_rights":"Pro Keys Checker © 2026 — All rights reserved","support_title":"Technical support","support_hint":"Open a ticket and our support team will respond shortly","support_name":"Name","support_userid":"Account ID","support_order":"Order ID (optional)","support_message":"Describe the issue","support_category":"Issue type","cat_general":"💬 General inquiry","cat_payment":"💳 Payment issue","cat_check":"📄 Check issue","support_message_ph":"Write your issue in detail here...","support_submit":"Submit ticket","support_attach":"Attach an image or file (optional)","support_attach_cta":"Choose an image or file","chat_attach_image":"Send a photo","chat_attach_file":"Send a file","inbox_title":"My previous tickets","inbox_empty":"No previous tickets","new_ticket_title":"New ticket","start_new_ticket":"Start a new ticket","profile_phone_label":"Phone number","profile_security_title":"Account security","profile_email_label":"Email","profile_update_btn":"Update","profile_change_password_btn":"Change password","profile_new_password_ph":"New password","profile_danger_title":"Danger zone","profile_delete_account_btn":"Delete account permanently","inbox_status_open":"Open","inbox_status_answered":"Answered","inbox_status_closed":"Closed","inbox_reply_ph":"Type your reply...","inbox_reply_send":"Send","inbox_closed_note":"This ticket is closed","chat_title":"Live support","chat_placeholder":"Type your message...","chat_online":"Online now","chat_offline":"We'll reply as soon as we can","chat_upload_error":"Couldn't upload the file, please try again","chat_send_error":"Couldn't send the message, please try again","notif_title":"Notifications","notif_mark_all":"Mark all as read","notif_empty":"No notifications yet","user_profile":"My Account","user_signout":"Sign out","phase_checking":"Confirming the file was received","phase_run":"Sent, checking in progress","err_no_slots":"Not enough checks in this package. Please buy a new package.","err_check_failed":"The check could not be completed. The check was returned to your balance.","err_provider_unavailable":"The check service is unavailable right now. Please try again shortly. No check was used.","err_submit_failed":"The file could not be sent for checking. Please try again shortly.","err_unconfirmed":"We could not confirm the file reached the check service. The check was returned to your balance.","err_maintenance":"The service is temporarily under maintenance.","err_cooldown":"This file just failed. Please wait a minute and try again.","err_generic":"Something went wrong with this order.","phase_floating":"Ready to send","phase_uploading":"Uploading","phase_pending":"Awaiting processing","phase_processing":"Processing","phase_completed":"Completed","phase_error":"Check error","phase_failed_invalid":"Invalid file","phase_rejected":"Rejected","similarity":"Similarity","ai":"AI","sim_only":"Similarity only","sim_ai":"Similarity + AI","col_order_id":"Order ID","col_file":"File","col_submitted":"Submitted","col_completed":"Completed","col_handle":"Handle time","stat_completed":"Completed","stat_pending":"Pending","stat_rejected":"Rejected","date_from":"From","date_to":"To","col_sim_short":"Similarity","col_ai_short":"AI","col_status":"Status","col_rating":"Rating","hero_title":"Welcome to Pro Keys Turnitin Checker","srv_sim_unavailable":"Currently unavailable","how_title":"How does it work?","faq_title":"Frequently Asked Questions"}};
 
 let uiConfigState={i18n_ar:{},i18n_en:{},icons:{},iconSizes:{},colors:{light:{},dark:{}}};
 let uiConfigLoaded=false;
@@ -6448,8 +6648,8 @@ async function loadRedeemCodes(){
       ? `<span class="rc-status used">${escapeHtml(t('rc_status_used'))}</span>
          <small>${escapeHtml(names[r.redeemed_by] || '')} · ${escapeHtml(formatDate(r.redeemed_at))}</small>`
       : `<span class="rc-status fresh">${escapeHtml(t('rc_status_unused'))}</span>`;
-    return `<tr>
-      <td><code>${escapeHtml(r.code)}</code></td>
+    return `<tr class="${r.redeemed_at ? 'row-ok' : 'row-run'}">
+      <td style="white-space:nowrap;"><code>${escapeHtml(r.code)}</code>${cpBtn(r.code)}</td>
       <td>${escapeHtml(pkgLabelById(r.package_id))}</td>
       <td>${status}</td>
       <td>${escapeHtml(formatDate(r.created_at))}</td>
@@ -6948,7 +7148,8 @@ function stOrdRow(o){
   if (o.status === 'delivered') acts.push(`<button type="button" class="msg-btn" onclick="stOrdExtend(['${o.id}'])">تمديد</button>`);
   if (sub && o.status === 'delivered') acts.push(`<button type="button" class="msg-btn" style="color:var(--danger);" onclick="stOrdClear('${o.id}')">سحب التسليم</button>`);
   const uid = stIdOk(o.user_id) ? o.user_id : '';
-  return `<tr>
+  const rowCls = o.status === 'delivered' ? 'row-ok' : o.status === 'refunded' ? 'row-bad' : 'row-run';
+  return `<tr class="${rowCls}">
     <td><input type="checkbox" class="st-cb" aria-label="تحديد الطلب" ${stS.ordSel.has(o.id) ? 'checked' : ''} onchange="stOrdToggle('${o.id}', this.checked)"></td>
     <td class="st-start st-wrap st-col"><div class="st-name">${stEsc(o.product_name)}</div><div class="st-muted"><bdi>${stEsc(o.plan_name)}</bdi> · ${stDays(o.duration_days)} · ${o.delivery_type === 'instant' ? 'فوري' : 'اشتراك'}</div><div class="st-muted">${fmtDateTime(o.created_at)}</div></td>
     <td class="st-start st-wrap st-col"><button type="button" class="msg-btn" style="border:none;padding:0;background:none;font-weight:700;font-size:12.5px;" onclick="stOrdSet({user:'${uid}'})" title="اعرض طلبات العميل ده بس">${stEsc(c.full_name || '—')}</button>
@@ -7575,10 +7776,44 @@ function renderReviewsTab(){
         <div style="min-width:0;"><div class="rv-name">${escapeHtml(name)}</div><div class="rv-meta">${pk ? `<span class="mono">${pk}</span> · ` : ''}${fmtDateTime(r.created_at)}</div></div></div>
       <div class="rv-stars">${rvStars(r.rating)}</div>
       <div class="rv-comment${(r.comment || '').trim() ? '' : ' empty'}">${(r.comment || '').trim() ? escapeHtml(r.comment) : 'من غير تعليق'}</div>
+      <div class="rv-reply">
+        ${(r.admin_reply || '').trim()
+          ? `<div class="rv-reply-box"><div class="rv-reply-head"><b>↩ ${currentLang === 'ar' ? 'ردك' : 'Your reply'}</b><span>${r.admin_reply_at ? fmtDateTime(r.admin_reply_at) : ''}</span></div>
+              <div class="rv-reply-text" dir="auto">${escapeHtml(r.admin_reply)}</div>
+              <div class="rv-reply-acts"><button type="button" onclick="rvReplyEdit('${r.id}')">${currentLang === 'ar' ? 'تعديل' : 'Edit'}</button><button type="button" class="del" onclick="rvReplyDelete('${r.id}')">${currentLang === 'ar' ? 'حذف الرد' : 'Delete reply'}</button></div></div>`
+          : `<button type="button" class="rv-reply-btn" onclick="rvReplyEdit('${r.id}')">↩ ${currentLang === 'ar' ? 'رد على التقييم' : 'Reply to this review'}</button>`}
+        <div class="rv-reply-form" id="rvRF-${r.id}" hidden>
+          <textarea id="rvRT-${r.id}" maxlength="1000" rows="3" dir="auto" placeholder="${currentLang === 'ar' ? 'اكتب ردك، بيظهر تحت التقييم في الصفحة الرئيسية والعميل بيوصله إشعار' : 'Write your reply. It shows under the review on the landing page and the customer is notified'}">${escapeHtml(r.admin_reply || '')}</textarea>
+          <div class="rv-reply-acts"><button type="button" class="primary" onclick="rvReplySave('${r.id}')">${currentLang === 'ar' ? 'نشر الرد' : 'Post reply'}</button><button type="button" onclick="document.getElementById('rvRF-${r.id}').hidden=true">${currentLang === 'ar' ? 'إلغاء' : 'Cancel'}</button></div>
+        </div>
+      </div>
       <div class="rv-foot"><span>🏠 اعرضه في الصفحة الرئيسية</span>
         <label class="rv-switch"><input type="checkbox" ${r.show_on_landing ? 'checked' : ''} onchange="toggleReviewOnLanding('${r.id}', this.checked, this)"><span></span></label></div>
     </div>`;
   }).join('') : `<div class="rv-empty">${all.length ? 'مفيش تقييمات بالفلتر ده' : 'مفيش تقييمات لسه'}</div>`;
+}
+// Replies to reviews: shown under the review on the landing page; the customer is notified.
+function rvReplyEdit(id){
+  const f = document.getElementById('rvRF-' + id);
+  if (!f) return;
+  f.hidden = false;
+  const ta = document.getElementById('rvRT-' + id); ta?.focus();
+}
+async function rvReplySave(id, textOverride){
+  const ar = currentLang === 'ar';
+  const text = textOverride != null ? textOverride : (document.getElementById('rvRT-' + id)?.value || '').trim();
+  if (textOverride == null && !text) return adminAlert(ar ? 'اكتب الرد الأول' : 'Write the reply first', {icon:'⚠️'});
+  const { error } = await supabaseClient.rpc('admin_reply_review', { p_review_id: id, p_reply: text });
+  if (error) return adminAlert((ar ? 'فشل حفظ الرد: ' : 'Could not save the reply: ') + error.message, {icon:'❌', danger:true});
+  const r = rvS.reviews.find(x => x.id === id);
+  if (r) { r.admin_reply = text || null; r.admin_reply_at = text ? new Date().toISOString() : null; }
+  await logAdminActivity('setting_change', r?.user_id || null, '', text ? 'رد على تقييم عميل' : 'حذف رد على تقييم');
+  toast(text ? (ar ? '✅ الرد اتنشر والعميل وصله إشعار' : '✅ Reply posted and the customer was notified') : (ar ? 'الرد اتحذف' : 'Reply deleted'));
+  renderReviewsTab();
+}
+async function rvReplyDelete(id){
+  const ok = await adminConfirm(currentLang === 'ar' ? 'هتحذف ردك على التقييم ده؟' : 'Delete your reply to this review?', {icon:'⚠️', danger:true, confirmLabel: currentLang === 'ar' ? 'حذف' : 'Delete'});
+  if (ok) rvReplySave(id, '');
 }
 async function toggleReviewOnLanding(id, on, input){
   input.disabled = true;
@@ -7737,7 +7972,7 @@ function renderCreditsTable(rows){
     const slotTxt = r.slots == null ? '—' : `${n > 0 ? '+' : ''}${n}`;
     const msgBtn = r.user_id ? `<button class="msg-btn" onclick="composeMessage('${r.user_id}','${pkStr}')">✉</button>` : '';
     return `<tr class="${ROW[r.kind] || ''}">
-      <td data-label="${escapeHtml(t('cr_col_txcode'))}" class="mono" style="font-size:10px;color:var(--muted);">${escapeHtml(r.code)}</td>
+      <td data-label="${escapeHtml(t('cr_col_txcode'))}" class="mono" style="font-size:10px;color:var(--muted);white-space:nowrap;">${escapeHtml(r.code)}${cpBtn(r.code)}</td>
       <td data-label="PK" class="mono" style="color:var(--blue-deep);font-weight:700;white-space:nowrap;">${r.pk_number != null ? clickablePk(r.user_id, r.pk_number) : '—'}</td>
       <td data-label="${escapeHtml(t('cr_col_name'))}"><b style="font-size:12px;">${escapeHtml(r.full_name)}</b></td>
       <td data-label="${escapeHtml(t('cr_col_plan'))}" style="font-size:11.5px;">${escapeHtml(r.plan)}</td>
@@ -8799,6 +9034,8 @@ async function loadProfileData(userId, pkStr){
 // Make PK clickable everywhere
 let composeTargetUserId = null;
 function composeMessage(userId, pkStr){
+  // Opens the live chat with this customer (floating window), like the online users' chat button.
+  if (userId && typeof _openChatForOnlineUser === 'function') { _openChatForOnlineUser(userId); return; }
   composeTargetUserId = userId;
   document.getElementById('msgTargetLabel').textContent = pkStr;
   document.getElementById('msgBodyInput').value = '';
@@ -9628,10 +9865,12 @@ registerAdminSW().then(refreshPushMenu);
    ================================================================ */
 Object.assign(I18N.ar, {
   refresh_now: 'تحديث الآن', ov_visitors: 'الزيارات', act_toasts_lbl: 'تنبيهات النشاط',
+  nav_store: 'المتجر', nav_reviews: 'التقييمات', nav_customer_site: 'واجهة العميل', nav_customer_site_title: 'فتح واجهة العميل في تاب جديد',
   chat_float_sub: 'رسايل العملاء', chat_float_full: 'فتح صفحة الشات', chat_float_close: 'إغلاق',
 });
 Object.assign(I18N.en, {
   refresh_now: 'Refresh now', ov_visitors: 'Visits', act_toasts_lbl: 'Activity alerts',
+  nav_store: 'Store', nav_reviews: 'Reviews', nav_customer_site: 'Customer site', nav_customer_site_title: 'Open the customer site in a new tab',
   chat_float_sub: 'Customer messages', chat_float_full: 'Open the chat page', chat_float_close: 'Close',
 });
 const admAr = () => currentLang === 'ar';
@@ -9656,6 +9895,7 @@ const ADM_TAB_LOADERS = {
   uidesign:  () => initUIDesignTab(),   // re-renders only: unsaved edits are kept
   activity:  () => loadActivityTab(),
   backup:    () => loadCreditBackupsList(),
+  heatmap:   () => loadHeatmap(),
 };
 let _admRefreshing = false;
 async function refreshCurrentTab(manual){
@@ -9703,6 +9943,23 @@ function scheduleAdmRefresh(what){
 let _ovLastRefresh = null, _ovLoading = false;
 function ovSetLoading(on){ _ovLoading = !!on; ovPaintRefreshed(); }
 function ovMarkRefreshed(d){ _ovLastRefresh = d || new Date(); _ovLoading = false; ovPaintRefreshed(); }
+function admAgoText(d){
+  const ar = admAr(), s = Math.max(0, Math.round((Date.now() - d.getTime()) / 1000));
+  return s < 5 ? (ar ? 'الآن' : 'just now')
+    : s < 60 ? (ar ? `منذ ${s} ثانية` : `${s}s ago`)
+    : s < 3600 ? (ar ? `منذ ${Math.floor(s / 60)} دقيقة` : `${Math.floor(s / 60)}m ago`)
+    : (ar ? `منذ ${Math.floor(s / 3600)} ساعة` : `${Math.floor(s / 3600)}h ago`);
+}
+// Orders tab: same live "last refreshed" as the Dashboard.
+let _ordersLastRefresh = null;
+function markOrdersRefreshed(){ _ordersLastRefresh = new Date(); paintOrdersRefreshed(); }
+function paintOrdersRefreshed(){
+  const el = document.getElementById('ordersRefreshed');
+  if (!el || !_ordersLastRefresh) return;
+  el.innerHTML = `· <span class="ov-live-dot"></span>${admAr() ? 'آخر تحديث' : 'Last refreshed'}: <b style="color:var(--navy);">${admAgoText(_ordersLastRefresh)}</b> · <span class="mono">${escapeHtml(fmtTime(_ordersLastRefresh))}</span>`;
+  el.style.display = 'inline-flex'; el.style.alignItems = 'center'; el.style.gap = '5px';
+}
+setInterval(() => { if (admTabOn('orders')) paintOrdersRefreshed(); }, 1000);
 function ovPaintRefreshed(){
   const el = document.getElementById('overviewSub');
   if (!el) return;
@@ -9956,6 +10213,227 @@ function admChatBubbleSync(unread){
   const badge = document.getElementById('admChatBadge');
   if (badge) { badge.textContent = n > 99 ? '99+' : n; badge.style.display = n > 0 ? 'flex' : 'none'; }
 }
+
+
+/* ---------- Store tab in English: the tab's Arabic phrases are swapped for English when the admin
+   language is English (whole words only, so customer and product names are left alone). ---------- */
+const ST_EN = {"المتجر": "Store", "منتجات الأدوات الأكاديمية وطلباتها ومخزونها وكوبوناتها": "Academic Tools products, orders, stock and coupons", "جاري التحميل...": "Loading...", "أقسام المتجر": "Store sections", "المنتجات": "Products", "الطلبات": "Orders", "المخزون": "Stock", "الكوبونات": "Coupons", "البانرات": "Banners", "المنتجات وباقاتها": "Products and plans", "المنتج / الباقة": "Product / plan", "النوع": "Type", "السعر": "Price", "المدة": "Duration", "الترتيب": "Sort", "مفعّل": "Active", "إجراءات": "Actions", "التصنيفات": "Categories", "تصنيف جديد": "New category", "التصنيف": "Category", "الرابط": "Slug", "بحث باسم العميل أو كود": "Search by customer name or code", "أو الإيميل أو المنتج أو كود الخصم": "or email, product or coupon code", "بحث في الطلبات": "Search orders", "الحالة": "Status", "نوع التوصيل": "Delivery type", "كل أنواع التوصيل": "All delivery types", "توصيل فوري": "Instant delivery", "اشتراك (تسليم يدوي)": "Subscription (manual delivery)", "نوع الحساب": "Account type", "كل الحسابات": "All accounts", "مشترك": "Shared", "خاص": "Private", "تحديد كل الصفحة": "Select the whole page", "الطلب": "Order", "العميل": "Customer", "المبلغ": "Amount", "الدفع": "Payment", "ينتهي": "Ends", "شاف البيانات": "Viewed details", "بحث بالإيميل أو المفتاح أو الملاحظة أو اسم العميل": "Search by email, key, note or customer name", "بحث في المخزون": "Search stock", "الباقة": "Plan", "كل الحالات": "All statuses", "متاح": "Available", "اتسلم": "Delivered", "تحديد المتاح في الصفحة": "Select available on this page", "الإيميل / المفتاح": "Email / key", "ملاحظة": "Note", "اتسلم لـ": "Delivered to", "التاريخ": "Date", "بحث بالكود أو الوصف": "Search by code or description", "بحث في الكوبونات": "Search coupons", "الكود": "Code", "الخصم": "Discount", "الاستخدام": "Usage", "مدة عرض كل بانر": "Time each banner shows", "بالثواني (من": "in seconds (from", "لـ": "to", "حفظ المدة": "Save duration", "المقاس": "Size", "، وبتظهر بالترتيب ده في أعلى متجر العميل": ", and they show in this order at the top of the customer's store", "الصورة": "Image", "الرابط عند الضغط": "Link when clicked", "توليد": "Generate", "كود خصم لباقة": "Discount code for plan", "فحص)": "checks)", "الباقات اللي تتشترى من دلوقتي مدى الحياة. الباقات اللي اتشترت قبل كده مش بتتغير.": "Packages bought from now on are lifetime. Packages bought before do not change.", "كل باقة بتاخد صلاحيتها حسب مدتها.": "Each package gets its validity from its duration.", "الباقات الجديدة هتبقى مدى الحياة. الباقات اللي اتشترت قبل كده مش هتتغير. متأكد؟": "New packages will be lifetime. Packages bought before will not change. Are you sure?", "كل باقة هتاخد صلاحيتها حسب مدتها. متأكد؟": "Each package will get its validity from its duration. Are you sure?", "تفعيل مدى الحياة": "Enable lifetime", "حسب المدة": "By duration", "فشل الحفظ": "Save failed", "ج.م": "EGP", "باقة محذوفة": "Deleted plan", "سنة": "year", "سنين": "years", "يوم": "days", "منتج جديد": "New product", "تصدير": "Export", "تحديث": "Refresh", "استيراد": "Import", "إضافة للمخزون": "Add to stock", "كوبون جديد": "New coupon", "بانر جديد": "New banner", "اشتراك واحد مستني تسليم": "subscription waiting for delivery", "اشتراكات مستنية تسليم": "subscriptions waiting for delivery", "مخزون": "Stock", "قرب يخلص": "running low", "باقات مخزونها قرب يخلص": "plans running low on stock", "الكوبون": "Coupon", "بينتهي خلال أيام": "ends within days", "كوبونات بتنتهي خلال": "coupons ending within", "أيام": "days", "محتاج منك": "Needs you", "مفيش حاجة مستنياك دلوقتي.": "Nothing is waiting for you right now.", "اختياري)": "optional)", "اختيار صورة": "Choose image", "الصورة الحالية": "Current image", "لم يتم اختيار صورة": "No image chosen", "الملف لازم يكون صورة": "The file must be an image", "تعذر تحميل المتجر": "Could not load the store", "فشل تغيير الترتيب": "Could not change the order", "فشل التحديث": "Update failed", "اتفعّل": "Turned on", "اتوقف": "Turned off", "لفوق": "Move up", "لتحت": "Move down", "منتج": "product", "باقة": "plan", "بدون تصنيف": "Uncategorized", "مفيش باقات لسه": "No plans yet", "فوري": "Instant", "اشتراك": "Subscription", "خلص": "Sold out", "تشغيل المنتج": "Turn product on/off", "تعديل": "Edit", "ضمان": "Warranty", "اتباع": "sold", "تشغيل الباقة": "Turn plan on/off", "مفيش منتجات لسه. ابدأ بزرار": "No products yet. Start with the button", "تشغيل التصنيف": "Turn category on/off", "مفيش تصنيفات لسه.": "No categories yet.", "تعديل المنتج": "Edit product", "بعد الحفظ ضيف له باقة واحدة على الأقل علشان يظهر في المتجر.": "After saving, add at least one plan so it shows in the store.", "الاسم بالعربي": "Name in Arabic", "الاسم بالإنجليزي": "Name in English", "طريقة التوصيل": "Delivery method", "فوري (من المخزون)": "Instant (from stock)", "الوصف بالعربي": "Description in Arabic", "الوصف بالإنجليزي": "Description in English", "التقييم المعروض": "Rating shown", "عدد التقييمات المعروض": "Number of ratings shown", "اللوجو": "Logo", "البادجات على كارت المنتج": "Badges on the product card", "نسبة الخصم": "Discount percentage", "المتبقي من المخزون": "Stock left", "بادج إضافي": "Extra badge", "مثلاً: الأكثر طلباً": "e.g. Best seller", "لون البادج": "Badge color", "إلغاء": "Cancel", "حفظ التعديل": "Save changes", "إضافة المنتج": "Add product", "اكتب اسم المنتج بالعربي": "Write the product name in Arabic", "اكتب اسم المنتج بالإنجليزي": "Write the product name in English", "التقييم لازم يكون من": "The rating must be from", "جاري الحفظ...": "Saving...", "تعديل منتج متجر": "Edit store product", "منتج متجر جديد": "New store product", "اتحفظ التعديل": "Changes saved", "اتضاف المنتج": "Product added", "تعديل الباقة": "Edit plan", "باقة جديدة": "New plan", "بعد الحفظ ضيف لها مخزون من تاب المخزون.": "After saving, add stock for it from the Stock tab.", "اسم الباقة بالعربي": "Plan name in Arabic", "مثلاً: شهر": "e.g. Month", "اسم الباقة بالإنجليزي": "Plan name in English", "السعر (ج.م)": "Price (EGP)", "السعر قبل الخصم (ج.م)": "Price before discount (EGP)", "بيظهر مشطوب جنب السعر": "Shown struck through next to the price", "المدة بالأيام": "Duration in days", "شهر،": "month,", "الضمان بالأيام": "Warranty in days", "إضافة الباقة": "Add plan", "اكتب اسم الباقة بالعربي": "Write the plan name in Arabic", "اكتب اسم الباقة بالإنجليزي": "Write the plan name in English", "اكتب السعر": "Write the price", "أو أكتر)": "or more)", "لازم يكون رقم موجب": "must be a positive number", "المدة لازم تكون يوم أو أكتر": "The duration must be one day or more", "تعديل باقة متجر": "Edit store plan", "باقة متجر جديدة": "New store plan", "اتضافت الباقة": "Plan added", "تعديل التصنيف": "Edit category", "التصنيفات بتظهر كصور دائرية أعلى متجر العميل.": "Categories show as round images at the top of the customer's store.", "حروف إنجليزي صغيرة وأرقام وشرطة": "Lowercase English letters, numbers and dashes", "إضافة التصنيف": "Add category", "اكتب الاسم بالعربي": "Write the name in Arabic", "اكتب الاسم بالإنجليزي": "Write the name in English", "حروف إنجليزي صغيرة وأرقام وشرطة بس، مثلاً": "Lowercase English letters, numbers and dashes only, for example", "الرابط ده مستخدم في تصنيف تاني": "This slug is already used by another category", "اتضاف التصنيف": "Category added", "في انتظار التسليم": "Waiting for delivery", "تسليم مجدول": "Scheduled delivery", "منتهي": "Expired", "مسترد": "Refunded", "مجاني بكوبون": "Free with coupon", "المحفظة": "Wallet", "غير مسجل": "Not recorded", "تعذر تحميل الطلبات": "Could not load the orders", "لسه ماشافش البيانات": "Has not viewed the details yet", "عميل": "customer", "إلغاء فلتر العميل": "Clear customer filter", "طلبات": "orders", "فقط": "only", "مفيش طلبات بالفلاتر دي.": "No orders match these filters.", "مفيش طلبات لسه.": "No orders yet.", "تسليم": "Deliver", "البيانات": "Details", "تمديد": "Extend", "سحب التسليم": "Withdraw delivery", "تحديد الطلب": "Select order", "اعرض طلبات العميل ده بس": "Show only this customer's orders", "انتهى": "Ended", "باقي": "left", "نعم": "Yes", "لسه": "Not yet", "تم تحديد": "Selected", "طلب": "order", "تسليم / تعديل جماعي": "Deliver / edit in bulk", "إلغاء التحديد": "Clear selection", "مفيش طلبات للتصدير بالفلاتر الحالية": "No orders to export with the current filters", "مفيش في التحديد طلبات اشتراك ينفع تتسلم. الطلبات الفورية بتتسلم من المخزون تلقائياً.": "The selection has no subscription orders that can be delivered. Instant orders are delivered from stock automatically.", "تعذر تحميل البيانات": "Could not load the details", "تعديل بيانات التسليم": "Edit delivery details", "تسليم الطلب": "Deliver order", "نفس البيانات هتتسلم لكل الطلبات المحددة (مناسب للحسابات المشتركة)، وكل عميل هيوصله إشعار.": "The same details will be delivered to all selected orders (suits shared accounts), and each customer gets a notification.", "العميل هيوصله إشعار.": "The customer will get a notification.", "نوع البيانات": "Details type", "حساب (إيميل وباسورد)": "Account (email and password)", "مفتاح / كود": "Key / code", "الإيميل أو اسم المستخدم": "Email or username", "الباسورد": "Password", "إظهار": "Show", "المفتاح أو الكود": "Key or code", "ملاحظات للعميل": "Notes for the customer", "وقت التسليم": "Delivery time", "دلوقتي": "Now", "في وقت محدد": "At a set time", "التاريخ والوقت": "Date and time", "تمديد المدة بعد التسليم (أيام)": "Extend the duration after delivery (days)", "تسليم وإشعار العميل": "Deliver and notify the customer", "إخفاء": "Hide", "اكتب المفتاح أو الكود": "Write the key or code", "اكتب الإيميل أو اسم المستخدم": "Write the email or username", "اكتب الباسورد": "Write the password", "من": "of", "اختار التاريخ والوقت": "Choose the date and time", "جاري التسليم...": "Delivering...", "تسليم اشتراك متجر": "Store subscription delivery", "وفشل": "and failed", "اتسلم الطلب ووصل للعميل إشعار": "Order delivered and the customer was notified", "طلبات ووصل للعملاء إشعار": "orders delivered and the customers were notified", "الإيميل": "Email", "المفتاح": "Key", "ملاحظات": "Notes", "بيانات الطلب": "Order details", "اتنسخ": "Copied", "نسخ": "Copy", "مفيش بيانات محفوظة للطلب ده.": "No details saved for this order.", "تمام": "OK", "بيانات التسليم هتتشال من الطلب ده والعميل مش هيقدر يشوفها، والطلب هيرجع لـ": "The delivery details will be removed from this order and the customer will not be able to see them, and the order goes back to", "متأكد؟": "Are you sure?", "فشل سحب التسليم": "Could not withdraw the delivery", "سحب تسليم طلب متجر": "Withdraw store order delivery", "اتسحب التسليم": "Delivery withdrawn", "التمديد بيكون للطلبات اللي اتسلمت بس.": "Extending is only for delivered orders.", "عدد الأيام": "Number of days", "عدد الأيام لازم يكون من": "The number of days must be from", "تمديد طلبات متجر": "Extend store orders", "اتمدد": "Extended", "تعذر تحميل المخزون": "Could not load the stock", "كل الباقات": "All plans", "قليل)": "low)", "تحديد": "Select", "مفتاح": "Key", "حساب": "Account", "حذف": "Delete", "مفيش عناصر بالفلاتر دي.": "No items match these filters.", "المخزون فاضي. ابدأ بزرار": "The stock is empty. Start with the button", "أو": "or", "مفيش باقات توصيل فوري لسه. ضيف منتج فوري وباقة له من تاب المنتجات.": "No instant-delivery plans yet. Add an instant product and a plan for it from the Products tab.", "عنصر": "item", "عناصر": "items", "تعديل جماعي": "Bulk edit", "حذف المحدد": "Delete selected", "نوع العنصر": "Item type", "باسورد جديد": "New password", "فاضي": "empty", "يفضل القديم)": "keeps the old one)", "ملاحظة بتظهر للعميل مع البيانات": "Note shown to the customer with the details", "ضيف منتج": "Add an", "وباقة له الأول من تاب المنتجات.": "product and a plan for it first from the Products tab.", "العنصر بيتشفر وبيتسلم للعميل تلقائياً أول ما يشتري الباقة.": "The item is encrypted and delivered to the customer automatically as soon as they buy the plan.", "حفظ وإضافة غيره": "Save and add another", "حفظ": "Save", "العنصر ناقص بيانات ومتضافش": "The item is missing details and was not added", "إضافة عنصر لمخزون المتجر": "Add item to store stock", "اتضاف للمخزون": "Added to stock", "تعديل عنصر": "Edit item", "لما تحوّله لحساب لازم تكتب باسورد": "When you change it to an account, write a password", "فشل التعديل": "Edit failed", "تعديل عنصر في مخزون المتجر": "Edit item in store stock", "الحقول اللي تسيبها فاضية مش هتتغير.": "Fields you leave empty will not change.", "ملاحظة جديدة": "New note", "باسورد جديد للحسابات": "New password for accounts", "امسح الملاحظة من العناصر المحددة": "Clear the note from the selected items", "تطبيق": "Apply", "اكتب ملاحظة أو باسورد، أو اختار مسح الملاحظة": "Write a note or a password, or choose to clear the note", "تعديل جماعي لمخزون المتجر": "Bulk edit store stock", "اتعدل": "Updated", "عنصر متاح هيتشال": "available item will be removed", "عناصر متاحة هيتشالوا": "available items will be removed", "من المخزون ومش هيتباعوا. متأكد؟": "from the stock and will not be sold. Are you sure?", "عنصر من مخزون المتجر": "item from store stock", "اتشال": "Removed", "العنصر ده هيتشال من المخزون ومش هيتباع. متأكد؟": "This item will be removed from the stock and will not be sold. Are you sure?", "فشل الحذف": "Delete failed", "العنصر ده اتباع قبل كده ومينفعش يتشال": "This item was already sold and cannot be removed", "حذف عنصر من مخزون المتجر": "Delete item from store stock", "اتشال من المخزون": "Removed from stock", "استيراد مخزون من": "Import stock from", "الأعمدة": "Columns", "السطور الناقصة أو المكررة بتتخطى.": "Missing or duplicate lines are skipped.", "تحميل نموذج": "Download template", "الملف": "File", "أو الصق البيانات تحت)": "or paste the data below)", "اختيار ملف": "Choose file", "لم يتم اختيار ملف": "No file chosen", "لصق البيانات": "Paste data", "إغلاق": "Close", "اختار ملف أو الصق البيانات": "Choose a file or paste the data", "جاري الاستيراد...": "Importing...", "الإجمالي": "Total", "اتضاف": "Added", "اتخطى": "Skipped", "فشل": "Failed", "استيراد مخزون متجر": "Import store stock", "فعّال": "Active", "موقوف": "Paused", "خلص استخدامه": "Used up", "تعذر تحميل الكوبونات": "Could not load the coupons", "منتج محذوف": "Deleted product", "،": ",", "كل المنتجات": "All products", "بلا حد": "No limit", "بدون انتهاء": "No expiry", "تشغيل الكوبون": "Turn coupon on/off", "مفيش كوبونات بالفلاتر دي.": "No coupons match these filters.", "مفيش كوبونات لسه. ابدأ بزرار": "No coupons yet. Start with the button", "تعديل الكوبون": "Edit coupon", "العميل بيكتب الكود في صفحة الدفع.": "The customer types the code on the payment page.", "الكود مايتغيرش بعد الإنشاء": "The code cannot change after it is created", "حروف إنجليزي وأرقام و - و": "English letters, numbers, - and", "وصف داخلي": "Internal description", "نوع الخصم": "Discount type", "نسبة مئوية": "Percentage", "مبلغ ثابت": "Fixed amount", "قيمة الخصم": "Discount value", "أقصى عدد استخدام": "Maximum uses", "الانتهاء": "Expiry", "بدون تاريخ انتهاء": "No expiry date", "ينتهي في تاريخ": "Ends on a date", "تاريخ الانتهاء (آخر اليوم)": "Expiry date (end of day)", "ينفع على": "Applies to", "لو مختارتش حاجة": "if you choose nothing", "كل المنتجات)": "all products)", "مفيش منتجات لسه": "No products yet", "إضافة الكوبون": "Add coupon", "قيمة الخصم (ج.م)": "Discount value (EGP)", "حرف: إنجليزي وأرقام و - و": "characters: English letters, numbers, - and", "نسبة صحيحة من": "A whole percentage from", "مبلغ أكبر من صفر": "An amount above zero", "اختار التاريخ": "Choose the date", "الكود ده موجود قبل كده": "This code already exists", "إضافة": "Add", "كود خصم متجر": "Store discount code", "اتضاف الكوبون": "Coupon added", "هيتشال نهائياً هو وسجل استخدامه (الطلبات القديمة مش هتتأثر). لو عايز توقفه بس، استخدم مفتاح التشغيل. متأكد من الحذف؟": "It will be deleted for good together with its usage log (old orders are not affected). If you only want to stop it, use the on/off switch. Delete it?", "حذف الكوبون": "Delete coupon", "حذف كود خصم متجر": "Delete store discount code", "اتشال الكوبون": "Coupon deleted", "استخدام الكوبون": "Coupon usage", "تعذر التحميل": "Could not load", "مرة": "time", "لسه محدش استخدمه. الاستخدامات اللي قبل تحديث المتجر مش متسجلة بالتفصيل.": "Nobody has used it yet. Uses before the store update are not logged in detail.", "المنتج": "Product", "بدون رابط": "No link", "تشغيل البانر": "Turn banner on/off", "إزالة": "Remove", "مفيش بانرات لسه. ابدأ بزرار": "No banners yet. Start with the button", "المدة لازم تكون من": "The duration must be from", "ثانية": "seconds", "اتحفظت المدة": "Duration saved", "المقاس المناسب": "Best size", "البانر الجديد بيتضاف في آخر الترتيب.": "New banners are added at the end of the order.", "صورة البانر": "Banner image", "إضافة البانر": "Add banner", "اختار صورة البانر": "Choose the banner image", "الرابط لازم يبدأ بـ": "The link must start with", "جاري الرفع...": "Uploading...", "فشل رفع البانر": "Banner upload failed", "إضافة بانر للمتجر": "Add store banner", "اتضاف البانر": "Banner added", "البانر ده هيتشال من المتجر (الصورة نفسها بتفضل محفوظة). متأكد؟": "This banner will be removed from the store (the image itself stays saved). Are you sure?", "فشل الإزالة": "Remove failed", "اتشال البانر": "Banner removed", "تعذر تحميل المحفظة": "Could not load the wallet", "شحن": "Top-up", "شراء": "Purchase", "استرجاع": "Refund", "تعديل من الإدارة": "Admin adjustment", "الرصيد الحالي": "Current balance", "العملية": "Operation", "المبلغ (ج.م)": "Amount (EGP)", "السبب": "Reason", "بيظهر في سجل المحفظة": "Shown in the wallet log", "إضافة للرصيد": "Add to balance", "خصم من الرصيد": "Deduct from balance", "اكتب مبلغ أكبر من صفر": "Write an amount above zero", "اكتب سبب التعديل": "Write the reason for the change", "خصم": "Deduct", "؟": "?", "محفظة المتجر": "Store wallet", "الرصيد الجديد": "New balance"};
+const _stEnRe = (() => {
+  const keys = Object.keys(ST_EN).sort((a, b) => b.length - a.length).map(k => k.replace(/[.*+?^${}()|[\]\\/-]/g, '\\$&'));
+  return new RegExp('(?<![\\u0600-\\u06FF])(' + keys.join('|') + ')(?![\\u0600-\\u06FF])', 'g');
+})();
+function stTr(str){
+  if (currentLang !== 'en' || typeof str !== 'string' || !/[\u0600-\u06FF]/.test(str)) return str;
+  return str.replace(_stEnRe, m => ST_EN[m] ?? m);
+}
+let _stTrBusy = false;
+function stTranslateTree(root){
+  if (currentLang !== 'en' || !root || _stTrBusy) return;
+  _stTrBusy = true;
+  try {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n =>
+      (/[\u0600-\u06FF]/.test(n.nodeValue) && !n.parentElement?.closest('textarea, script, style, [data-no-tr]')) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT });
+    const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(n => { const v = stTr(n.nodeValue); if (v !== n.nodeValue) n.nodeValue = v; });
+    (root.querySelectorAll ? root.querySelectorAll('[title], [placeholder], [aria-label]') : []).forEach(el => {
+      ['title', 'placeholder', 'aria-label'].forEach(a => { const v = el.getAttribute(a); if (v && /[\u0600-\u06FF]/.test(v)) { const t2 = stTr(v); if (t2 !== v) el.setAttribute(a, t2); } });
+    });
+  } finally { _stTrBusy = false; }
+}
+(function(){
+  const pane = document.getElementById('tab-store');
+  if (!pane) return;
+  let t = null;
+  new MutationObserver(() => { if (_stTrBusy || currentLang !== 'en') return; clearTimeout(t); t = setTimeout(() => stTranslateTree(pane), 0); })
+    .observe(pane, { childList: true, subtree: true, characterData: true });
+  // Pop-ups and messages raised while the Store tab is open are translated too.
+  const wrap = (name) => {
+    const orig = window[name];
+    if (typeof orig !== 'function') return;
+    window[name] = function(msg, ...rest){ return orig.call(this, admTabOn('store') ? stTr(msg) : msg, ...rest); };
+  };
+  ['adminAlert', 'adminConfirm', 'adminPrompt', 'toast'].forEach(wrap);
+  // Language switched while the Store tab is open: draw it again in the new language.
+  const origToggle = window.toggleLang;
+  if (typeof origToggle === 'function') window.toggleLang = function(){
+    const r = origToggle.apply(this, arguments);
+    if (admTabOn('store') && typeof initStoreTab === 'function') setTimeout(() => { initStoreTab(); setTimeout(() => stTranslateTree(pane), 50); }, 0);
+    return r;
+  };
+  if (currentLang === 'en') stTranslateTree(pane);
+})();
+
+
+/* ---------- Heatmap tab: where customers click and what they spend time on ---------- */
+Object.assign(I18N.ar, {
+  nav_heatmap: 'خريطة الحرارة', hm_sub: 'اهتمامات العملاء: الأماكن اللي بيزوروها أكتر والأزرار اللي بيضغطوا عليها',
+  hm_page_index: 'الصفحة الرئيسية', hm_page_dash: 'لوحة العميل', hm_dev_all: 'كل الأجهزة', hm_dev_desktop: 'كمبيوتر', hm_dev_mobile: 'موبايل',
+  hm_d1: 'آخر 24 ساعة', hm_d7: 'آخر 7 أيام', hm_d30: 'آخر 30 يوم', hm_d90: 'آخر 90 يوم',
+  hm_areas: 'أكتر الأماكن زيارة', hm_labels: 'أكتر الأزرار ضغطاً', hm_visual: 'خريطة الضغطات على الصفحة الرئيسية',
+  hm_less: 'أقل', hm_more: 'أكتر', hm_scroll: 'العملاء وصلوا لحد فين في الصفحة', online_col_page: 'الصفحة دلوقتي',
+});
+Object.assign(I18N.en, {
+  nav_heatmap: 'Heatmap', hm_sub: 'What customers care about: the most visited places and the most clicked buttons',
+  hm_page_index: 'Landing page', hm_page_dash: 'Customer dashboard', hm_dev_all: 'All devices', hm_dev_desktop: 'Desktop', hm_dev_mobile: 'Mobile',
+  hm_d1: 'Last 24 hours', hm_d7: 'Last 7 days', hm_d30: 'Last 30 days', hm_d90: 'Last 90 days',
+  hm_areas: 'Most visited places', hm_labels: 'Most clicked buttons', hm_visual: 'Click map of the landing page',
+  hm_less: 'Less', hm_more: 'More', hm_scroll: 'How far down the page customers got', online_col_page: 'Current page',
+});
+const HM_AREA = {
+  index: ['الصفحة الرئيسية', 'Landing page'], home: ['الرئيسية', 'Home'], orders: ['الفحص وملفاتي', 'Checks and my files'],
+  wallet: ['المحفظة', 'Wallet'], academic: ['الأدوات الأكاديمية', 'Academic Tools'], focus: ['وضع التركيز', 'Focus mode'],
+  'my-history': ['السجل', 'History'], 'my-profile': ['حسابي', 'My account'], support: ['الدعم', 'Support'],
+  store: ['المتجر', 'Store'], checkout: ['الدفع', 'Checkout'],
+};
+function hmAreaName(a){
+  const ar = admAr();
+  return String(a || '—').split(':').map((p, i) => (HM_AREA[p] ? HM_AREA[p][ar ? 0 : 1] : p)).join(' › ');
+}
+function hmDur(sec){
+  sec = Math.round(Number(sec) || 0);
+  if (sec < 60) return sec + (admAr() ? ' ث' : 's');
+  const m = Math.floor(sec / 60), s2 = sec % 60;
+  return m + (admAr() ? ' د ' : 'm ') + (s2 ? s2 + (admAr() ? ' ث' : 's') : '');
+}
+let _hmData = null, _hmSeq = 0;
+async function loadHeatmap(){
+  const seq = ++_hmSeq;
+  const page = document.getElementById('hmPage').value, device = document.getElementById('hmDevice').value, days = +document.getElementById('hmDays').value;
+  ['hmAreas', 'hmLabels'].forEach(id => { document.getElementById(id).innerHTML = `<div class="hm-empty">${admAr() ? 'جاري التحميل...' : 'Loading...'}</div>`; });
+  const { data, error } = await supabaseClient.rpc('admin_site_heat', { p_days: days, p_page: page, p_device: device });
+  if (seq !== _hmSeq) return;
+  if (error) {
+    document.getElementById('hmAreas').innerHTML = `<div class="hm-empty" style="color:var(--danger);">${escapeHtml(error.message)}</div>`;
+    document.getElementById('hmLabels').innerHTML = '';
+    return;
+  }
+  _hmData = data || {};
+  renderHeatmap(page, device);
+}
+function renderHeatmap(page, device){
+  const ar = admAr(), d = _hmData || {}, tot = d.totals || {};
+  const kpi = (label, val) => `<div class="kpi"><div class="num">${Number(val || 0).toLocaleString('en-US')}</div><div class="lbl">${label}</div></div>`;
+  document.getElementById('hmKpis').innerHTML =
+    kpi(ar ? 'زوار' : 'Visitors', tot.visitors) + kpi(ar ? 'عملاء مسجلين' : 'Signed-in customers', tot.customers) +
+    kpi(ar ? 'زيارات للصفحات' : 'Page views', tot.views) + kpi(ar ? 'ضغطات' : 'Clicks', tot.clicks);
+  const areas = d.areas || [], maxV = Math.max(1, ...areas.map(a => +a.views || 0));
+  document.getElementById('hmAreas').innerHTML = areas.length ? areas.map(a => `<div class="hm-row">
+      <div class="hm-name" title="${escapeHtml(a.area || '')}">${escapeHtml(hmAreaName(a.area))}</div>
+      <div class="hm-val">${(+a.views || 0).toLocaleString('en-US')} ${ar ? 'زيارة' : 'views'}</div>
+      <div class="hm-bar"><i style="width:${Math.max(3, Math.round((+a.views || 0) / maxV * 100))}%"></i></div>
+      <div class="hm-sub">${ar ? 'متوسط الوقت' : 'Avg. time'}: ${hmDur(a.avg)} · ${ar ? 'إجمالي الوقت' : 'Total time'}: ${hmDur(a.time)} · ${(+a.clicks || 0).toLocaleString('en-US')} ${ar ? 'ضغطة' : 'clicks'} · ${(+a.visitors || 0)} ${ar ? 'زائر' : 'visitors'}</div>
+    </div>`).join('') : `<div class="hm-empty">${ar ? 'مفيش بيانات في الفترة دي لسه. البيانات بتبدأ تتجمع من دلوقتي.' : 'No data for this period yet. Data is collected from now on.'}</div>`;
+  const labels = d.labels || [], maxL = Math.max(1, ...labels.map(l => +l.n || 0));
+  document.getElementById('hmLabels').innerHTML = labels.length ? labels.map(l => `<div class="hm-row">
+      <div class="hm-name" dir="auto" title="${escapeHtml(l.label)}">${escapeHtml(l.label)}</div>
+      <div class="hm-val">${(+l.n).toLocaleString('en-US')}</div>
+      <div class="hm-bar"><i style="width:${Math.max(3, Math.round(+l.n / maxL * 100))}%"></i></div>
+      ${page === 'dashboard' ? `<div class="hm-sub">${escapeHtml(hmAreaName(l.area))}</div>` : ''}
+    </div>`).join('') : `<div class="hm-empty">${ar ? 'مفيش ضغطات مسجلة لسه.' : 'No clicks recorded yet.'}</div>`;
+  // Visual map and scroll depth: landing page only (the dashboard needs a customer sign-in to show).
+  document.getElementById('hmVisualPanel').style.display = page === 'index' ? '' : 'none';
+  if (page === 'index') { hmDrawScroll(d.scroll || []); hmLoadFrame(device === 'mobile' ? 390 : 1280); }
+}
+function hmDrawScroll(rows){
+  const ar = admAr(), counts = Array(10).fill(0);
+  rows.forEach(r => { counts[Math.max(0, Math.min(9, +r.b))] += +r.n || 0; });
+  const total = counts.reduce((a, b) => a + b, 0);
+  const el = document.getElementById('hmScroll');
+  if (!total) { el.innerHTML = `<div class="hm-empty">${ar ? 'لسه مفيش بيانات' : 'No data yet'}</div>`; return; }
+  // Share of visits that got at least to each 10% of the page.
+  let left = total;
+  el.innerHTML = counts.map((n, i) => { const pct = Math.round(left / total * 100); left -= n;
+    return `<div class="hm-sc-row"><span>${(i + 1) * 10}%</span><div class="hm-bar"><i style="width:${pct}%"></i></div><b style="color:var(--navy);">${pct}%</b></div>`; }).join('');
+}
+let _hmFrameW = 0;
+function hmLoadFrame(w){
+  const frame = document.getElementById('hmFrame');
+  if (_hmFrameW === w && frame.dataset.ready === '1') { hmFitAndDraw(); return; }
+  _hmFrameW = w; frame.dataset.ready = '0';
+  frame.style.width = w + 'px'; frame.style.height = '900px';
+  frame.onload = () => {
+    let tries = 0;
+    const settle = () => {
+      try {
+        const doc = frame.contentDocument;
+        const h = Math.max(doc.documentElement.scrollHeight, doc.body ? doc.body.scrollHeight : 0);
+        frame.style.height = h + 'px';
+      } catch (e) {}
+      if (++tries < 6) setTimeout(settle, 500); else { frame.dataset.ready = '1'; hmFitAndDraw(); }
+      if (tries === 1) hmFitAndDraw();
+    };
+    settle();
+  };
+  frame.src = '/index.html?preview=1&lang=' + (admAr() ? 'ar' : 'en');
+}
+function hmFitAndDraw(){
+  const frame = document.getElementById('hmFrame'), stage = document.getElementById('hmStage'), wrap = document.getElementById('hmStageWrap');
+  const w = _hmFrameW || 1280, h = parseInt(frame.style.height, 10) || 900;
+  const scale = Math.min(1, (wrap.clientWidth - 2) / w);
+  stage.style.width = w + 'px'; stage.style.height = h + 'px';
+  stage.style.transform = `scale(${scale})`;
+  stage.parentElement.style.height = Math.min(760, Math.round(h * scale)) + 'px';
+  wrap.firstElementChild.style.marginBottom = (-(h - h * scale)) + 'px';
+  hmDrawPoints(w, h);
+}
+// Heat: soft blobs added up in grey, then coloured blue → green → yellow → red by strength.
+function hmDrawPoints(w, h){
+  const canvas = document.getElementById('hmCanvas');
+  canvas.width = w; canvas.height = h; canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, w, h);
+  const pts = (_hmData && _hmData.points) || [];
+  if (!pts.length) return;
+  const max = Math.max(...pts.map(p => +p.n || 0)), r = Math.max(26, w / 30);
+  pts.forEach(p => {
+    const x = (+p.bx + 0.5) / 48 * w, y = (+p.by + 0.5) * 24;
+    if (y > h) return;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    const a = Math.min(1, 0.15 + 0.85 * (+p.n / max));
+    g.addColorStop(0, `rgba(0,0,0,${a})`); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  });
+  const img = ctx.getImageData(0, 0, w, h), px = img.data;
+  const stops = [[59, 130, 246], [34, 197, 94], [250, 204, 21], [239, 68, 68]];
+  for (let i = 0; i < px.length; i += 4) {
+    const a = px[i + 3] / 255;
+    if (!a) continue;
+    const t = Math.min(0.999, a) * (stops.length - 1), k = Math.floor(t), f = t - k;
+    const c0 = stops[k], c1 = stops[k + 1];
+    px[i] = c0[0] + (c1[0] - c0[0]) * f; px[i + 1] = c0[1] + (c1[1] - c0[1]) * f; px[i + 2] = c0[2] + (c1[2] - c0[2]) * f;
+    px[i + 3] = Math.round(Math.min(0.75, a * 0.9) * 255);
+  }
+  ctx.putImageData(img, 0, 0);
+}
+window.addEventListener('resize', () => { if (admTabOn('heatmap') && _hmData && document.getElementById('hmPage').value === 'index') hmFitAndDraw(); });
+
+
+/* ---------- Section titles: the emoji at the start of each title becomes an IconMCP icon ---------- */
+const TTL_SVG = {"users": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"6\" cy=\"5.25\" r=\"2.5\"/><path d=\"M1.75 13.5 C2.25 11.25 3.9 9.75 6 9.75 C8.1 9.75 9.75 11.25 10.25 13.5\"/><path d=\"M10.25 2.85 A2.5 2.5 0 0 1 10.25 7.65\"/><path d=\"M11.75 10 C12.9 10.5 13.7 11.8 14 13.5\"/></svg>", "user": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"8\" cy=\"5\" r=\"2.75\"/><path d=\"M2.75 13.75 C3.3 11.15 5.4 9.5 8 9.5 C10.6 9.5 12.7 11.15 13.25 13.75\"/></svg>", "megaphone": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3.75 6 L6 6 L11.553 3.224 C12.218 2.891 13 3.375 13 4.118 L13 11.882 C13 12.625 12.218 13.109 11.553 12.776 L6 10 L3.75 10 C3.198 10 2.75 9.552 2.75 9 L2.75 7 C2.75 6.448 3.198 6 3.75 6 Z\"/><path d=\"M4.75 10 L5.381 12.947 C5.451 13.269 5.736 13.5 6.066 13.5 L6.8 13.5 C7.187 13.5 7.5 13.187 7.5 12.8 L7.5 10.75\"/></svg>", "edit": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M10.957 3.457 L12.543 5.043 C12.933 5.433 12.933 6.067 12.543 6.457 L5.793 13.207 C5.605 13.395 5.351 13.5 5.086 13.5 L2.5 13.5 L2.5 10.914 C2.5 10.649 2.605 10.395 2.793 10.207 L9.543 3.457 C9.933 3.067 10.567 3.067 10.957 3.457 Z\"/><line x1=\"8.75\" y1=\"4.25\" x2=\"11.75\" y2=\"7.25\"/></svg>", "clipboard": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5.75 3 L4.375 3 C3.616 3 3 3.616 3 4.375 L3 12 C3 13.105 3.895 14 5 14 L11 14 C12.105 14 13 13.105 13 12 L13 4.375 C13 3.616 12.384 3 11.625 3 L10.25 3\"/><rect x=\"5.75\" y=\"1.75\" width=\"4.5\" height=\"2.5\" rx=\"0.8\"/><line x1=\"5.75\" y1=\"8\" x2=\"10.25\" y2=\"8\"/><line x1=\"5.75\" y1=\"10.75\" x2=\"8.5\" y2=\"10.75\"/></svg>", "star": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M8.454 3.234 L9.646 5.819 C9.719 5.977 9.869 6.085 10.041 6.106 L12.868 6.441 C13.291 6.491 13.461 7.015 13.148 7.305 L11.059 9.237 C10.931 9.355 10.874 9.531 10.908 9.702 L11.462 12.493 C11.546 12.912 11.1 13.235 10.728 13.027 L8.244 11.637 C8.092 11.552 7.908 11.552 7.756 11.637 L5.272 13.027 C4.9 13.235 4.454 12.912 4.538 12.493 L5.092 9.702 C5.126 9.531 5.069 9.355 4.941 9.237 L2.852 7.305 C2.539 7.015 2.709 6.491 3.132 6.441 L5.959 6.106 C6.131 6.085 6.281 5.977 6.354 5.819 L7.546 3.234 C7.725 2.847 8.275 2.847 8.454 3.234 Z\"/></svg>", "ticket": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3.25 3.5 H12.75 A1.25 1.25 0 0 1 14 4.75 V6.25 A1.75 1.75 0 0 0 14 9.75 V11.25 A1.25 1.25 0 0 1 12.75 12.5 H3.25 A1.25 1.25 0 0 1 2 11.25 V9.75 A1.75 1.75 0 0 0 2 6.25 V4.75 A1.25 1.25 0 0 1 3.25 3.5 Z\"/><circle cx=\"9.75\" cy=\"5.75\" r=\"1.056\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"9.75\" cy=\"8\" r=\"1.056\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"9.75\" cy=\"10.25\" r=\"1.056\" fill=\"currentColor\" stroke=\"none\"/></svg>", "card": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"1.75\" y=\"3.25\" width=\"12.5\" height=\"9.5\" rx=\"2\"/><line x1=\"1.75\" y1=\"6.5\" x2=\"14.25\" y2=\"6.5\"/><line x1=\"4\" y1=\"10\" x2=\"6.5\" y2=\"10\"/></svg>", "bolt": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M8.772 2.336 L3.183 8.753 C3.014 8.947 3.152 9.25 3.409 9.25 L7.137 9.25 C7.326 9.25 7.467 9.421 7.432 9.606 L6.708 13.41 C6.65 13.711 7.027 13.895 7.228 13.664 L12.817 7.247 C12.986 7.053 12.848 6.75 12.591 6.75 L8.863 6.75 C8.674 6.75 8.533 6.579 8.568 6.394 L9.292 2.59 C9.35 2.289 8.973 2.105 8.772 2.336 Z\"/></svg>", "money": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6.25 5.25 C3.5 7 2.25 9.25 2.25 11 C2.25 12.75 3.5 13.75 5.25 13.75 H10.75 C12.5 13.75 13.75 12.75 13.75 11 C13.75 9.25 12.5 7 9.75 5.25 Z\"/><path d=\"M6.25 5.25 L5.462 3.358 C5.242 2.831 5.629 2.25 6.2 2.25 L9.8 2.25 C10.371 2.25 10.758 2.831 10.538 3.358 L9.75 5.25\"/><path d=\"M9.365 8.135 C9.155 7.715 8.672 7.505 8 7.505 C7.16 7.505 6.635 7.925 6.635 8.492 C6.635 9.92 9.365 9.185 9.365 10.508 C9.365 11.075 8.84 11.495 8 11.495 C7.265 11.495 6.74 11.222 6.53 10.76 M8 6.875 V7.505 M8 11.495 V12.125\"/></svg>", "shield": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 2.5 L11 2.5 A2 2 0 0 1 13 4.5 L13 6.525 C13 8.02 13 9.805 8 14 C3 9.805 3 8.02 3 6.525 L3 4.5 A2 2 0 0 1 5 2.5 Z\"/></svg>", "save": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4.25 2.25 L10.75 2.25 L13.75 5.25 L13.75 11.75 C13.75 12.855 12.855 13.75 11.75 13.75 L4.25 13.75 C3.145 13.75 2.25 12.855 2.25 11.75 L2.25 4.25 C2.25 3.145 3.145 2.25 4.25 2.25 Z\"/><path d=\"M4.75 13.75 L4.75 10.3 C4.75 9.858 5.108 9.5 5.55 9.5 L10.45 9.5 C10.892 9.5 11.25 9.858 11.25 10.3 L11.25 13.75\"/><path d=\"M5 2.25 L5 4.45 C5 4.892 5.358 5.25 5.8 5.25 L8.95 5.25 C9.392 5.25 9.75 4.892 9.75 4.45 L9.75 2.25\"/></svg>", "lock": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5.25 7 V5 A2.75 2.75 0 0 1 10.75 5 V7\"/><rect x=\"3\" y=\"7\" width=\"10\" height=\"7\" rx=\"2\"/><line x1=\"8\" y1=\"9.75\" x2=\"8\" y2=\"11.25\"/></svg>", "palette": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M8 2 A6 6 0 0 0 8 14 C8.83 14 9.25 13.4 9.25 12.75 C9.25 12.2 8.75 11.85 8.75 11.25 C8.75 10.55 9.3 10 10 10 H11.25 A2.75 2.75 0 0 0 14 7.25 C14 4.35 11.3 2 8 2 Z\"/><circle cx=\"4.5\" cy=\"9\" r=\"1.056\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"5.25\" cy=\"6\" r=\"1.056\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"7.75\" cy=\"4.5\" r=\"1.056\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"10.5\" cy=\"5.5\" r=\"1.056\" fill=\"currentColor\" stroke=\"none\"/></svg>", "home": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3.234 6.15 L6.734 3.286 C7.47 2.683 8.53 2.683 9.266 3.286 L12.766 6.15 C13.231 6.53 13.5 7.098 13.5 7.698 L13.5 11.5 C13.5 12.605 12.605 13.5 11.5 13.5 L4.5 13.5 C3.395 13.5 2.5 12.605 2.5 11.5 L2.5 7.698 C2.5 7.098 2.769 6.53 3.234 6.15 Z\"/><path d=\"M6.25 13.5 L6.25 11.2 C6.25 10.537 6.787 10 7.45 10 L8.55 10 C9.213 10 9.75 10.537 9.75 11.2 L9.75 13.5\"/></svg>", "chat": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6.3 13.15 A5.75 5.75 0 1 0 2.85 9.7 L2.25 13.75 Z\"/></svg>", "chart": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"2.25\" y=\"8.5\" width=\"2\" height=\"5\" rx=\"0.6\"/><rect x=\"7\" y=\"2.5\" width=\"2\" height=\"11\" rx=\"0.6\"/><rect x=\"11.75\" y=\"5.5\" width=\"2\" height=\"8\" rx=\"0.6\"/></svg>", "bell": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3.75 10.75 V6.5 A4.25 4.25 0 0 1 12.25 6.5 V10.75 L13.25 11.75 H2.75 Z\"/><line x1=\"6.5\" y1=\"13.75\" x2=\"9.5\" y2=\"13.75\"/></svg>", "settings": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"8\" cy=\"8\" r=\"2\"/><path d=\"M8 1.9 V3.4 M8 12.6 V14.1 M2.7 4.9 L4 5.65 M12 10.35 L13.3 11.1 M2.7 11.1 L4 10.35 M12 5.65 L13.3 4.9\"/><circle cx=\"8\" cy=\"8\" r=\"4.6\"/></svg>", "check": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"8\" cy=\"8\" r=\"6\"/><path d=\"M5.25 8.25 L7.25 10.25 L10.75 6.25\"/></svg>", "flame": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M8 14 A4.5 4.5 0 0 1 3.5 9.5 C3.5 6.5 6 5 6.5 2 C8.75 3.5 9.75 5.25 9.5 7.25 C10.25 6.75 10.75 6 11 5.25 C12 6.5 12.5 8 12.5 9.5 A4.5 4.5 0 0 1 8 14 Z\"/></svg>", "calendar": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"2.25\" y=\"3.25\" width=\"11.5\" height=\"10.5\" rx=\"2\"/><line x1=\"5.5\" y1=\"1.75\" x2=\"5.5\" y2=\"4.5\"/><line x1=\"10.5\" y1=\"1.75\" x2=\"10.5\" y2=\"4.5\"/><line x1=\"2.25\" y1=\"7\" x2=\"13.75\" y2=\"7\"/></svg>", "receipt": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5.25 2 L10.75 2 C11.855 2 12.75 2.895 12.75 4 L12.75 14 L11.15 13 L9.6 14 L8 13 L6.4 14 L4.85 13 L3.25 14 L3.25 4 C3.25 2.895 4.145 2 5.25 2 Z\"/><line x1=\"5.75\" y1=\"5.25\" x2=\"10.25\" y2=\"5.25\"/><line x1=\"5.75\" y1=\"8\" x2=\"10.25\" y2=\"8\"/><line x1=\"5.75\" y1=\"10.5\" x2=\"8.25\" y2=\"10.5\"/></svg>", "hand": "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5.73 8.01 L4.42 5.77\"/><path d=\"M7.6 6.63 L5.99 3.84\"/><path d=\"M4.42 5.77 L3.75 4.58 C3.4 3.9 3.9 3 4.8 2.95 C5.3 2.95 5.7 3.3 5.99 3.84 L6.05 3.83 C6 3 6.6 2.45 7.2 2.45 C7.6 2.45 7.95 2.7 8.14 2.96 L9.72 5.68 C9.8 5 10.3 4.3 10.9 4.3 C11.3 4.3 11.65 4.5 11.84 4.75 L12.94 6.66 C13.6 7.9 13.7 9.4 13.2 10.6 C12.5 12.4 10.8 13.5 8.8 13.5 C7.3 13.5 5.9 12.7 5.1 11.5 L2.62 7.23 C2.3 6.6 2.7 5.6 3.6 5.51 C4 5.5 4.25 5.62 4.42 5.77 Z\"/></svg>"};
+const TTL_EMOJI = {"👥": "users", "👤": "user", "📢": "megaphone", "✍": "edit", "📝": "edit", "📋": "clipboard", "⭐": "star", "🌟": "star", "🎫": "ticket", "🎟": "ticket", "💳": "card", "⚡": "bolt", "💰": "money", "💵": "money", "🛡": "shield", "💾": "save", "🔒": "lock", "🔐": "lock", "🎨": "palette", "🖐": "hand", "✋": "hand", "🏠": "home", "💬": "chat", "📊": "chart", "📈": "chart", "🔔": "bell", "⚙": "settings", "🛠": "settings", "✅": "check", "🔥": "flame", "📅": "calendar", "🗓": "calendar", "🧾": "receipt", "📦": "clipboard", "🎁": "ticket", "🟢": "check"};
+const _ttlRe = /^\s*(\p{Extended_Pictographic})\uFE0F?\s*/u;
+function admTitleIcons(){
+  document.querySelectorAll('.tabpane h1, .tabpane h2, .tabpane h3, .tabpane .section-title, .tabpane .sec-head h2, .profile-section-title, .profile-popup h2').forEach(h => {
+    const walker = document.createTreeWalker(h, NodeFilter.SHOW_TEXT, { acceptNode: n => n.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP });
+    const node = walker.nextNode();
+    if (!node || node.parentElement?.closest('.ttl-ic, select, option, button')) return;
+    const m = node.nodeValue.match(_ttlRe);
+    if (!m) return;
+    const name = TTL_EMOJI[m[1]];
+    node.nodeValue = node.nodeValue.slice(m[0].length);
+    if (!name) return; // unknown emoji: just removed
+    const ic = document.createElement('span');
+    ic.className = 'ttl-ic'; ic.innerHTML = TTL_SVG[name];
+    node.parentNode.insertBefore(ic, node);
+  });
+}
+(function(){
+  let t = null;
+  const run = () => { clearTimeout(t); t = setTimeout(admTitleIcons, 60); };
+  const root = document.body;
+  new MutationObserver(run).observe(root, { childList: true, subtree: true, characterData: true });
+  run();
+})();
 
 /* ---------- Start: runs once the admin app is up ---------- */
 (function waitForAdminApp(){

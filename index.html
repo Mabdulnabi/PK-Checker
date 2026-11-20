@@ -239,6 +239,9 @@
   .review-stars .on{color:var(--gold);} .review-stars .off{color:var(--paper-line);}
   .review-text{font-size:15px;line-height:1.85;color:var(--ink-soft);margin:0;flex:1;overflow-wrap:anywhere;}
   .review-text.muted{color:var(--muted);font-style:italic;}
+  .review-reply{background:var(--paper-soft,#f5f8fc);border-inline-start:3px solid var(--blue,#2563eb);border-radius:10px;padding:10px 12px;font-size:13px;}
+  .review-reply b{display:block;font-size:12px;color:var(--blue-deep,#1d4ed8);margin-bottom:3px;}
+  .review-reply p{margin:0;line-height:1.7;color:var(--ink-soft);overflow-wrap:anywhere;white-space:pre-wrap;}
   .review-who{display:flex;align-items:center;gap:12px;padding-top:14px;border-top:1px solid var(--paper-line);}
   .review-av{width:44px;height:44px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--blue),var(--cyan));color:#fff;font-weight:800;font-size:17px;overflow:hidden;}
   .review-av img{width:100%;height:100%;object-fit:cover;}
@@ -270,6 +273,12 @@
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
 <script defer src="/_vercel/insights/script.js"></script>
 <script src="/shared/pk-pixel.js"></script>
+<script>
+// Admin heatmap preview (?preview=1): the whole page visible at once, no visit counted, no tracking.
+if (new URLSearchParams(location.search).has('preview')) {
+  document.write('<style>[data-aos]{opacity:1!important;transform:none!important;transition:none!important;}#cookieBanner,.cookie-banner,.chat-bubble{display:none!important;}</style>');
+}
+</script>
 </head>
 <body>
 
@@ -962,7 +971,7 @@ function renderLandingPlans(){
 let landingReviews = [];
 async function loadLandingReviews(){
   const { data, error } = await supabaseClient.from('public_reviews')
-    .select('id, full_name, avatar_url, rating, comment, created_at')
+    .select('id, full_name, avatar_url, rating, comment, created_at, admin_reply')
     .eq('show_on_landing', true).order('created_at', { ascending: false }).limit(12);
   if (error) { console.error('loadLandingReviews failed:', error); return; }
   landingReviews = data || [];
@@ -989,6 +998,7 @@ function renderLandingReviews(){
       <p class="review-text${text ? '' : ' muted'}" dir="auto">${text ? esc(text) : (ar ? `قيّم الخدمة ${n} من 5` : `Rated the service ${n} out of 5`)}</p>
       <div class="review-who"><div class="review-av">${av}</div>
         <div><div class="review-name"><bdi>${esc(name)}</bdi></div><div class="review-tag">${CHECK} ${ar ? 'عميل موثّق' : 'Verified customer'}</div></div></div>
+      ${(r.admin_reply || '').trim() ? `<div class="review-reply"><b>${ar ? 'رد فريق PK Checker' : 'Reply from PK Checker'}</b><p dir="auto">${esc(r.admin_reply.trim())}</p></div>` : ''}
     </div>`;
   }).join('');
   if (window.AOS) AOS.refreshHard();
@@ -1173,6 +1183,7 @@ supabaseClient
 // go straight to the dashboard — no point showing a logged-in user the
 // sign-up pitch again.
 (async function checkExistingSession(){
+  if (new URLSearchParams(location.search).has('preview')) return; // admin heatmap preview
   try {
     const cached = localStorage.getItem('prokeys-user-id');
     if (!cached) return;
@@ -2109,5 +2120,6 @@ supabaseClient
 
 
 <script src="/shared/pk-visitors.js"></script>
+<script src="/shared/pk-track.js"></script>
 </body>
 </html>

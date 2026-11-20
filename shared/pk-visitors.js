@@ -52,6 +52,7 @@
   async function hitOncePerDay(client) {
     try {
       if (localStorage.getItem(DAY_KEY) === today()) return;
+      if (new URLSearchParams(location.search).has('preview')) return; // admin heatmap preview
       var r = await client.rpc('visitor_count_hit');
       localStorage.setItem(DAY_KEY, today());
       if (!r.error && r.data != null) show(r.data);
