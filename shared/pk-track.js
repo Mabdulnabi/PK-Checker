@@ -31,12 +31,14 @@
   }
   function docHeight() { return Math.max(document.documentElement.scrollHeight, document.body ? document.body.scrollHeight : 0); }
   function scrollFrac() {
+    var sc = typeof scroller === 'function' ? scroller() : null;
+    if (sc) return sc.scrollHeight ? Math.min(1, (sc.scrollTop + sc.clientHeight) / sc.scrollHeight) : 0;
     var h = docHeight();
     return h ? Math.min(1, (window.scrollY + window.innerHeight) / h) : 0;
   }
   function endView() {
     var d = Math.round((Date.now() - areaStart) / 1000);
-    if (d >= 1) push({ kind: 'view', area: area, dur: Math.min(d, 3600), y: PAGE === 'index' ? +maxScroll.toFixed(3) : null });
+    if (d >= 1) push({ kind: 'view', area: area, dur: Math.min(d, 3600), y: +maxScroll.toFixed(3) });
     areaStart = Date.now();
   }
   function startView() { push({ kind: 'view', area: area, dur: 0 }); }
@@ -61,11 +63,21 @@
     return txt.slice(0, 60);
   }
 
+  // The dashboard scrolls inside .main-wrap (not the page): positions are measured from the top of
+  // that area so they match the admin preview, which shows each tab at full height.
+  function scroller() {
+    if (PAGE !== 'dashboard') return null;
+    var sc = document.querySelector('.main-wrap');
+    return sc && sc.scrollHeight > sc.clientHeight + 4 && getComputedStyle(sc).overflowY !== 'visible' ? sc : null;
+  }
   document.addEventListener('click', function (e) {
-    var w = Math.max(document.documentElement.scrollWidth, window.innerWidth) || 1;
-    push({ kind: 'click', area: area, x: +(e.pageX / w).toFixed(4), y: Math.round(e.pageY), doc_h: docHeight(), label: labelOf(e.target) });
+    var sc = scroller();
+    var x = PAGE === 'dashboard' ? e.clientX / (window.innerWidth || 1) : e.pageX / (Math.max(document.documentElement.scrollWidth, window.innerWidth) || 1);
+    var y = sc ? e.clientY + sc.scrollTop : e.pageY;
+    push({ kind: 'click', area: area, x: +x.toFixed(4), y: Math.round(y), doc_h: sc ? sc.scrollHeight : docHeight(), label: labelOf(e.target) });
   }, { capture: true, passive: true });
-  window.addEventListener('scroll', function () { var f = scrollFrac(); if (f > maxScroll) maxScroll = f; }, { passive: true });
+  // capture: the dashboard's own scrolling area does not send scroll events to the window
+  document.addEventListener('scroll', function () { var f = scrollFrac(); if (f > maxScroll) maxScroll = f; }, { capture: true, passive: true });
   document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'hidden') { endView(); flush(); }
     else areaStart = Date.now();
@@ -78,6 +90,8 @@
       if (!a || a === area) return;
       endView();
       area = String(a).slice(0, 80);
+      maxScroll = 0;
+      setTimeout(function () { maxScroll = Math.max(maxScroll, scrollFrac()); }, 600);
       startView();
     },
     area: function () { return area; },

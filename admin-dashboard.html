@@ -1726,6 +1726,7 @@
           <div><h1 data-i18n="nav_heatmap">خريطة الحرارة</h1><div class="sub" data-i18n="hm_sub">اهتمامات العملاء: الأماكن اللي بيزوروها أكتر والأزرار اللي بيضغطوا عليها</div></div>
           <div class="hm-filters">
             <select id="hmPage" onchange="loadHeatmap()"><option value="index" data-i18n="hm_page_index">الصفحة الرئيسية</option><option value="dashboard" data-i18n="hm_page_dash">لوحة العميل</option></select>
+            <select id="hmArea" onchange="loadHeatmap()" style="display:none;"></select>
             <select id="hmDevice" onchange="loadHeatmap()"><option value="all" data-i18n="hm_dev_all">كل الأجهزة</option><option value="desktop" data-i18n="hm_dev_desktop">كمبيوتر</option><option value="mobile" data-i18n="hm_dev_mobile">موبايل</option></select>
             <select id="hmDays" onchange="loadHeatmap()"><option value="1" data-i18n="hm_d1">آخر 24 ساعة</option><option value="7" selected data-i18n="hm_d7">آخر 7 أيام</option><option value="30" data-i18n="hm_d30">آخر 30 يوم</option><option value="90" data-i18n="hm_d90">آخر 90 يوم</option></select>
           </div>
@@ -1736,7 +1737,7 @@
           <div class="panel"><div class="panel-head"><h3 data-i18n="hm_labels">أكتر الأزرار ضغطاً</h3></div><div id="hmLabels" class="hm-list"></div></div>
         </div>
         <div class="panel" id="hmVisualPanel">
-          <div class="panel-head"><h3 data-i18n="hm_visual">خريطة الضغطات على الصفحة الرئيسية</h3><span class="hm-legend"><i></i><span data-i18n="hm_less">أقل</span><b></b><span data-i18n="hm_more">أكتر</span></span></div>
+          <div class="panel-head"><h3 id="hmVisualTitle">خريطة الضغطات على الصفحة الرئيسية</h3><span class="hm-legend"><i></i><span data-i18n="hm_less">أقل</span><b></b><span data-i18n="hm_more">أكتر</span></span></div>
           <div class="hm-visual">
             <div class="hm-stage-wrap" id="hmStageWrap"><div class="hm-stage" id="hmStage"><iframe id="hmFrame" title="preview" scrolling="no"></iframe><canvas id="hmCanvas"></canvas></div></div>
             <div class="hm-scroll"><div class="hm-scroll-title" data-i18n="hm_scroll">العملاء وصلوا لحد فين في الصفحة</div><div id="hmScroll"></div></div>
@@ -10321,8 +10322,16 @@ let _hmData = null, _hmSeq = 0;
 async function loadHeatmap(){
   const seq = ++_hmSeq;
   const page = document.getElementById('hmPage').value, device = document.getElementById('hmDevice').value, days = +document.getElementById('hmDays').value;
+  // Dashboard: pick a tab; its click map and scroll depth are shown (lists cover all tabs).
+  const areaSel = document.getElementById('hmArea');
+  areaSel.style.display = page === 'dashboard' ? '' : 'none';
+  if (page === 'dashboard' && !areaSel.options.length) {
+    areaSel.innerHTML = ['orders', 'wallet', 'academic', 'my-history', 'focus', 'support', 'my-profile']
+      .map(a => `<option value="${a}">${escapeHtml(hmAreaName(a))}</option>`).join('');
+  }
+  const area = page === 'dashboard' ? (areaSel.value || 'orders') : null;
   ['hmAreas', 'hmLabels'].forEach(id => { document.getElementById(id).innerHTML = `<div class="hm-empty">${admAr() ? 'جاري التحميل...' : 'Loading...'}</div>`; });
-  const { data, error } = await supabaseClient.rpc('admin_site_heat', { p_days: days, p_page: page, p_device: device });
+  const { data, error } = await supabaseClient.rpc('admin_site_heat', { p_days: days, p_page: page, p_device: device, p_area: area });
   if (seq !== _hmSeq) return;
   if (error) {
     document.getElementById('hmAreas').innerHTML = `<div class="hm-empty" style="color:var(--danger);">${escapeHtml(error.message)}</div>`;
@@ -10330,9 +10339,9 @@ async function loadHeatmap(){
     return;
   }
   _hmData = data || {};
-  renderHeatmap(page, device);
+  renderHeatmap(page, device, area);
 }
-function renderHeatmap(page, device){
+function renderHeatmap(page, device, area){
   const ar = admAr(), d = _hmData || {}, tot = d.totals || {};
   const kpi = (label, val) => `<div class="kpi"><div class="num">${Number(val || 0).toLocaleString('en-US')}</div><div class="lbl">${label}</div></div>`;
   document.getElementById('hmKpis').innerHTML =
@@ -10352,9 +10361,13 @@ function renderHeatmap(page, device){
       <div class="hm-bar"><i style="width:${Math.max(3, Math.round(+l.n / maxL * 100))}%"></i></div>
       ${page === 'dashboard' ? `<div class="hm-sub">${escapeHtml(hmAreaName(l.area))}</div>` : ''}
     </div>`).join('') : `<div class="hm-empty">${ar ? 'مفيش ضغطات مسجلة لسه.' : 'No clicks recorded yet.'}</div>`;
-  // Visual map and scroll depth: landing page only (the dashboard needs a customer sign-in to show).
-  document.getElementById('hmVisualPanel').style.display = page === 'index' ? '' : 'none';
-  if (page === 'index') { hmDrawScroll(d.scroll || []); hmLoadFrame(device === 'mobile' ? 390 : 1280); }
+  // Visual map + scroll depth, over a preview of the page (the dashboard preview has no account data).
+  document.getElementById('hmVisualTitle').textContent = page === 'index'
+    ? (ar ? 'خريطة الضغطات على الصفحة الرئيسية' : 'Click map of the landing page')
+    : (ar ? 'خريطة الضغطات على: ' : 'Click map of: ') + hmAreaName(area);
+  hmDrawScroll(d.scroll || []);
+  const w = device === 'mobile' ? 390 : (page === 'index' ? 1280 : 1366);
+  hmLoadFrame(w, page === 'index' ? '/index.html?preview=1' : '/dashboard.html?preview=1&tab=' + encodeURIComponent(area || 'orders'));
 }
 function hmDrawScroll(rows){
   const ar = admAr(), counts = Array(10).fill(0);
@@ -10367,18 +10380,19 @@ function hmDrawScroll(rows){
   el.innerHTML = counts.map((n, i) => { const pct = Math.round(left / total * 100); left -= n;
     return `<div class="hm-sc-row"><span>${(i + 1) * 10}%</span><div class="hm-bar"><i style="width:${pct}%"></i></div><b style="color:var(--navy);">${pct}%</b></div>`; }).join('');
 }
-let _hmFrameW = 0;
-function hmLoadFrame(w){
+let _hmFrameW = 0, _hmFrameSrc = '';
+function hmLoadFrame(w, src){
   const frame = document.getElementById('hmFrame');
-  if (_hmFrameW === w && frame.dataset.ready === '1') { hmFitAndDraw(); return; }
-  _hmFrameW = w; frame.dataset.ready = '0';
+  if (_hmFrameW === w && _hmFrameSrc === src && frame.dataset.ready === '1') { hmFitAndDraw(); return; }
+  _hmFrameW = w; _hmFrameSrc = src; frame.dataset.ready = '0';
   frame.style.width = w + 'px'; frame.style.height = '900px';
   frame.onload = () => {
     let tries = 0;
     const settle = () => {
       try {
         const doc = frame.contentDocument;
-        const h = Math.max(doc.documentElement.scrollHeight, doc.body ? doc.body.scrollHeight : 0);
+        const wrap = doc.querySelector('.main-wrap');
+        const h = Math.max(doc.documentElement.scrollHeight, doc.body ? doc.body.scrollHeight : 0, wrap ? wrap.scrollHeight : 0);
         frame.style.height = h + 'px';
       } catch (e) {}
       if (++tries < 6) setTimeout(settle, 500); else { frame.dataset.ready = '1'; hmFitAndDraw(); }
@@ -10386,7 +10400,7 @@ function hmLoadFrame(w){
     };
     settle();
   };
-  frame.src = '/index.html?preview=1&lang=' + (admAr() ? 'ar' : 'en');
+  frame.src = src;
 }
 function hmFitAndDraw(){
   const frame = document.getElementById('hmFrame'), stage = document.getElementById('hmStage'), wrap = document.getElementById('hmStageWrap');
@@ -10427,7 +10441,7 @@ function hmDrawPoints(w, h){
   }
   ctx.putImageData(img, 0, 0);
 }
-window.addEventListener('resize', () => { if (admTabOn('heatmap') && _hmData && document.getElementById('hmPage').value === 'index') hmFitAndDraw(); });
+window.addEventListener('resize', () => { if (admTabOn('heatmap') && _hmData) hmFitAndDraw(); });
 
 
 /* ---------- Section titles: the emoji at the start of each title becomes an IconMCP icon ---------- */

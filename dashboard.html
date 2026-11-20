@@ -1967,6 +1967,17 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="PK Checker">
 <link rel="apple-touch-icon" href="/admin-icon-192.png">
+<script>
+// Admin heatmap preview: the whole tab at full height, without pop-ups.
+if (new URLSearchParams(location.search).has('preview')) {
+  document.write('<style>html,body{height:auto!important;overflow:visible!important;}.app-layout{height:auto!important;min-height:100vh;overflow:visible!important;}.main-wrap{overflow:visible!important;}#tourOverlay,.chat-bubble,.chat-window,#pkTopBtn,#pkScrollBar,.toastify,#pushToastWrap,.app-modal-overlay,#publicReviewCard{display:none!important;}*{animation-duration:0s!important;transition:none!important;}</style>');
+  window.addEventListener('load', () => setTimeout(() => {
+    const [tab, sub] = String(new URLSearchParams(location.search).get('tab') || 'orders').split(':');
+    try { goTab(tab === 'home' ? 'orders' : tab, false); } catch (e) {}
+    if (tab === 'academic' && sub) setTimeout(() => { try { acSub(sub === 'checkout' ? 'store' : sub); } catch (e) {} }, 700);
+  }, 300));
+}
+</script>
 </head>
 <body>
 
@@ -3729,11 +3740,15 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 // stop the current script from continuing to run. Instead, PROKEYS_USER_ID
 // stays null and every Supabase-calling function below checks for it and
 // no-ops safely, so the UI remains interactive while the redirect happens.
-const PROKEYS_USER_ID = localStorage.getItem('prokeys-user-id');
+// Admin heatmap preview (?preview=1&tab=...): the page layout with no account at all (not even a
+// customer signed in on the same browser), no redirect, no tracking.
+const PK_PREVIEW = new URLSearchParams(location.search).has('preview');
+const PROKEYS_USER_ID = PK_PREVIEW ? null : localStorage.getItem('prokeys-user-id');
 // Validate that the cached user_id matches the real Supabase session.
 // If they differ (e.g. admin tested the page and left their id in localStorage,
 // then a different user logged in), correct localStorage and reload.
 (async () => {
+  if (PK_PREVIEW) return;
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session && session.user && session.user.id !== PROKEYS_USER_ID) {
@@ -3745,7 +3760,7 @@ const PROKEYS_USER_ID = localStorage.getItem('prokeys-user-id');
     }
   } catch(e) { /* non-fatal */ }
 })();
-if (!PROKEYS_USER_ID) {
+if (!PROKEYS_USER_ID && !PK_PREVIEW) {
   // Google's redirectTo now points straight at dashboard.html (no more
   // intermediate auth-callback page). If we just came back from Google,
   // the URL carries "?code=..." (PKCE flow) or "#access_token=..." (legacy).
@@ -11868,6 +11883,7 @@ async function refreshCheckSettings(){
 
 // Session guard — verify Supabase auth token is still valid
 (async function verifySession(){
+  if (typeof PK_PREVIEW !== 'undefined' && PK_PREVIEW) return;
   const { data: sessionData } = await supabaseClient.auth.getSession();
   if (!sessionData?.session) {
     // Real Supabase session is gone/invalid (expired refresh token, or a
