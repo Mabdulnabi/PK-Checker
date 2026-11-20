@@ -4565,12 +4565,17 @@ async function loadPaymentMethodsConfig(){
     customPayMethods = data.filter(m => !m.is_builtin && m.visible);
     const container = document.getElementById('customPayCards');
     if (container) {
-      container.innerHTML = customPayMethods.map(m => `
-        <div class="paycard" data-pay="${m.key}">
-          <div class="pic">${m.icon_url ? `<img src="${escapeHtml(m.icon_url)}" style="width:20px;height:20px;object-fit:contain;">` : '<span style="font-size:18px;">💳</span>'}</div>
-          <b>${escapeHtml(m.name)}</b><span>${m.is_auto ? t('pay_auto') : t('pay_ref')}</span>
-        </div>
-      `).join('');
+      // Methods the admin added: in the tab the admin chose, with their logo from UI Design.
+      document.querySelectorAll('.paycard[data-custom="1"]').forEach(c => c.remove());
+      container.innerHTML = '';
+      customPayMethods.forEach(m => {
+        const html = `<div class="paycard" data-pay="${escapeHtml(m.key)}" data-custom="1">
+          <div class="pic"><svg class="ic" data-icon-key="wal_pay_${escapeHtml(m.key)}" viewBox="0 0 24 24" style="width:20px;height:20px;"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg></div>
+          <b>${escapeHtml(m.name)}</b><span>${t('pay_ref')}</span>
+        </div>`;
+        const grid = (m.pay_group && m.pay_group !== 'wallets') ? document.querySelector(`.pay-tab-panel[data-ptab-panel="${m.pay_group}"] .pay-tab-grid`) : null;
+        if (grid) grid.insertAdjacentHTML('beforeend', html); else container.insertAdjacentHTML('beforeend', html);
+      });
       // Register each custom method's payment details so renderPaymentDetails()
       // works uniformly for built-in and custom cards alike.
       customPayMethods.forEach(m => {
@@ -4579,10 +4584,20 @@ async function loadPaymentMethodsConfig(){
           input_label_ar: m.uid_label_ar, input_label_en: m.uid_label_en,
           input_ph_ar: m.uid_label_ar, input_ph_en: m.uid_label_en,
           instructions_ar: m.instructions_ar || '', instructions_en: m.instructions_en || '',
-          edge_fn: null, payload_key: 'ref_number', currency: 'EGP', qr: m.qr_url || '', qrSize: m.qr_size || 120,
+          edge_fn: null, payload_key: 'ref_number', currency: String(m.currency || 'EGP').toUpperCase() === 'EGP' ? 'EGP' : 'USD', qr: m.qr_url || '', qrSize: m.qr_size || 120,
         };
       });
     }
+    // Same order as the admin set, inside each tab.
+    const order = Object.fromEntries(data.map(m => [m.key, Number(m.sort_order) || 0]));
+    document.querySelectorAll('.pay-tab-grid').forEach(grid => {
+      const host = grid.querySelector('#customPayCards');
+      const cards = [...grid.querySelectorAll('.paycard')];
+      cards.sort((a, b) => (order[a.dataset.pay] ?? 999) - (order[b.dataset.pay] ?? 999));
+      cards.forEach(c => grid.appendChild(c));
+      if (host) grid.appendChild(host);
+    });
+    if (typeof applyCustomIcons === 'function') applyCustomIcons();
     refreshPayTabs();
     // If the selected method was just hidden, select the first one still shown.
     const sel = document.querySelector('#walletPayGrid .paycard.on');

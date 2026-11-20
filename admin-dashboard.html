@@ -187,6 +187,9 @@
   .filter-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
   .chip{padding:7px 14px;border-radius:20px;border:1.5px solid var(--paper-line);background:var(--paper);font-size:12px;font-weight:700;cursor:pointer;color:var(--ink-soft);}
   .chip.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .chip{display:inline-flex;align-items:center;gap:6px;}
+  .chip-n{min-width:20px;height:18px;padding:0 6px;border-radius:999px;background:var(--paper-soft);color:var(--ink-soft);font-size:10.5px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;}
+  .chip.on .chip-n{background:rgba(255,255,255,.2);color:#fff;}
   .search-box{flex:1;min-width:180px;padding:8px 14px;border-radius:20px;border:1.5px solid var(--paper-line);font-family:'Cairo',sans-serif;font-size:12.5px;}
   table.tbl{width:100%;border-collapse:collapse;}
   html[lang="ar"] table.tbl, html[lang="ar"] table.tbl *{font-family:'Cairo',sans-serif !important;}
@@ -851,6 +854,14 @@
     #kpiValidity{font-size:15px !important;}
     .kpi .lbl{font-size:11.5px;}
   }
+  /* Centered card content, white icon on a colored badge above it */
+  .kpi{text-align:center;}
+  .kpi .icon{position:static !important;margin:0 auto 7px !important;width:30px;height:30px;border-radius:9px;color:#fff !important;background:linear-gradient(135deg,#2563eb,#06b6d4);box-shadow:0 6px 14px -7px rgba(37,99,235,.7);}
+  .kpi.gold .icon{background:rgba(255,255,255,.16) !important;box-shadow:none;}
+  .kpi .icon svg{stroke:#fff;}
+  .kpi > .num, .kpi > .lbl{padding-inline-end:0 !important;}
+  .kpi .num{justify-content:center;}
+  .kpi-subcaption{text-align:center;}
 
   /* ===== Dashboard head: live refresh time + visits ===== */
   #tab-overview .main-head{align-items:center;}
@@ -915,6 +926,35 @@
   .ttl-ic{display:inline-flex;align-items:center;justify-content:center;width:1.1em;height:1.1em;margin-inline-end:7px;vertical-align:-0.18em;color:var(--blue-deep);flex:none;}
   .ttl-ic svg{width:100%;height:100%;}
   [data-theme="dark"] .ttl-ic{color:#7fb0ff;}
+  .pg-hint{font-size:12px;color:var(--muted);margin:-6px 0 14px;}
+  .pg-groups{display:flex;flex-direction:column;gap:14px;margin-bottom:16px;}
+  .pg-group{background:var(--paper);border:1px solid var(--paper-line);border-radius:14px;padding:12px 14px;}
+  .pg-group-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .pg-group-head b{font-size:14px;color:var(--navy);}
+  .pg-group-head span{font-size:11.5px;color:var(--muted);flex:1;}
+  .pg-row{display:flex;align-items:center;gap:10px;padding:9px 6px;border-top:1px solid var(--paper-line);}
+  .pg-row.off{opacity:.55;}
+  .pg-ord{display:flex;flex-direction:column;gap:2px;}
+  .pg-ord button{width:22px;height:16px;font-size:8px;line-height:1;border:1px solid var(--paper-line);background:var(--paper);border-radius:5px;cursor:pointer;color:var(--muted);padding:0;}
+  .pg-ord button:disabled{opacity:.3;cursor:default;}
+  .pg-logo{width:36px;height:36px;border-radius:10px;background:var(--paper-soft);display:inline-flex;align-items:center;justify-content:center;flex:none;overflow:hidden;color:var(--blue-deep);}
+  .pg-logo img{width:26px;height:26px;object-fit:contain;}
+  .pg-logo svg{width:20px;height:20px;}
+  .pg-info{flex:1;min-width:0;}
+  .pg-name{font-weight:800;font-size:13px;color:var(--navy);}
+  .pg-meta{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:3px;}
+  .pg-badge{font-size:10.5px;font-weight:700;padding:1px 8px;border-radius:999px;}
+  .pg-badge.auto{background:var(--ok-wash);color:var(--ok);}
+  .pg-badge.ref{background:var(--blue-wash);color:var(--blue-deep);}
+  .pg-badge.manual{background:var(--warn-wash);color:#B7791F;}
+  .pg-badge.cur{background:var(--paper-soft);color:var(--ink-soft);}
+  .pg-uid{font-size:10.5px;color:var(--muted);font-family:'IBM Plex Mono',monospace;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .pg-state{font-size:11px;color:var(--muted);min-width:42px;text-align:center;}
+  .pg-empty{font-size:12px;color:var(--muted);padding:10px 4px;border-top:1px solid var(--paper-line);}
+  .pg-lbl{display:block;font-size:11px;color:var(--muted);font-weight:700;margin:0 0 4px;text-align:start;}
+  .pg-logo-row{display:flex;align-items:center;gap:10px;background:var(--paper-soft);border-radius:10px;padding:8px 10px;margin-bottom:10px;text-align:start;}
+  .pg-type-note{font-size:11px;color:var(--blue-deep);background:var(--blue-wash);border-radius:8px;padding:7px 10px;margin-bottom:10px;text-align:start;line-height:1.6;}
+  @media (max-width:640px){ .pg-row{flex-wrap:wrap;} .pg-state{display:none;} }
   .api-pk{display:inline-flex;align-items:center;padding:1px 7px;border-radius:999px;background:var(--blue-wash);border:1px solid #cfe0fb;font-size:10.5px;font-weight:700;}
   .api-pk a, .api-pk span{color:var(--blue-deep) !important;text-decoration:none !important;}
   .prob-file-name{max-width:220px;font-size:11px;white-space:normal;overflow-wrap:anywhere;word-break:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.45;}
@@ -1265,18 +1305,17 @@
 
         <!-- Export range for users/credits -->
         <div class="filter-row">
-          <div class="chip on" data-f="all" onclick="setOrderFilter('all')" data-i18n="f_all">الكل</div>
-          <div class="chip" data-f="floating" onclick="setOrderFilter('floating')" data-i18n="f_floating">معلّق</div>
-          <div class="chip" data-f="processing" onclick="setOrderFilter('processing')" data-i18n="f_processing">قيد التنفيذ</div>
-          <div class="chip" data-f="completed" onclick="setOrderFilter('completed')" data-i18n="f_completed">مكتملة</div>
-          <div class="chip" data-f="problem" onclick="setOrderFilter('problem')" data-i18n="f_problem">فيها مشكلة</div>
+          <!-- Each filter shows its own count (the separate "Showing: ..." badge is gone) -->
+          <div class="chip on" data-f="all" onclick="setOrderFilter('all')"><span data-i18n="f_all">الكل</span><span class="chip-n" data-n="f-all"></span></div>
+          <div class="chip" data-f="processing" onclick="setOrderFilter('processing')"><span data-i18n="f_processing">قيد التنفيذ</span><span class="chip-n" data-n="f-processing"></span></div>
+          <div class="chip" data-f="completed" onclick="setOrderFilter('completed')"><span data-i18n="f_completed">مكتملة</span><span class="chip-n" data-n="f-completed"></span></div>
+          <div class="chip" data-f="problem" onclick="setOrderFilter('problem')"><span data-i18n="f_problem">فيها مشكلة</span><span class="chip-n" data-n="f-problem"></span></div>
           <span class="chip-sep"></span>
-          <div class="chip chip-ct on" data-ct="" onclick="setOrderTypeFilter('')" data-i18n="f_all">الكل</div>
-          <div class="chip chip-ct" data-ct="both" onclick="setOrderTypeFilter('both')" data-i18n="ord_ct_both">اقتباس + AI</div>
-          <div class="chip chip-ct" data-ct="sim_only" onclick="setOrderTypeFilter('sim_only')" data-i18n="ord_ct_sim">اقتباس فقط</div>
+          <div class="chip chip-ct on" data-ct="" onclick="setOrderTypeFilter('')"><span data-i18n="f_all">الكل</span><span class="chip-n" data-n="ct-"></span></div>
+          <div class="chip chip-ct" data-ct="both" onclick="setOrderTypeFilter('both')"><span data-i18n="ord_ct_both">اقتباس + AI</span><span class="chip-n" data-n="ct-both"></span></div>
+          <div class="chip chip-ct" data-ct="sim_only" onclick="setOrderTypeFilter('sim_only')"><span data-i18n="ord_ct_sim">اقتباس فقط</span><span class="chip-n" data-n="ct-sim_only"></span></div>
           <input type="text" class="search-box" id="orderSearch" data-i18n-ph="search_ph" placeholder="بحث بالاسم / الإيميل / رقم الطلب..." oninput="renderOrdersTable()">
         </div>
-        <div class="filter-badge-row" id="filterBadgeRow"></div>
         <div class="panel">
           <div style="overflow-x:auto;">
           <table class="tbl orders-tbl">
@@ -1962,7 +2001,8 @@
           <h2 data-i18n="paygw_title">💰 بوابات الدفع</h2>
           <button class="btn btn-primary" onclick="openAddPayMethodPopup()" data-i18n="paygw_add_btn">+ إضافة وسيلة دفع</button>
         </div>
-        <div id="payMethodsList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:16px;"></div>
+        <p class="pg-hint">نفس ترتيب وتقسيم صفحة الدفع عند العميل. أي تعديل هنا بيظهر للعميل أول ما يفتح المحفظة. الشعار بيتغير من "تصميم الواجهة".</p>
+        <div id="payMethodsList" class="pg-groups"></div>
       </div>
 
       <!-- ACCOUNTS (merged Users + Admin Management) -->
@@ -4408,15 +4448,21 @@ function renderTodayOrders(){
     : `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px;">${currentLang==='ar'?'مفيش طلبات النهارده لسه':'No orders today yet'}</td></tr>`;
 }
 
+const ORDER_STATUS_TEST = {
+  all: () => true,
+  processing: o => ['run', 'processing'].includes(o.status),
+  completed: o => o.status === 'completed',
+  problem: o => ['error', 'rejected'].includes(o.status),
+};
+const ORDER_TYPE_TEST = {
+  '': () => true,
+  both: o => o.check_type === 'both' || o.check_type === 'sim_ai',
+  sim_only: o => o.check_type === 'sim_only',
+};
 function renderOrdersTable(){
   const search = (document.getElementById('orderSearch').value || '').trim().toLowerCase();
+  if (!ORDER_STATUS_TEST[orderFilter]) orderFilter = 'all'; // e.g. the removed "floating" filter
   let list = allOrders;
-  if (orderFilter === 'floating') list = list.filter(o => ['uploading','checking'].includes(o.status));
-  else if (orderFilter === 'processing') list = list.filter(o => ['run','processing'].includes(o.status));
-  else if (orderFilter === 'completed') list = list.filter(o => o.status === 'completed');
-  else if (orderFilter === 'problem') list = list.filter(o => ['error','rejected'].includes(o.status));
-  if (orderTypeFilter === 'both') list = list.filter(o => o.check_type === 'both' || o.check_type === 'sim_ai');
-  else if (orderTypeFilter === 'sim_only') list = list.filter(o => o.check_type === 'sim_only');
 
   if (search) {
     list = list.filter(o => {
@@ -4429,10 +4475,13 @@ function renderOrdersTable(){
     });
   }
 
+  // Counts inside the filters: each status counts within the chosen type, and each type within the chosen status.
+  const st = ORDER_STATUS_TEST[orderFilter], ty = ORDER_TYPE_TEST[orderTypeFilter] || ORDER_TYPE_TEST[''];
+  Object.entries(ORDER_STATUS_TEST).forEach(([k, f]) => { const el = document.querySelector(`.chip-n[data-n="f-${k}"]`); if (el) el.textContent = list.filter(o => f(o) && ty(o)).length; });
+  Object.entries(ORDER_TYPE_TEST).forEach(([k, f]) => { const el = document.querySelector(`.chip-n[data-n="ct-${k}"]`); if (el) el.textContent = list.filter(o => f(o) && st(o)).length; });
+  list = list.filter(o => st(o) && ty(o));
+
   document.getElementById('ordersSub').textContent = `${list.length} ${currentLang === 'ar' ? 'طلب' : 'orders'}`;
-  const badge = document.getElementById('filterBadgeRow');
-  const activeChip = document.querySelector('.chip.on');
-  badge.innerHTML = `<span class="filter-badge">${t('filter_showing')}: ${activeChip ? t(activeChip.getAttribute('data-i18n')) : t('f_all')} (${list.length})</span>`;
 
   const pageList = paginateList('orders', list, renderOrdersTable);
 
@@ -5190,9 +5239,15 @@ function deliveryTime(o){
     <div class="adm-modal-box" style="max-width:460px;max-height:85vh;overflow-y:auto;">
       <div class="adm-modal-icon">💰</div>
       <div class="adm-modal-msg" id="payMethodPopupTitle">إضافة وسيلة دفع</div>
+      <div class="pg-logo-row"><span class="pg-logo" id="payMethodLogo"></span><div style="flex:1;min-width:0;"><b style="font-size:12px;">الشعار</b><div style="font-size:10.5px;color:var(--muted);">بيتغير من تاب تصميم الواجهة</div></div><button type="button" class="msg-btn" id="payMethodLogoBtn" onclick="pgOpenLogo()">تغيير الشعار</button></div>
+      <label class="pg-lbl">الاسم اللي بيظهر للعميل</label>
       <input class="adm-modal-input" id="payMethodName" placeholder="اسم وسيلة الدفع" style="margin-bottom:8px;">
-      <p style="font-size:10.5px;color:var(--muted);text-align:center;margin:0 0 8px;">💡 أيقونة/شعار وسيلة الدفع تتعدل من تاب "تصميم الواجهة" فقط.</p>
-      <div style="text-align:center;margin-bottom:10px;">
+      <div id="payMethodNewOnly" style="display:flex;gap:8px;margin-bottom:8px;">
+        <div style="flex:1;"><label class="pg-lbl">يظهر في تاب</label><select class="adm-modal-input" id="payMethodGroup"><option value="wallets">محافظ إلكترونية</option><option value="card">الدفع بالكارت</option><option value="crypto">العملات الرقمية</option></select></div>
+        <div style="flex:1;"><label class="pg-lbl">العملة</label><select class="adm-modal-input" id="payMethodCurrency"><option value="EGP">جنيه مصري</option><option value="USD">دولار</option></select></div>
+      </div>
+      <div id="payMethodTypeNote" class="pg-type-note"></div>
+      <div id="payMethodQrBlock" style="text-align:center;margin-bottom:10px;">
         <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">QR (اختياري)</div>
         <img id="payMethodQrPreview" style="object-fit:contain;display:block;margin:0 auto 6px;">
         <div style="display:flex;gap:6px;justify-content:center;">
@@ -5205,22 +5260,25 @@ function deliveryTime(o){
           <button class="uid-size-btn" onclick="changePayMethodQrSize(10)" title="أكبر">+</button>
         </div>
       </div>
-      <input class="adm-modal-input" id="payMethodUid" placeholder="UID / رقم / عنوان المحفظة" style="margin-bottom:8px;">
-      <div style="display:flex;gap:8px;margin-bottom:8px;">
-        <input class="adm-modal-input" id="payMethodUidLabelAr" placeholder="تسمية الحقل (عربي)">
-        <input class="adm-modal-input" id="payMethodUidLabelEn" placeholder="Field label (English)">
+      <div id="payMethodUidBlock">
+        <label class="pg-lbl">رقم / عنوان التحويل اللي العميل بيحول عليه</label>
+        <input class="adm-modal-input" id="payMethodUid" placeholder="UID / رقم / عنوان المحفظة" style="margin-bottom:8px;direction:ltr;">
+        <label class="pg-lbl">اسم الحقل ده عند العميل</label>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <input class="adm-modal-input" id="payMethodUidLabelAr" placeholder="مثلاً: رقم المحفظة">
+          <input class="adm-modal-input" id="payMethodUidLabelEn" placeholder="e.g. Wallet number">
+        </div>
       </div>
+      <label class="pg-lbl">تعليمات الدفع اللي بتظهر للعميل</label>
       <textarea class="adm-modal-input" id="payMethodInstrAr" placeholder="تعليمات الدفع (عربي)" rows="2" style="margin-bottom:8px;resize:vertical;"></textarea>
       <textarea class="adm-modal-input" id="payMethodInstrEn" placeholder="Payment instructions (English)" rows="2" style="margin-bottom:8px;resize:vertical;"></textarea>
-      <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:14px;cursor:pointer;">
-        <input type="checkbox" id="payMethodIsAuto"> يظهر بادج "تلقائي"
-      </label>
+      <input type="checkbox" id="payMethodIsAuto" hidden>
       <div id="payMethodApiSection" style="display:none;background:var(--paper-soft);border-radius:10px;padding:12px;margin-bottom:14px;">
         <b style="font-size:12px;display:block;margin-bottom:8px;">🔑 بيانات API (للتحقق التلقائي)</b>
         <div id="payMethodApiFields" style="display:flex;flex-direction:column;gap:8px;"></div>
         <p style="font-size:10px;color:var(--muted);margin:8px 0 0;">سيب أي حقل فاضي لو مش عايز تغيّره — قيمته الحالية هتفضل زي ما هي.</p>
       </div>
-      <p style="font-size:10.5px;color:var(--muted);text-align:center;margin:0 0 12px;">ملحوظة: التحقق التلقائي الفعلي (API/Webhook) لأي بوابة جديدة محتاج تكامل برمجي خاص بيها ومفاتيح API حقيقية من حسابك — الأداة دي بتدير بيانات العرض والدفع اليدوي بس.</p>
+
       <div class="adm-modal-btns">
         <button class="adm-modal-ok" style="background:var(--blue);" onclick="submitPayMethod()">حفظ</button>
         <button class="adm-modal-cancel" onclick="closePayMethodPopup()">إلغاء</button>
@@ -5607,6 +5665,7 @@ function applyFavicon(){
 }
 async function initUIDesignTab(){
   if(!uiConfigLoaded) await loadUIConfigData();
+  await pgAddLogoSlots();
   renderUISections();renderUIIcons();renderUIColors();updateModifiedCount();
 }
 function renderUISections(){
@@ -8448,23 +8507,112 @@ async function initPayGatewaysTab(){
   allPayMethods = data || [];
   renderPayMethodsList();
 }
+// Payment methods, grouped exactly like the customer's payment tabs.
+const PG_GROUPS = [['wallets', 'محافظ إلكترونية', 'E-Wallets'], ['card', 'الدفع بالكارت', 'Card'], ['crypto', 'العملات الرقمية', 'Crypto']];
+// What each built-in method uses on the customer page (fields that do nothing are not shown).
+const PG_BUILTIN = {
+  instapay: { uid: true, qr: true, how: 'ref' }, vodafone: { uid: true, qr: true, how: 'ref' },
+  easykash: { uid: false, qr: false, how: 'auto' }, paypal: { uid: false, qr: false, how: 'auto' },
+  binance: { uid: true, qr: true, how: 'auto' }, bybit: { uid: true, qr: true, how: 'auto' }, bep20: { uid: true, qr: true, how: 'auto' },
+};
+const PG_CARD_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>';
+function pgGroupOf(m){ return m.pay_group || (['easykash', 'paypal'].includes(m.key) ? 'card' : ['binance', 'bybit', 'bep20'].includes(m.key) ? 'crypto' : 'wallets'); }
+// The logo the customer sees: the UI Design icon if one was uploaded, else the default drawing.
+function pgLogoHtml(m){
+  const key = 'wal_pay_' + m.key;
+  const url = (typeof uiConfigState !== 'undefined' && uiConfigState.icons) ? uiConfigState.icons[key] : null;
+  if (url) return `<img src="${escapeHtml(url)}" alt="">`;
+  const def = (typeof UI_ICON_MAP !== 'undefined' ? UI_ICON_MAP.find(i => i.key === key) : null);
+  return def ? def.defaultSvg : PG_CARD_SVG;
+}
+function pgTypeBadge(m){
+  const b = PG_BUILTIN[m.key];
+  if (b && b.how === 'auto') return '<span class="pg-badge auto">تأكيد تلقائي</span>';
+  if (b) return '<span class="pg-badge ref">رقم مرجعي · تأكيد تلقائي</span>';
+  return '<span class="pg-badge manual">مراجعة يدوية</span>';
+}
+async function pgAddLogoSlots(){
+  if (!allPayMethods.length) {
+    const { data } = await supabaseClient.from('payment_methods').select('*').order('sort_order');
+    allPayMethods = data || [];
+  }
+  allPayMethods.filter(m => !m.is_builtin).forEach(m => {
+    const key = 'wal_pay_' + m.key;
+    if (UI_ICON_MAP.some(i => i.key === key)) return;
+    UI_ICON_MAP.push({ key, imgSize: '18px', label_ar: 'شعار ' + m.name, label_en: m.name + ' logo',
+      context_ar: 'بطاقات وسائل الدفع', context_en: 'Payment method cards',
+      defaultSvg: '<svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>',
+      section: 'wallet', section_ar: 'أيقونات المحفظة', section_en: 'Wallet icons' });
+  });
+}
 function renderPayMethodsList(){
   const el = document.getElementById('payMethodsList');
   if (!el) return;
-  el.innerHTML = allPayMethods.map(m => `
-    <div class="tab-card">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-        ${m.icon_url ? `<img src="${escapeHtml(m.icon_url)}" style="width:28px;height:28px;object-fit:contain;">` : `<div style="width:28px;height:28px;border-radius:50%;background:var(--paper-soft);"></div>`}
-        <b style="flex:1;">${escapeHtml(m.name)}</b>
-        <label class="side-toggle-sw"><input type="checkbox" ${m.visible?'checked':''} onchange="togglePayMethodVisible('${m.id}',this.checked)"><span class="side-toggle-slider"></span></label>
-      </div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">${m.uid ? escapeHtml(m.uid) : 'مفيش UID متسجل'}${m.is_auto ? ' · تلقائي' : ' · يدوي'}</div>
-      <div style="display:flex;gap:6px;">
-        <button class="msg-btn" onclick="openEditPayMethodPopup('${m.id}')">✎ تعديل</button>
-        <button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);" data-a="${escapeHtml(m.id)}" data-b="${escapeHtml(m.name)}" onclick="runWithData(this, deletePayMethod)">🗑 حذف</button>
-      </div>
-    </div>
-  `).join('') || `<p style="color:var(--muted);">لا توجد وسائل دفع مسجلة.</p>`;
+  el.innerHTML = PG_GROUPS.map(([g, ar]) => {
+    const list = allPayMethods.filter(m => pgGroupOf(m) === g).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+    const rows = list.map((m, i) => `
+      <div class="pg-row${m.visible ? '' : ' off'}">
+        <div class="pg-ord">
+          <button type="button" title="لفوق" ${i === 0 ? 'disabled' : ''} onclick="pgMove('${m.id}', -1)">▲</button>
+          <button type="button" title="لتحت" ${i === list.length - 1 ? 'disabled' : ''} onclick="pgMove('${m.id}', 1)">▼</button>
+        </div>
+        <span class="pg-logo">${pgLogoHtml(m)}</span>
+        <div class="pg-info">
+          <div class="pg-name">${escapeHtml(m.name)}</div>
+          <div class="pg-meta">${pgTypeBadge(m)}<span class="pg-badge cur">${escapeHtml(String(m.currency || 'EGP').replace('USDT', 'USD'))}</span>${m.uid ? `<span class="pg-uid" dir="ltr">${escapeHtml(m.uid)}</span>` : ''}</div>
+        </div>
+        <span class="pg-state">${m.visible ? 'ظاهرة' : 'مخفية'}</span>
+        <label class="side-toggle-sw" title="إظهار للعملاء"><input type="checkbox" ${m.visible ? 'checked' : ''} onchange="togglePayMethodVisible('${m.id}',this.checked)"><span class="side-toggle-slider"></span></label>
+        <button class="msg-btn" onclick="openEditPayMethodPopup('${m.id}')">تعديل</button>
+        ${m.is_builtin ? '' : `<button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);" data-a="${escapeHtml(m.id)}" data-b="${escapeHtml(m.name)}" onclick="runWithData(this, deletePayMethod)">حذف</button>`}
+      </div>`).join('');
+    return `<div class="pg-group"><div class="pg-group-head"><b>${ar}</b><span>${list.filter(m => m.visible).length} / ${list.length} ظاهرة</span>
+        <button type="button" class="msg-btn" onclick="openAddPayMethodPopup('${g}')">+ إضافة هنا</button></div>
+      ${rows || '<div class="pg-empty">مفيش وسائل في التاب ده</div>'}</div>`;
+  }).join('');
+}
+// Order inside a tab (the customer page shows the same order).
+async function pgMove(id, dir){
+  const m = allPayMethods.find(x => x.id === id); if (!m) return;
+  const list = allPayMethods.filter(x => pgGroupOf(x) === pgGroupOf(m)).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+  const i = list.indexOf(m), j = i + dir;
+  if (j < 0 || j >= list.length) return;
+  [list[i], list[j]] = [list[j], list[i]];
+  const updates = list.map((x, k) => ({ id: x.id, sort_order: k + 1 })).filter(u => allPayMethods.find(x => x.id === u.id).sort_order !== u.sort_order);
+  for (const u of updates) {
+    const { error } = await supabaseClient.from('payment_methods').update({ sort_order: u.sort_order, updated_at: new Date().toISOString() }).eq('id', u.id);
+    if (error) { await adminAlert('فشل تغيير الترتيب: ' + error.message, {icon:'❌', danger:true}); return; }
+    allPayMethods.find(x => x.id === u.id).sort_order = u.sort_order;
+  }
+  renderPayMethodsList();
+}
+// "Change logo": the UI Design tab, on this method's logo.
+function pgOpenLogo(){
+  const m = allPayMethods.find(x => x.id === editingPayMethodId);
+  closePayMethodPopup();
+  switchTab('uidesign');
+  setTimeout(() => {
+    if (typeof toggleUISec === 'function' && !document.getElementById('uid-body-icons')?.classList.contains('open')) toggleUISec('icons');
+    const card = m && document.getElementById('uid-icon-card-wal_pay_' + m.key);
+    if (card) { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); card.style.outline = '2px solid var(--blue)'; setTimeout(() => { card.style.outline = ''; }, 2500); }
+  }, 500);
+}
+// Shows only the fields this method really uses.
+function pgSetupPopup(m, group){
+  const b = m ? PG_BUILTIN[m.key] : null;
+  const custom = !m || !m.is_builtin;
+  document.getElementById('payMethodNewOnly').style.display = custom ? 'flex' : 'none';
+  document.getElementById('payMethodGroup').value = group || (m ? pgGroupOf(m) : 'wallets');
+  document.getElementById('payMethodCurrency').value = String(m?.currency || 'EGP').toUpperCase() === 'EGP' ? 'EGP' : 'USD';
+  document.getElementById('payMethodUidBlock').style.display = (custom || b?.uid) ? '' : 'none';
+  document.getElementById('payMethodQrBlock').style.display = (custom || b?.qr) ? '' : 'none';
+  document.getElementById('payMethodLogo').innerHTML = m ? pgLogoHtml(m) : PG_CARD_SVG;
+  document.getElementById('payMethodLogoBtn').style.display = m ? '' : 'none';
+  document.getElementById('payMethodTypeNote').innerHTML = !m
+    ? 'الوسيلة الجديدة بتتراجع يدوياً: العميل بيحوّل ويكتب الرقم المرجعي، وإنت بتأكد الدفعة من تاب المدفوعات. الشعار هيتضاف لتصميم الواجهة تلقائياً بعد الحفظ.'
+    : b?.how === 'auto' ? 'الدفعة بتتأكد تلقائياً، ومفيش حاجة تتراجع يدوياً.'
+    : b ? 'العميل بيكتب الرقم المرجعي والدفعة بتتأكد تلقائياً.'
+    : 'العميل بيكتب الرقم المرجعي وإنت بتأكد الدفعة من تاب المدفوعات.';
 }
 async function togglePayMethodVisible(id, visible){
   const { error } = await supabaseClient.from('payment_methods').update({ visible, updated_at:new Date().toISOString() }).eq('id', id);
@@ -8491,9 +8639,10 @@ const GATEWAY_API_FIELDS = {
 let editingPayMethodKey = null;
 
 let currentPayMethodQrSize = 120;
-function openAddPayMethodPopup(){
+function openAddPayMethodPopup(group){
   editingPayMethodId = null;
   editingPayMethodKey = null;
+  pgSetupPopup(null, typeof group === 'string' ? group : 'wallets');
   document.getElementById('payMethodPopupTitle').textContent = 'إضافة وسيلة دفع';
   ['payMethodName','payMethodUid','payMethodUidLabelAr','payMethodUidLabelEn','payMethodInstrAr','payMethodInstrEn'].forEach(id=>{ document.getElementById(id).value=''; });
   document.getElementById('payMethodIsAuto').checked = true;
@@ -8517,6 +8666,7 @@ async function openEditPayMethodPopup(id){
   document.getElementById('payMethodInstrAr').value = m.instructions_ar||'';
   document.getElementById('payMethodInstrEn').value = m.instructions_en||'';
   document.getElementById('payMethodIsAuto').checked = !!m.is_auto;
+  pgSetupPopup(m);
   document.getElementById('payMethodQrPreview').src = m.qr_url||'';
   currentPayMethodQrSize = m.qr_size || 120;
   payMethodQrRemoved = false;
@@ -8594,9 +8744,15 @@ async function submitPayMethod(){
     uid_label_en: document.getElementById('payMethodUidLabelEn').value.trim() || 'Reference number',
     instructions_ar: document.getElementById('payMethodInstrAr').value.trim(),
     instructions_en: document.getElementById('payMethodInstrEn').value.trim(),
-    is_auto: document.getElementById('payMethodIsAuto').checked,
     updated_at: new Date().toISOString(),
   };
+  const editing = editingPayMethodId ? allPayMethods.find(x => x.id === editingPayMethodId) : null;
+  if (!editing || !editing.is_builtin) {
+    // Methods you add: tab + currency are yours to choose, and they are always checked by hand.
+    payload.pay_group = document.getElementById('payMethodGroup').value;
+    payload.currency = document.getElementById('payMethodCurrency').value;
+    payload.is_auto = false;
+  }
   const qrPreview = document.getElementById('payMethodQrPreview').src;
   payload.qr_url = payMethodQrRemoved ? null : (qrPreview || null);
   payload.qr_size = currentPayMethodQrSize;
@@ -8608,7 +8764,9 @@ async function submitPayMethod(){
       await logAdminActivity('setting_change', null, '', `تعديل وسيلة دفع: ${name}`);
     } else {
       const key = 'custom_' + Date.now();
-      const { error } = await supabaseClient.from('payment_methods').insert({ ...payload, key, visible: true, sort_order: allPayMethods.length + 1 });
+      const inGroup = allPayMethods.filter(x => pgGroupOf(x) === payload.pay_group);
+      const { error } = await supabaseClient.from('payment_methods').insert({ ...payload, key, visible: true, is_builtin: false,
+        sort_order: inGroup.reduce((mx, x) => Math.max(mx, x.sort_order || 0), 0) + 1 });
       if (error) throw error;
       await logAdminActivity('setting_change', null, '', `إضافة وسيلة دفع جديدة: ${name}`);
     }
