@@ -4637,7 +4637,7 @@ async function adoptOrderManually(orderId){
   if (!o) return;
 
   const confirmed = await adminConfirm(
-    `تحويل الطلب ${o.display_id || orderId.slice(0,8)} للمعالجة اليدوية؟\n\nسيظهر في قائمة المعالجة اليدوية ويمكنك رفع التقريرين (اقتباس${o.check_type === 'sim_ai' || o.check_type === 'both' ? ' + AI' : ''}) مباشرة.\n\nملاحظة: الفحوصات اللي اترد للعميل عند فشل الـ API — تقدر تعيد خصمه يدوياً من تاب المدفوعات لو حبيت.`,
+    `تحويل الطلب ${o.display_id || orderId.slice(0,8)} للمعالجة اليدوية؟\n\nسيظهر في قائمة المعالجة اليدوية ويمكنك رفع التقريرين (اقتباس${o.check_type === 'sim_ai' || o.check_type === 'both' ? ' + AI' : ''}) مباشرة.\n\nأول ما تسلّم التقارير، الفحص بيتخصم من رصيد العميل تلقائي لو كان اترجعله. العميل مش هيشوف إن الطلب اتعمل يدوي.`,
     { icon: '🖐', confirmLabel: 'تولى يدوياً' }
   );
   if (!confirmed) return;
@@ -4672,7 +4672,11 @@ async function uploadManualReportFile(orderId, kind, inputEl){
   const prevHtml = label.innerHTML;
   label.innerHTML = '⏳ جاري الرفع...';
   try {
-    const path = `${orderId}/${kind}_${Date.now()}_${file.name}`;
+    // Neutral name: the customer's download link shows nothing about how or by whom the report was made.
+    const ord = allOrders.find(x => x.id === orderId);
+    const ext = ((file.name.match(/\.([A-Za-z0-9]{1,6})$/) || [])[1] || 'pdf').toLowerCase();
+    const code = String(ord?.display_id || orderId.slice(0, 8)).replace(/[^A-Za-z0-9-]/g, '');
+    const path = `${orderId}/${kind === 'ai' ? 'AI-Report' : 'Similarity-Report'}-${code}-${Date.now().toString(36)}.${ext}`;
     const { error: upErr } = await supabaseClient.storage.from('order-reports').upload(path, file);
     if (upErr) throw upErr;
     const { data: pub } = supabaseClient.storage.from('order-reports').getPublicUrl(path);
