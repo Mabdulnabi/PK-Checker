@@ -1985,6 +1985,45 @@ if (new URLSearchParams(location.search).has('preview')) {
   }, 300));
 }
 </script>
+<style>
+  #failAlerts{display:flex;flex-direction:column;gap:10px;margin:4px 0 16px;}
+  #failAlerts:empty{display:none;}
+  .fail-alert{position:relative;display:flex;align-items:center;gap:16px;padding:14px 44px 14px 18px;border-radius:14px;
+    background:linear-gradient(90deg,#fff1f2,#fff7f8);border:1px solid #fecdd3;border-inline-start:5px solid #e11d48;
+    animation:faIn .35s ease both;}
+  html[dir="rtl"] .fail-alert{padding:14px 18px 14px 44px;}
+  @keyframes faIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;}}
+  .fa-ic{flex:none;width:46px;height:46px;border-radius:12px;background:#e11d48;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 18px -8px rgba(225,29,72,.7);}
+  .fa-ic svg{width:24px;height:24px;fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;}
+  .fa-main{flex:1;min-width:0;}
+  .fa-top{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:4px;}
+  .fa-tag{font-size:10.5px;font-weight:800;letter-spacing:.6px;color:#be123c;background:#ffe4e6;border:1px solid #fda4af;border-radius:999px;padding:2px 10px;}
+  .fa-title{font-size:13.5px;font-weight:800;color:#111827;}
+  .fa-title b{color:#be123c;word-break:break-all;}
+  .fa-refund{font-size:10.5px;font-weight:700;color:#15803d;background:#dcfce7;border:1px solid #86efac;border-radius:6px;padding:2px 8px;white-space:nowrap;}
+  .fa-reason{font-size:12.5px;color:#be123c;line-height:1.6;}
+  .fa-reason b{color:#111827;}
+  .fa-code{font-size:10.5px;color:#9f1239;opacity:.7;margin-inline-start:6px;}
+  .fa-guide{display:flex;gap:10px;align-items:flex-start;margin-top:10px;padding:10px 14px;background:#fff;border:1px solid #fecdd3;border-radius:10px;font-size:12.5px;color:#374151;line-height:1.7;}
+  .fa-gi{flex:none;width:18px;height:18px;border-radius:50%;background:#e11d48;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:3px;font-family:serif;}
+  .fa-guide b{color:#111827;}
+  .fa-link{color:#e11d48;font-weight:800;text-decoration:none;white-space:nowrap;margin-inline-start:4px;}
+  .fa-link:hover{text-decoration:underline;}
+  .fa-btn{flex:none;display:inline-flex;align-items:center;gap:8px;background:#e11d48;color:#fff;border:none;border-radius:10px;padding:11px 18px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;box-shadow:0 8px 18px -10px rgba(225,29,72,.9);transition:transform .15s ease,background .15s ease;}
+  .fa-btn:hover{background:#be123c;transform:translateY(-1px);}
+  .fa-btn svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+  .fa-x{position:absolute;top:8px;inset-inline-end:10px;background:none;border:none;font-size:20px;line-height:1;color:#fb7185;cursor:pointer;padding:2px 4px;}
+  .fa-x:hover{color:#be123c;}
+  [data-theme="dark"] .fail-alert{background:linear-gradient(90deg,rgba(225,29,72,.14),rgba(225,29,72,.06));border-color:rgba(251,113,133,.35);}
+  [data-theme="dark"] .fa-title,[data-theme="dark"] .fa-reason b,[data-theme="dark"] .fa-guide b{color:#f9fafb;}
+  [data-theme="dark"] .fa-guide{background:rgba(255,255,255,.04);color:#d1d5db;border-color:rgba(251,113,133,.3);}
+  @media (max-width:640px){
+    .fail-alert{align-items:flex-start;gap:10px;}
+    .fa-code{display:block;margin:2px 0 0;white-space:nowrap;}
+    .fa-ic{width:34px;height:34px;border-radius:10px;}
+    .fa-ic svg{width:19px;height:19px;}
+  }
+</style>
 </head>
 <body>
 
@@ -2228,6 +2267,8 @@ if (new URLSearchParams(location.search).has('preview')) {
           <div class="kpi-subcaption"><span class="latin" id="kpiRejectedNum">1</span> <span data-i18n="kpi_rejected_word">مرفوض</span> · <span class="latin" id="kpiCancelledNum">0</span> <span data-i18n="kpi_cancelled_word">ملغي</span></div>
         </div>
       </div>
+
+      <div id="failAlerts"></div>
 
       <div class="sec-head">
         <div class="sec-head-titles">
@@ -11511,6 +11552,71 @@ function renderKpis(){
   document.getElementById('kpiCompletedNum').textContent = orders.filter(o=>o.phase==='completed').length;
   document.getElementById('kpiRejectedNum').textContent = orders.filter(o=>o.phase==='error' || o.phase==='failed_invalid' || o.phase==='rejected').length;
   document.getElementById('kpiCancelledNum').textContent = orders.filter(o=>o.phase==='cancelled').length;
+  renderFailAlerts();
+}
+
+/* ---------- Failed-file alerts under the New check cards ----------
+   One alert per failed file from the last 3 days (newest 3), with the reason, the slot refund and
+   advice for the case; the customer closes it with ×, which is remembered on this device. */
+const FAIL_DISMISS_KEY = 'pk-dismissed-fail-alerts';
+function failDismissed(){ try { return JSON.parse(localStorage.getItem(FAIL_DISMISS_KEY) || '[]'); } catch { return []; } }
+function dismissFailAlert(id){
+  const list = failDismissed(); if (!list.includes(id)) list.push(id);
+  try { localStorage.setItem(FAIL_DISMISS_KEY, JSON.stringify(list.slice(-200))); } catch {}
+  renderFailAlerts();
+}
+function failGuidance(reason){
+  const r = String(reason || '').toLowerCase(), ar = currentLang === 'ar';
+  const maxW = (typeof SF_MAX_WORDS !== 'undefined' ? SF_MAX_WORDS : 30000).toLocaleString('en-US');
+  if (/word/.test(r) || /كلمة/.test(reason || '')) return {
+    title: ar ? 'إرشادات حد الكلمات:' : 'Word Limit Guidance:',
+    body: ar ? `الحد الأقصى المدعوم حالياً هو <b>${maxW} كلمة</b> للملف الواحد. لو ملفك أكبر من كده، قسّمه إلى <b>جزأين</b> (مثلاً: الجزء 1 والجزء 2) وارفع كل جزء لوحده.`
+             : `The current maximum supported limit is <b>${maxW} words</b> per document. If your file exceeds ${maxW} words, please split it into <b>2 parts</b> (e.g., Part 1 &amp; Part 2) and upload them separately.` };
+  if (/(size|mb|large|too big)/.test(r) || /حجم|ميجا/.test(reason || '')) return {
+    title: ar ? 'إرشادات حجم الملف:' : 'File Size Guidance:',
+    body: ar ? 'أقصى حجم للملف <b>50 ميجا</b>. صغّر حجم الملف (مثلاً بضغط الصور أو حفظه PDF) وارفعه تاني.'
+             : 'The maximum file size is <b>50 MB</b>. Make the file smaller (for example by compressing images or saving it as PDF) and upload it again.' };
+  if (/(format|type|extension|invalid|corrupt|unsupported|unreadable)/.test(r) || /صيغة|تالف|غير صالح/.test(reason || '')) return {
+    title: ar ? 'إرشادات صيغة الملف:' : 'File Format Guidance:',
+    body: ar ? 'ارفع الملف بصيغة <b>PDF</b> أو <b>DOCX</b>، واتأكد إنه بيفتح عادي ومش محمي بباسورد.'
+             : 'Upload the file as <b>PDF</b> or <b>DOCX</b>, and make sure it opens normally and is not password-protected.' };
+  if (/(unavailable|try again|temporar)/.test(r)) return {
+    title: ar ? 'ملحوظة:' : 'Note:',
+    body: ar ? 'المشكلة مؤقتة عند خدمة الفحص ومش في ملفك. استنى دقايق وارفع نفس الملف تاني.'
+             : 'This is a temporary problem with the check service, not with your file. Wait a few minutes and upload the same file again.' };
+  return {
+    title: ar ? 'المطلوب:' : 'What to do:',
+    body: ar ? 'راجع شروط رفع الملفات، وبعدين ارفع الملف مرة تانية.' : 'Check the file upload requirements, then upload the file again.' };
+}
+function renderFailAlerts(){
+  const box = document.getElementById('failAlerts');
+  if (!box) return;
+  const ar = currentLang === 'ar', gone = failDismissed(), since = Date.now() - 3 * 86400000;
+  const list = (orders || []).filter(o => ['error', 'failed_invalid', 'rejected'].includes(o.phase)
+    && o.phaseStart >= since && !gone.includes(o.id)).sort((a, b) => b.phaseStart - a.phaseStart).slice(0, 3);
+  box.innerHTML = list.map(o => {
+    // The provider's own reason (e.g. "exceeded 50,000 words (71,300 words)") is kept when our wording would only be generic.
+    let reason = o.errorReason ? localizeOrderError(o.errorReason) : (ar ? 'تعذر إتمام فحص الملف.' : 'The file could not be checked.');
+    if (o.errorReason && reason === t('err_generic') && String(o.errorReason).length > 12) reason = String(o.errorReason);
+    // Service down before the check was taken: nothing was deducted. Otherwise the slot came back.
+    const notCharged = reason === t('err_provider_unavailable') || /(no check has been deducted|not (been )?deducted|لم يُ?خصم)/i.test((o.errorReason || '') + ' ' + reason);
+    const refunded = !notCharged && (o.phase !== 'rejected' || /refund|returned|أُعيد|رجع|استرد/i.test(o.errorReason || ''));
+    const g = failGuidance(o.errorReason);
+    return `<div class="fail-alert" role="alert">
+      <div class="fa-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 7v6M12 16.5v.5"/></svg></div>
+      <div class="fa-main">
+        <div class="fa-top">
+          <span class="fa-tag">${ar ? 'فشل الفحص' : 'SCAN CHECK FAILED'}</span>
+          <span class="fa-title">${ar ? 'مشكلة في الملف:' : 'Issue with File:'} <b>${escapeHtml(o.file || (ar ? 'ملفك' : 'Your document'))}</b></span>
+          ${refunded ? `<span class="fa-refund">✓ ${ar ? 'اترجع 1 فحص' : '1 Slot Refunded'}</span>` : notCharged ? `<span class="fa-refund">✓ ${ar ? 'لم يُخصم أي فحص' : 'No slot deducted'}</span>` : ''}
+        </div>
+        <div class="fa-reason"><b>${ar ? 'السبب:' : 'Reason:'}</b> ${escapeHtml(reason)} <span class="fa-code mono">${escapeHtml(o.displayId || '')}</span></div>
+        <div class="fa-guide"><span class="fa-gi">i</span><div><b>${g.title}</b> ${g.body}
+          <a href="#" class="fa-link" onclick="event.preventDefault();openSubmitFilesModal()">${ar ? 'ارفع الملف مرة تانية ←' : 'Re-upload file →'}</a></div></div>
+      </div>
+      <button type="button" class="fa-x" onclick="dismissFailAlert('${o.id}')" title="${ar ? 'إخفاء' : 'Dismiss'}">×</button>
+    </div>`;
+  }).join('');
 }
 renderKpis();
 renderOrders();
