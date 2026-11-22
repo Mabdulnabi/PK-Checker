@@ -94,6 +94,28 @@ Deno.serve(async (req: Request) => {
       return json({ success: true, found: (rows ?? []).length, removed });
     }
 
+    // Moves report folders of orders that no longer exist into Deleted/<folder>/ (nothing is deleted).
+    // Internal secret only; each folder must be an order id with no order row.
+    if (body.action === "move_orphans_to_deleted") {
+      const sent = req.headers.get("x-internal-secret") ?? "";
+      const { data: expected } = await admin.rpc("get_internal_cron_secret");
+      if (!expected || sent !== expected) return json({ success: false, error: "Forbidden" }, 403);
+      const folders: string[] = Array.isArray(body.folders) ? body.folders.filter((f: unknown) => typeof f === "string" && /^[0-9a-f-]{36}$/.test(f)) : [];
+      const moved: string[] = [], skipped: string[] = [];
+      for (const folder of folders) {
+        const { data: exists } = await admin.from("orders").select("id").eq("id", folder).maybeSingle();
+        if (exists) { skipped.push(folder + " (order exists)"); continue; }
+        const { data: files, error } = await admin.storage.from(BUCKET).list(folder, { limit: 100 });
+        if (error) throw error;
+        for (const f of files ?? []) {
+          if (!f.name || !f.id) continue;
+          const { error: mvErr } = await admin.storage.from(BUCKET).move(`${folder}/${f.name}`, `Deleted/${folder}/${f.name}`);
+          if (mvErr) skipped.push(`${folder}/${f.name}: ${mvErr.message}`); else moved.push(`${folder}/${f.name}`);
+        }
+      }
+      return json({ success: true, moved, skipped });
+    }
+
     // Customer delete: only their own order, and only once the check has finished.
     if (body.action === "delete") {
       const authHeader = req.headers.get("Authorization");

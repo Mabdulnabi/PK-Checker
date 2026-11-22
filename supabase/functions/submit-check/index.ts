@@ -145,23 +145,31 @@ Deno.serve(async (req: Request) => {
 
     if (!orderId || !file) return cors_json({ success: false, error: "Missing order_id or file" }, 400);
 
-    const { data: order, error: orderErr } = await admin
-      .from("orders")
-      .select("id, check_type, external_order_id")
-      .eq("id", orderId)
-      .eq("user_id", user.id)
-      .maybeSingle();
-    if (orderErr || !order) return cors_json({ success: false, error: "Order not found" }, 404);
+    // An admin may resend a customer's failed order (admin page "Resend"). The order and its slot
+    // then belong to the customer, never to the admin.
+    const { data: adminRow } = await admin.from("admins").select("id").eq("id", user.id).maybeSingle();
+    const isAdmin = !!adminRow;
 
-    // A retried request for an order that was already sent does nothing new.
-    if (order.external_order_id) {
+    let orderQuery = admin.from("orders").select("id, user_id, status, check_type, external_order_id").eq("id", orderId);
+    if (!isAdmin) orderQuery = orderQuery.eq("user_id", user.id);
+    const { data: order, error: orderErr } = await orderQuery.maybeSingle();
+    if (orderErr || !order) return cors_json({ success: false, error: "Order not found" }, 404);
+    const ownerId: string = order.user_id;
+    const adminResend = isAdmin && ["error", "failed_invalid"].includes(order.status);
+    if (isAdmin && !adminResend && order.user_id !== user.id) {
+      return cors_json({ success: false, error: "Only a failed order can be resent." }, 409);
+    }
+
+    // A retried request for an order that was already sent does nothing new
+    // (an admin resend of a failed order is a new send).
+    if (order.external_order_id && !adminResend) {
       return cors_json({ success: true, externalOrderId: order.external_order_id, alreadySubmitted: true });
     }
 
     // A file that just failed at the provider waits 60 seconds before it can be sent again.
-    const { data: recentFail } = await admin
+    const { data: recentFail } = adminResend ? { data: null } : await admin
       .from("orders").select("id")
-      .eq("user_id", user.id).eq("file_name", file.name).eq("file_size", file.size).eq("status", "error")
+      .eq("user_id", ownerId).eq("file_name", file.name).eq("file_size", file.size).eq("status", "error")
       .gte("completed_at", new Date(Date.now() - 60000).toISOString())
       .limit(1).maybeSingle();
     if (recentFail) {
@@ -182,13 +190,32 @@ Deno.serve(async (req: Request) => {
     // A concurrent request for the same order gets either a unique-key conflict (code 23505) or
     // replayed=true, and must not send the file again (that would charge the provider and a slot twice).
     const slotKey = `order:${orderId}`;
-    const { data: reserved, error: reserveErr } = await admin.rpc("reserve_slot", {
-      p_user_id: user.id,
-      p_slot_type: service,
-      p_idempotency_key: slotKey,
-      p_order_id: orderId,
-      p_grant_id: grantId,
-    });
+    // Admin resend: the slot given back when the order failed is taken again (one slot per order).
+    let again: string | null = null;
+    if (adminResend) {
+      // Claim the failed order first, so a second click cannot send the file twice.
+      const { data: claimed } = await admin.from("orders").update({ status: "uploading" })
+        .eq("id", orderId).in("status", ["error", "failed_invalid"]).select("id");
+      if (!claimed || !claimed.length) {
+        return cors_json({ success: false, code: "ALREADY_SUBMITTING", error: "This order is already being submitted." }, 409);
+      }
+      const { data, error: againErr } = await admin.rpc("rereserve_order_slot", { p_order_id: orderId });
+      if (againErr) throw againErr;
+      again = data as string;
+      if (again === "no_slot") {
+        await admin.from("orders").update({ status: "error" }).eq("id", orderId);
+        return cors_json({ success: false, code: "NO_SLOTS", error: "The customer has no slot left for this check." }, 402);
+      }
+    }
+    const { data: reserved, error: reserveErr } = (again === "reserved" || again === "already")
+      ? { data: { replayed: false }, error: null }
+      : await admin.rpc("reserve_slot", {
+        p_user_id: ownerId,
+        p_slot_type: service,
+        p_idempotency_key: slotKey,
+        p_order_id: orderId,
+        p_grant_id: adminResend ? null : grantId,
+      });
     if (reserveErr) {
       if (String(reserveErr.message).includes("NO_SLOT_AVAILABLE")) {
         await admin.from("orders").update({ status: "error", error_reason: "NO_SLOTS" }).eq("id", orderId);
@@ -298,10 +325,11 @@ Deno.serve(async (req: Request) => {
     const fileId = result.fileId;
     // The provider accepted the file, so the order must record it. Retry once if the write fails:
     // without the id a second submit of this order would be refused, but polling would not work.
-    let { error: saveErr } = await admin.from("orders").update({ external_order_id: fileId, status: "run" }).eq("id", orderId);
+    const sent = { external_order_id: fileId, status: "run", error_reason: null, provider_error: null, completed_at: null };
+    let { error: saveErr } = await admin.from("orders").update(sent).eq("id", orderId);
     if (saveErr) {
       console.error("submit-check: saving external_order_id failed, retrying", saveErr.message);
-      ({ error: saveErr } = await admin.from("orders").update({ external_order_id: fileId, status: "run" }).eq("id", orderId));
+      ({ error: saveErr } = await admin.from("orders").update(sent).eq("id", orderId));
       if (saveErr) console.error("submit-check: external_order_id NOT saved for order", orderId, fileId);
     }
 
