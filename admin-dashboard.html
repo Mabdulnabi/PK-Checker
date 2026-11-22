@@ -4713,21 +4713,28 @@ async function uploadManualReportFile(orderId, kind, inputEl){
     const needAi = o?.check_type === 'sim_ai' || o?.check_type === 'both';
     const newSim = kind === 'sim' ? pub.publicUrl : (o?.report_url || null);
     const newAi  = kind === 'ai'  ? pub.publicUrl : (o?.ai_report_url || null);
-    const nowComplete = !!newSim && (!needAi || !!newAi);
-
     const updates = { [field]: pub.publicUrl, updated_at: new Date().toISOString() };
     // The score shown on the report button: read from the PDF, otherwise asked for.
     const scoreField = kind === 'ai' ? 'ai_score' : 'similarity_score';
     const rs = await readReportScore(file, kind);
-    if (rs.found) updates[scoreField] = rs.score;   // AI "*%" stays empty = under 20%
-    else {
+    let scoreOk = false;
+    if (rs.found) { updates[scoreField] = rs.score; scoreOk = true; }   // AI "*%" stays empty = under 20%
+    // Not readable: the score is asked for until a valid one is typed; the order is not completed without it.
+    while (!scoreOk) {
       const ans = await adminPrompt(kind === 'ai'
-        ? 'مقدرتش أقرا نسبة الـ AI من الملف. اكتب النسبة (رقم من 0 لـ 100)، أو اكتب * لو التقرير مكتوب فيه *% (أقل من 20%):'
-        : 'مقدرتش أقرا نسبة الاقتباس من الملف. اكتب النسبة (رقم من 0 لـ 100):', '');
-      const v = String(ans ?? '').trim().replace('%', '');
-      if (v !== '' && v !== '*' && !isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 100) updates[scoreField] = Number(v);
+        ? 'مقدرتش أقرا نسبة الـ AI من الملف. اكتب النسبة اللي في التقرير (رقم من 0 لـ 100)، أو * لو مكتوب فيه *%:'
+        : 'مقدرتش أقرا نسبة الاقتباس من الملف. اكتب النسبة اللي في التقرير (رقم من 0 لـ 100):', '');
+      if (ans === null || ans === undefined) break;   // cancelled
+      const v = String(ans).trim().replace('%', '');
+      if (kind === 'ai' && v === '*') { updates[scoreField] = null; scoreOk = true; }
+      else if (v !== '' && !isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 100) { updates[scoreField] = Number(v); scoreOk = true; }
     }
+    // Completed only when every report has its score (the customer's buttons show it).
+    const simScoreOk = kind === 'sim' ? scoreOk : (o?.similarity_score != null);
+    const aiScoreOk = !needAi || (kind === 'ai' ? scoreOk : (o?.ai_score != null || !!o?.ai_report_url));
+    const nowComplete = !!newSim && (!needAi || !!newAi) && simScoreOk && aiScoreOk;
     if (nowComplete) { updates.status = 'completed'; updates.completed_at = new Date().toISOString(); }
+    else if (!scoreOk) toast('اترفع التقرير بس الطلب ماتسلمش للعميل لحد ما تكتب النسبة (ارفع التقرير تاني).', 'error');
 
     const { error: updErr } = await supabaseClient.from('orders').update(updates).eq('id', orderId);
     if (updErr) throw updErr;
