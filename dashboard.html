@@ -2717,6 +2717,9 @@ if (new URLSearchParams(location.search).has('preview')) {
       .acp-badge.left{ background:linear-gradient(135deg,#fb923c,#ea580c); text-transform:none; }
       .acp-badge.sold{ background:#9ca3af; }
       /* Badges: pop in, a light sweep now and then, lift on hover; low stock and discounts pulse softly. */
+      .acp-badge, .acp-badge *, .acp-rating .acp-badge, .acp-price .acp-badge{ color:#fff !important; font-size:10.5px; letter-spacing:.3px; }
+      .acp-bi{ display:inline-flex; align-items:center; justify-content:center; line-height:1; }
+      .acp-bi img, img.acp-bi{ width:13px; height:13px; object-fit:contain; }
       .acp-end{ font-style:normal; margin-inline-start:auto; display:inline-flex; align-self:center; }
       .acp-badge{ position:relative; overflow:hidden; cursor:default; transition:transform .2s ease, box-shadow .2s ease, filter .2s ease;
         animation:acpPop .45s cubic-bezier(.34,1.56,.64,1) both; box-shadow:0 4px 10px -6px rgba(0,0,0,.35); }
@@ -3851,7 +3854,7 @@ const ICON_SIZE_MAP = {
   logo_dashboard:'52px',
   header_notif:'18px', header_notif_dark:'18px', header_lightmode:'18px', header_darkmode:'18px', header_tour:'18px', header_tour_dark:'18px', header_profile:'16px', header_signout:'16px',
   tab_home:'18px', tab_new_check:'18px', tab_orders:'18px', tab_wallet:'18px', tab_support:'18px', tab_academic:'24px', tab_my_orders:'24px', tab_focus:'24px',
-  ac_cat_all:'100%', ac_tab_store:'16px', ac_tab_orders:'16px', ac_tab_wallet:'16px', ac_kpi_active:'16px', ac_kpi_renewal:'16px', ac_kpi_spend:'16px', ac_kpi_savings:'16px', ac_buy:'16px', ac_help:'20px', fx_calc:'16px', fx_export:'16px', fx_import:'16px', fx_fullscreen:'16px', fx_lock:'16px', fx_bookmarks:'16px', fx_notes:'16px', fx_tasks:'16px', fx_calendar:'16px', fx_reminder:'16px', fx_timer_reset:'16px', fx_timer_settings:'16px',
+  ac_cat_all:'100%', badge_instant:'13px', badge_request:'13px', badge_stock:'13px', badge_sold:'13px', badge_discount:'13px', ac_tab_store:'16px', ac_tab_orders:'16px', ac_tab_wallet:'16px', ac_kpi_active:'16px', ac_kpi_renewal:'16px', ac_kpi_spend:'16px', ac_kpi_savings:'16px', ac_buy:'16px', ac_help:'20px', fx_calc:'16px', fx_export:'16px', fx_import:'16px', fx_fullscreen:'16px', fx_lock:'16px', fx_bookmarks:'16px', fx_notes:'16px', fx_tasks:'16px', fx_calendar:'16px', fx_reminder:'16px', fx_timer_reset:'16px', fx_timer_settings:'16px',
   home_watch:'15px', home_g1:'20px', home_g2:'20px', home_g3:'20px',
   nc_balance:'18px', nc_floating:'18px', nc_api_active:'18px', nc_api_maintenance:'18px', nc_completed:'18px', redeem_code_icon:'18px',
   nc_upload:'20px', nc_options:'16px', nc_payment:'16px',
@@ -8296,7 +8299,9 @@ function renderAcCats(){
         ? '<span data-icon-key="ac_cat_all" style="font-size:inherit;line-height:1;">🧰</span>' : '📁')}</div>
       <div class="ac-cat-name">${escapeHtml(acName(c))}</div>
     </button>`).join('');
+  acApplyIcons();
 }
+function acApplyIcons(){ if (typeof applyCustomIcons === 'function') applyCustomIcons(); }
 function acSetCat(id){ acS.catId = (acS.catId === id && id !== 'all') ? 'all' : id; renderAcCats(); renderAcGrid(); }
 function acCatsScroll(d){
   const rtl = document.documentElement.dir === 'rtl';
@@ -8321,6 +8326,7 @@ function renderAcGrid(){
   document.getElementById('acGrid').innerHTML = list.length
     ? list.map(acCardHtml).join('')
     : `<div class="ac-empty">${hx('مفيش منتجات', 'No products found')}</div>`;
+  acApplyIcons();
 }
 
 function acCardHtml(p){
@@ -8334,18 +8340,19 @@ function acCardHtml(p){
   let offBadge = '', stockBadge = '';
   if (hasOld && p.show_discount) {
     const off = Math.round((1 - Number(pl.price_egp) / Number(pl.old_price_egp)) * 100);
-    offBadge = `<span class="acp-badge off">↘ ${off}% OFF</span>`;
+    offBadge = `<span class="acp-badge off"><span class="acp-bi" data-icon-key="badge_discount">↘</span> ${off}% OFF</span>`;
   }
   if (p.show_delivery) {
     badges.push(isInstant
-      ? `<span class="acp-badge instant">⚡ ${hx('فوري', 'Instant')}</span>`
-      : `<span class="acp-badge request">🕒 ${hx('بالطلب', 'On request')}</span>`);
+      ? `<span class="acp-badge instant"><span class="acp-bi" data-icon-key="badge_instant">⚡</span> ${hx('فوري', 'Instant')}</span>`
+      : `<span class="acp-badge request"><span class="acp-bi" data-icon-key="badge_request">🕒</span> ${hx('بالطلب', 'On request')}</span>`);
   }
   if (isInstant && p.show_stock) {
-    stockBadge = soldOut ? `<span class="acp-badge sold">${hx('خلص', 'Sold out')}</span>`
-                         : `<span class="acp-badge left${left <= 3 ? ' low' : ''}">📦 ${hx(`${left} متبقي`, `${left} left`)}</span>`;
+    stockBadge = soldOut ? `<span class="acp-badge sold"><span class="acp-bi" data-icon-key="badge_sold">⛔</span> ${hx('خلص', 'Sold out')}</span>`
+                         : `<span class="acp-badge left${left <= 3 ? ' low' : ''}"><span class="acp-bi" data-icon-key="badge_stock">📦</span> ${hx(`${left} متبقي`, `${left} left`)}</span>`;
   }
-  if (p.custom_badge_text) badges.push(`<span class="acp-badge" style="background:${acSafeColor(p.custom_badge_color)}">${escapeHtml(p.custom_badge_text)}</span>`);
+  if (p.custom_badge_text) badges.push(`<span class="acp-badge custom" style="background:${acSafeColor(p.custom_badge_color)}">${p.custom_badge_icon
+    ? `<img class="acp-bi" src="${escapeHtml(p.custom_badge_icon)}" alt="">` : ''}${escapeHtml(p.custom_badge_text)}</span>`);
   const r = Math.max(0, Math.min(5, Number(p.rating || 0)));
   const stars = '★'.repeat(Math.round(r)) + '☆'.repeat(5 - Math.round(r));
   const planLabel = x => (plans.filter(y => y.duration_days === x.duration_days).length > 1 ? escapeHtml(acName(x)) : acDur(x.duration_days));
@@ -8764,10 +8771,11 @@ function acInvoiceHtml(r){
             <div style="font-size:12px;color:${MUTED};line-height:1.6;direction:ltr;text-align:${ar ? 'right' : 'left'};">${escapeHtml(currentUser.email || '')}</div>
             <div style="font-size:12px;color:${MUTED};line-height:1.6;direction:ltr;text-align:${ar ? 'right' : 'left'};">${escapeHtml(currentUser.id || '')}</div></div>
           <div style="margin-bottom:20px;">${lab(hx('حالة الدفع', 'PAYMENT STATUS'))}
-            <div style="display:inline-flex;align-items:center;gap:5px;background:${GREENB};border-radius:20px;padding:4px 10px;margin-bottom:6px;">
-              <span style="width:6px;height:6px;border-radius:3px;background:${GREEN};display:inline-block;"></span>
-              <span style="font-size:9.5px;font-weight:800;color:${GREEN};letter-spacing:.5px;">${hx('مدفوعة بالكامل', 'PAID IN FULL')}</span></div>
-            <div style="font-size:12px;color:${MUTED};">${hx('تاريخ الاستحقاق', 'Due Date')}: ${issue}</div></div>
+            <div style="display:inline-block;background:${GREENB};border:1px solid #b7dfc8;border-radius:20px;padding:4px 12px;margin-bottom:8px;font-size:10.5px;font-weight:800;color:${GREEN};letter-spacing:${ar ? 0 : .5}px;line-height:1.4;">● ${hx('مدفوعة بالكامل', 'PAID IN FULL')}</div>
+            <div style="font-size:12px;color:${INK};font-weight:700;line-height:1.7;">${hx('تم الدفع بتاريخ', 'Paid on')} ${issue}</div>
+            <div style="font-size:12px;color:${MUTED};line-height:1.7;">${hx('المبلغ المدفوع', 'Amount paid')}: <b style="color:${INK};unicode-bidi:isolate;">${acMoney(r.egp)}</b></div>
+            <div style="font-size:12px;color:${MUTED};line-height:1.7;">${hx('المبلغ المتبقي', 'Balance due')}: <b style="color:${INK};unicode-bidi:isolate;">${acMoney(0)}</b></div>
+            <div style="font-size:12px;color:${MUTED};line-height:1.7;">${hx('تاريخ الاستحقاق', 'Due Date')}: ${issue}</div></div>
         </div>
         <div style="flex:1;display:flex;flex-direction:column;align-items:flex-end;text-align:${side};">
           <div style="margin-bottom:20px;display:flex;flex-direction:column;align-items:flex-end;">${lab(hx('كود المرجع', 'REFERENCE CODE'))}

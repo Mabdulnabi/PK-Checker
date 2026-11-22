@@ -5460,6 +5460,11 @@ const UI_ICON_MAP=[
   {key:'tab_new_check',imgSize:'18px',label_ar:'تاب فحص جديد',label_en:'New check tab',context_ar:'شريط التنقل الرئيسي',context_en:'Main nav bar',defaultSvg:'<svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M12 5v14M5 12h14"/></svg>',section:'tabs',section_ar:'أيقونات التابات',section_en:'Nav tab icons'},
   {key:'tab_orders',imgSize:'18px',label_ar:'تاب ملفاتي',label_en:'My files tab',context_ar:'شريط التنقل الرئيسي',context_en:'Main nav bar',defaultSvg:'<svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>',section:'tabs',section_ar:'أيقونات التابات',section_en:'Nav tab icons'},
   {key:'ac_cat_all',imgSize:'40px',label_ar:'صورة تصنيف "الكل"',label_en:'"All" category image',context_ar:'تصنيفات المتجر في Academic Tools',context_en:'Academic Tools store categories',defaultSvg:'<span style="font-size:22px;">🧰</span>',section:'academic_tools',section_ar:'أيقونات Academic Tools',section_en:'Academic Tools icons'},
+  {key:'badge_instant',imgSize:'20px',label_ar:'أيقونة بادج التوصيل الفوري',label_en:'Instant delivery badge icon',context_ar:'بطاقات منتجات المتجر',context_en:'Store product cards',defaultSvg:'<span style="font-size:16px;">⚡</span>',section:'academic_tools',section_ar:'أيقونات Academic Tools',section_en:'Academic Tools icons'},
+  {key:'badge_request',imgSize:'20px',label_ar:'أيقونة بادج التوصيل بالطلب',label_en:'On-request badge icon',context_ar:'بطاقات منتجات المتجر',context_en:'Store product cards',defaultSvg:'<span style="font-size:16px;">🕒</span>',section:'academic_tools',section_ar:'أيقونات Academic Tools',section_en:'Academic Tools icons'},
+  {key:'badge_stock',imgSize:'20px',label_ar:'أيقونة بادج المخزون المتبقي',label_en:'Stock left badge icon',context_ar:'بطاقات منتجات المتجر',context_en:'Store product cards',defaultSvg:'<span style="font-size:16px;">📦</span>',section:'academic_tools',section_ar:'أيقونات Academic Tools',section_en:'Academic Tools icons'},
+  {key:'badge_sold',imgSize:'20px',label_ar:'أيقونة بادج نفاد المخزون',label_en:'Sold out badge icon',context_ar:'بطاقات منتجات المتجر',context_en:'Store product cards',defaultSvg:'<span style="font-size:16px;">⛔</span>',section:'academic_tools',section_ar:'أيقونات Academic Tools',section_en:'Academic Tools icons'},
+  {key:'badge_discount',imgSize:'20px',label_ar:'أيقونة بادج الخصم',label_en:'Discount badge icon',context_ar:'بطاقات منتجات المتجر',context_en:'Store product cards',defaultSvg:'<span style="font-size:16px;">↘</span>',section:'academic_tools',section_ar:'أيقونات Academic Tools',section_en:'Academic Tools icons'},
   {key:'invoice_logo',imgSize:'40px',label_ar:'لوجو الفاتورة',label_en:'Invoice logo',context_ar:'فواتير محفظة المتجر (PDF)',context_en:'Store wallet invoices (PDF)',defaultSvg:'<span style="font-size:13px;font-weight:900;">PK <span style="color:#d99401;">Checker</span></span>',section:'academic_tools',section_ar:'أيقونات Academic Tools',section_en:'Academic Tools icons'},
   {key:'ac_tab_store',imgSize:'18px',label_ar:'تاب المتجر',label_en:'Store sub-tab',context_ar:'تاب Academic Tools',context_en:'Academic Tools tab',defaultSvg:'<span style="font-size:16px;">🛍️</span>',section:'academic_tools',section_ar:'أيقونات Academic Tools',section_en:'Academic Tools icons'},
   {key:'ac_tab_orders',imgSize:'18px',label_ar:'تاب طلباتي',label_en:'My orders sub-tab',context_ar:'تاب Academic Tools',context_en:'Academic Tools tab',defaultSvg:'<span style="font-size:16px;">📦</span>',section:'academic_tools',section_ar:'أيقونات Academic Tools',section_en:'Academic Tools icons'},
@@ -7049,6 +7054,8 @@ function stProdOpen(id){
     </div></div>
     <div class="st-grid2">${stField('stpBadgeText', 'بادج إضافي', { value: p?.custom_badge_text, placeholder: 'مثلاً: الأكثر طلباً', optional: true })}
       ${stField('stpBadgeColor', 'لون البادج', { type: 'color', value: /^#[0-9a-f]{6}$/i.test(p?.custom_badge_color || '') ? p.custom_badge_color : '#8b5cf6' })}</div>
+    ${stFileField('stpBadgeIcon', 'أيقونة البادج الإضافي', p?.custom_badge_icon)}
+    ${p?.custom_badge_icon ? `<label class="st-check" style="margin:-6px 0 10px;"><input type="checkbox" id="stpBadgeIconDel"> شيل أيقونة البادج</label>` : ''}
     <div class="st-foot"><button type="button" class="btn btn-outline" onclick="stModalClose()">إلغاء</button><button type="button" class="btn btn-primary" id="stpSave" onclick="saveStoreProduct()">${p ? 'حفظ التعديل' : 'إضافة المنتج'}</button></div>`);
 }
 async function saveStoreProduct(){
@@ -7075,6 +7082,9 @@ async function saveStoreProduct(){
   try {
     const logo = await stUpload(document.getElementById('stpLogo').files[0], 'products');
     if (logo) payload.image_url = logo;
+    const badgeIcon = await stUpload(document.getElementById('stpBadgeIcon').files[0], 'badges');
+    if (badgeIcon) payload.custom_badge_icon = badgeIcon;
+    else if (document.getElementById('stpBadgeIconDel')?.checked) payload.custom_badge_icon = null;
     const { error } = editId
       ? await supabaseClient.from('store_products').update(payload).eq('id', editId)
       : await supabaseClient.from('store_products').insert({ ...payload, active: true, sort_order: (stS.prods.length + 1) * 10 });
