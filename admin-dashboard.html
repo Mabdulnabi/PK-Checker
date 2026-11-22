@@ -4665,6 +4665,33 @@ async function adoptOrderManually(orderId){
 // auto-completes the order once every file it needs is present — this is
 // what flips the customer's status to "completed" and reveals their
 // download buttons, same as an automated API completion would.
+// Reads the score printed in a Turnitin report PDF (first pages).
+// Similarity: "17% Overall Similarity" / "SIMILARITY INDEX 17%". AI: "23% detected as AI"; "*%" = under 20% (no number).
+// Returns { score: number|null, star: bool, found: bool }.
+async function readReportScore(file, kind){
+  const out = { score: null, star: false, found: false };
+  if (!window.pdfjsLib || !/pdf$/i.test(file.type || file.name)) return out;
+  try {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsLib.GlobalWorkerOptions.workerSrc || 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.worker.min.js';
+    const doc = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+    let text = '';
+    for (let i = 1; i <= Math.min(doc.numPages, 3); i++) {
+      const c = await (await doc.getPage(i)).getTextContent();
+      text += ' ' + c.items.map(it => it.str).join(' ');
+    }
+    text = text.replace(/\s+/g, ' ');
+    const pats = kind === 'ai'
+      ? [/(\d{1,3})\s*%\s*detected as AI/i, /(\d{1,3})\s*%\s*(?:of )?(?:qualifying )?text[^.]{0,40}AI/i, /AI[- ]generated[^\d%]{0,60}(\d{1,3})\s*%/i, /AI writing[^\d%]{0,60}(\d{1,3})\s*%/i]
+      : [/(\d{1,3})\s*%\s*Overall Similarity/i, /SIMILARITY INDEX\s*(\d{1,3})\s*%/i, /(\d{1,3})\s*%\s*SIMILARITY INDEX/i, /Overall Similarity[^\d%]{0,60}(\d{1,3})\s*%/i, /Similarity[^\d%]{0,20}(\d{1,3})\s*%/i];
+    for (const re of pats) {
+      const m = text.match(re);
+      if (m && Number(m[1]) <= 100) { out.score = Number(m[1]); out.found = true; return out; }
+    }
+    if (kind === 'ai' && /\*\s*%\s*detected as AI|\*\s*%/i.test(text)) { out.star = true; out.found = true; }
+  } catch (e) { console.warn('readReportScore failed', e); }
+  return out;
+}
+
 async function uploadManualReportFile(orderId, kind, inputEl){
   const file = inputEl.files[0];
   if (!file) return;
@@ -4689,6 +4716,17 @@ async function uploadManualReportFile(orderId, kind, inputEl){
     const nowComplete = !!newSim && (!needAi || !!newAi);
 
     const updates = { [field]: pub.publicUrl, updated_at: new Date().toISOString() };
+    // The score shown on the report button: read from the PDF, otherwise asked for.
+    const scoreField = kind === 'ai' ? 'ai_score' : 'similarity_score';
+    const rs = await readReportScore(file, kind);
+    if (rs.found) updates[scoreField] = rs.score;   // AI "*%" stays empty = under 20%
+    else {
+      const ans = await adminPrompt(kind === 'ai'
+        ? 'مقدرتش أقرا نسبة الـ AI من الملف. اكتب النسبة (رقم من 0 لـ 100)، أو اكتب * لو التقرير مكتوب فيه *% (أقل من 20%):'
+        : 'مقدرتش أقرا نسبة الاقتباس من الملف. اكتب النسبة (رقم من 0 لـ 100):', '');
+      const v = String(ans ?? '').trim().replace('%', '');
+      if (v !== '' && v !== '*' && !isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 100) updates[scoreField] = Number(v);
+    }
     if (nowComplete) { updates.status = 'completed'; updates.completed_at = new Date().toISOString(); }
 
     const { error: updErr } = await supabaseClient.from('orders').update(updates).eq('id', orderId);
