@@ -4393,8 +4393,8 @@ function renderApiLog(){
     document.getElementById('apiLogPagination').innerHTML = '';
     return;
   }
-  const orderById = {}, orderUser = {};
-  (allOrders || []).forEach(o => { orderById[o.id] = o.display_id || String(o.id).slice(0, 8); orderUser[o.id] = o.user_id; });
+  const orderById = {}, orderExt = {};
+  (allOrders || []).forEach(o => { orderById[o.id] = o.display_id || String(o.id).slice(0, 8); orderExt[o.id] = o.external_order_id; });
   const pageList = paginateList('apilog', groups, renderApiLog);
   const EVENT = { submit: ar ? 'إرسال للمزود' : 'Sent to provider', completed: ar ? 'اكتمل' : 'Completed', failed: ar ? 'فشل' : 'Failed' };
   const EVENT_CLS = { submit: 'badge-run', completed: 'badge-ok', failed: 'badge-no' };
@@ -4426,8 +4426,9 @@ function renderApiLog(){
     const events = rows.map(r => `<span class="badge ${EVENT_CLS[r.event] || 'badge-wait'}" style="font-size:10px;padding:2px 7px;" title="${escapeHtml(fmtTime(new Date(r.created_at)))}">${escapeHtml(EVENT[r.event] || r.event)}</span>`)
       .join(`<span style="color:var(--muted);font-size:10px;margin:0 3px;">${ar ? '←' : '→'}</span>`);
     const ended = last.event === 'completed' ? 'row-ok' : last.event === 'failed' ? 'row-bad' : 'row-run';
-    const uid = orderUser[first.order_id], prof = uid ? (profilesByUserId[uid] || {}) : null;
-    const pkBadge = prof ? `<div style="margin-top:3px;"><span class="api-pk">${clickablePk(uid, prof.pk_number)}</span></div>` : '';
+    // TurniScan's own file id under our order code (it replaced the customer's PK here).
+    const ext = orderExt[first.order_id];
+    const pkBadge = ext ? `<div class="ts-id" title="${ar ? 'رقم الملف عند TurniScan' : 'TurniScan file id'}"><span>TurniScan</span> <b>${escapeHtml(ext)}</b>${cpBtn(ext)}</div>` : '';
     return `<tr class="${bad ? 'row-bad' : warn ? 'row-warn' : ended}">
       <td style="font-size:11px;white-space:nowrap;">${fmtDate(dt)}<div style="color:var(--muted);font-size:10.5px;">${fmtTime(dt)}</div>${spanTxt}</td>
       <td class="mono" style="font-size:11px;white-space:nowrap;">${escapeHtml(orderById[first.order_id] || (first.order_id ? String(first.order_id).slice(0, 8) : '—'))}${first.order_id ? cpBtn(orderById[first.order_id] || String(first.order_id).slice(0, 8)) : ''}${pkBadge}</td>
