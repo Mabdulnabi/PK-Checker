@@ -11596,7 +11596,7 @@ function failReasonAr(raw){
   const n = x => x.replace(/,/g, '');
   let m;
   if ((m = r.match(/exceed\w*\s+([\d,]+)\s*words?\s*limit(?:\s*\(([\d,]+)\s*words?\))?/i)))
-    parts.push(`الملف تجاوز الحد المسموح (${Number(n(m[1])).toLocaleString('en-US')} كلمة)${m[2] ? `، وعدد كلماته ${Number(n(m[2])).toLocaleString('en-US')} كلمة` : ''}.`);
+    parts.push(`الملف تجاوز الحد المسموح (${(typeof SF_MAX_WORDS !== 'undefined' ? SF_MAX_WORDS : 30000).toLocaleString('en-US')} كلمة)${m[2] ? `، وعدد كلماته ${Number(n(m[2])).toLocaleString('en-US')} كلمة` : ''}.`);
   else if ((m = r.match(/(?:too (?:few|short)|minimum|at least)\D*([\d,]+)\s*words?/i)))
     parts.push(`الملف أقل من الحد الأدنى (${n(m[1])} كلمة).`);
   else if ((m = r.match(/(?:exceed\w*|larger than|too large)[^\d]*([\d.]+)\s*MB/i)) || /file (?:is )?too large/i.test(r))
@@ -11610,8 +11610,22 @@ function failReasonAr(raw){
   else if (/(no text|empty|scanned|image[- ]only)/i.test(r))
     parts.push('الملف لا يحتوي على نص قابل للفحص (فارغ أو صور فقط).');
   if (!parts.length) return '';
-  if (/refund|returned/i.test(r)) parts.push('وتم إرجاع الفحص إلى رصيدك.');
   return parts.join(' ');
+}
+// Slot state of each failed order (slot_usages): 'released' = taken and given back, 'reserved' = still taken.
+const _failSlotState = {};
+let _failSlotLoading = false;
+async function loadFailSlotStates(ids){
+  const need = ids.filter(id => !(id in _failSlotState));
+  if (!need.length || _failSlotLoading || typeof supabaseClient === 'undefined') return;
+  _failSlotLoading = true;
+  try {
+    const { data } = await supabaseClient.from('slot_usages').select('order_id,status').in('order_id', need);
+    need.forEach(id => { _failSlotState[id] = null; });
+    (data || []).forEach(r => { if (_failSlotState[r.order_id] !== 'reserved') _failSlotState[r.order_id] = r.status; });
+  } catch (e) { console.warn('slot states failed', e); }
+  _failSlotLoading = false;
+  renderFailAlerts();
 }
 function renderFailAlerts(){
   const box = document.getElementById('failAlerts');
@@ -11619,6 +11633,7 @@ function renderFailAlerts(){
   const ar = currentLang === 'ar', gone = failDismissed(), since = Date.now() - 3 * 86400000;
   const list = (orders || []).filter(o => ['error', 'failed_invalid', 'rejected'].includes(o.phase)
     && o.phaseStart >= since && !gone.includes(o.id)).sort((a, b) => b.phaseStart - a.phaseStart).slice(0, 3);
+  loadFailSlotStates(list.map(o => o.id));
   box.innerHTML = list.map(o => {
     // The provider's own reason (e.g. "exceeded 50,000 words (71,300 words)") is kept when our wording would only be generic.
     let reason = o.errorReason ? localizeOrderError(o.errorReason) : (ar ? 'تعذر إتمام فحص الملف.' : 'The file could not be checked.');
@@ -11627,9 +11642,17 @@ function renderFailAlerts(){
       if (ar) { const tr = failReasonAr(o.errorReason); if (tr) reason = tr; else reasonNote = String(o.errorReason); }
       else reason = String(o.errorReason);
     }
-    // Service down before the check was taken: nothing was deducted. Otherwise the slot came back.
-    const notCharged = reason === t('err_provider_unavailable') || /(no check has been deducted|not (been )?deducted|لم يُ?خصم)/i.test((o.errorReason || '') + ' ' + reason);
-    const refunded = !notCharged && (o.phase !== 'rejected' || /refund|returned|أُعيد|رجع|استرد/i.test(o.errorReason || ''));
+    // Over the word limit: the file is refused before any check is taken, so there is no refund to show.
+    const wordLimit = /words?\s*limit|exceed\w*\s+[\d,]+\s*words?|كلمة/i.test(o.errorReason || '');
+    if (wordLimit && !ar) {   // our own limit, not the provider's
+      const wm = String(o.errorReason).match(/\(([\d,]+)\s*words?\)/i);
+      const maxW = (typeof SF_MAX_WORDS !== 'undefined' ? SF_MAX_WORDS : 30000).toLocaleString('en-US');
+      reason = `The document exceeds the ${maxW}-word limit${wm ? ` (${wm[1]} words)` : ''}.`;
+    }
+    reason = reason.replace(/\s*Slot refunded\.?/i, '');
+    if (wordLimit) { reason = reason.replace(/\s*Slot refunded\.?/i, '').replace(/\s*وتم إرجاع الفحص إلى رصيدك\.?/, ''); reasonNote = reasonNote.replace(/\s*Slot refunded\.?/i, ''); }
+    // The badge follows the slot record of this order: shown only when a slot was taken and given back.
+    const refunded = _failSlotState[o.id] === 'released';
     const g = failGuidance(o.errorReason);
     return `<div class="fail-alert" role="alert">
       <div class="fa-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 7v6M12 16.5v.5"/></svg></div>
@@ -11637,7 +11660,7 @@ function renderFailAlerts(){
         <div class="fa-top">
           <span class="fa-tag">${ar ? 'فشل الفحص' : 'SCAN CHECK FAILED'}</span>
           <span class="fa-title">${ar ? 'مشكلة في الملف:' : 'Issue with File:'} <b>${escapeHtml(o.file || (ar ? 'ملفك' : 'Your document'))}</b></span>
-          ${refunded ? `<span class="fa-refund">✓ ${ar ? 'اترجع 1 فحص' : '1 Slot Refunded'}</span>` : notCharged ? `<span class="fa-refund">✓ ${ar ? 'لم يُخصم أي فحص' : 'No slot deducted'}</span>` : ''}
+          ${refunded ? `<span class="fa-refund">✓ ${ar ? 'اترجع 1 فحص' : '1 Slot Refunded'}</span>` : ''}
         </div>
         <div class="fa-reason"><b>${ar ? 'السبب:' : 'Reason:'}</b> ${escapeHtml(reason)} <span class="fa-code mono">${escapeHtml(o.displayId || '')}</span>
           ${reasonNote ? `<div class="fa-orig" dir="ltr">${escapeHtml(reasonNote)}</div>` : ''}</div>
