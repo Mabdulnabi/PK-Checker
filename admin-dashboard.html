@@ -4344,7 +4344,7 @@ function buildAdminOrderRow(o){
     : ['error','rejected','failed_invalid'].includes(o.status) ? 'row-bad'
     : ['run','processing','pending','checking','uploading','floating'].includes(o.status) ? 'row-run' : '';
   return `<tr class="${rowCls}">
-    <td class="mono oc-order" style="font-size:11px;">${escapeHtml(o.display_id || o.id.slice(0,8))} ${cpBtn(o.display_id || o.id.slice(0,8))}${o.external_order_id ? `<div class="ts-id" title="${currentLang === 'ar' ? 'رقم الملف عند TurniScan' : 'TurniScan file id'}"><span>TurniScan</span> <b>${escapeHtml(o.external_order_id)}</b>${cpBtn(o.external_order_id)}</div>` : ''}</td>
+    <td class="mono oc-order" style="font-size:11px;">${escapeHtml(o.display_id || o.id.slice(0,8))} ${cpBtn(o.display_id || o.id.slice(0,8))}${o.external_order_id ? `<div class="ts-id" title="${currentLang === 'ar' ? 'رقم الملف عند TurniScan' : 'TurniScan file id'}"><span>TS</span> <b>${escapeHtml(o.external_order_id)}</b>${cpBtn(o.external_order_id)}</div>` : ''}</td>
     <td class="u-cell oc-user">${userCell}</td>
     <td class="file-col oc-file">${fileCell}<br>${checkTypeBadge(o.check_type)}${filterBadges(o)}</td>
     <td class="oc-sim" data-l="${escapeHtml(t('th_sim'))}" style="white-space:nowrap;padding:6px 8px;">${reportButton(o, 'sim')}</td>
@@ -4428,7 +4428,7 @@ function renderApiLog(){
     const ended = last.event === 'completed' ? 'row-ok' : last.event === 'failed' ? 'row-bad' : 'row-run';
     // TurniScan's own file id under our order code (it replaced the customer's PK here).
     const ext = orderExt[first.order_id];
-    const pkBadge = ext ? `<div class="ts-id" title="${ar ? 'رقم الملف عند TurniScan' : 'TurniScan file id'}"><span>TurniScan</span> <b>${escapeHtml(ext)}</b>${cpBtn(ext)}</div>` : '';
+    const pkBadge = ext ? `<div class="ts-id" title="${ar ? 'رقم الملف عند TurniScan' : 'TurniScan file id'}"><span>TS</span> <b>${escapeHtml(ext)}</b>${cpBtn(ext)}</div>` : '';
     return `<tr class="${bad ? 'row-bad' : warn ? 'row-warn' : ended}">
       <td style="font-size:11px;white-space:nowrap;">${fmtDate(dt)}<div style="color:var(--muted);font-size:10.5px;">${fmtTime(dt)}</div>${spanTxt}</td>
       <td class="mono" style="font-size:11px;white-space:nowrap;">${escapeHtml(orderById[first.order_id] || (first.order_id ? String(first.order_id).slice(0, 8) : '—'))}${first.order_id ? cpBtn(orderById[first.order_id] || String(first.order_id).slice(0, 8)) : ''}${pkBadge}</td>
