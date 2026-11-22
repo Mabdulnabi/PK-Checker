@@ -4703,10 +4703,12 @@ async function uploadManualReportFile(orderId, kind, inputEl){
     const ord = allOrders.find(x => x.id === orderId);
     const ext = ((file.name.match(/\.([A-Za-z0-9]{1,6})$/) || [])[1] || 'pdf').toLowerCase();
     const code = String(ord?.display_id || orderId.slice(0, 8)).replace(/[^A-Za-z0-9-]/g, '');
-    const path = `${orderId}/${kind === 'ai' ? 'AI-Report' : 'Similarity-Report'}-${code}-${Date.now().toString(36)}.${ext}`;
+    // Same folders as the API reports: removed with them after 48 hours, and served from the site's own domain.
+    const path = `${kind === 'ai' ? 'ai-reports' : 'sim-reports'}/${orderId}/${kind === 'ai' ? 'AI-Report' : 'Similarity-Report'}-${code}-${Date.now().toString(36)}.${ext}`;
     const { error: upErr } = await supabaseClient.storage.from('order-reports').upload(path, file);
     if (upErr) throw upErr;
-    const { data: pub } = supabaseClient.storage.from('order-reports').getPublicUrl(path);
+    // The link is on pkchecker.com (/storage/… is served by the site), like the API reports.
+    const pub = { publicUrl: '/storage/' + path.split('/').map(encodeURIComponent).join('/') };
 
     const field = kind === 'ai' ? 'ai_report_url' : 'report_url';
     const o = allOrders.find(x => x.id === orderId);
