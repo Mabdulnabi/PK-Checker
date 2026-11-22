@@ -11652,7 +11652,10 @@ function renderFailAlerts(){
     reason = reason.replace(/\s*Slot refunded\.?/i, '');
     if (wordLimit) { reason = reason.replace(/\s*Slot refunded\.?/i, '').replace(/\s*وتم إرجاع الفحص إلى رصيدك\.?/, ''); reasonNote = reasonNote.replace(/\s*Slot refunded\.?/i, ''); }
     // The badge follows the slot record of this order: shown only when a slot was taken and given back.
-    const refunded = _failSlotState[o.id] === 'released';
+    // Refused before the check ran (service down, maintenance, no slots, over the limits): nothing was really charged.
+    const neverCharged = wordLimit || [t('err_provider_unavailable'), t('err_maintenance'), t('err_no_slots')].includes(reason)
+      || /(no check has been deducted|not (been )?deducted|لم يُ?خصم|temporarily unavailable|maintenance|MAINTENANCE|NO_SLOTS)/i.test((o.errorReason || '') + ' ' + reason);
+    const refunded = !neverCharged && _failSlotState[o.id] === 'released';
     const g = failGuidance(o.errorReason);
     return `<div class="fail-alert" role="alert">
       <div class="fa-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 7v6M12 16.5v.5"/></svg></div>
