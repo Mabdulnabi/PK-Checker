@@ -992,7 +992,7 @@
   [data-theme="dark"] .act-txt b{color:var(--ink);}
 
   /* ===== Floating live chat (same size/place as the customer chat window) ===== */
-  .adm-chat-bubble{position:fixed;bottom:22px;left:22px;width:54px;height:54px;border-radius:50%;background:linear-gradient(150deg,var(--navy),var(--blue-deep));display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 10px 24px -8px rgba(27,37,86,.45);z-index:900;transition:transform .2s ease;}
+  .adm-chat-bubble{position:fixed;bottom:22px;left:22px;width:54px;height:54px;border-radius:50%;background:linear-gradient(150deg,var(--navy),var(--blue-deep));display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 10px 24px -8px rgba(27,37,86,.45);z-index:9990;transition:transform .2s ease;}
   .adm-chat-bubble:hover{transform:translateY(-2px);}
   html[dir="ltr"] .adm-chat-bubble{left:auto;right:22px;}
   .adm-chat-bubble svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
@@ -1000,7 +1000,7 @@
   .adm-chat-bubble.is-open .ic-chat{display:none;}
   .adm-chat-bubble.is-open .ic-close{display:block;}
   .adm-chat-badge{position:absolute;top:-3px;right:-3px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--danger);color:#fff;font-size:10.5px;font-weight:800;display:none;align-items:center;justify-content:center;border:2px solid var(--paper);font-family:'Space Grotesk',sans-serif;}
-  .adm-chat-window{position:fixed;bottom:84px;left:22px;width:350px;max-width:calc(100vw - 24px);height:540px;max-height:calc(100vh - 100px);background:var(--paper);border-radius:16px;box-shadow:0 24px 48px rgba(0,0,0,.18);border:1px solid var(--paper-line);z-index:900;display:none;flex-direction:column;overflow:hidden;}
+  .adm-chat-window{position:fixed;bottom:84px;left:22px;width:350px;max-width:calc(100vw - 24px);height:540px;max-height:calc(100vh - 100px);background:var(--paper);border-radius:16px;box-shadow:0 24px 48px rgba(0,0,0,.18);border:1px solid var(--paper-line);z-index:9990;display:none;flex-direction:column;overflow:hidden;}
   html[dir="ltr"] .adm-chat-window{left:auto;right:22px;}
   .adm-chat-window.open{display:flex;}
   .adm-chat-head{display:flex;align-items:center;gap:8px;padding:7px 10px 7px 12px;background:linear-gradient(150deg,var(--navy) 0%,#2A3A78 100%);flex:none;}
@@ -10401,12 +10401,31 @@ function admChatUnmount(){
   shell.classList.remove('in-float');
 }
 function openAdmChat(convId){
-  if (!canUseChat()) return;
+  if (!canUseChat()) {
+    adminAlert(admAr() ? 'حسابك مالوش صلاحية الشات المباشر.' : 'Your account has no live chat permission.', { icon: '⚠️' });
+    return;
+  }
   if (admTabOn('chat')) { if (convId) openConversation(convId); return; }
-  admChatMount();
-  document.getElementById('admChatWindow')?.classList.add('open');
-  admChatBubbleSync();
-  if (convId) openConversation(convId);
+  const win = document.getElementById('admChatWindow');
+  // The window opens whatever happens next; a failure is shown instead of the click doing nothing.
+  win?.classList.add('open');
+  try {
+    admChatMount();
+    admChatBubbleSync();
+    if (!conversations || !conversations.length) loadConversations();
+    if (convId) openConversation(convId);
+  } catch (err) {
+    console.error('openAdmChat failed:', err);
+    admChatReportError(err);
+  }
+}
+function admChatReportError(err){
+  const host = document.getElementById('admChatHost');
+  if (!host) return;
+  if (host.querySelector('#chatShell')) { toast((admAr() ? 'خطأ في الشات: ' : 'Chat error: ') + (err && err.message || err), 'error'); return; }
+  host.innerHTML = `<div style="padding:18px;font-size:12.5px;color:var(--danger);line-height:1.7;">${admAr() ? 'تعذر فتح الشات.' : 'Could not open the chat.'}
+    <div style="direction:ltr;color:var(--muted);font-family:monospace;font-size:11px;margin-top:6px;">${escapeHtml(String(err && (err.stack || err.message) || err)).slice(0, 400)}</div>
+    <button type="button" class="btn btn-outline" style="margin-top:10px;" onclick="openFullChat()">${admAr() ? 'افتح صفحة الشات' : 'Open the chat page'}</button></div>`;
 }
 function closeAdmChat(){
   document.getElementById('admChatWindow')?.classList.remove('open');
@@ -10414,7 +10433,13 @@ function closeAdmChat(){
   admChatBubbleSync();
 }
 function toggleAdmChat(){
-  if (document.getElementById('admChatWindow')?.classList.contains('open')) closeAdmChat(); else openAdmChat();
+  try {
+    if (document.getElementById('admChatWindow')?.classList.contains('open')) closeAdmChat(); else openAdmChat();
+  } catch (err) {
+    console.error('toggleAdmChat failed:', err);
+    document.getElementById('admChatWindow')?.classList.add('open');
+    admChatReportError(err);
+  }
 }
 function openFullChat(){
   closeAdmChat();
