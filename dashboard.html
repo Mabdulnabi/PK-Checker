@@ -1986,7 +1986,17 @@ if (new URLSearchParams(location.search).has('preview')) {
 }
 </script>
 <style>
-  #failAlerts{display:flex;flex-direction:column;gap:10px;margin:4px 0 16px;}
+  #failAlerts{position:relative;display:flex;flex-direction:column;gap:10px;margin:4px 0 16px;}
+  /* Stack: the cards waiting behind peek out under the top one */
+  #failAlerts.fa-stacked{margin-bottom:calc(16px + var(--fa-behind, 0) * 7px);}
+  #failAlerts .fail-alert{z-index:3;}
+  .fa-layer{position:absolute;left:0;right:0;top:0;bottom:0;border-radius:14px;background:#fff1f2;border:1px solid #fecdd3;pointer-events:none;}
+  .fa-layer-1{z-index:2;transform:translateY(7px) scale(.975);opacity:.85;}
+  .fa-layer-2{z-index:1;transform:translateY(14px) scale(.95);opacity:.6;}
+  [data-theme="dark"] .fa-layer{background:rgba(225,29,72,.10);border-color:rgba(251,113,133,.3);}
+  .fa-count{font-size:10.5px;font-weight:800;color:#9f1239;background:#fff;border:1px solid #fecdd3;border-radius:999px;padding:2px 9px;white-space:nowrap;}
+  .fail-alert.fa-out{animation:faOut .26s ease forwards;}
+  @keyframes faOut{to{opacity:0;transform:translateY(-10px) scale(.98);}}
   #failAlerts:empty{display:none;}
   .fail-alert{position:relative;display:flex;align-items:center;gap:16px;padding:14px 44px 14px 18px;border-radius:14px;
     background:linear-gradient(90deg,#fff1f2,#fff7f8);border:1px solid #fecdd3;border-inline-start:5px solid #e11d48;
@@ -2011,6 +2021,7 @@ if (new URLSearchParams(location.search).has('preview')) {
   .fa-guide b{color:#111827;}
   .fa-link{color:#e11d48;font-weight:800;text-decoration:none;white-space:nowrap;margin-inline-start:4px;}
   .fa-link:hover{text-decoration:underline;}
+  .fa-actions{display:flex;justify-content:flex-end;margin-top:10px;}
   .fa-btn{flex:none;display:inline-flex;align-items:center;gap:8px;background:#e11d48;color:#fff;border:none;border-radius:10px;padding:11px 18px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;box-shadow:0 8px 18px -10px rgba(225,29,72,.9);transition:transform .15s ease,background .15s ease;}
   .fa-btn:hover{background:#be123c;transform:translateY(-1px);}
   .fa-btn svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
@@ -2020,10 +2031,22 @@ if (new URLSearchParams(location.search).has('preview')) {
   [data-theme="dark"] .fa-title,[data-theme="dark"] .fa-reason b,[data-theme="dark"] .fa-guide b{color:#f9fafb;}
   [data-theme="dark"] .fa-guide{background:rgba(255,255,255,.04);color:#d1d5db;border-color:rgba(251,113,133,.3);}
   @media (max-width:640px){
-    .fail-alert{align-items:flex-start;gap:10px;}
-    .fa-code{display:block;margin:2px 0 0;white-space:nowrap;}
+    .fail-alert{display:grid;grid-template-columns:34px 1fr;align-items:start;gap:10px 12px;padding:14px 14px 14px 14px;border-inline-start-width:4px;}
+    html[dir="rtl"] .fail-alert{padding:14px;}
     .fa-ic{width:34px;height:34px;border-radius:10px;}
     .fa-ic svg{width:19px;height:19px;}
+    .fa-main{display:contents;}
+    .fa-top{grid-column:2;margin:0;padding-inline-end:22px;gap:6px;}
+    .fa-title{flex-basis:100%;font-size:13px;line-height:1.5;}
+    .fa-reason,.fa-guide,.fa-actions{grid-column:1 / -1;}
+    .fa-reason{font-size:12.5px;}
+    .fa-code{display:block;margin:2px 0 0;white-space:nowrap;}
+    .fa-guide{margin-top:0;padding:10px 12px;font-size:12px;}
+    .fa-actions{margin-top:0;}
+    .fa-btn{width:100%;justify-content:center;padding:12px 16px;font-size:14px;}
+    .fa-x{top:6px;inset-inline-end:6px;font-size:22px;padding:6px 8px;}
+    .fa-layer-1{transform:translateY(6px) scale(.97);}
+    .fa-layer-2{transform:translateY(12px) scale(.94);}
   }
 </style>
 </head>
@@ -11565,7 +11588,11 @@ function failDismissed(){ try { return JSON.parse(localStorage.getItem(FAIL_DISM
 function dismissFailAlert(id){
   const list = failDismissed(); if (!list.includes(id)) list.push(id);
   try { localStorage.setItem(FAIL_DISMISS_KEY, JSON.stringify(list.slice(-200))); } catch {}
-  renderFailAlerts();
+  const card = document.querySelector('#failAlerts .fail-alert');
+  if (card && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    card.classList.add('fa-out');
+    setTimeout(renderFailAlerts, 260);
+  } else renderFailAlerts();
 }
 function failGuidance(reason){
   const r = String(reason || '').toLowerCase(), ar = currentLang === 'ar';
@@ -11632,9 +11659,14 @@ function renderFailAlerts(){
   if (!box) return;
   const ar = currentLang === 'ar', gone = failDismissed(), since = Date.now() - 3 * 86400000;
   const list = (orders || []).filter(o => ['error', 'failed_invalid', 'rejected'].includes(o.phase)
-    && o.phaseStart >= since && !gone.includes(o.id)).sort((a, b) => b.phaseStart - a.phaseStart).slice(0, 3);
+    && o.phaseStart >= since && !gone.includes(o.id)).sort((a, b) => b.phaseStart - a.phaseStart).slice(0, 10);
   loadFailSlotStates(list.map(o => o.id));
-  box.innerHTML = list.map(o => {
+  // One alert at a time: the newest on top, the older ones stacked behind it. Closing it shows the next.
+  const total = list.length;
+  const behind = Math.min(total - 1, 2);
+  box.classList.toggle('fa-stacked', total > 1);
+  box.style.setProperty('--fa-behind', behind);
+  box.innerHTML = list.slice(0, 1).map(o => {
     // The provider's own reason (e.g. "exceeded 50,000 words (71,300 words)") is kept when our wording would only be generic.
     let reason = o.errorReason ? localizeOrderError(o.errorReason) : (ar ? 'تعذر إتمام فحص الملف.' : 'The file could not be checked.');
     let reasonNote = '';
@@ -11664,15 +11696,16 @@ function renderFailAlerts(){
           <span class="fa-tag">${ar ? 'فشل الفحص' : 'SCAN CHECK FAILED'}</span>
           <span class="fa-title">${ar ? 'مشكلة في الملف:' : 'Issue with File:'} <b>${escapeHtml(o.file || (ar ? 'ملفك' : 'Your document'))}</b></span>
           ${refunded ? `<span class="fa-refund">✓ ${ar ? 'اترجع 1 فحص' : '1 Slot Refunded'}</span>` : ''}
+          ${total > 1 ? `<span class="fa-count">${ar ? `1 من ${total}` : `1 of ${total}`}</span>` : ''}
         </div>
         <div class="fa-reason"><b>${ar ? 'السبب:' : 'Reason:'}</b> ${escapeHtml(reason)} <span class="fa-code mono">${escapeHtml(o.displayId || '')}</span>
           ${reasonNote ? `<div class="fa-orig" dir="ltr">${escapeHtml(reasonNote)}</div>` : ''}</div>
-        <div class="fa-guide"><span class="fa-gi">i</span><div><b>${g.title}</b> ${g.body}
-          <a href="#" class="fa-link" onclick="event.preventDefault();openSubmitFilesModal()">${ar ? 'ارفع الملف مرة تانية ←' : 'Re-upload file →'}</a></div></div>
+        <div class="fa-guide"><span class="fa-gi">i</span><div><b>${g.title}</b> ${g.body}</div></div>
+        <div class="fa-actions"><button type="button" class="fa-btn" onclick="openSubmitFilesModal()"><svg viewBox="0 0 24 24"><path d="M12 16V8M8.5 11.5 12 8l3.5 3.5"/><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 9.5a4 4 0 0 1-.5 8"/></svg>${ar ? 'ارفع الملف مرة تانية' : 'Re-upload file'}</button></div>
       </div>
-      <button type="button" class="fa-x" onclick="dismissFailAlert('${o.id}')" title="${ar ? 'إخفاء' : 'Dismiss'}">×</button>
+      <button type="button" class="fa-x" onclick="dismissFailAlert('${o.id}')" title="${ar ? (total > 1 ? 'إخفاء وعرض التالي' : 'إخفاء') : (total > 1 ? 'Dismiss and show the next' : 'Dismiss')}">×</button>
     </div>`;
-  }).join('');
+  }).join('') + Array.from({ length: behind }, (_, i) => `<div class="fa-layer fa-layer-${i + 1}" aria-hidden="true"></div>`).join('');
 }
 renderKpis();
 renderOrders();
