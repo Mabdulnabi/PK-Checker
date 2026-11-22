@@ -12,7 +12,13 @@
   var SID_KEY = 'pk-track-sid';
   var sid = sessionStorage.getItem(SID_KEY);
   if (!sid) { sid = Math.random().toString(36).slice(2) + Date.now().toString(36); sessionStorage.setItem(SID_KEY, sid); }
-  var area = PAGE === 'index' ? 'index' : 'home';
+  // The dashboard's tab shown on load (it is shown without a tab switch, so read it from the page).
+  function visibleTab() {
+    var panes = document.querySelectorAll('.tabpane');
+    for (var i = 0; i < panes.length; i++) if (panes[i].style.display === 'block' && panes[i].id.indexOf('pane-') === 0) return panes[i].id.slice(5);
+    return 'new-check';
+  }
+  var area = PAGE === 'index' ? 'index' : visibleTab();
   var areaStart = Date.now();
   var maxScroll = 0;
   var queue = [];
@@ -97,5 +103,8 @@
     area: function () { return area; },
     flush: flush,
   };
-  setTimeout(function () { maxScroll = scrollFrac(); startView(); }, 800);
+  setTimeout(function () {
+    if (PAGE === 'dashboard' && area === 'new-check' && window._pkArea && window._pkArea !== 'home') area = window._pkArea;
+    maxScroll = scrollFrac(); startView();
+  }, 800);
 })();

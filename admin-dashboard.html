@@ -854,8 +854,10 @@
     #kpiValidity{font-size:15px !important;}
     .kpi .lbl{font-size:11.5px;}
   }
-  /* Centered card content, white icon on a colored badge above it */
-  .kpi{text-align:center;}
+  /* Centered card content (both directions), white icon on a colored badge above it */
+  .kpi{text-align:center;display:flex !important;flex-direction:column;align-items:center;justify-content:center;}
+  .kpi > *{max-width:100%;}
+  .kpi .kpi-seg{align-self:stretch;}
   .kpi .icon{position:static !important;margin:0 auto 7px !important;width:30px;height:30px;border-radius:9px;color:#fff !important;background:linear-gradient(135deg,#2563eb,#06b6d4);box-shadow:0 6px 14px -7px rgba(37,99,235,.7);}
   .kpi.gold .icon{background:rgba(255,255,255,.16) !important;box-shadow:none;}
   .kpi .icon svg{stroke:#fff;}
@@ -955,6 +957,10 @@
   .pg-logo-row{display:flex;align-items:center;gap:10px;background:var(--paper-soft);border-radius:10px;padding:8px 10px;margin-bottom:10px;text-align:start;}
   .pg-type-note{font-size:11px;color:var(--blue-deep);background:var(--blue-wash);border-radius:8px;padding:7px 10px;margin-bottom:10px;text-align:start;line-height:1.6;}
   @media (max-width:640px){ .pg-row{flex-wrap:wrap;} .pg-state{display:none;} }
+  .ts-id{margin-top:4px;font-size:10.5px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:3px;}
+  .ts-id span{font-family:'Cairo',sans-serif;font-weight:700;font-size:9.5px;background:var(--paper-soft);border-radius:5px;padding:0 5px;}
+  .ts-id b{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--ink-soft);}
+  .ts-id .cp-ic{width:18px;height:18px;}
   .api-pk{display:inline-flex;align-items:center;padding:1px 7px;border-radius:999px;background:var(--blue-wash);border:1px solid #cfe0fb;font-size:10.5px;font-weight:700;}
   .api-pk a, .api-pk span{color:var(--blue-deep) !important;text-decoration:none !important;}
   .prob-file-name{max-width:220px;font-size:11px;white-space:normal;overflow-wrap:anywhere;word-break:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.45;}
@@ -1235,6 +1241,7 @@
               <tbody id="todayOrdersBody"></tbody>
             </table>
           </div>
+          <div id="todayOrdersPagination"></div>
         </div>
 
         <!-- API CREDIT LOG: provider balance before and after each submission and result -->
@@ -4286,8 +4293,9 @@ function _renderOnlineUsers(){
       ? `<span style="font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--ok);">${credits}</span>`
       : '—';
     const sendBtn = `<button class="icon-btn" title="${t('btn_send_msg')}" onclick="_openChatForOnlineUser('${escapeHtml(u.user_id)}')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>`;
-    const pageCell = u.page_label
-      ? `<span class="live-page" title="${escapeHtml(u.page || '')}"><span class="live-dot"></span>${escapeHtml(u.page_label)}</span><div class="live-page-at">${u.page_at ? timeAgo(u.page_at) : ''}</div>`
+    const pageName = u.page ? hmAreaName(u.page) : (u.page_label || '');
+    const pageCell = pageName
+      ? `<span class="live-page"><span class="live-dot"></span>${escapeHtml(pageName)}</span><div class="live-page-at">${u.page_at ? timeAgo(u.page_at) : ''}</div>`
       : '<span style="color:var(--muted);">—</span>';
     return `<tr class="row-ok"><td style="white-space:nowrap;"><b>${pk}</b>${pk !== '—' ? cpBtn(pk) : ''}</td><td>${name}</td><td style="direction:ltr;">${email}</td><td>${creditsHtml}</td><td>${pageCell}</td><td>${since}</td><td>${sendBtn}</td></tr>`;
   }).join('');
@@ -4335,7 +4343,7 @@ function buildAdminOrderRow(o){
     : ['error','rejected','failed_invalid'].includes(o.status) ? 'row-bad'
     : ['run','processing','pending','checking','uploading','floating'].includes(o.status) ? 'row-run' : '';
   return `<tr class="${rowCls}">
-    <td class="mono oc-order" style="font-size:11px;">${escapeHtml(o.display_id || o.id.slice(0,8))} ${cpBtn(o.display_id || o.id.slice(0,8))}</td>
+    <td class="mono oc-order" style="font-size:11px;">${escapeHtml(o.display_id || o.id.slice(0,8))} ${cpBtn(o.display_id || o.id.slice(0,8))}${o.external_order_id ? `<div class="ts-id" title="${currentLang === 'ar' ? 'رقم الملف عند TurniScan' : 'TurniScan file id'}"><span>TurniScan</span> <b>${escapeHtml(o.external_order_id)}</b>${cpBtn(o.external_order_id)}</div>` : ''}</td>
     <td class="u-cell oc-user">${userCell}</td>
     <td class="file-col oc-file">${fileCell}<br>${checkTypeBadge(o.check_type)}${filterBadges(o)}</td>
     <td class="oc-sim" data-l="${escapeHtml(t('th_sim'))}" style="white-space:nowrap;padding:6px 8px;">${reportButton(o, 'sim')}</td>
@@ -4443,9 +4451,14 @@ function renderTodayOrders(){
     .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at));
   const cnt = document.getElementById('todayOrdersCount');
   if (cnt) cnt.textContent = list.length;
+  // More than 5 orders: pages, like the other tables (5 per page unless the admin picks another size).
+  const st = _pgGet('today'); if (!_pgSavedSize('today')) st.pageSize = 5;
+  const pageList = paginateList('today', list, renderTodayOrders);
   body.innerHTML = list.length
-    ? list.map(buildAdminOrderRow).join('')
+    ? pageList.map(buildAdminOrderRow).join('')
     : `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px;">${currentLang==='ar'?'مفيش طلبات النهارده لسه':'No orders today yet'}</td></tr>`;
+  const bar = document.getElementById('todayOrdersPagination');
+  if (bar) { if (list.length > 5) renderPaginationBar('today', 'todayOrdersPagination', list.length); else bar.innerHTML = ''; }
 }
 
 const ORDER_STATUS_TEST = {
@@ -7957,6 +7970,16 @@ async function loadCreditsTab(){
     packByKey[pk.id] = info;
   });
   const logCode = (prefix, id) => 'LOG-' + String(prefix || '') + String(id).replace(/-/g, '').slice(0, 8).toUpperCase();
+  // The payment code the customer sees in their payment history (PKC- + the first 8 of the payment id).
+  const payCode = (id) => 'PKC-' + String(id).replace(/-/g, '').slice(0, 8).toUpperCase();
+  // Checks: the order's own code (the one the customer and the Orders tab show).
+  const orderCodeById = {};
+  (allOrders || []).forEach(o => { if (o.display_id) orderCodeById[o.id] = o.display_id; });
+  const missingOrderIds = [...new Set((usageRes.data || []).map(u => u.order_id).filter(id => id && !orderCodeById[id]))];
+  for (let i = 0; i < missingOrderIds.length; i += 200) {
+    const { data: ords } = await supabaseClient.from('orders').select('id, display_id').in('id', missingOrderIds.slice(i, i + 200));
+    (ords || []).forEach(o => { if (o.display_id) orderCodeById[o.id] = o.display_id; });
+  }
   const profileOf = (uid) => localProfiles[uid] || profilesByUserId[uid] || {};
 
   const rows = [];
@@ -7966,7 +7989,7 @@ async function loadCreditsTab(){
     // Code = the PAY reference the customer sees on the top-up page (fallback: LOG code).
     const done = p.status === 'completed';
     rows.push({
-      code: p.reference || logCode('', p.id), user_id: p.user_id, pk_number: pr.pk_number, full_name: pr.full_name || '—',
+      code: payCode(p.id), user_id: p.user_id, pk_number: pr.pk_number, full_name: pr.full_name || '—',
       plan: pack ? pack.name : (p.pack_id || '—'), method: p.gateway, amount_paid: p.amount, currency: p.currency || 'EGP',
       slots: done && pack ? pack.slots : null,
       kind: done ? 'topup' : (p.status === 'pending' ? 'pending' : 'rejected'),
@@ -7998,7 +8021,7 @@ async function loadCreditsTab(){
     const pr = profileOf(u.user_id);
     const ar = currentLang === 'ar';
     rows.push({
-      code: 'CHK-' + String(u.id).replace(/-/g, '').slice(0, 8).toUpperCase(), user_id: u.user_id,
+      code: orderCodeById[u.order_id] || ('CHK-' + String(u.id).replace(/-/g, '').slice(0, 8).toUpperCase()), user_id: u.user_id,
       pk_number: pr.pk_number, full_name: pr.full_name || '—',
       plan: u.slot_type === 'plag_ai' ? (ar ? 'فحص اقتباس + AI' : 'Similarity + AI check') : (ar ? 'فحص اقتباس' : 'Similarity check'),
       method: 'system', amount_paid: null, currency: null, slots: -1, kind: 'check', created_at: u.created_at,
@@ -10460,15 +10483,38 @@ Object.assign(I18N.en, {
   hm_areas: 'Most visited places', hm_labels: 'Most clicked buttons', hm_visual: 'Click map of the landing page',
   hm_less: 'Less', hm_more: 'More', hm_scroll: 'How far down the page customers got', online_col_page: 'Current page',
 });
-const HM_AREA = {
-  index: ['الصفحة الرئيسية', 'Landing page'], home: ['الرئيسية', 'Home'], orders: ['الفحص وملفاتي', 'Checks and my files'],
-  wallet: ['المحفظة', 'Wallet'], academic: ['الأدوات الأكاديمية', 'Academic Tools'], focus: ['وضع التركيز', 'Focus mode'],
-  'my-history': ['السجل', 'History'], 'my-profile': ['حسابي', 'My account'], support: ['الدعم', 'Support'],
-  store: ['المتجر', 'Store'], checkout: ['الدفع', 'Checkout'],
-};
+// The customer site's pages, named exactly as the customer site names them (including UI Design
+// edits), in the admin's language. Only pages that exist now are listed.
+const CUST_TABS = ['new-check', 'orders', 'wallet', 'my-history', 'academic', 'focus', 'support', 'my-profile'];
+const CUST_TAB_KEY = { 'new-check': 'nav_new_check', orders: 'nav_orders', wallet: 'nav_wallet', 'my-history': 'nav_my_history',
+  academic: 'nav_academic', focus: 'nav_focus', support: 'nav_support', 'my-profile': 'nav_my_profile' };
+const CUST_TAB_FALLBACK = { 'new-check': ['فحص جديد', 'New Check'], orders: ['ملفاتي', 'My files'], wallet: ['المحفظة', 'Wallet'],
+  'my-history': ['السجل', 'History'], academic: ['الأدوات الأكاديمية', 'Academic Tools'], focus: ['وضع التركيز', 'Focus mode'],
+  support: ['الدعم', 'Support'], 'my-profile': ['حسابي', 'My Account'] };
+const AC_SUB_NAME = { store: ['المتجر', 'Store'], orders: ['طلباتي', 'My orders'], wallet: ['المحفظة', 'Wallet'], checkout: ['الدفع', 'Checkout'] };
+function custText(key){
+  const l = admAr() ? 'ar' : 'en';
+  const o = (typeof uiConfigState !== 'undefined' && uiConfigState['i18n_' + l]) || {};
+  const d = (typeof DASH_I18N !== 'undefined' && DASH_I18N[l]) || {};
+  return String(o[key] || d[key] || '').trim();
+}
+// 'home' = the dashboard's first tab before the tracker knew its name: "New check".
+function hmNormArea(a){ a = String(a || ''); return a === 'home' ? 'new-check' : a; }
+function hmAreaOk(a){
+  a = hmNormArea(a);
+  if (a === 'index') return true;
+  const [tab, sub] = a.split(':');
+  if (!CUST_TABS.includes(tab)) return false;
+  return !sub || (tab === 'academic' && AC_SUB_NAME[sub]);
+}
 function hmAreaName(a){
   const ar = admAr();
-  return String(a || '—').split(':').map((p, i) => (HM_AREA[p] ? HM_AREA[p][ar ? 0 : 1] : p)).join(' › ');
+  const [tab, sub, extra] = hmNormArea(a).split(':');
+  if (tab === 'index') return ar ? 'الصفحة الرئيسية (اللاندنج)' : 'Landing page';
+  let name = CUST_TAB_KEY[tab] ? (custText(CUST_TAB_KEY[tab]) || CUST_TAB_FALLBACK[tab][ar ? 0 : 1]) : tab;
+  if (sub) name += ' › ' + (AC_SUB_NAME[sub] ? AC_SUB_NAME[sub][ar ? 0 : 1] : sub);
+  if (extra) name += ' › ' + extra;
+  return name;
 }
 function hmDur(sec){
   sec = Math.round(Number(sec) || 0);
@@ -10483,11 +10529,12 @@ async function loadHeatmap(){
   // Dashboard: pick a tab; its click map and scroll depth are shown (lists cover all tabs).
   const areaSel = document.getElementById('hmArea');
   areaSel.style.display = page === 'dashboard' ? '' : 'none';
-  if (page === 'dashboard' && !areaSel.options.length) {
-    areaSel.innerHTML = ['orders', 'wallet', 'academic', 'my-history', 'focus', 'support', 'my-profile']
-      .map(a => `<option value="${a}">${escapeHtml(hmAreaName(a))}</option>`).join('');
+  if (page === 'dashboard') {
+    const cur = areaSel.value || 'new-check';
+    areaSel.innerHTML = CUST_TABS.map(a => `<option value="${a}">${escapeHtml(hmAreaName(a))}</option>`).join('');
+    areaSel.value = CUST_TABS.includes(cur) ? cur : 'new-check';
   }
-  const area = page === 'dashboard' ? (areaSel.value || 'orders') : null;
+  const area = page === 'dashboard' ? (areaSel.value || 'new-check') : null;
   ['hmAreas', 'hmLabels'].forEach(id => { document.getElementById(id).innerHTML = `<div class="hm-empty">${admAr() ? 'جاري التحميل...' : 'Loading...'}</div>`; });
   const { data, error } = await supabaseClient.rpc('admin_site_heat', { p_days: days, p_page: page, p_device: device, p_area: area });
   if (seq !== _hmSeq) return;
@@ -10499,20 +10546,29 @@ async function loadHeatmap(){
   _hmData = data || {};
   renderHeatmap(page, device, area);
 }
+function hmMergeAreas(rows){
+  const by = {};
+  (rows || []).filter(r => hmAreaOk(r.area)).forEach(r => {
+    const k = hmNormArea(r.area), t = by[k] || (by[k] = { area: k, views: 0, time: 0, clicks: 0, visitors: 0, _n: 0 });
+    t.views += +r.views || 0; t.time += +r.time || 0; t.clicks += +r.clicks || 0; t.visitors += +r.visitors || 0;
+    t._n += (+r.avg ? Math.round((+r.time || 0) / (+r.avg)) : 0);
+  });
+  return Object.values(by).map(t => ({ ...t, avg: t._n ? Math.round(t.time / t._n) : 0 })).sort((a, b) => b.views - a.views);
+}
 function renderHeatmap(page, device, area){
   const ar = admAr(), d = _hmData || {}, tot = d.totals || {};
   const kpi = (label, val) => `<div class="kpi"><div class="num">${Number(val || 0).toLocaleString('en-US')}</div><div class="lbl">${label}</div></div>`;
   document.getElementById('hmKpis').innerHTML =
     kpi(ar ? 'زوار' : 'Visitors', tot.visitors) + kpi(ar ? 'عملاء مسجلين' : 'Signed-in customers', tot.customers) +
     kpi(ar ? 'زيارات للصفحات' : 'Page views', tot.views) + kpi(ar ? 'ضغطات' : 'Clicks', tot.clicks);
-  const areas = d.areas || [], maxV = Math.max(1, ...areas.map(a => +a.views || 0));
+  const areas = hmMergeAreas(d.areas), maxV = Math.max(1, ...areas.map(a => +a.views || 0));
   document.getElementById('hmAreas').innerHTML = areas.length ? areas.map(a => `<div class="hm-row">
       <div class="hm-name" title="${escapeHtml(a.area || '')}">${escapeHtml(hmAreaName(a.area))}</div>
       <div class="hm-val">${(+a.views || 0).toLocaleString('en-US')} ${ar ? 'زيارة' : 'views'}</div>
       <div class="hm-bar"><i style="width:${Math.max(3, Math.round((+a.views || 0) / maxV * 100))}%"></i></div>
       <div class="hm-sub">${ar ? 'متوسط الوقت' : 'Avg. time'}: ${hmDur(a.avg)} · ${ar ? 'إجمالي الوقت' : 'Total time'}: ${hmDur(a.time)} · ${(+a.clicks || 0).toLocaleString('en-US')} ${ar ? 'ضغطة' : 'clicks'} · ${(+a.visitors || 0)} ${ar ? 'زائر' : 'visitors'}</div>
     </div>`).join('') : `<div class="hm-empty">${ar ? 'مفيش بيانات في الفترة دي لسه. البيانات بتبدأ تتجمع من دلوقتي.' : 'No data for this period yet. Data is collected from now on.'}</div>`;
-  const labels = d.labels || [], maxL = Math.max(1, ...labels.map(l => +l.n || 0));
+  const labels = (d.labels || []).filter(l => hmAreaOk(l.area)), maxL = Math.max(1, ...labels.map(l => +l.n || 0));
   document.getElementById('hmLabels').innerHTML = labels.length ? labels.map(l => `<div class="hm-row">
       <div class="hm-name" dir="auto" title="${escapeHtml(l.label)}">${escapeHtml(l.label)}</div>
       <div class="hm-val">${(+l.n).toLocaleString('en-US')}</div>
@@ -10524,7 +10580,13 @@ function renderHeatmap(page, device, area){
     ? (ar ? 'خريطة الضغطات على الصفحة الرئيسية' : 'Click map of the landing page')
     : (ar ? 'خريطة الضغطات على: ' : 'Click map of: ') + hmAreaName(area);
   hmDrawScroll(d.scroll || []);
-  const w = device === 'mobile' ? 390 : (page === 'index' ? 1280 : 1366);
+  const pts = d.points || [];
+  const mobN = pts.filter(p => p.m).reduce((n, p) => n + (+p.n || 0), 0), deskN = pts.filter(p => !p.m).reduce((n, p) => n + (+p.n || 0), 0);
+  const shown = device === 'all' ? (mobN > deskN ? 'mobile' : 'desktop') : device;
+  _hmShownMobile = shown === 'mobile';
+  document.getElementById('hmVisualTitle').textContent += device === 'all'
+    ? (ar ? ` — عرض ${shown === 'mobile' ? 'الموبايل' : 'الكمبيوتر'} (أغلب الضغطات)` : ` — ${shown} layout (most clicks)`) : '';
+  const w = shown === 'mobile' ? 390 : (page === 'index' ? 1280 : 1366);
   hmLoadFrame(w, page === 'index' ? '/index.html?preview=1' : '/dashboard.html?preview=1&tab=' + encodeURIComponent(area || 'orders'));
 }
 function hmDrawScroll(rows){
@@ -10538,7 +10600,7 @@ function hmDrawScroll(rows){
   el.innerHTML = counts.map((n, i) => { const pct = Math.round(left / total * 100); left -= n;
     return `<div class="hm-sc-row"><span>${(i + 1) * 10}%</span><div class="hm-bar"><i style="width:${pct}%"></i></div><b style="color:var(--navy);">${pct}%</b></div>`; }).join('');
 }
-let _hmFrameW = 0, _hmFrameSrc = '';
+let _hmFrameW = 0, _hmFrameSrc = '', _hmShownMobile = false;
 function hmLoadFrame(w, src){
   const frame = document.getElementById('hmFrame');
   if (_hmFrameW === w && _hmFrameSrc === src && frame.dataset.ready === '1') { hmFitAndDraw(); return; }
@@ -10576,7 +10638,7 @@ function hmDrawPoints(w, h){
   canvas.width = w; canvas.height = h; canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, w, h);
-  const pts = (_hmData && _hmData.points) || [];
+  const pts = ((_hmData && _hmData.points) || []).filter(p => !!p.m === _hmShownMobile);
   if (!pts.length) return;
   const max = Math.max(...pts.map(p => +p.n || 0)), r = Math.max(26, w / 30);
   pts.forEach(p => {
