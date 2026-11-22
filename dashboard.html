@@ -11695,7 +11695,7 @@ function renderFailAlerts(){
         <div class="fa-top">
           <span class="fa-tag">${ar ? 'فشل الفحص' : 'SCAN CHECK FAILED'}</span>
           <span class="fa-title">${ar ? 'مشكلة في الملف:' : 'Issue with File:'} <b>${escapeHtml(o.file || (ar ? 'ملفك' : 'Your document'))}</b></span>
-          ${refunded ? `<span class="fa-refund">✓ ${ar ? 'أُعيد فحص واحد إلى رصيدك' : '1 Slot Refunded'}</span>` : ''}
+          ${refunded ? `<span class="fa-refund">✓ ${ar ? 'تم استرجاع فحص واحد' : '1 Slot Refunded'}</span>` : ''}
           ${total > 1 ? `<span class="fa-count">${ar ? `1 من ${total}` : `1 of ${total}`}</span>` : ''}
         </div>
         <div class="fa-reason"><b>${ar ? 'السبب:' : 'Reason:'}</b> ${escapeHtml(reason)} <span class="fa-code mono">${escapeHtml(o.displayId || '')}</span>
