@@ -913,8 +913,9 @@
   .hm-stage iframe{display:block;border:0;pointer-events:none;background:#fff;}
   .hm-stage canvas{position:absolute;inset:0;pointer-events:none;}
   .hm-legend{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
-  .hm-legend i, .hm-legend b{display:inline-block;width:60px;height:8px;border-radius:99px;background:linear-gradient(90deg,rgba(59,130,246,.5),#22c55e,#facc15,#ef4444);}
-  .hm-legend b{display:none;}
+  .hm-legend i{display:inline-block;width:90px;height:8px;border-radius:99px;background:linear-gradient(to right,rgba(59,130,246,.6),#22c55e,#facc15,#ef4444);}
+  html[dir="rtl"] .hm-legend i{background:linear-gradient(to left,rgba(59,130,246,.6),#22c55e,#facc15,#ef4444);}
+  #hmVisualPanel{margin-bottom:14px;}
   .hm-scroll-title{font-size:12px;font-weight:800;color:var(--navy);margin-bottom:8px;}
   .hm-sc-row{display:grid;grid-template-columns:44px minmax(0,1fr) 38px;gap:6px;align-items:center;font-size:11px;color:var(--muted);margin-bottom:5px;}
   .hm-sc-row .hm-bar{grid-column:auto;height:9px;}
@@ -1778,16 +1779,16 @@
           </div>
         </div>
         <div class="kpi-row" id="hmKpis"></div>
-        <div class="hm-grid">
-          <div class="panel"><div class="panel-head"><h3 data-i18n="hm_areas">أكتر الأماكن زيارة</h3></div><div id="hmAreas" class="hm-list"></div></div>
-          <div class="panel"><div class="panel-head"><h3 data-i18n="hm_labels">أكتر الأزرار ضغطاً</h3></div><div id="hmLabels" class="hm-list"></div></div>
-        </div>
         <div class="panel" id="hmVisualPanel">
-          <div class="panel-head"><h3 id="hmVisualTitle">خريطة الضغطات على الصفحة الرئيسية</h3><span class="hm-legend"><i></i><span data-i18n="hm_less">أقل</span><b></b><span data-i18n="hm_more">أكتر</span></span></div>
+          <div class="panel-head"><h3 id="hmVisualTitle">خريطة الضغطات على الصفحة الرئيسية</h3><span class="hm-legend"><span data-i18n="hm_less">أقل</span><i></i><span data-i18n="hm_more">أكتر</span></span></div>
           <div class="hm-visual">
             <div class="hm-stage-wrap" id="hmStageWrap"><div class="hm-stage" id="hmStage"><iframe id="hmFrame" title="preview" scrolling="no"></iframe><canvas id="hmCanvas"></canvas></div></div>
             <div class="hm-scroll"><div class="hm-scroll-title" data-i18n="hm_scroll">العملاء وصلوا لحد فين في الصفحة</div><div id="hmScroll"></div></div>
           </div>
+        </div>
+        <div class="hm-grid">
+          <div class="panel"><div class="panel-head"><h3 data-i18n="hm_areas">أكتر الأماكن زيارة</h3></div><div id="hmAreas" class="hm-list"></div></div>
+          <div class="panel"><div class="panel-head"><h3 data-i18n="hm_labels">أكتر الأزرار ضغطاً</h3></div><div id="hmLabels" class="hm-list"></div></div>
         </div>
       </div>
 
@@ -5458,6 +5459,8 @@ const UI_ICON_MAP=[
   {key:'header_signout',imgSize:'16px',label_ar:'تسجيل الخروج',label_en:'Sign out',context_ar:'قائمة المستخدم المنسدلة',context_en:'User dropdown menu',defaultSvg:'<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>',section:'header',section_ar:'أيقونات الهيدر',section_en:'Header icons'},
   {key:'tab_new_check',imgSize:'18px',label_ar:'تاب فحص جديد',label_en:'New check tab',context_ar:'شريط التنقل الرئيسي',context_en:'Main nav bar',defaultSvg:'<svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M12 5v14M5 12h14"/></svg>',section:'tabs',section_ar:'أيقونات التابات',section_en:'Nav tab icons'},
   {key:'tab_orders',imgSize:'18px',label_ar:'تاب ملفاتي',label_en:'My files tab',context_ar:'شريط التنقل الرئيسي',context_en:'Main nav bar',defaultSvg:'<svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>',section:'tabs',section_ar:'أيقونات التابات',section_en:'Nav tab icons'},
+  {key:'ac_cat_all',imgSize:'40px',label_ar:'صورة تصنيف "الكل"',label_en:'"All" category image',context_ar:'تصنيفات المتجر في Academic Tools',context_en:'Academic Tools store categories',defaultSvg:'<span style="font-size:22px;">🧰</span>',section:'academic_tools',section_ar:'أيقونات Academic Tools',section_en:'Academic Tools icons'},
+  {key:'invoice_logo',imgSize:'40px',label_ar:'لوجو الفاتورة',label_en:'Invoice logo',context_ar:'فواتير محفظة المتجر (PDF)',context_en:'Store wallet invoices (PDF)',defaultSvg:'<span style="font-size:13px;font-weight:900;">PK <span style="color:#d99401;">Checker</span></span>',section:'academic_tools',section_ar:'أيقونات Academic Tools',section_en:'Academic Tools icons'},
   {key:'ac_tab_store',imgSize:'18px',label_ar:'تاب المتجر',label_en:'Store sub-tab',context_ar:'تاب Academic Tools',context_en:'Academic Tools tab',defaultSvg:'<span style="font-size:16px;">🛍️</span>',section:'academic_tools',section_ar:'أيقونات Academic Tools',section_en:'Academic Tools icons'},
   {key:'ac_tab_orders',imgSize:'18px',label_ar:'تاب طلباتي',label_en:'My orders sub-tab',context_ar:'تاب Academic Tools',context_en:'Academic Tools tab',defaultSvg:'<span style="font-size:16px;">📦</span>',section:'academic_tools',section_ar:'أيقونات Academic Tools',section_en:'Academic Tools icons'},
   {key:'ac_tab_wallet',imgSize:'18px',label_ar:'تاب المحفظة',label_en:'Wallet sub-tab',context_ar:'تاب Academic Tools',context_en:'Academic Tools tab',defaultSvg:'<span style="font-size:16px;">💳</span>',section:'academic_tools',section_ar:'أيقونات Academic Tools',section_en:'Academic Tools icons'},
@@ -10485,7 +10488,7 @@ Object.assign(I18N.en, {
 });
 // The customer site's pages, named exactly as the customer site names them (including UI Design
 // edits), in the admin's language. Only pages that exist now are listed.
-const CUST_TABS = ['new-check', 'orders', 'wallet', 'my-history', 'academic', 'focus', 'support', 'my-profile'];
+const CUST_TABS = ['new-check', 'wallet', 'my-history', 'academic', 'focus', 'support', 'my-profile']; // 'orders' (My files) is not shown to customers
 const CUST_TAB_KEY = { 'new-check': 'nav_new_check', orders: 'nav_orders', wallet: 'nav_wallet', 'my-history': 'nav_my_history',
   academic: 'nav_academic', focus: 'nav_focus', support: 'nav_support', 'my-profile': 'nav_my_profile' };
 const CUST_TAB_FALLBACK = { 'new-check': ['فحص جديد', 'New Check'], orders: ['ملفاتي', 'My files'], wallet: ['المحفظة', 'Wallet'],
