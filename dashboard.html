@@ -2003,6 +2003,8 @@ if (new URLSearchParams(location.search).has('preview')) {
   .fa-refund{font-size:10.5px;font-weight:700;color:#15803d;background:#dcfce7;border:1px solid #86efac;border-radius:6px;padding:2px 8px;white-space:nowrap;}
   .fa-reason{font-size:12.5px;color:#be123c;line-height:1.6;}
   .fa-reason b{color:#111827;}
+  .fa-orig{font-size:11px;color:#9f1239;opacity:.75;margin-top:2px;text-align:start;}
+  html[dir="rtl"] .fa-orig{text-align:right;}
   .fa-code{font-size:10.5px;color:#9f1239;opacity:.7;margin-inline-start:6px;}
   .fa-guide{display:flex;gap:10px;align-items:flex-start;margin-top:10px;padding:10px 14px;background:#fff;border:1px solid #fecdd3;border-radius:10px;font-size:12.5px;color:#374151;line-height:1.7;}
   .fa-gi{flex:none;width:18px;height:18px;border-radius:50%;background:#e11d48;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:3px;font-family:serif;}
@@ -11588,6 +11590,29 @@ function failGuidance(reason){
     title: ar ? 'المطلوب:' : 'What to do:',
     body: ar ? 'راجع شروط رفع الملفات، وبعدين ارفع الملف مرة تانية.' : 'Check the file upload requirements, then upload the file again.' };
 }
+// The provider's English reasons, in Arabic. Unknown ones return '' (the Arabic general text is shown, with the original under it).
+function failReasonAr(raw){
+  const r = String(raw || ''), parts = [];
+  const n = x => x.replace(/,/g, '');
+  let m;
+  if ((m = r.match(/exceed\w*\s+([\d,]+)\s*words?\s*limit(?:\s*\(([\d,]+)\s*words?\))?/i)))
+    parts.push(`الملف تجاوز الحد المسموح (${Number(n(m[1])).toLocaleString('en-US')} كلمة)${m[2] ? `، وعدد كلماته ${Number(n(m[2])).toLocaleString('en-US')} كلمة` : ''}.`);
+  else if ((m = r.match(/(?:too (?:few|short)|minimum|at least)\D*([\d,]+)\s*words?/i)))
+    parts.push(`الملف أقل من الحد الأدنى (${n(m[1])} كلمة).`);
+  else if ((m = r.match(/(?:exceed\w*|larger than|too large)[^\d]*([\d.]+)\s*MB/i)) || /file (?:is )?too large/i.test(r))
+    parts.push(`حجم الملف أكبر من الحد المسموح${m ? ` (${m[1]} ميجا)` : ''}.`);
+  else if (/(unsupported|invalid|not (?:a )?supported)\s*(file )?(format|type|extension)?/i.test(r))
+    parts.push('صيغة الملف غير مدعومة أو الملف غير صالح.');
+  else if (/(corrupt|damaged|unreadable|could not (?:be )?read|cannot be opened)/i.test(r))
+    parts.push('الملف تالف أو لا يمكن قراءته.');
+  else if (/password|encrypt|protected/i.test(r))
+    parts.push('الملف محمي بكلمة مرور.');
+  else if (/(no text|empty|scanned|image[- ]only)/i.test(r))
+    parts.push('الملف لا يحتوي على نص قابل للفحص (فارغ أو صور فقط).');
+  if (!parts.length) return '';
+  if (/refund|returned/i.test(r)) parts.push('وتم إرجاع الفحص إلى رصيدك.');
+  return parts.join(' ');
+}
 function renderFailAlerts(){
   const box = document.getElementById('failAlerts');
   if (!box) return;
@@ -11597,7 +11622,11 @@ function renderFailAlerts(){
   box.innerHTML = list.map(o => {
     // The provider's own reason (e.g. "exceeded 50,000 words (71,300 words)") is kept when our wording would only be generic.
     let reason = o.errorReason ? localizeOrderError(o.errorReason) : (ar ? 'تعذر إتمام فحص الملف.' : 'The file could not be checked.');
-    if (o.errorReason && reason === t('err_generic') && String(o.errorReason).length > 12) reason = String(o.errorReason);
+    let reasonNote = '';
+    if (o.errorReason && reason === t('err_generic') && String(o.errorReason).length > 12) {
+      if (ar) { const tr = failReasonAr(o.errorReason); if (tr) reason = tr; else reasonNote = String(o.errorReason); }
+      else reason = String(o.errorReason);
+    }
     // Service down before the check was taken: nothing was deducted. Otherwise the slot came back.
     const notCharged = reason === t('err_provider_unavailable') || /(no check has been deducted|not (been )?deducted|لم يُ?خصم)/i.test((o.errorReason || '') + ' ' + reason);
     const refunded = !notCharged && (o.phase !== 'rejected' || /refund|returned|أُعيد|رجع|استرد/i.test(o.errorReason || ''));
@@ -11610,7 +11639,8 @@ function renderFailAlerts(){
           <span class="fa-title">${ar ? 'مشكلة في الملف:' : 'Issue with File:'} <b>${escapeHtml(o.file || (ar ? 'ملفك' : 'Your document'))}</b></span>
           ${refunded ? `<span class="fa-refund">✓ ${ar ? 'اترجع 1 فحص' : '1 Slot Refunded'}</span>` : notCharged ? `<span class="fa-refund">✓ ${ar ? 'لم يُخصم أي فحص' : 'No slot deducted'}</span>` : ''}
         </div>
-        <div class="fa-reason"><b>${ar ? 'السبب:' : 'Reason:'}</b> ${escapeHtml(reason)} <span class="fa-code mono">${escapeHtml(o.displayId || '')}</span></div>
+        <div class="fa-reason"><b>${ar ? 'السبب:' : 'Reason:'}</b> ${escapeHtml(reason)} <span class="fa-code mono">${escapeHtml(o.displayId || '')}</span>
+          ${reasonNote ? `<div class="fa-orig" dir="ltr">${escapeHtml(reasonNote)}</div>` : ''}</div>
         <div class="fa-guide"><span class="fa-gi">i</span><div><b>${g.title}</b> ${g.body}
           <a href="#" class="fa-link" onclick="event.preventDefault();openSubmitFilesModal()">${ar ? 'ارفع الملف مرة تانية ←' : 'Re-upload file →'}</a></div></div>
       </div>

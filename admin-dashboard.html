@@ -1029,7 +1029,8 @@
   .chat-shell.in-float .cp-msg{padding:7px 10px;font-size:12.5px;}
   .chat-shell.in-float .cp-msg.has-img{padding:4px;}
   .chat-shell.in-float .cp-msg-img{width:200px;}
-  .chat-shell.in-float .cp-foot{padding:6px 8px;gap:6px;}
+  .chat-shell.in-float .cp-foot{padding:6px 8px;gap:6px;position:relative;z-index:5;}
+  .chat-shell.in-float .cp-reply-input{pointer-events:auto;position:relative;z-index:1;user-select:text;-webkit-user-select:text;}
   .chat-shell.in-float .cp-attach-btn{width:32px;height:32px;}
   .chat-shell.in-float .cp-head-row1{gap:9px;}
   .chat-shell.in-float .cp-head-row2{flex-wrap:nowrap;overflow-x:auto;row-gap:0;padding-bottom:2px;}
@@ -2860,6 +2861,12 @@ function startApp(){
     lightbox.init();
   }
 
+  document.querySelector('#chatActive .cp-foot')?.addEventListener('pointerdown', e => {
+    if (e.target.closest('button, .cp-attach-btn, input[type=file]')) return;
+    const inp = document.getElementById('cpInput');
+    if (inp.disabled && !inp.dataset.sending) inp.disabled = false;
+    if (e.target !== inp) { e.preventDefault(); inp.focus(); }
+  });
   document.getElementById('cpInput').addEventListener('keydown', e=>{
     if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendAdminReply(); }
   });
@@ -3347,7 +3354,7 @@ async function sendAdminReply(){
   const val = input.value.trim();
   if (!val) return;
   const btn = document.getElementById('cpSendBtn');
-  input.disabled = true; btn.disabled = true;
+  input.disabled = true; btn.disabled = true; input.dataset.sending = '1';
   try {
     if (editingChatMessageId) {
       const { error } = await supabaseClient.from('chat_messages')
@@ -3375,7 +3382,7 @@ async function sendAdminReply(){
     console.error('sendAdminReply failed:', err);
     await adminAlert('تعذر إرسال الرد، حاول مرة أخرى.', {icon:'❌'});
   } finally {
-    input.disabled = false; btn.disabled = false; input.focus();
+    input.disabled = false; btn.disabled = false; delete input.dataset.sending; input.focus();
   }
 }
 
@@ -10393,6 +10400,9 @@ function admChatMount(){
   _admChatHome = { parent: shell.parentNode, next: shell.nextSibling };
   host.appendChild(shell);
   shell.classList.add('in-float');
+  shell.style.height = '';
+  // A conversation already open goes straight to its messages, with the reply box ready.
+  if (openConversationId) shell.classList.add('conv-open');
 }
 function admChatUnmount(){
   const shell = document.getElementById('chatShell');
