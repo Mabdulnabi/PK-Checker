@@ -8633,7 +8633,11 @@ async function importBackup(input){
 }
 
 async function initPayGatewaysTab(){
-  const { data, error } = await supabaseClient.from('payment_methods').select('*').order('sort_order');
+  // The logos come from UI Design: wait for them, so the list is not drawn with the default drawings.
+  const [{ data, error }] = await Promise.all([
+    supabaseClient.from('payment_methods').select('*').order('sort_order'),
+    typeof loadUIConfigData === 'function' ? loadUIConfigData().catch(() => {}) : null,
+  ]);
   if (error) { console.error('initPayGatewaysTab:', error); return; }
   allPayMethods = data || [];
   renderPayMethodsList();
@@ -8651,7 +8655,9 @@ function pgGroupOf(m){ return m.pay_group || (['easykash', 'paypal'].includes(m.
 // The logo the customer sees: the UI Design icon if one was uploaded, else the default drawing.
 function pgLogoHtml(m){
   const key = 'wal_pay_' + m.key;
-  const url = (typeof uiConfigState !== 'undefined' && uiConfigState.icons) ? uiConfigState.icons[key] : null;
+  const icons = (typeof uiConfigState !== 'undefined' && uiConfigState.icons) || {};
+  // PayPal (manual) uses the PayPal logo until it gets its own in UI Design.
+  const url = icons[key] || (m.key === 'paypal_manual' ? icons.wal_pay_paypal : null);
   if (url) return `<img src="${escapeHtml(url)}" alt="">`;
   const def = (typeof UI_ICON_MAP !== 'undefined' ? UI_ICON_MAP.find(i => i.key === key) : null);
   return def ? def.defaultSvg : PG_CARD_SVG;
