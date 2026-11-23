@@ -4446,7 +4446,14 @@ function renderApiLog(){
     const spanS = Math.round((new Date(last.created_at) - new Date(first.created_at)) / 1000);
     const spanTxt = rows.length > 1 && spanS > 0
       ? `<div style="color:var(--muted);font-size:10px;">${ar ? 'خلال' : 'over'} ${spanS >= 60 ? Math.floor(spanS / 60) + (ar ? 'د ' : 'm ') : ''}${spanS % 60}${ar ? 'ث' : 's'}</div>` : '';
-    const events = rows.map(r => `<span class="badge ${EVENT_CLS[r.event] || 'badge-wait'}" style="font-size:10px;padding:2px 7px;" title="${escapeHtml(fmtTime(new Date(r.created_at)))}">${escapeHtml(EVENT[r.event] || r.event)}</span>`)
+    // The same event repeated in a row (e.g. each queue attempt is a new send) shows once, with a count.
+    const runs = [];
+    rows.forEach(r => { const prev = runs[runs.length - 1]; if (prev && prev.event === r.event) prev.rows.push(r); else runs.push({ event: r.event, rows: [r] }); });
+    const events = runs.map(run => {
+      const n = run.rows.length;
+      const times = n > 1 ? `${fmtTime(new Date(run.rows[0].created_at))} – ${fmtTime(new Date(run.rows[n - 1].created_at))}` : fmtTime(new Date(run.rows[0].created_at));
+      return `<span class="badge ${EVENT_CLS[run.event] || 'badge-wait'}" style="font-size:10px;padding:2px 7px;" title="${escapeHtml(times)}">${escapeHtml(EVENT[run.event] || run.event)}${n > 1 ? ` <b style="margin-inline-start:3px;padding:0 5px;border-radius:999px;background:rgba(255,255,255,.28);">×${n}</b>` : ''}</span>`;
+    })
       .join(`<span style="color:var(--muted);font-size:10px;margin:0 3px;">${ar ? '←' : '→'}</span>`);
     const ended = last.event === 'completed' ? 'row-ok' : last.event === 'failed' ? 'row-bad' : 'row-run';
     // TurniScan's own file id under our order code (it replaced the customer's PK here).

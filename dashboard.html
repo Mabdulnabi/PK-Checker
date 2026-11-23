@@ -942,12 +942,12 @@
   .mf-row .mf-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-width:0;}
   .mf-row .mf-cell > *{max-width:100%;}
   .mf-row .mf-doc{align-items:flex-start;text-align:right;}
-  .mf-row .mf-doc-main{display:flex;flex-direction:column;align-items:flex-start;max-width:100%;min-width:0;}
+  .mf-row .mf-doc-main{display:flex;flex-direction:column;align-items:flex-start;width:100%;max-width:100%;min-width:0;}
   .mf-row .mf-act{align-items:center;}
   /* English: the document column (header and cells) sits on the left. */
   html[dir="ltr"] .mf-cols-head span:first-child{text-align:left;}
   html[dir="ltr"] .mf-row .mf-doc{align-items:flex-start;text-align:left;}
-  .mf-name{font-weight:800;color:var(--navy);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;text-align:start;}
+  .mf-name{font-weight:800;color:var(--navy);font-size:14px;white-space:normal;overflow-wrap:anywhere;word-break:break-word;line-height:1.35;max-width:100%;direction:ltr;text-align:start;}
   .mf-badge{display:inline-flex;align-items:center;margin-top:6px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:8px;background:var(--blue-wash);color:var(--blue-deep);border:1px solid #BFD7FF;font-family:'Cairo',sans-serif;}
   .mf-order{font-family:'Cairo',sans-serif;font-size:12px;font-weight:800;color:var(--navy);direction:ltr;text-align:start;white-space:nowrap;}
   .mf-order small{display:block;font-size:10.5px;font-weight:700;color:var(--muted);}
@@ -957,6 +957,13 @@
   .mf-status.ok{background:var(--ok-wash);color:#0F7A55;border:1px solid #B7EBD5;}
   .mf-status.run{background:var(--blue-wash);color:var(--blue-deep);border:1px solid #BFD7FF;}
   .mf-status.bad{background:var(--danger-wash);color:var(--danger);border:1px solid #F5C2CB;}
+  .mf-status.queued{background:#FEF3C7;color:#92400E;border:1px solid #FCD34D;}
+  [data-theme="dark"] .mf-status.queued{background:rgba(245,158,11,.14);color:#FCD34D;border-color:rgba(252,211,77,.35);}
+  /* While a file waits in the queue, an X (cancel order) takes the Delete button's place, same size. */
+  .mf-cancel-x{width:32px;height:32px;border-radius:10px;background:#FFF7ED;border:1px solid #FCD34D;color:#B45309;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;}
+  .mf-cancel-x:hover{background:#FEF3C7;}
+  .mf-cancel-x svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;}
+  [data-theme="dark"] .mf-cancel-x{background:rgba(245,158,11,.14);border-color:rgba(252,211,77,.35);color:#FCD34D;}
   .mf-dl{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:5px;background:#0E9F6E;color:#fff;border:none;border-radius:9px;padding:7px 8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:12px;cursor:pointer;white-space:nowrap;}
   .mf-dl svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
   .mf-dl:disabled{opacity:.55;cursor:not-allowed;}
@@ -967,6 +974,7 @@
   .mf-del:disabled{opacity:.35;cursor:not-allowed;}
   .mf-row.st-ok{border-color:#B7EBD5;border-inline-start:3px solid #0E9F6E;}
   .mf-row.st-run{border-color:#BFD7FF;border-inline-start:3px solid #2563eb;}
+  .mf-row.st-queued{border-color:#FCD34D;border-inline-start:3px solid #F59E0B;}
   .mf-row.st-bad{border-color:#F5C2CB;border-inline-start:3px solid #E11D48;}
   .mf-empty{text-align:center;color:var(--muted);font-size:13px;padding:28px 12px;font-family:'Cairo',sans-serif;}
   .my-files-note{margin-top:10px;font-size:11.5px;color:var(--muted);text-align:center;font-family:'Cairo',sans-serif;}
@@ -1402,6 +1410,9 @@
   .badge .dot{width:6px;height:6px;border-radius:50%;}
   .badge-wait{background:var(--paper-soft);color:var(--muted);}
   .badge-wait .dot{background:#A6AFC9;}
+  .badge-queued{background:#FEF3C7;color:#92400E;border:1px solid #FCD34D;}
+  .badge-queued .dot{background:#F59E0B;}
+  [data-theme="dark"] .badge-queued{background:rgba(245,158,11,.14);color:#FCD34D;border-color:rgba(252,211,77,.35);}
   .badge-run{background:var(--blue-wash);color:var(--blue-deep);}
   .badge-run .dot{background:var(--blue-deep);}
   .badge-run .spark::before{animation:spark-pulse 1.1s ease-in-out infinite;}
@@ -4374,7 +4385,7 @@ const I18N = {
     err_maintenance:"The service is temporarily unavailable for maintenance. Please try again later.",
     err_cooldown:"This file could not be checked a moment ago. Please wait one minute and try again.",
     err_generic:"This order could not be completed. Please try again or contact our support team.",
-    phase_floating:"Ready to send", phase_uploading:"Uploading", phase_pending:"Awaiting processing", phase_processing:"Processing", phase_completed:"Completed", phase_error:"Check error", phase_failed_invalid:"Invalid file", phase_rejected:"Rejected", phase_cancelled:"Cancelled", mf_cancelled:"Cancelled", phase_queued:"Waiting to be checked", mf_queued:"Waiting to be checked", mf_cancel_queued:"Cancel order",
+    phase_floating:"Ready to send", phase_uploading:"Uploading", phase_pending:"Awaiting processing", phase_processing:"Processing", phase_completed:"Completed", phase_error:"Check error", phase_failed_invalid:"Invalid file", phase_rejected:"Rejected", phase_cancelled:"Cancelled", mf_cancelled:"Cancelled", phase_queued:"Queued", mf_queued:"Queued", mf_cancel_queued:"Cancel order",
     similarity:"Similarity", ai:"AI", sim_only:"Similarity only", sim_ai:"Similarity + AI",
     col_order_id:"Order ID", col_file:"File", col_submitted:"Submitted", col_completed:"Completed", col_handle:"Handle time",
     stat_completed:"Completed", stat_pending:"Pending", stat_rejected:"Rejected",
@@ -10917,6 +10928,9 @@ async function submitOrder(){
     addOrderToLocalState(orderRow, fileName, fileToSubmit, checkTypeDb, willUseApi);
 
     currentFile = null;
+    // The order exists and the file is handed over: the upload window closes now, not after the
+    // check service answers (that can take a minute; the order row updates by itself).
+    if (typeof window._sfHandedOff === 'function') { try { window._sfHandedOff(); } catch {} window._sfHandedOff = null; }
     renderFileChip();
     updatePrice();
     renderOrders();
@@ -11017,7 +11031,7 @@ function localizeOrderError(reason){
 const LEGACY_STATUS_MAP = { floating:'checking', pending:'run', failed_invalid:'error' };
 function apiStatus(s){ return LEGACY_STATUS_MAP[s] || s; }
 
-const ORDER_BADGE_CLASS = { queued:'badge-wait', cancelled:'badge-no', run:'badge-run', checking:'badge-run', completed:'badge-ok', processing:'badge-run', pending:'badge-wait', uploading:'badge-wait', floating:'badge-wait', error:'badge-no', failed_invalid:'badge-no', rejected:'badge-no' };
+const ORDER_BADGE_CLASS = { queued:'badge-queued', cancelled:'badge-no', run:'badge-run', checking:'badge-run', completed:'badge-ok', processing:'badge-run', pending:'badge-wait', uploading:'badge-wait', floating:'badge-wait', error:'badge-no', failed_invalid:'badge-no', rejected:'badge-no' };
 
 // Formats a timestamp as "Jun 25, 2026 03:57 AM" — using the viewer's own
 // device/browser timezone (not a fixed one), in 12-hour format with AM/PM.
@@ -11074,7 +11088,7 @@ function buildOrderRow(o){
   }
 
   const badge = `<span class="badge ${ORDER_BADGE_CLASS[o.phase]}"><span class="dot"></span>${t('phase_'+o.phase)}</span>`
-    + (o.phase === 'queued' ? `<button type="button" class="mf-cancel-q" onclick="cancelQueuedOrder('${o.id}')">${escapeHtml(t('mf_cancel_queued'))}</button>` : '');
+    + (o.phase === 'queued' ? `<button type="button" class="mf-cancel-x" style="width:26px;height:26px;margin-inline-start:6px;vertical-align:middle;" onclick="cancelQueuedOrder('${o.id}')" title="${escapeHtml(t('mf_cancel_queued'))}" aria-label="${escapeHtml(t('mf_cancel_queued'))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>` : '');
   const errorReasonLine = (o.phase === 'error' || o.phase === 'failed_invalid' || o.phase === 'rejected') && o.errorReason
     ? `<div class="order-error-reason">${escapeHtml(localizeOrderError(o.errorReason))}</div>` : '';
   const submittedLabel = formatOrderDate(o.phaseStart);
@@ -11598,9 +11612,15 @@ async function sfUploadFile(){
   currentFile = sfFile;
   pendingGrantId = sfSelectedGrant.grant_id;
   btn.disabled = true;
+  window._sfHandedOff = () => {
+    sfFile = null;
+    _uploadAreaDone = true;
+    closeSubmitFilesModal();
+  };
   try {
     await submitOrder();
   } finally {
+    window._sfHandedOff = null;
     btn.disabled = false;
     pendingGrantId = null;
     if (!currentFile) {
@@ -11667,20 +11687,20 @@ async function loadMyFiles(){
 function mfStatusCell(f){
   if (f.status === 'completed') {
     if (f.completed_at && f.submitted_at) {
-      const sec = Math.max(0, Math.round((new Date(f.completed_at) - new Date(f.submitted_at)) / 1000));
+      const sec = Math.max(0, Math.round((new Date(f.completed_at) - new Date(f.sent_at || f.submitted_at)) / 1000));
       return `<span class="mf-status ok">⚡ ${escapeHtml(t('mf_delivered'))} ${mfDuration(sec)}</span>`;
     }
     return `<span class="mf-status ok">⚡ ${escapeHtml(t('mf_delivered_plain'))}</span>`;
   }
   if (f.status === 'cancelled') return `<span class="mf-status bad">${escapeHtml(t('mf_cancelled'))}</span>`;
   if (f.status === 'queued') {
-    return `<span class="mf-status run">⏳ ${escapeHtml(t('mf_queued'))}</span>
-      <button type="button" class="mf-cancel-q" onclick="cancelQueuedOrder('${f.id}')">${escapeHtml(t('mf_cancel_queued'))}</button>`;
+    return `<span class="mf-status queued">⏳ ${escapeHtml(t('mf_queued'))}</span>`;
   }
   if (MF_FINAL.includes(f.status)) {
     return `<span class="mf-status bad">${escapeHtml(t('mf_failed'))}</span>`;
   }
-  const elapsed = f.submitted_at ? mfDuration(Math.max(0, Math.round((Date.now() - new Date(f.submitted_at)) / 1000))) : '';
+  const start = f.sent_at || f.submitted_at;   // "Checking" counts from when TurniScan accepted the file
+  const elapsed = start ? mfDuration(Math.max(0, Math.round((Date.now() - new Date(start)) / 1000))) : '';
   return `<span class="mf-status run">${escapeHtml(t('mf_checking'))}${elapsed ? ' (' + elapsed + ')' : ''}</span>`;
 }
 
@@ -11712,6 +11732,7 @@ function mfScoreCell(f, kind){
 // Frame colour follows the check: green = done, blue = still checking, red = failed.
 function mfStateClass(f){
   if (f.status === 'completed') return 'st-ok';
+  if (f.status === 'queued') return 'st-queued';
   if (MF_FINAL.includes(f.status)) return 'st-bad';
   return 'st-run';
 }
@@ -11740,9 +11761,11 @@ function renderMyFiles(){
       <div class="mf-cell mf-ai">${mfScoreCell(f, 'ai')}</div>
       <div class="mf-cell mf-sim">${mfScoreCell(f, 'sim')}</div>
       <div class="mf-cell mf-act">
-        <button class="mf-del" type="button" ${deletable ? '' : 'disabled'} onclick="deleteMyFile('${f.id}')" aria-label="${escapeHtml(t('mf_delete'))}">
+        ${f.status === 'queued'
+          ? `<button type="button" class="mf-cancel-x" onclick="cancelQueuedOrder('${f.id}')" title="${escapeHtml(t('mf_cancel_queued'))}" aria-label="${escapeHtml(t('mf_cancel_queued'))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`
+          : `<button class="mf-del" type="button" ${deletable ? '' : 'disabled'} onclick="deleteMyFile('${f.id}')" aria-label="${escapeHtml(t('mf_delete'))}">
           <svg data-icon-key="my_files_delete_icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
-        </button>
+        </button>`}
       </div>
     </div>`;
   }).join('');

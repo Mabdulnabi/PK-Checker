@@ -196,8 +196,10 @@ async function saveSourceCopy(client: any, orderId: string, file: File): Promise
 
 const QUEUE_MAX_HOURS = 12;   // a queued file still not accepted after this fails (slot returned)
 
-// The queue: sends waiting files again, oldest first. Run every 20 seconds by the database scheduler.
-// One file at a time; while TurniScan still answers "busy", the rest keep waiting.
+// The queue: sends waiting files again, oldest first. Run every 30 seconds by the database scheduler.
+// One file at a time; while TurniScan still answers "busy", the rest keep waiting. The order stays
+// 'queued' while it is being tried (claimed with queue_attempt_at), so the customer sees "Queued"
+// throughout, until TurniScan accepts the file.
 // deno-lint-ignore no-explicit-any
 async function processQueue(admin: any) {
   const out: Record<string, unknown>[] = [];
@@ -213,14 +215,19 @@ async function processQueue(admin: any) {
       out.push({ order: o.id, result: o.source_file_path ? "expired" : "no file copy" });
       continue;
     }
-    // Claim it, so two queue runs never send the same file.
-    const { data: claimed } = await admin.from("orders").update({ status: "uploading" })
-      .eq("id", o.id).eq("status", "queued").select("id");
+    // Claim it (status unchanged), so two queue runs never send the same file. A claim older than
+    // 5 minutes is from a run that died and may be taken again.
+    const staleClaim = new Date(Date.now() - 5 * 60000).toISOString();
+    const { data: claimed } = await admin.from("orders").update({ queue_attempt_at: new Date().toISOString() })
+      .eq("id", o.id).eq("status", "queued")
+      .or(`queue_attempt_at.is.null,queue_attempt_at.lt.${staleClaim}`)
+      .select("id");
     if (!claimed || !claimed.length) continue;
+    const release = () => admin.from("orders").update({ queue_attempt_at: null }).eq("id", o.id);
 
     const { data: blob, error: dlErr } = await admin.storage.from("order-source-files").download(o.source_file_path);
     if (dlErr || !blob) {
-      await admin.from("orders").update({ status: "queued" }).eq("id", o.id).eq("status", "uploading");
+      await release();
       out.push({ order: o.id, result: "file read failed" });
       continue;
     }
@@ -232,26 +239,27 @@ async function processQueue(admin: any) {
     });
     // Cancelled meanwhile (by the customer or an admin): not sent.
     const { data: now } = await admin.from("orders").select("status").eq("id", o.id).maybeSingle();
-    if (!now || now.status !== "uploading") { out.push({ order: o.id, result: "cancelled before send" }); continue; }
+    if (!now || now.status !== "queued") { out.push({ order: o.id, result: "cancelled before send" }); continue; }
     const before = await providerBalance();
     const r = await sendToProvider(form);
     const after = await providerBalance();
     await logApiCredit(admin, o.id, "submit", before, after, r.ok ? "accepted (from queue)" : (isTemporaryRefusal(r) ? "still busy (queue)" : "provider refused (queue)"));
 
     if (r.ok) {
-      await admin.from("orders").update({ external_order_id: r.fileId, status: "run", error_reason: null, provider_error: null, completed_at: null }).eq("id", o.id);
+      // Accepted: "Checking" starts now (sent_at is set when the status becomes 'run').
+      await admin.from("orders").update({ external_order_id: r.fileId, status: "run", error_reason: null, provider_error: null, completed_at: null, queue_attempt_at: null }).eq("id", o.id);
       out.push({ order: o.id, result: "sent" });
       continue;
     }
     if (r.ambiguous) {
-      await admin.from("orders").update({ status: "checking", error_reason: null, completed_at: new Date().toISOString() }).eq("id", o.id);
+      await admin.from("orders").update({ status: "checking", error_reason: null, completed_at: new Date().toISOString(), queue_attempt_at: null }).eq("id", o.id);
       await saveProviderError(admin, o.id, r.providerMessage);
       out.push({ order: o.id, result: "outcome unknown" });
       continue;
     }
     if (isTemporaryRefusal(r)) {
-      // Still busy: back in the queue, and the others wait too.
-      await admin.from("orders").update({ status: "queued" }).eq("id", o.id).eq("status", "uploading");
+      // Still busy: stays in the queue, and the others wait too.
+      await release();
       await saveProviderError(admin, o.id, r.providerMessage);
       out.push({ order: o.id, result: "still busy" });
       break;
