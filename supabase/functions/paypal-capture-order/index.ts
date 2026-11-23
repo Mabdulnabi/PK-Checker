@@ -32,9 +32,58 @@ async function paypalToken(): Promise<string> {
   return data.access_token;
 }
 
+// Reconcile: asks PayPal for the real state of every pending PayPal payment (last 30 days).
+// Internal secret only (the database scheduler). mode 'report' changes nothing; mode 'apply' credits
+// only orders PayPal reports as COMPLETED with a COMPLETED capture of the right USD amount.
+async function reconcile(admin: ReturnType<typeof createClient>, apply: boolean) {
+  const since = new Date(Date.now() - 30 * 86400000).toISOString();
+  const { data: rows } = await admin.from('payments')
+    .select('id, user_id, amount, credits, order_id, failure_reason, created_at')
+    .eq('gateway', 'paypal').eq('status', 'pending').not('order_id', 'is', null).gte('created_at', since)
+    .order('created_at', { ascending: false }).limit(50);
+  const token = await paypalToken();
+  const out: unknown[] = [];
+  for (const p of rows ?? []) {
+    const res = await fetch(`${PAYPAL_API}/v2/checkout/orders/${encodeURIComponent(p.order_id)}`, { headers: { Authorization: `Bearer ${token}` } });
+    const o = await res.json().catch(() => ({}));
+    const unit = o?.purchase_units?.[0];
+    const cap = unit?.payments?.captures?.[0];
+    const row: Record<string, unknown> = {
+      payment: p.id, created: p.created_at, order: p.order_id, http: res.status,
+      order_status: o?.status ?? o?.name, capture_status: cap?.status ?? null,
+      capture_reason: cap?.status_details?.reason ?? null, captured: cap?.amount?.value ?? null,
+      currency: cap?.amount?.currency_code ?? null, expected: withPaypalFee(Number(p.amount)),
+      payer_country: o?.payer?.address?.country_code ?? null, our_reason: p.failure_reason,
+    };
+    const ok = o?.status === 'COMPLETED' && cap?.status === 'COMPLETED' && cap?.amount?.currency_code === 'USD'
+      && Number(cap?.amount?.value) >= withPaypalFee(Number(p.amount)) - 0.005 && (!unit?.custom_id || unit.custom_id === p.id);
+    row.creditable = ok;
+    if (apply && ok) {
+      const { data: done, error } = await admin.rpc('confirm_topup', {
+        p_user_id: p.user_id, p_payment_id: p.id, p_credits: p.credits ?? 0, p_gateway: 'paypal', p_provider_ref: cap.id,
+      });
+      row.applied = error ? `error: ${error.message}` : (done?.ok ? 'credited' : (done?.error || 'not credited'));
+    } else if (apply && !ok && cap?.status) {
+      await admin.from('payments').update({ failure_reason: `paypal:${cap.status}${cap?.status_details?.reason ? ':' + cap.status_details.reason : ''}`.slice(0, 200) }).eq('id', p.id);
+    }
+    out.push(row);
+  }
+  return out;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   try {
+    const secretHeader = req.headers.get('x-internal-secret');
+    if (secretHeader) {
+      const url0 = Deno.env.get('SUPABASE_URL') ?? '';
+      const admin0 = createClient(url0, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
+      const { data: expected } = await admin0.rpc('get_internal_cron_secret');
+      if (!expected || secretHeader !== expected) return json({ success: false, error: 'Forbidden' }, 403);
+      const body = await req.json().catch(() => ({}));
+      if (body.action !== 'reconcile') return json({ success: false, error: 'Unknown action' }, 400);
+      return json({ success: true, results: await reconcile(admin0, body.mode === 'apply') });
+    }
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) return json({ success: false, error: 'Missing Authorization header' }, 401);
     const url = Deno.env.get('SUPABASE_URL') ?? '';
@@ -70,7 +119,10 @@ Deno.serve(async (req) => {
       const issue = order?.details?.[0]?.issue || order?.name || `HTTP ${res.status}`;
       console.error('paypal-capture-order: PayPal error', issue, JSON.stringify(order).slice(0, 400));
       // The buyer's card or PayPal balance was refused: they can pick another funding source and retry.
-      if (issue === 'INSTRUMENT_DECLINED') return json({ success: true, verified: false, reason: 'declined', retry: true });
+      if (issue === 'INSTRUMENT_DECLINED') {
+        await admin.from('payments').update({ failure_reason: 'paypal:INSTRUMENT_DECLINED' }).eq('id', payment_id);
+        return json({ success: true, verified: false, reason: 'declined', retry: true });
+      }
       await admin.from('payments').update({ failure_reason: `paypal:${issue}`.slice(0, 200) }).eq('id', payment_id);
       return json({ success: true, verified: false, reason: issue });
     }
