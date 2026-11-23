@@ -4258,6 +4258,9 @@ async function loadOverview(){
   const { data: salesRows } = await supabaseClient.rpc('admin_sales_ledger');
   _salesRows = salesRows || [];
   const doneOrders = _ledgerRows.filter(r => r.status === 'completed').map(r => ({ submitted_at: r.created_at }));
+  // External checks (done directly on TurniScan, Revenue card "+") count too: one per check, on their date.
+  const { data: extRows } = await supabaseClient.from('external_checks').select('at, checks').is('cancelled_at', null);
+  (extRows || []).forEach(e => { for (let i = 0; i < (e.checks || 0); i++) doneOrders.push({ submitted_at: e.at }); });
   const usersCount = profilesRes.count ?? '—';
 
   const now = new Date();
