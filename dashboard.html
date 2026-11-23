@@ -957,6 +957,13 @@
   .mf-status.ok{background:var(--ok-wash);color:#0F7A55;border:1px solid #B7EBD5;}
   .mf-status.run{background:var(--blue-wash);color:var(--blue-deep);border:1px solid #BFD7FF;}
   .mf-status.bad{background:var(--danger-wash);color:var(--danger);border:1px solid #F5C2CB;}
+  .mf-status.mf-live{display:inline-flex;align-items:center;gap:6px;animation:mfPulse 1.8s ease-in-out infinite;}
+  .mf-status.mf-live.up{background:var(--paper-soft);color:var(--muted);border:1px solid var(--paper-line);}
+  .mf-status.mf-live.big{padding:7px 16px;border-radius:10px;font-size:13px;}
+  .mf-spin{flex:none;width:11px;height:11px;border-radius:50%;border:2px solid currentColor;border-top-color:transparent;animation:mfSpin .8s linear infinite;}
+  @keyframes mfSpin{to{transform:rotate(360deg);}}
+  @keyframes mfPulse{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,0);}50%{box-shadow:0 0 0 3px rgba(37,99,235,.12);}}
+  @media (prefers-reduced-motion:reduce){.mf-spin{animation-duration:2.4s;}.mf-status.mf-live{animation:none;}}
   .mf-status.queued{background:#FEF3C7;color:#92400E;border:1px solid #FCD34D;}
   [data-theme="dark"] .mf-status.queued{background:rgba(245,158,11,.14);color:#FCD34D;border-color:rgba(252,211,77,.35);}
   /* While a file waits in the queue, an X (cancel order) takes the Delete button's place, same size. */
@@ -2025,6 +2032,10 @@ if (new URLSearchParams(location.search).has('preview')) {
   .fail-alert.queue-alert .fa-count{color:#92400e;border-color:#fde68a;}
   .fail-alert.queue-alert .qa-btn{background:#fff;color:#b45309;border:1.5px solid #f59e0b;box-shadow:none;}
   .fail-alert.queue-alert .qa-btn:hover{background:#fef3c7;}
+  .queue-alert .qa-row{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;}
+  .queue-alert .qa-guide{margin-top:0;flex:0 1 auto;padding:7px 12px;font-size:12px;line-height:1.5;align-items:center;}
+  .queue-alert .qa-guide .fa-gi{margin-top:0;}
+  .queue-alert .qa-btn{padding:8px 14px;font-size:12.5px;}
   [data-theme="dark"] .fail-alert.queue-alert{background:linear-gradient(90deg,rgba(245,158,11,.14),rgba(245,158,11,.06));border-color:rgba(252,211,77,.35);}
   [data-theme="dark"] .fail-alert.queue-alert .fa-reason{color:#fcd34d;}
   [data-theme="dark"] .fail-alert.queue-alert .qa-btn{background:transparent;color:#fcd34d;}
@@ -4031,7 +4042,7 @@ const I18N = {
     kpi_slots_label:"فحوصات متبقية", kpi_expiry_label:"تاريخ انتهاء الفحوصات", kpi_api_status:"حالة الـ API",
     api_active:"نشط", api_inactive:"متوقف", api_maintenance:"صيانة", expiry_days_left:"باقي {d} يوم", sf_no_expiry:"بدون انتهاء", sf_no_slots_short:"لا توجد فحوصات",
     mf_title:"ملفاتي", mf_col_doc:"الملف", mf_col_order:"رقم الطلب", mf_col_time:"تاريخ الإرسال / التسليم", mf_col_ai:"كشف الذكاء الاصطناعي", mf_col_sim:"التشابه", mf_col_action:"إجراء",
-    mf_empty:"لسه مفيش ملفات. ابعت ملف عشان تشوف النتايج هنا.", mf_checking:"جاري الفحص", mf_delivered:"تم التسليم في", mf_delivered_plain:"تم التسليم",
+    mf_empty:"لسه مفيش ملفات. ابعت ملف عشان تشوف النتايج هنا.", mf_checking:"جاري الفحص", mf_uploading:"جاري الرفع", mf_delivered:"تم التسليم في", mf_delivered_plain:"تم التسليم",
     mf_failed:"فشل الفحص", mf_not_included:"غير مضمّن", mf_result_unavailable:"النتيجة غير متاحة", mf_download:"تحميل",
     mf_delete:"حذف الملف", mf_confirm_title:"حذف الملف؟", mf_confirm_body:"هيتمسح الملف {f} والتقارير بتاعته نهائياً. متأكد؟",
     mf_delete_yes:"حذف", mf_delete_no:"إلغاء", mf_err_delete:"تعذر حذف الملف، حاول تاني.",
@@ -4238,7 +4249,7 @@ const I18N = {
     kpi_slots_label:"Slots remaining", kpi_expiry_label:"Slots expiry date", kpi_api_status:"API status",
     api_active:"Active", api_inactive:"Inactive", api_maintenance:"Maintenance", expiry_days_left:"{d} days left", sf_no_expiry:"No expiry", sf_no_slots_short:"No slots",
     mf_title:"My Files", mf_col_doc:"Document", mf_col_order:"Order #", mf_col_time:"Submitted / Delivery time", mf_col_ai:"AI detection", mf_col_sim:"Similarity", mf_col_action:"Action",
-    mf_empty:"No files yet. Submit a file to see your results here.", mf_checking:"Checking", mf_delivered:"Delivered in", mf_delivered_plain:"Delivered",
+    mf_empty:"No files yet. Submit a file to see your results here.", mf_checking:"Checking", mf_uploading:"Uploading", mf_delivered:"Delivered in", mf_delivered_plain:"Delivered",
     mf_failed:"Failed", mf_not_included:"Not included", mf_result_unavailable:"Result unavailable", mf_download:"Download",
     mf_delete:"Delete file", mf_confirm_title:"Delete this file?", mf_confirm_body:"File {f} and its reports will be permanently deleted. Are you sure?",
     mf_delete_yes:"Delete", mf_delete_no:"Cancel", mf_err_delete:"Could not delete the file, please try again.",
@@ -11663,6 +11674,13 @@ async function sfUploadFile(){
 /* ---------- My Files: checks sent from this page ---------- */
 let myFiles = [];
 const MF_FINAL = ['completed', 'error', 'rejected', 'failed_invalid', 'cancelled'];
+const MF_PRE_SEND = ['floating', 'uploading'];   // not yet accepted by TurniScan
+// Moving badge (spinner) for a file being uploaded or checked.
+function mfLiveBadge(key, kind, elapsed){
+  // The list is redrawn every few seconds: the animations start from the clock, so they never jump back.
+  const now = Date.now();
+  return `<span class="mf-status mf-live ${kind}" style="animation-delay:-${(now % 1800) / 1000}s"><span class="mf-spin" aria-hidden="true" style="animation-delay:-${(now % 800) / 1000}s"></span>${escapeHtml(t(key))}${elapsed ? ' (' + elapsed + ')' : ''}</span>`;
+}
 
 function mfTypeLabel(f){ return f.check_type === 'sim_only' ? 'Plagiarism Only' : 'Plagiarism + AI'; }
 function mfBadge(f){
@@ -11699,16 +11717,19 @@ function mfStatusCell(f){
   if (MF_FINAL.includes(f.status)) {
     return `<span class="mf-status bad">${escapeHtml(t('mf_failed'))}</span>`;
   }
-  const start = f.sent_at || f.submitted_at;   // "Checking" counts from when TurniScan accepted the file
+  if (MF_PRE_SEND.includes(f.status)) return mfLiveBadge('mf_uploading', 'up');
+  // "Checking" counts only from when TurniScan accepted the file (sent_at).
+  const start = f.sent_at || (['run', 'processing'].includes(f.status) ? f.submitted_at : null);
   const elapsed = start ? mfDuration(Math.max(0, Math.round((Date.now() - new Date(start)) / 1000))) : '';
-  return `<span class="mf-status run">${escapeHtml(t('mf_checking'))}${elapsed ? ' (' + elapsed + ')' : ''}</span>`;
+  return mfLiveBadge('mf_checking', 'run', elapsed);
 }
 
 // One score cell (AI or similarity). Shows the real provider score, or a status.
 function mfScoreCell(f, kind){
   if (kind === 'ai' && f.check_type === 'sim_only') return `<span class="mf-muted">${escapeHtml(t('mf_not_included'))}</span>`;
   if (f.status === 'queued') return `<span class="mf-muted">${escapeHtml(t('mf_queued'))}</span>`;
-  if (!MF_FINAL.includes(f.status)) return `<span class="mf-muted">${escapeHtml(t('mf_checking'))}</span>`;
+  if (MF_PRE_SEND.includes(f.status)) return mfLiveBadge('mf_uploading', 'up big');
+  if (!MF_FINAL.includes(f.status)) return mfLiveBadge('mf_checking', 'run big');
   if (f.status === 'cancelled') return `<span class="mf-muted">${escapeHtml(t('mf_cancelled'))}</span>`;
   if (f.status !== 'completed') return `<span class="mf-muted">${escapeHtml(t('mf_failed'))}</span>`;
   const hasReport = kind === 'ai' ? f.has_ai_report : f.has_sim_report;
@@ -11943,6 +11964,10 @@ function renderQueueAlerts(){
   if (!box) return;
   const ar = currentLang === 'ar';
   const list = (orders || []).filter(o => o.phase === 'queued').sort((a, b) => b.phaseStart - a.phaseStart);
+  // Redrawn only when something in it changed: every redraw replayed its entry animation (it flickered).
+  const key = currentLang + '|' + list.map(o => o.id).join(',');
+  if (box.dataset.key === key) return;
+  box.dataset.key = key;
   if (!list.length) { box.innerHTML = ''; return; }
   const o = list[0], more = list.length - 1;
   const name = escapeHtml(o.file || (ar ? 'ملفك' : 'your file'));
@@ -11958,10 +11983,12 @@ function renderQueueAlerts(){
         ? 'خدمة الفحص مشغولة حاليًا، ولم يُخصم أي فحص منها. سيُرسل ملفك تلقائيًا فور توفر مكان شاغر، دون أي إجراء منك.'
         : 'The check service is busy right now, and nothing has been charged there. Your file will be sent automatically as soon as a slot is free, with no action needed from you.'}
         <span class="fa-code mono">${escapeHtml(o.displayId || '')}</span></div>
-      <div class="fa-guide"><span class="fa-gi">i</span><div>${ar
-        ? 'يمكنك إلغاء الطلب في أي وقت قبل إرساله، وسيُعاد الفحص إلى رصيدك.'
-        : 'You can cancel the order at any time before it is sent, and the check will be returned to your balance.'}</div></div>
-      <div class="fa-actions"><button type="button" class="fa-btn qa-btn" onclick="cancelQueuedOrder('${o.id}')">${ar ? 'إلغاء الطلب' : 'Cancel order'}</button></div>
+      <div class="qa-row">
+        <div class="fa-guide qa-guide"><span class="fa-gi">i</span><div>${ar
+          ? 'يمكنك الإلغاء قبل الإرسال، ويُعاد الفحص إلى رصيدك.'
+          : 'You can cancel before it is sent; the check returns to your balance.'}</div></div>
+        <button type="button" class="fa-btn qa-btn" onclick="cancelQueuedOrder('${o.id}')">${ar ? 'إلغاء الطلب' : 'Cancel order'}</button>
+      </div>
     </div>
   </div>`;
 }
