@@ -417,6 +417,11 @@
   .cp-msg.has-img{padding:5px;}
   .cp-msg-img{display:block;max-width:100%;width:230px;max-height:260px;object-fit:cover;border-radius:9px;cursor:zoom-in;background:rgba(0,0,0,.08);min-height:90px;}
   .cp-msg.has-img .cp-msg-meta{padding:0 6px 2px;}
+  .pay-review{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:4px;font-size:11px;}
+  .pay-review .mono{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--ink-soft);}
+  .pay-review button{border:none;border-radius:7px;padding:4px 10px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;}
+  .pay-review .pay-ok{background:var(--ok);color:#fff;}
+  .pay-review .pay-no{background:var(--danger-wash, #fdecec);color:var(--danger);}
   .cp-foot{display:flex;gap:9px;padding:14px 18px;border-top:1px solid var(--paper-line);background:var(--paper);flex:none;}
   .cp-foot input[type=text], .cp-foot textarea.cp-reply-input{flex:1;background:var(--paper-soft);border:1.5px solid var(--paper-line);border-radius:20px;padding:11px 16px;font-size:13px;font-family:'Cairo',sans-serif;resize:none;max-height:120px;line-height:1.5;}
   .cp-foot input[type=text]:focus, .cp-foot textarea.cp-reply-input:focus{outline:none;border-color:var(--blue);}
@@ -5333,6 +5338,12 @@ function deliveryTime(o){
           <button class="uid-size-btn" onclick="changePayMethodQrSize(10)" title="أكبر">+</button>
         </div>
       </div>
+      <div id="payMethodPaypalMode" style="display:none;background:var(--paper-soft);border:1px solid var(--paper-line);border-radius:10px;padding:10px 12px;margin-bottom:10px;">
+        <label style="display:flex;align-items:flex-start;gap:8px;font-size:12.5px;font-weight:700;cursor:pointer;">
+          <input type="checkbox" id="payMethodPaypalManual" onchange="pgPaypalModeChanged()" style="margin-top:3px;">
+          <span>تأكيد يدوي (مؤقت)<br><small style="font-weight:500;color:var(--muted);">العميل بيحوّل على اسم مستخدم PayPal بتاعك ويكتب الـ Transaction ID، وإنت بتأكد الدفعة من تاب المدفوعات. المبلغ = سعر الباقة بالدولار + عمولة PayPal (4% + 0.5$).</small></span>
+        </label>
+      </div>
       <div id="payMethodUidBlock">
         <label class="pg-lbl">رقم / عنوان التحويل اللي العميل بيحول عليه</label>
         <input class="adm-modal-input" id="payMethodUid" placeholder="UID / رقم / عنوان المحفظة" style="margin-bottom:8px;direction:ltr;">
@@ -8003,7 +8014,7 @@ async function loadCreditsTab(){
   // additions and slot deductions (admin_slot_adjustments), and old admin credit
   // rows (20 credits = 1 slot). Each row gets its own log code (LOG-...).
   const [payRes, adjRes, packRes, legacyRes, usageRes, redeemRes] = await Promise.all([
-    supabaseClient.from('payments').select('id, user_id, pack_id, gateway, amount, currency, status, created_at, verified_at, reference').in('status', ['completed', 'pending', 'rejected']).order('created_at', { ascending: false }).limit(1000),
+    supabaseClient.from('payments').select('id, user_id, pack_id, gateway, amount, currency, status, created_at, verified_at, reference, transaction_id').in('status', ['completed', 'pending', 'rejected']).order('created_at', { ascending: false }).limit(1000),
     supabaseClient.from('admin_slot_adjustments').select('*').order('created_at', { ascending: false }).limit(1000),
     supabaseClient.from('slot_packages').select('id, legacy_pack_id, slots, price_egp, name_ar, name_en'),
     supabaseClient.from('wallet_transactions').select('*').in('type', ['admin_credit', 'admin_debit']).order('created_at', { ascending: false }).limit(500),
@@ -8066,6 +8077,7 @@ async function loadCreditsTab(){
       slots: done && pack ? pack.slots : null,
       kind: done ? 'topup' : (p.status === 'pending' ? 'pending' : 'rejected'),
       status: p.status, created_at: done ? (p.verified_at || p.created_at) : p.created_at,
+      payment_id: p.id, txid: p.transaction_id || null,
     });
   });
   (adjRes.data || []).forEach(a => {
@@ -8143,11 +8155,19 @@ function renderCreditsTable(rows){
       : r.method === 'redeem' ? (ar ? 'كود خصم' : 'Voucher')
       : r.method === 'system' ? (ar ? 'النظام' : 'System')
       : (GATEWAY_LABELS[r.method] || r.method || '');
-    const amt = r.amount_paid != null ? `${Number(r.amount_paid).toFixed(2)} ${r.currency || ''}` : '';
+    // PayPal: the amount the customer sends, PayPal's fee (4% + 0.50 USD) included.
+    const paid = r.method === 'paypal' && r.amount_paid != null ? Math.ceil(((Number(r.amount_paid) + 0.5) / 0.96) * 100) / 100 : r.amount_paid;
+    const amt = paid != null ? `${Number(paid).toFixed(2)} ${r.currency || ''}` : '';
     const [tcls, tlbl] = TYPE[r.kind] || ['cr-badge-ded', r.kind];
     const n = Number(r.slots);
     const slotTxt = r.slots == null ? '—' : `${n > 0 ? '+' : ''}${n}`;
     const msgBtn = r.user_id ? `<button class="msg-btn" onclick="composeMessage('${r.user_id}','${pkStr}')">✉</button>` : '';
+    // A pending manual payment with its Transaction ID waits for the admin.
+    const review = r.kind === 'pending' && r.txid && r.payment_id
+      ? `<div class="pay-review"><span class="mono" title="Transaction ID">${escapeHtml(r.txid)}</span>${cpBtn(r.txid)}
+          <button type="button" class="pay-ok" onclick="reviewManualPayment('${r.payment_id}', true)">${ar ? 'تأكيد' : 'Confirm'}</button>
+          <button type="button" class="pay-no" onclick="reviewManualPayment('${r.payment_id}', false)">${ar ? 'رفض' : 'Reject'}</button></div>`
+      : '';
     return `<tr class="${ROW[r.kind] || ''}">
       <td data-label="${escapeHtml(t('cr_col_txcode'))}" class="mono" style="font-size:10px;color:var(--muted);white-space:nowrap;">${escapeHtml(r.code)}${cpBtn(r.code)}</td>
       <td data-label="PK" class="mono" style="color:var(--blue-deep);font-weight:700;white-space:nowrap;">${r.pk_number != null ? clickablePk(r.user_id, r.pk_number) : '—'}</td>
@@ -8157,13 +8177,35 @@ function renderCreditsTable(rows){
       <td data-label="${escapeHtml(t('cr_col_credits'))}" style="font-weight:800;color:${n < 0 ? 'var(--danger)' : 'var(--ok)'};">${escapeHtml(slotTxt)}</td>
       <td data-label="${escapeHtml(t('cr_col_type'))}"><span class="${tcls}">${escapeHtml(tlbl)}</span></td>
       <td data-label="${escapeHtml(t('cr_col_date'))}" style="font-size:11px;color:var(--muted);">${formatDate(r.created_at)}</td>
-      <td>${msgBtn}</td>
+      <td>${review}${msgBtn}</td>
     </tr>`;
   }).join('');
   renderPaginationBar('credits', 'creditsPagination', rows.length);
 }
 
 let _creditsFuse = null;
+
+// Confirm (slots / store balance added through confirm_topup) or reject a pending manual payment.
+async function reviewManualPayment(paymentId, approve){
+  const ar = currentLang === 'ar';
+  let note = null;
+  if (approve) {
+    const ok = await adminConfirm(ar ? 'اتأكدت إن المبلغ وصل لحساب PayPal (أو وسيلة الدفع) برقم العملية ده؟ الفحوصات هتتضاف للعميل فورًا.' : 'Did you check the money arrived with this Transaction ID? The checks are added to the customer at once.', { icon: '✅', confirmLabel: ar ? 'تأكيد الدفعة' : 'Confirm payment' });
+    if (!ok) return;
+  } else {
+    note = await adminPrompt(ar ? 'سبب الرفض (اختياري، بيتسجل مع الدفعة):' : 'Reason for rejecting (optional, saved with the payment):', '');
+    if (note === null) return;
+  }
+  const { data, error } = await supabaseClient.rpc('admin_review_payment', { p_payment_id: paymentId, p_approve: approve, p_note: note || null });
+  if (error || !data?.ok) {
+    const msg = error?.message || data?.error || '';
+    await adminAlert((ar ? 'تعذر تنفيذ العملية: ' : 'Could not do this: ') + (msg === 'NO_TRANSACTION_ID' ? (ar ? 'العميل ماكتبش رقم العملية' : 'no Transaction ID') : msg), { icon: '❌', danger: true });
+    return;
+  }
+  await logAdminActivity('setting_change', null, '', `${approve ? 'تأكيد' : 'رفض'} دفعة يدوية: ${paymentId.slice(0, 8)}`);
+  toast(approve ? (ar ? 'اتأكدت الدفعة واتضافت الفحوصات' : 'Payment confirmed, checks added') : (ar ? 'اترفضت الدفعة' : 'Payment rejected'));
+  if (typeof loadCreditsTab === 'function') loadCreditsTab();
+}
 
 // ── User lookup by PK ──
 let crLookupTimer = null;
@@ -8699,15 +8741,31 @@ function pgSetupPopup(m, group){
   document.getElementById('payMethodNewOnly').style.display = custom ? 'flex' : 'none';
   document.getElementById('payMethodGroup').value = group || (m ? pgGroupOf(m) : 'wallets');
   document.getElementById('payMethodCurrency').value = String(m?.currency || 'EGP').toUpperCase() === 'EGP' ? 'EGP' : 'USD';
-  document.getElementById('payMethodUidBlock').style.display = (custom || b?.uid) ? '' : 'none';
+  const isPaypal = m?.key === 'paypal';
+  document.getElementById('payMethodPaypalMode').style.display = isPaypal ? '' : 'none';
+  document.getElementById('payMethodPaypalManual').checked = isPaypal && m.is_auto === false;
+  document.getElementById('payMethodUidBlock').style.display = (custom || b?.uid || (isPaypal && m.is_auto === false)) ? '' : 'none';
   document.getElementById('payMethodQrBlock').style.display = (custom || b?.qr) ? '' : 'none';
   document.getElementById('payMethodLogo').innerHTML = m ? pgLogoHtml(m) : PG_CARD_SVG;
   document.getElementById('payMethodLogoBtn').style.display = m ? '' : 'none';
   document.getElementById('payMethodTypeNote').innerHTML = !m
     ? 'الوسيلة الجديدة بتتراجع يدوياً: العميل بيحوّل ويكتب الرقم المرجعي، وإنت بتأكد الدفعة من تاب المدفوعات. الشعار هيتضاف لتصميم الواجهة تلقائياً بعد الحفظ.'
+    : (m.key === 'paypal' && m.is_auto === false) ? 'وضع التأكيد اليدوي: العميل بيحوّل على اسم المستخدم ده ويكتب الـ Transaction ID، وإنت بتأكد الدفعة من تاب المدفوعات.'
     : b?.how === 'auto' ? 'الدفعة بتتأكد تلقائياً، ومفيش حاجة تتراجع يدوياً.'
     : b ? 'العميل بيكتب الرقم المرجعي والدفعة بتتأكد تلقائياً.'
     : 'العميل بيكتب الرقم المرجعي وإنت بتأكد الدفعة من تاب المدفوعات.';
+}
+// PayPal: turning manual mode on shows the username field (prefilled the first time).
+function pgPaypalModeChanged(){
+  const on = document.getElementById('payMethodPaypalManual').checked;
+  document.getElementById('payMethodUidBlock').style.display = on ? '' : 'none';
+  if (on) {
+    const uid = document.getElementById('payMethodUid');
+    if (!uid.value.trim()) uid.value = 'mabdulnabi';
+    const la = document.getElementById('payMethodUidLabelAr'), le = document.getElementById('payMethodUidLabelEn');
+    if (!la.value.trim() || la.value.trim() === 'رقم التحويل') la.value = 'اسم مستخدم PayPal';
+    if (!le.value.trim() || le.value.trim() === 'Reference number') le.value = 'PayPal username';
+  }
 }
 async function togglePayMethodVisible(id, visible){
   const { error } = await supabaseClient.from('payment_methods').update({ visible, updated_at:new Date().toISOString() }).eq('id', id);
@@ -8842,6 +8900,11 @@ async function submitPayMethod(){
     updated_at: new Date().toISOString(),
   };
   const editing = editingPayMethodId ? allPayMethods.find(x => x.id === editingPayMethodId) : null;
+  if (editing && editing.key === 'paypal') {
+    const manual = document.getElementById('payMethodPaypalManual').checked;
+    payload.is_auto = !manual;
+    if (manual && !payload.uid) { await adminAlert('اكتب اسم مستخدم PayPal اللي العميل هيحوّل عليه', {icon:'⚠️'}); return; }
+  }
   if (!editing || !editing.is_builtin) {
     // Methods you add: tab + currency are yours to choose, and they are always checked by hand.
     payload.pay_group = document.getElementById('payMethodGroup').value;

@@ -4034,7 +4034,7 @@ const I18N = {
     
     ct_sim:"اقتباس فقط", ct_both:"اقتباس + ذكاء اصطناعي",
     filters_label:"فلاتر الاقتباس (اختياري)", exclude_bib:"استبعاد المراجع", exclude_quotes:"استبعاد الاقتباسات المنصوصة", exclude_abstract:"استبعاد الملخص", exclude_citations:"استثناء الاقتباسات داخل النص", exclude_small_matches:"استبعاد التطابقات الصغيرة", words_unit:"كلمة",
-    payment_title:"وسيلة الدفع", pay_auto:"تلقائي", pay_ref:"رقم مرجعي", vf_cash:"فودافون كاش",
+    payment_title:"وسيلة الدفع", pay_auto:"تلقائي", pay_manual_review:"مراجعة يدوية", pay_ref:"رقم مرجعي", vf_cash:"فودافون كاش",
     payment_history_title:"سجل المدفوعات", wplan_swipe_hint:"اسحب يمين وشمال عشان تشوف باقي الباقات", payment_history_desc:"كل عمليات الشحن اللي عملتها وحالتها",
     ph_col_code:"كود العملية", ph_col_method:"وسيلة الدفع", ph_col_amount:"القيمة", ph_col_credits:"الفحوصات", ph_col_pack:"اسم الباقة", ph_col_datetime:"التاريخ والوقت", ph_col_status:"الحالة",
     ph_status_completed:"مكتملة", ph_status_pending:"قيد المراجعة", ph_status_rejected:"مرفوضة", ph_empty:"لسه معملتش أي عملية شحن.",
@@ -4241,7 +4241,7 @@ const I18N = {
     
     ct_sim:"Similarity only", ct_both:"Similarity + AI",
     filters_label:"Similarity filters (optional)", exclude_bib:"Exclude bibliography", exclude_quotes:"Exclude quoted text", exclude_abstract:"Exclude abstract", exclude_citations:"Exclude in-text citations", exclude_small_matches:"Exclude small matches", words_unit:"words",
-    payment_title:"Payment method", pay_auto:"Automatic", pay_ref:"Reference number", vf_cash:"Vodafone Cash",
+    payment_title:"Payment method", pay_auto:"Automatic", pay_manual_review:"Manual review", pay_ref:"Reference number", vf_cash:"Vodafone Cash",
     payment_history_title:"Payment History", wplan_swipe_hint:"Swipe left and right to see more packages", payment_history_desc:"All your top-ups and their status",
     ph_col_code:"Transaction code", ph_col_method:"Payment method", ph_col_amount:"Amount", ph_col_credits:"Slots", ph_col_pack:"Package", ph_col_datetime:"Date & time", ph_col_status:"Status",
     ph_status_completed:"Completed", ph_status_pending:"Pending review", ph_status_rejected:"Rejected", ph_empty:"You haven't made any top-ups yet.",
@@ -4656,6 +4656,29 @@ async function loadPaymentMethodsConfig(){
       }
     });
 
+    // PayPal in manual mode (automatic confirmation off in Payment Gateways): the customer sends the
+    // money to the admin's PayPal username and enters the Transaction ID; an admin confirms it.
+    const pp = data.find(m => m.key === 'paypal');
+    if (pp && pp.is_auto === false) {
+      PAYMENT_DETAILS.paypal = {
+        uid_label_ar: pp.uid_label_ar || 'اسم مستخدم PayPal', uid_label_en: pp.uid_label_en || 'PayPal username',
+        uid: pp.uid || 'mabdulnabi',
+        input_label_ar: 'رقم العملية (Transaction ID)', input_label_en: 'Transaction ID',
+        input_ph_ar: 'مثال: 0V548985WD2923031', input_ph_en: 'e.g. 0V548985WD2923031',
+        instructions_ar: pp.instructions_ar || 'حوّل المبلغ المطلوب (شاملًا عمولة PayPal) إلى اسم المستخدم أعلاه عبر PayPal، ثم أدخل رقم العملية (Transaction ID). ستُضاف الفحوصات إلى حسابك بعد مراجعة الإدارة.',
+        instructions_en: pp.instructions_en || 'Send the amount shown (PayPal fee included) to the username above with PayPal, then enter the Transaction ID. The checks are added to your account after an admin reviews the payment.',
+        edge_fn: null, payload_key: null, currency: 'USD', dynamic: false,
+        paypal: false, paypalFee: true, paypalManual: true,
+        qr: null, qrSize: 120,
+      };
+    }
+    const ppLabel = document.querySelector('.paycard[data-pay="paypal"][data-builtin="1"] span[data-i18n]');
+    if (ppLabel) {
+      const key = (pp && pp.is_auto === false) ? 'pay_manual_review' : 'pay_auto';
+      ppLabel.setAttribute('data-i18n', key);
+      ppLabel.textContent = t(key);
+    }
+
     customPayMethods = data.filter(m => !m.is_builtin && m.visible);
     const container = document.getElementById('customPayCards');
     if (container) {
@@ -4953,7 +4976,7 @@ function gatewayPriceText(pack, gateway){
   const cfg = PAYMENT_DETAILS[gateway];
   const ar = currentLang === 'ar';
   if (cfg && cfg.currency === 'EGP') return `${pack.priceEgp} ${ar ? 'ج.م' : 'EGP'}`;
-  if (cfg && cfg.paypal) return `$${paypalCharge(packChargeAmount(pack, false)).toFixed(2)}`;
+  if (cfg && (cfg.paypal || cfg.paypalFee)) return `$${paypalCharge(packChargeAmount(pack, false)).toFixed(2)}`;
   return `$${packChargeAmount(pack, false).toFixed(2)}`;
 }
 function refreshGatewayPrice(gateway){
@@ -5024,6 +5047,9 @@ function renderPaymentDetails(gateway){
 
   // QR
   const img = document.getElementById('walletQrImg');
+  // No QR code (e.g. PayPal by username): the empty frame is hidden too.
+  const qrBox = document.getElementById('walletQrBox');
+  if (qrBox) qrBox.style.display = (!cfg.dynamic && cfg.qr) ? '' : 'none';
   if(img){
     if(!cfg.dynamic && cfg.qr){
       img.src = cfg.qr;
@@ -5082,7 +5108,7 @@ function renderPaymentDetails(gateway){
       : (ar ? 'تأكيد الشراء' : 'Confirm Purchase');
   }
   const cardNote = document.getElementById('payCardNote');
-  if (cardNote) cardNote.textContent = cfg.paypal
+  if (cardNote) cardNote.textContent = (cfg.paypal || cfg.paypalManual)
     ? (ar ? 'PayPal بيشتغل من أي دولة، بحساب PayPal أو بالكارت' : 'PayPal works from any country, with a PayPal account or a card')
     : t('pay_card_note');
   if (cfg.paypal) renderPaypalButtons(); else hidePaypalButtons();
@@ -5390,7 +5416,7 @@ async function createPendingPayment(gateway, amountForDb, isEgp, credits){
       pack_id: selectedPack.id || null,
       transaction_id: null, // will be set by edge function on success
     })
-    .select('id')
+    .select('id, gateway')
     .single();
 
   if (insertErr) throw insertErr;
@@ -5407,14 +5433,24 @@ async function createPendingPayment(gateway, amountForDb, isEgp, credits){
 // these to manual admin review instead of calling a nonexistent endpoint.
 async function markPaymentForManualReview(paymentRow, refValue){
   const { error: updErr } = await supabaseClient.from('payments').update({ transaction_id: refValue }).eq('id', paymentRow.id);
-  if (updErr) throw updErr;
+  if (updErr) {
+    if (updErr.code === '23505') {   // this Transaction ID was already sent
+      await appAlert(currentLang==='ar'
+        ? 'رقم العملية هذا مُستخدم من قبل. تأكد من إدخال رقم العملية الخاص بهذا التحويل.'
+        : 'This Transaction ID was already used. Please enter the ID of this transfer.', {icon:'warning'});
+      return;
+    }
+    throw updErr;
+  }
   document.getElementById('walletTxidInput').value = '';
+  const isPaypal = paymentRow.gateway === 'paypal';
   await appAlert(
     currentLang==='ar'
-      ? '✅ تم استلام طلبك وهيتم مراجعته يدويًا من فريق الدعم قريبًا.'
-      : '✅ Your request was received and will be reviewed manually by our team shortly.',
+      ? (isPaypal ? '✅ تم استلام رقم العملية. ستُضاف الفحوصات إلى حسابك بعد مراجعة الإدارة للتحويل.' : '✅ تم استلام طلبك وهيتم مراجعته يدويًا من فريق الدعم قريبًا.')
+      : (isPaypal ? '✅ Transaction ID received. The checks will be added to your account after an admin reviews the transfer.' : '✅ Your request was received and will be reviewed manually by our team shortly.'),
     {icon:'success'}
   );
+  if (typeof loadPaymentHistory === 'function') loadPaymentHistory();
 }
 
 // Step 2: calls the gateway-specific verify edge function. Throws on any
@@ -5501,8 +5537,18 @@ async function _confirmWalletPurchaseOnce(){
 
   if(cfg?.dynamic){ await handleDynamicGatewayPurchase(gateway, cfg); return; }
 
-  const refValue = document.getElementById('walletTxidInput').value.trim();
+  let refValue = document.getElementById('walletTxidInput').value.trim();
   if(!refValue){ await appAlert(currentLang==='ar' ? 'من فضلك ادخل رقم العملية أو الرقم المرجعي' : 'Please enter the transaction ID or reference number', {icon:'warning'}); return; }
+  if (cfg.paypalManual) {
+    // A PayPal Transaction ID is 17 letters and digits, e.g. 0V548985WD2923031.
+    refValue = refValue.replace(/\s+/g, '').toUpperCase();
+    if (!/^[A-Z0-9]{17}$/.test(refValue)) {
+      await appAlert(currentLang==='ar'
+        ? 'رقم العملية غير صحيح. يتكون Transaction ID من 17 حرفًا ورقمًا، مثل: 0V548985WD2923031، وتجده في تفاصيل العملية داخل PayPal.'
+        : 'This Transaction ID is not valid. It has 17 letters and digits, e.g. 0V548985WD2923031, and is shown in the transaction details in PayPal.', {icon:'warning'});
+      return;
+    }
+  }
   const isEgp = cfg?.currency === 'EGP';
   // Amount: EGP gateways pay in EGP, USD gateways pay in USD
   const amountForDb = packChargeAmount(selectedPack, isEgp);
