@@ -2882,16 +2882,25 @@ function startApp(){
     if (inp.disabled && !inp.dataset.sending) inp.disabled = false;
     if (e.target !== inp) { e.preventDefault(); inp.focus(); }
   });
+  // On a phone keyboard Enter adds a new line (the send button sends); on a computer Enter sends.
+  const enterSends = () => !window.matchMedia('(pointer:coarse)').matches;
   document.getElementById('cpInput').addEventListener('keydown', e=>{
-    if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendAdminReply(); }
+    if(e.key === 'Enter' && !e.shiftKey && enterSends()){ e.preventDefault(); sendAdminReply(); }
   });
+  // The thread opens on the latest message, also when it is drawn while the window is still hidden:
+  // it stays pinned to the end until the admin scrolls up.
+  const cpBody = document.getElementById('cpBody');
+  cpBody.addEventListener('scroll', () => {
+    if (cpBody.clientHeight) cpBody._stick = cpBody.scrollHeight - cpBody.scrollTop - cpBody.clientHeight < 40;
+  }, { passive: true });
+  new ResizeObserver(() => { if (cpBody._stick) cpBody.scrollTop = cpBody.scrollHeight; }).observe(cpBody);
   document.getElementById('cpInput').addEventListener('input', (e)=>{
     broadcastAdminTyping();
     e.target.style.height = 'auto';
     e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
   });
   document.getElementById('tkReplyInput').addEventListener('keydown', e=>{
-    if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendTicketAdminReply(); }
+    if(e.key === 'Enter' && !e.shiftKey && enterSends()){ e.preventDefault(); sendTicketAdminReply(); }
   });
   document.getElementById('tkReplyInput').addEventListener('input', (e)=>{
     e.target.style.height = 'auto';
@@ -3284,7 +3293,9 @@ function renderChatThread(){
     }
     return `<div class="cp-msg-wrap from-${m.sender_type}"><div class="cp-msg from-${m.sender_type}${m.file_name && isImg(m.file_name) ? ' has-img' : ''}" id="chatmsg-${m.id}">${senderLabel}${content}${meta}</div>${acts.length ? `<div class="cp-msg-acts">${acts.join('')}</div>` : ''}</div>`;
   }).join('') + `<div id="cpTypingIndicator" style="display:none;font-size:11px;color:var(--muted);padding:4px 12px;font-style:italic;">${ar ? 'العميل بيكتب دلوقتي...' : 'The customer is typing...'}</div>`;
-  body.scrollTop = body.scrollHeight;
+  // A different conversation (or the same one the admin was reading at the end) opens on the latest message.
+  if (body._conv !== openConversationId) { body._conv = openConversationId; body._stick = true; }
+  if (body._stick !== false) { body._stick = true; body.scrollTop = body.scrollHeight; requestAnimationFrame(() => { if (body._stick) body.scrollTop = body.scrollHeight; }); }
   loadAdminChatImages();
 }
 // Images in the chat: signed links (the bucket is private), cached for the hour they stay valid.
@@ -3299,7 +3310,7 @@ async function loadAdminChatImages(){
   const body = document.getElementById('cpBody');
   for (const img of document.querySelectorAll('#cpBody img.cp-msg-img[data-chat-path]:not([src])')) {
     const url = await adminChatSignedUrl(img.dataset.chatPath);
-    if (url) { img.src = url; img.addEventListener('load', () => { body.scrollTop = body.scrollHeight; }, { once: true }); }
+    if (url) { img.src = url; img.addEventListener('load', () => { if (body._stick !== false) body.scrollTop = body.scrollHeight; }, { once: true }); }
   }
 }
 function openAdminChatImage(img){
