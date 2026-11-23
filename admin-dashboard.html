@@ -2426,6 +2426,13 @@ const I18N = {
 // nodes, placeholders and titles are swapped; in Arabic mode the English versions are swapped back.
 // Content rendered later by JS is caught by the observer below.
 const TXT_AR_EN = {
+  'نفس ترتيب وتقسيم صفحة الدفع عند العميل. أي تعديل هنا بيظهر للعميل أول ما يفتح المحفظة. الشعار بيتغير من "تصميم الواجهة".':'Same order and tabs as the customer payment page. Any change here shows to the customer the next time they open the wallet. Logos are changed from "UI Design".',
+  'تعديل وسيلة دفع':'Edit payment method','إضافة وسيلة دفع':'Add payment method','الشعار':'Logo','بيتغير من تاب تصميم الواجهة':'Changed from the UI Design tab',
+  'تغيير الشعار':'Change logo','الاسم اللي بيظهر للعميل':'Name shown to the customer','يظهر في تاب':'Shown in tab','العملة':'Currency',
+  'جنيه مصري':'Egyptian pound','دولار':'US dollar','رقم / عنوان التحويل اللي العميل بيحول عليه':'Number / address the customer sends to',
+  'اسم الحقل ده عند العميل':'Name of this field for the customer','تعليمات الدفع اللي بتظهر للعميل':'Payment instructions shown to the customer',
+  'مثلاً: رقم المحفظة':'e.g. Wallet number','مثال: 1':'e.g. 1','حفظ':'Save','إلغاء':'Cancel','الباقة':'Package',
+  'محافظ إلكترونية':'E-Wallets','الدفع بالكارت':'Card','العملات الرقمية':'Crypto',
   'إدارة الحسابات':'Account management','وضع ليلي':'Dark mode','إضافة فحص':'Add check','تفعيل الإشعارات':'Enable notifications',
   'المستخدمون الأونلاين':'Online users','كود العميل':'Customer code','دخل منذ':'Online since','لا يوجد مستخدمون أونلاين حالياً':'No users online right now',
   '🖐 فحص يدوي':'🖐 Manual check','🙋 استلام':'🙋 Claim','تحويل لـ...':'Transfer to...','إضافة':'Add',
@@ -2537,6 +2544,9 @@ function toggleLang(){
   currentLang = currentLang === 'ar' ? 'en' : 'ar';
   localStorage.setItem('prokeys-admin-lang', currentLang);
   renderOrdersTable(); renderProblemOrdersList();
+  // Lists drawn in the admin's language are drawn again.
+  if (typeof renderPayMethodsList === 'function' && typeof allPayMethods !== 'undefined' && allPayMethods.length) renderPayMethodsList();
+  if (typeof loadCreditsTab === 'function' && document.getElementById('tab-payments')?.classList.contains('on')) loadCreditsTab();
   applyI18n();
   syncUsersSortUI();
 }
@@ -6273,7 +6283,7 @@ const PACK_NAMES = {
 };
 const GATEWAY_LABELS = {
   binance:'Binance Pay', bybit:'Bybit Pay', bep20:'BEP-20 USDT',
-  easykash:'EasyKash', paypal:'PayPal', paypal_manual:'PayPal (يدوي)', instapay:'InstaPay', vodafone:'Vodafone Cash',
+  easykash:'EasyKash', paypal:'PayPal', get paypal_manual(){ return admAr() ? 'PayPal (يدوي)' : 'PayPal (manual)'; }, instapay:'InstaPay', vodafone:'Vodafone Cash',
   paypal:'PayPal', admin:'أدمن', manual:'يدوي',
 };
 
@@ -8663,10 +8673,10 @@ function pgLogoHtml(m){
   return def ? def.defaultSvg : PG_CARD_SVG;
 }
 function pgTypeBadge(m){
-  const b = PG_BUILTIN[m.key];
-  if (b && b.how === 'auto') return '<span class="pg-badge auto">تأكيد تلقائي</span>';
-  if (b) return '<span class="pg-badge ref">رقم مرجعي · تأكيد تلقائي</span>';
-  return '<span class="pg-badge manual">مراجعة يدوية</span>';
+  const b = PG_BUILTIN[m.key], ar = admAr();
+  if (b && b.how === 'auto') return `<span class="pg-badge auto">${ar ? 'تأكيد تلقائي' : 'Automatic'}</span>`;
+  if (b) return `<span class="pg-badge ref">${ar ? 'رقم مرجعي · تأكيد تلقائي' : 'Reference number · automatic'}</span>`;
+  return `<span class="pg-badge manual">${ar ? 'مراجعة يدوية' : 'Manual review'}</span>`;
 }
 async function pgAddLogoSlots(){
   if (!allPayMethods.length) {
@@ -8685,27 +8695,28 @@ async function pgAddLogoSlots(){
 function renderPayMethodsList(){
   const el = document.getElementById('payMethodsList');
   if (!el) return;
-  el.innerHTML = PG_GROUPS.map(([g, ar]) => {
+  const isAr = admAr();
+  el.innerHTML = PG_GROUPS.map(([g, arName, enName]) => {
     const list = allPayMethods.filter(m => pgGroupOf(m) === g).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
     const rows = list.map((m, i) => `
       <div class="pg-row${m.visible ? '' : ' off'}">
         <div class="pg-ord">
-          <button type="button" title="لفوق" ${i === 0 ? 'disabled' : ''} onclick="pgMove('${m.id}', -1)">▲</button>
-          <button type="button" title="لتحت" ${i === list.length - 1 ? 'disabled' : ''} onclick="pgMove('${m.id}', 1)">▼</button>
+          <button type="button" title="${isAr ? 'لفوق' : 'Move up'}" ${i === 0 ? 'disabled' : ''} onclick="pgMove('${m.id}', -1)">▲</button>
+          <button type="button" title="${isAr ? 'لتحت' : 'Move down'}" ${i === list.length - 1 ? 'disabled' : ''} onclick="pgMove('${m.id}', 1)">▼</button>
         </div>
         <span class="pg-logo">${pgLogoHtml(m)}</span>
         <div class="pg-info">
           <div class="pg-name">${escapeHtml(m.name)}</div>
           <div class="pg-meta">${pgTypeBadge(m)}<span class="pg-badge cur">${escapeHtml(String(m.currency || 'EGP').replace('USDT', 'USD'))}</span>${m.uid ? `<span class="pg-uid" dir="ltr">${escapeHtml(m.uid)}</span>` : ''}</div>
         </div>
-        <span class="pg-state">${m.visible ? 'ظاهرة' : 'مخفية'}</span>
-        <label class="side-toggle-sw" title="إظهار للعملاء"><input type="checkbox" ${m.visible ? 'checked' : ''} onchange="togglePayMethodVisible('${m.id}',this.checked)"><span class="side-toggle-slider"></span></label>
-        <button class="msg-btn" onclick="openEditPayMethodPopup('${m.id}')">تعديل</button>
-        ${m.is_builtin ? '' : `<button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);" data-a="${escapeHtml(m.id)}" data-b="${escapeHtml(m.name)}" onclick="runWithData(this, deletePayMethod)">حذف</button>`}
+        <span class="pg-state">${m.visible ? (isAr ? 'ظاهرة' : 'Shown') : (isAr ? 'مخفية' : 'Hidden')}</span>
+        <label class="side-toggle-sw" title="${isAr ? 'إظهار للعملاء' : 'Show to customers'}"><input type="checkbox" ${m.visible ? 'checked' : ''} onchange="togglePayMethodVisible('${m.id}',this.checked)"><span class="side-toggle-slider"></span></label>
+        <button class="msg-btn" onclick="openEditPayMethodPopup('${m.id}')">${isAr ? 'تعديل' : 'Edit'}</button>
+        ${m.is_builtin ? '' : `<button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);" data-a="${escapeHtml(m.id)}" data-b="${escapeHtml(m.name)}" onclick="runWithData(this, deletePayMethod)">${isAr ? 'حذف' : 'Delete'}</button>`}
       </div>`).join('');
-    return `<div class="pg-group"><div class="pg-group-head"><b>${ar}</b><span>${list.filter(m => m.visible).length} / ${list.length} ظاهرة</span>
-        <button type="button" class="msg-btn" onclick="openAddPayMethodPopup('${g}')">+ إضافة هنا</button></div>
-      ${rows || '<div class="pg-empty">مفيش وسائل في التاب ده</div>'}</div>`;
+    return `<div class="pg-group"><div class="pg-group-head"><b>${isAr ? arName : enName}</b><span>${list.filter(m => m.visible).length} / ${list.length} ${isAr ? 'ظاهرة' : 'shown'}</span>
+        <button type="button" class="msg-btn" onclick="openAddPayMethodPopup('${g}')">${isAr ? '+ إضافة هنا' : '+ Add here'}</button></div>
+      ${rows || `<div class="pg-empty">${isAr ? 'مفيش وسائل في التاب ده' : 'No methods in this tab'}</div>`}</div>`;
   }).join('');
 }
 // Order inside a tab (the customer page shows the same order).
@@ -8745,12 +8756,15 @@ function pgSetupPopup(m, group){
   document.getElementById('payMethodQrBlock').style.display = (custom || b?.qr) ? '' : 'none';
   document.getElementById('payMethodLogo').innerHTML = m ? pgLogoHtml(m) : PG_CARD_SVG;
   document.getElementById('payMethodLogoBtn').style.display = m ? '' : 'none';
+  const ar = admAr();
   document.getElementById('payMethodTypeNote').innerHTML = !m
-    ? 'الوسيلة الجديدة بتتراجع يدوياً: العميل بيحوّل ويكتب الرقم المرجعي، وإنت بتأكد الدفعة من تاب المدفوعات. الشعار هيتضاف لتصميم الواجهة تلقائياً بعد الحفظ.'
-    : m.key === 'paypal_manual' ? 'PayPal يدوي: العميل بيحوّل على اسم المستخدم ده ويكتب الـ Transaction ID (المبلغ شامل عمولة PayPal)، وإنت بتأكد الدفعة من تاب المدفوعات.'
-    : b?.how === 'auto' ? 'الدفعة بتتأكد تلقائياً، ومفيش حاجة تتراجع يدوياً.'
-    : b ? 'العميل بيكتب الرقم المرجعي والدفعة بتتأكد تلقائياً.'
-    : 'العميل بيكتب الرقم المرجعي وإنت بتأكد الدفعة من تاب المدفوعات.';
+    ? (ar ? 'الوسيلة الجديدة بتتراجع يدوياً: العميل بيحوّل ويكتب الرقم المرجعي، وإنت بتأكد الدفعة من تاب المدفوعات. الشعار هيتضاف لتصميم الواجهة تلقائياً بعد الحفظ.'
+          : 'New methods are reviewed by hand: the customer transfers and enters the reference number, and you confirm the payment from the Payments tab. The logo is added to UI Design automatically after saving.')
+    : m.key === 'paypal_manual' ? (ar ? 'PayPal يدوي: العميل بيحوّل على اسم المستخدم ده ويكتب الـ Transaction ID (المبلغ شامل عمولة PayPal)، وإنت بتأكد الدفعة من تاب المدفوعات.'
+          : 'Manual PayPal: the customer sends the money to this username and enters the Transaction ID (the amount includes PayPal\'s fee); you confirm the payment from the Payments tab.')
+    : b?.how === 'auto' ? (ar ? 'الدفعة بتتأكد تلقائياً، ومفيش حاجة تتراجع يدوياً.' : 'Payments are confirmed automatically; nothing to review by hand.')
+    : b ? (ar ? 'العميل بيكتب الرقم المرجعي والدفعة بتتأكد تلقائياً.' : 'The customer enters the reference number and the payment is confirmed automatically.')
+    : (ar ? 'العميل بيكتب الرقم المرجعي وإنت بتأكد الدفعة من تاب المدفوعات.' : 'The customer enters the reference number and you confirm the payment from the Payments tab.');
 }
 async function togglePayMethodVisible(id, visible){
   const { error } = await supabaseClient.from('payment_methods').update({ visible, updated_at:new Date().toISOString() }).eq('id', id);
