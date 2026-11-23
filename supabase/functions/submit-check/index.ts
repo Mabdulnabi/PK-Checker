@@ -154,6 +154,8 @@ Deno.serve(async (req: Request) => {
     if (!isAdmin) orderQuery = orderQuery.eq("user_id", user.id);
     const { data: order, error: orderErr } = await orderQuery.maybeSingle();
     if (orderErr || !order) return cors_json({ success: false, error: "Order not found" }, 404);
+    // Cancelled by an admin before it was sent: never sent.
+    if (order.status === "cancelled") return cors_json({ success: false, code: "CANCELLED", error: "This order was cancelled." }, 409);
     const ownerId: string = order.user_id;
     const adminResend = isAdmin && ["error", "failed_invalid"].includes(order.status);
     if (isAdmin && !adminResend && order.user_id !== user.id) {
@@ -229,6 +231,13 @@ Deno.serve(async (req: Request) => {
     if ((reserved as { replayed?: boolean } | null)?.replayed) {
       // Another request already reserved this order: never send it again.
       return cors_json({ success: false, code: "ALREADY_SUBMITTING", error: "This order is already being submitted." }, 409);
+    }
+
+    // Last check before the file leaves: an admin may have cancelled the order meanwhile.
+    const { data: still } = await admin.from("orders").select("status").eq("id", orderId).maybeSingle();
+    if (!still || still.status === "cancelled") {
+      await admin.rpc("release_slot", { p_idempotency_key: slotKey });
+      return cors_json({ success: false, code: "CANCELLED", error: "This order was cancelled." }, 409);
     }
 
     const tsForm = new FormData();

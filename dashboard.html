@@ -4129,7 +4129,7 @@ const I18N = {
     err_unconfirmed:"تعذّر التحقق من وصول الملف إلى خدمة الفحص، وقد أُعيد الفحص إلى رصيدك. يُرجى إعادة المحاولة.",
     err_maintenance:"الخدمة متوقفة مؤقتًا لأعمال الصيانة. يُرجى المحاولة لاحقًا.",
     err_cooldown:"تعذّر فحص هذا الملف منذ قليل. يُرجى الانتظار دقيقة واحدة ثم إعادة المحاولة.",
-    err_generic:"تعذّر إتمام هذا الطلب. يُرجى إعادة المحاولة أو التواصل مع فريق الدعم.", phase_floating:"جاهز للإرسال", phase_uploading:"جاري الرفع", phase_pending:"في انتظار المعالجة", phase_processing:"قيد الفحص", phase_completed:"مكتمل", phase_error:"خطأ في الفحص", phase_failed_invalid:"ملف غير صالح", phase_rejected:"مرفوض",
+    err_generic:"تعذّر إتمام هذا الطلب. يُرجى إعادة المحاولة أو التواصل مع فريق الدعم.", phase_floating:"جاهز للإرسال", phase_uploading:"جاري الرفع", phase_pending:"في انتظار المعالجة", phase_processing:"قيد الفحص", phase_completed:"مكتمل", phase_error:"خطأ في الفحص", phase_failed_invalid:"ملف غير صالح", phase_rejected:"مرفوض", phase_cancelled:"ملغي", mf_cancelled:"تم الإلغاء",
     similarity:"اقتباس", ai:"AI", sim_only:"اقتباس فقط", sim_ai:"اقتباس + AI",
     col_order_id:"رقم الطلب", col_file:"اسم الملف", col_submitted:"وقت الإرسال", col_completed:"اكتمل", col_handle:"وقت المعالجة",
     stat_completed:"مكتمل", stat_pending:"قيد الانتظار", stat_rejected:"مرفوض",
@@ -4337,7 +4337,7 @@ const I18N = {
     err_maintenance:"The service is temporarily unavailable for maintenance. Please try again later.",
     err_cooldown:"This file could not be checked a moment ago. Please wait one minute and try again.",
     err_generic:"This order could not be completed. Please try again or contact our support team.",
-    phase_floating:"Ready to send", phase_uploading:"Uploading", phase_pending:"Awaiting processing", phase_processing:"Processing", phase_completed:"Completed", phase_error:"Check error", phase_failed_invalid:"Invalid file", phase_rejected:"Rejected",
+    phase_floating:"Ready to send", phase_uploading:"Uploading", phase_pending:"Awaiting processing", phase_processing:"Processing", phase_completed:"Completed", phase_error:"Check error", phase_failed_invalid:"Invalid file", phase_rejected:"Rejected", phase_cancelled:"Cancelled", mf_cancelled:"Cancelled",
     similarity:"Similarity", ai:"AI", sim_only:"Similarity only", sim_ai:"Similarity + AI",
     col_order_id:"Order ID", col_file:"File", col_submitted:"Submitted", col_completed:"Completed", col_handle:"Handle time",
     stat_completed:"Completed", stat_pending:"Pending", stat_rejected:"Rejected",
@@ -10784,7 +10784,7 @@ let handleTime = {};
 // uploaded custom icons only later (async), so that snapshot never picked
 // up custom uploads. A function that reads ICONS fresh on every call does.
 function statusIconFor(phase){
-  const map = { completed: 'check', processing: 'clock', run: 'clock', checking: 'hourglass', pending: 'hourglass', uploading: 'hourglass', floating: 'hourglass', error: 'x', failed_invalid: 'x', rejected: 'x' };
+  const map = { completed: 'check', processing: 'clock', run: 'clock', checking: 'hourglass', pending: 'hourglass', uploading: 'hourglass', floating: 'hourglass', error: 'x', failed_invalid: 'x', rejected: 'x', cancelled: 'x' };
   return ICONS[map[phase]] || '';
 }
 
@@ -10826,7 +10826,7 @@ function localizeOrderError(reason){
 const LEGACY_STATUS_MAP = { floating:'checking', pending:'run', failed_invalid:'error' };
 function apiStatus(s){ return LEGACY_STATUS_MAP[s] || s; }
 
-const ORDER_BADGE_CLASS = { run:'badge-run', checking:'badge-run', completed:'badge-ok', processing:'badge-run', pending:'badge-wait', uploading:'badge-wait', floating:'badge-wait', error:'badge-no', failed_invalid:'badge-no', rejected:'badge-no' };
+const ORDER_BADGE_CLASS = { cancelled:'badge-no', run:'badge-run', checking:'badge-run', completed:'badge-ok', processing:'badge-run', pending:'badge-wait', uploading:'badge-wait', floating:'badge-wait', error:'badge-no', failed_invalid:'badge-no', rejected:'badge-no' };
 
 // Formats a timestamp as "Jun 25, 2026 03:57 AM" — using the viewer's own
 // device/browser timezone (not a fixed one), in 12-hour format with AM/PM.
@@ -11491,6 +11491,7 @@ function mfStatusCell(f){
 function mfScoreCell(f, kind){
   if (kind === 'ai' && f.check_type === 'sim_only') return `<span class="mf-muted">${escapeHtml(t('mf_not_included'))}</span>`;
   if (!MF_FINAL.includes(f.status)) return `<span class="mf-muted">${escapeHtml(t('mf_checking'))}</span>`;
+  if (f.status === 'cancelled') return `<span class="mf-muted">${escapeHtml(t('mf_cancelled'))}</span>`;
   if (f.status !== 'completed') return `<span class="mf-muted">${escapeHtml(t('mf_failed'))}</span>`;
   const hasReport = kind === 'ai' ? f.has_ai_report : f.has_sim_report;
   const score = kind === 'ai' ? f.ai_score : f.similarity_score;

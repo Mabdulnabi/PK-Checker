@@ -4217,12 +4217,12 @@ function setOrderFilter(f){
   renderOrdersTable();
 }
 
-const ORDER_BADGE_CLASS = { completed:'badge-ok', processing:'badge-run', pending:'badge-run', uploading:'badge-wait', floating:'badge-wait', error:'badge-no', failed_invalid:'badge-no', rejected:'badge-no' };
-const ORDER_STATUS_KEY = { completed:'st_completed', processing:'st_processing', pending:'st_processing', uploading:'st_uploading', run:'st_run', checking:'st_checking', floating:'lbl_floating', error:'st_error', failed_invalid:'st_invalid', rejected:'st_rejected' };
+const ORDER_BADGE_CLASS = { cancelled:'badge-no', completed:'badge-ok', processing:'badge-run', pending:'badge-run', uploading:'badge-wait', floating:'badge-wait', error:'badge-no', failed_invalid:'badge-no', rejected:'badge-no' };
+const ORDER_STATUS_KEY = { completed:'st_completed', processing:'st_processing', pending:'st_processing', uploading:'st_uploading', run:'st_run', checking:'st_checking', floating:'lbl_floating', error:'st_error', failed_invalid:'st_invalid', rejected:'st_rejected', cancelled:'st_cancelled' };
 I18N.ar.st_run='تم الإرسال للمزوّد'; I18N.en.st_run='Sent to provider';
 I18N.ar.st_checking='جاري التأكد من الاستلام'; I18N.en.st_checking='Confirming receipt';
-I18N.ar.st_completed='مكتملة'; I18N.ar.st_processing='قيد التنفيذ'; I18N.ar.st_uploading='رفع الملف'; I18N.ar.st_error='خطأ'; I18N.ar.st_invalid='ملف غير صالح'; I18N.ar.st_rejected='مرفوض';
-I18N.en.st_completed='Completed'; I18N.en.st_processing='Processing'; I18N.en.st_uploading='Uploading'; I18N.en.st_error='Error'; I18N.en.st_invalid='Invalid file'; I18N.en.st_rejected='Rejected';
+I18N.ar.st_completed='مكتملة'; I18N.ar.st_processing='قيد التنفيذ'; I18N.ar.st_uploading='رفع الملف'; I18N.ar.st_error='خطأ'; I18N.ar.st_invalid='ملف غير صالح'; I18N.ar.st_rejected='مرفوض'; I18N.ar.st_cancelled='ملغي';
+I18N.en.st_completed='Completed'; I18N.en.st_processing='Processing'; I18N.en.st_uploading='Uploading'; I18N.en.st_error='Error'; I18N.en.st_invalid='Invalid file'; I18N.en.st_rejected='Rejected'; I18N.en.st_cancelled='Cancelled';
 I18N.ar.manual_queue_title='🖐 فحص يدوي'; I18N.ar.manual_queue_action='الإجراء';
 I18N.ar.back_btn='رجوع'; I18N.ar.claim_conv_title='استلام المحادثة'; I18N.ar.claim_conv_btn='🙋 استلام';
 I18N.ar.transfer_placeholder='تحويل لـ...'; I18N.ar.delete_chat_title='حذف المحادثة بالكامل'; I18N.ar.internal_notes_title='ملاحظات داخلية';
@@ -4374,6 +4374,7 @@ function buildAdminOrderRow(o){
     <td class="oc-status"><span class="badge ${badgeClass}"><span class="dot"></span>${badgeLabel}</span></td>
     <td class="oc-sent" style="font-size:11px;color:var(--muted);">${submittedCell}</td>
     <td class="oc-act"><div style="display:flex;flex-wrap:wrap;gap:6px;">
+      ${(['floating','uploading','pending'].includes(o.status) && !o.external_order_id) ? `<button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash, #fdecec);" onclick="cancelOrderBeforeSend('${o.id}')" title="${currentLang === 'ar' ? 'إلغاء الطلب قبل إرساله لـ Turnitin (الفحص بيرجع لرصيد العميل)' : 'Cancel the order before it is sent to Turnitin (the check goes back to the customer)'}">✕ ${currentLang === 'ar' ? 'إلغاء' : 'Cancel'}</button>` : ''}
       ${(['error','failed_invalid'].includes(o.status) && o.source_file_path) ? `<button class="msg-btn" onclick="resendOrderToApi('${o.id}')" title="إعادة إرسال نفس الملف للفحص">🔁 إعادة إرسال</button>` : ''}
       ${(['error','failed_invalid'].includes(o.status) && o.processing_mode === 'api') ? `<button class="msg-btn" style="color:var(--blue-deep);border-color:var(--blue-light);" onclick="adoptOrderManually('${o.id}')" title="تولى الطلب يدوياً ورفع التقارير بنفسك">🖐 يدوي</button>` : ''}
     </div></td>
@@ -4647,6 +4648,33 @@ async function manualReject(orderId){
 // from the start. Credits are NOT re-deducted automatically (they were
 // already refunded when the order failed); the admin can use the credit
 // adjustment tool if they want to charge the customer again.
+// Cancels an order that has not reached the check provider yet (waiting / uploading / sending).
+// The server refuses if it was sent meanwhile; the slot goes back and the customer is notified.
+async function cancelOrderBeforeSend(orderId){
+  const ar = currentLang === 'ar';
+  const o = (allOrders || []).find(x => x.id === orderId);
+  const code = o?.display_id || orderId.slice(0, 8);
+  const reason = await adminPrompt(ar
+    ? `إلغاء الطلب ${code} قبل إرساله لـ Turnitin. الفحص هيرجع لرصيد العميل وهيوصله إشعار.\n\nسبب الإلغاء (اختياري، بيظهر للعميل):`
+    : `Cancel order ${code} before it is sent to Turnitin. The check goes back to the customer, who is notified.\n\nReason (optional, shown to the customer):`, '');
+  if (reason === null) return;
+  const { data, error } = await supabaseClient.rpc('admin_cancel_order', { p_order_id: orderId, p_reason: reason.trim() || null });
+  if (error || !data?.ok) {
+    const sent = data?.error === 'ALREADY_SENT';
+    await adminAlert(sent
+      ? (ar ? 'مينفعش يتلغي: الطلب اتبعت لـ Turnitin خلاص.' : 'It cannot be cancelled: the order was already sent to Turnitin.')
+      : ((ar ? 'تعذر الإلغاء: ' : 'Could not cancel: ') + (error?.message || data?.error || '')), { icon: '❌', danger: true });
+    if (typeof loadOrders === 'function') loadOrders();
+    return;
+  }
+  const p = o ? profilesByUserId[o.user_id] : null;
+  await logAdminActivity('order_reject', o?.user_id || null, p ? `PK${formatPkNumber(p.pk_number)}` : '', `إلغاء طلب قبل إرساله: ${code}${reason.trim() ? ' — ' + reason.trim() : ''}`);
+  toast(ar ? 'اتلغى الطلب ورجع الفحص لرصيد العميل' : 'Order cancelled; the check went back to the customer');
+  if (o) { o.status = 'cancelled'; o.error_reason = reason.trim() || 'CANCELLED_BY_ADMIN'; }
+  if (typeof renderOrdersTable === 'function') renderOrdersTable();
+  if (typeof renderTodayOrders === 'function') renderTodayOrders();
+}
+
 async function adoptOrderManually(orderId){
   const o = allOrders.find(x => x.id === orderId);
   if (!o) return;
