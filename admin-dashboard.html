@@ -4427,9 +4427,12 @@ function renderApiLog(){
     // Flags, per event as before, then on the order as a whole.
     let bad = false, warn = false;
     const flags = [];
+    // An order that ended completed was checked once: an earlier refused send (e.g. "busy, retry")
+    // whose balance moved meanwhile was another order's charge, not this one's.
+    const endedOk = rows[rows.length - 1].event === 'completed';
     rows.forEach(r => {
       const d = num(r.api_delta), slots = r.slots_reserved;
-      if (r.event === 'submit' && d != null && d < 0 && r.note !== 'accepted') { bad = true; flags.push(ar ? 'اتخصم رغم إن الفحص ماتقبلش' : 'Charged although refused'); }
+      if (r.event === 'submit' && d != null && d < 0 && !String(r.note || '').startsWith('accepted') && !endedOk) { bad = true; flags.push(ar ? 'اتخصم رغم إن الفحص ماتقبلش' : 'Charged although refused'); }
       else if (d != null && d <= -2) { warn = true; flags.push(ar ? 'اتخصم أكتر من فحص' : 'More than one check charged'); }
       else if (slots != null && slots > 1) { warn = true; flags.push(ar ? 'أكتر من slot محجوز' : 'More than one slot reserved'); }
     });
@@ -4467,7 +4470,7 @@ function renderApiLog(){
       <td class="mono">${after != null ? after : '—'}</td>
       <td class="mono" style="font-weight:800;color:${delta != null && delta < 0 ? 'var(--danger)' : 'var(--ok)'};">${deltaTxt}</td>
       <td class="mono">${slots != null ? slots : '—'}</td>
-      <td style="font-size:11px;">${[...new Set(flags)].map(f => `<b style="color:var(--danger);">${escapeHtml(f)}</b><br>`).join('')}<span style="color:var(--muted);">${escapeHtml(notes.join(' · '))}</span></td>
+      <td style="font-size:11px;white-space:normal;overflow-wrap:anywhere;word-break:break-word;min-width:140px;max-width:260px;">${[...new Set(flags)].map(f => `<b style="color:var(--danger);">${escapeHtml(f)}</b><br>`).join('')}<span style="color:var(--muted);">${escapeHtml(notes.join(' · '))}</span></td>
     </tr>`;
   }).join('');
   renderPaginationBar('apilog', 'apiLogPagination', groups.length);
