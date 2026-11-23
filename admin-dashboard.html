@@ -520,6 +520,42 @@
   /* admin modal popup (item 4) */
   .adm-modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9999;align-items:center;justify-content:center;padding:20px;}
   .adm-modal-overlay.open{display:flex;}
+  .kpi-add{position:absolute;top:9px;inset-inline-start:9px;width:26px;height:26px;border-radius:8px;border:1.5px dashed #93b4f5;background:#fff;color:var(--blue-deep);font-size:17px;font-weight:800;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;z-index:2;transition:background .15s ease,transform .15s ease;}
+  .kpi-add:hover{background:var(--blue-wash);transform:scale(1.06);}
+  .ext-box{max-width:560px;max-height:88vh;overflow-y:auto;text-align:start;padding:22px 22px 18px;}
+  .ext-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px;}
+  .ext-head b{font-size:16px;color:var(--ink,#111827);}
+  .ext-x{background:none;border:none;font-size:22px;line-height:1;color:var(--muted);cursor:pointer;padding:2px 6px;}
+  .ext-sub{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6;}
+  .ext-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+  .ext-grid.two{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .ext-f{display:flex;flex-direction:column;gap:4px;min-width:0;}
+  .ext-f label{font-size:11px;font-weight:800;color:var(--muted);}
+  .ext-f input,.ext-f select,.ext-f textarea{width:100%;padding:9px 10px;border:1.5px solid var(--paper-line);border-radius:9px;font-family:inherit;font-size:13px;background:var(--paper);color:inherit;box-sizing:border-box;}
+  .ext-f input:focus,.ext-f select:focus,.ext-f textarea:focus{outline:none;border-color:var(--blue);}
+  .ext-sum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0;}
+  .ext-sum div{border-radius:10px;padding:9px 10px;background:var(--paper-soft,#f6f8fc);border:1px solid var(--paper-line);text-align:center;}
+  .ext-sum small{display:block;font-size:10.5px;font-weight:800;color:var(--muted);}
+  .ext-sum b{font-size:15px;font-family:'Space Grotesk',sans-serif;}
+  .ext-sum .p b{color:var(--ok,#0E9F6E);} .ext-sum .p.neg b{color:var(--danger);}
+  .ext-sum em{display:block;font-style:normal;font-size:10px;color:var(--muted);}
+  .ext-more{margin:4px 0 12px;border:1px solid var(--paper-line);border-radius:10px;padding:0 12px;}
+  .ext-more summary{cursor:pointer;font-size:12px;font-weight:800;color:var(--blue-deep);padding:9px 0;}
+  .ext-more[open]{padding-bottom:12px;}
+  .ext-actions{display:flex;gap:8px;}
+  .ext-actions button{flex:1;padding:11px;border-radius:9px;font-family:inherit;font-weight:800;font-size:13px;cursor:pointer;border:1.5px solid var(--paper-line);background:var(--paper);}
+  .ext-actions .ext-save{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .ext-list-title{font-size:12.5px;font-weight:800;margin:18px 0 8px;display:flex;justify-content:space-between;}
+  .ext-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--paper-line);border-radius:10px;margin-bottom:6px;font-size:12px;}
+  .ext-row.off{opacity:.55;}
+  .ext-row .m{flex:1;min-width:0;}
+  .ext-row .m b{font-size:12.5px;}
+  .ext-row .m div{color:var(--muted);font-size:11px;overflow-wrap:anywhere;}
+  .ext-row .pf{font-weight:800;color:var(--ok,#0E9F6E);white-space:nowrap;font-family:'Space Grotesk',sans-serif;}
+  .ext-row button{border:1px solid var(--paper-line);background:var(--paper);border-radius:8px;padding:4px 9px;font-family:inherit;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;}
+  .ext-row button.c{color:var(--danger);border-color:#F5C2CB;}
+  .ext-off-tag{font-size:10px;font-weight:800;color:var(--danger);background:var(--danger-wash,#fff1f3);border-radius:6px;padding:1px 6px;}
+  @media (max-width:560px){ .ext-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
   .adm-modal-box{background:var(--paper);border-radius:16px;padding:28px 26px;max-width:420px;width:100%;box-shadow:0 24px 60px -12px rgba(27,37,86,.35);text-align:center;}
   .adm-modal-icon{font-size:32px;margin-bottom:10px;}
   .adm-modal-msg{font-family:'Cairo',sans-serif;font-size:14px;font-weight:600;color:var(--ink);margin-bottom:20px;line-height:1.6;}
@@ -1226,6 +1262,7 @@
           </div>
           <div class="kpi kpi-period">
             <div class="icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.25 5.25 C3.5 7 2.25 9.25 2.25 11 C2.25 12.75 3.5 13.75 5.25 13.75 H10.75 C12.5 13.75 13.75 12.75 13.75 11 C13.75 9.25 12.5 7 9.75 5.25 Z"/><path d="M6.25 5.25 L5.462 3.358 C5.242 2.831 5.629 2.25 6.2 2.25 L9.8 2.25 C10.371 2.25 10.758 2.831 10.538 3.358 L9.75 5.25"/><path d="M9.365 8.135 C9.155 7.715 8.672 7.505 8 7.505 C7.16 7.505 6.635 7.925 6.635 8.492 C6.635 9.92 9.365 9.185 9.365 10.508 C9.365 11.075 8.84 11.495 8 11.495 C7.265 11.495 6.74 11.222 6.53 10.76 M8 6.875 V7.505 M8 11.495 V12.125"/></svg></div>
+            <button type="button" class="kpi-add" onclick="openExtChecks()" title="إضافة فحص خارجي" aria-label="إضافة فحص خارجي" data-i18n-title="ext_add_title">+</button>
             <div class="num" id="kpiRevNum">—</div>
             <div class="kpi-subcaption" id="kpiRevSub"></div>
             <div class="lbl" data-i18n="kpi_revenue">Revenue</div>
@@ -2264,7 +2301,7 @@ const I18N = {
     rc_err_generic:'فشل توليد الأكواد', rc_err_load:'تعذر تحميل الأكواد', rc_new_title:'تم توليد {n} كود، كل كود بـ {c} slot',
     rc_copy_all:'📋 نسخ الكل', rc_copied:'تم نسخ الأكواد ✅', rc_col_code:'الكود', rc_col_credits:'الفحوصات',
     rc_col_status:'الحالة', rc_col_created:'تاريخ الإنشاء', rc_status_unused:'متاح', rc_status_used:'مستخدم', rc_empty:'لا توجد أكواد بعد',
-    nav_slots:'الباقات', today_orders_title:'Today orders', pay_action_adjust_sub:'أضف أو اخصم فحوصات من عميل', pay_action_codes_sub:'توليد أكواد وعرض حالتها', pay_f_all:'الكل', pay_f_topup:'شحن', pay_f_adjust:'تعديل', pay_f_codes:'أكواد', pay_col_customer:'العميل', api_log_title:'سجل API credit', api_log_time:'الوقت', api_log_order:'الطلب', api_log_event:'الحدث', api_log_before:'API قبل', api_log_after:'API بعد', api_log_delta:'الفرق', api_log_slots:'Slots محجوزة', api_log_note:'ملاحظة', kpi_orders_count:'عدد الطلبات', kpi_revenue:'الإيرادات',
+    nav_slots:'الباقات', today_orders_title:'Today orders', pay_action_adjust_sub:'أضف أو اخصم فحوصات من عميل', pay_action_codes_sub:'توليد أكواد وعرض حالتها', pay_f_all:'الكل', pay_f_topup:'شحن', pay_f_adjust:'تعديل', pay_f_codes:'أكواد', pay_col_customer:'العميل', api_log_title:'سجل API credit', api_log_time:'الوقت', api_log_order:'الطلب', api_log_event:'الحدث', api_log_before:'API قبل', api_log_after:'API بعد', api_log_delta:'الفرق', api_log_slots:'Slots محجوزة', api_log_note:'ملاحظة', kpi_orders_count:'عدد الطلبات', kpi_revenue:'الإيرادات', ext_add_title:'إضافة فحص خارجي',
     slt_title:'🎫 باقات الفحوصات', slt_subtitle:'الباقات اللي بتظهر للعملاء في الموقع، وكل باقة بتتحدد بنوع الفحص وعدد الفحوصات وصلاحيتها',
     slt_new_btn:'+ باقة جديدة', slt_empty:'مفيش باقات لسه', slt_err_load:'تعذر تحميل الباقات',
     slt_col_name:'الاسم', slt_col_type:'النوع', slt_col_slots:'الفحوصات', slt_col_price:'السعر', slt_col_expiry:'الصلاحية', slt_col_status:'الحالة', slt_col_actions:'إجراءات',
@@ -2383,7 +2420,7 @@ const I18N = {
     rc_err_generic:'Failed to generate codes', rc_err_load:'Could not load codes', rc_new_title:'{n} codes generated, {c} slots each',
     rc_copy_all:'📋 Copy all', rc_copied:'Codes copied ✅', rc_col_code:'Code', rc_col_credits:'Checks',
     rc_col_status:'Status', rc_col_created:'Created', rc_status_unused:'Unused', rc_status_used:'Used', rc_empty:'No codes yet',
-    nav_slots:'Packages', today_orders_title:'Today orders', pay_action_adjust_sub:'Add or deduct checks for a customer', pay_action_codes_sub:'Generate codes and see their status', pay_f_all:'All', pay_f_topup:'Top-ups', pay_f_adjust:'Adjustments', pay_f_codes:'Codes', pay_col_customer:'Customer', api_log_title:'API credit log', api_log_time:'Time', api_log_order:'Order', api_log_event:'Event', api_log_before:'API before', api_log_after:'API after', api_log_delta:'Change', api_log_slots:'Slots reserved', api_log_note:'Note', kpi_orders_count:'Order count', kpi_revenue:'Revenue',
+    nav_slots:'Packages', today_orders_title:'Today orders', pay_action_adjust_sub:'Add or deduct checks for a customer', pay_action_codes_sub:'Generate codes and see their status', pay_f_all:'All', pay_f_topup:'Top-ups', pay_f_adjust:'Adjustments', pay_f_codes:'Codes', pay_col_customer:'Customer', api_log_title:'API credit log', api_log_time:'Time', api_log_order:'Order', api_log_event:'Event', api_log_before:'API before', api_log_after:'API after', api_log_delta:'Change', api_log_slots:'Slots reserved', api_log_note:'Note', kpi_orders_count:'Order count', kpi_revenue:'Revenue', ext_add_title:'Add external check',
     slt_title:'🎫 Slot packages', slt_subtitle:'Packages customers see on the site. Each one has a check type, a number of slots and a validity period.',
     slt_new_btn:'+ New package', slt_empty:'No packages yet', slt_err_load:'Could not load packages',
     slt_col_name:'Name', slt_col_type:'Type', slt_col_slots:'Checks', slt_col_price:'Price', slt_col_expiry:'Validity', slt_col_status:'Status', slt_col_actions:'Actions',
@@ -3981,6 +4018,175 @@ function paintPeriodCard(kind){
   }
   document.querySelectorAll(`.kpi-seg[data-kind="${kind}"] button`).forEach(b => b.classList.toggle('on', b.dataset.p === p));
 }
+/* ── External checks (Revenue card "+") ──
+   Checks the admin runs directly on TurniScan, outside the platform. The admin enters how many,
+   the external price of one check (cost) and the sale price of one check; they count in revenue,
+   cost and profit (admin_sales_ledger, source 'external') and touch no customer balance.
+   Entries are cancelled, never deleted. USD amounts count at 50 EGP, like the rest of the ledger. */
+const EXT_USD = 50;
+let _extRows = [], _extEditId = null, _extDefaults = { costUsd: 0.85, priceEgp: 100 };
+async function openExtChecks(){
+  _extEditId = null;
+  document.getElementById('extChecksOverlay').classList.add('open');
+  try {
+    const { data: pk } = await supabaseClient.from('slot_packages').select('price_egp, slots, provider_cost_usd').eq('slots', 1).order('price_egp').limit(1).maybeSingle();
+    if (pk) _extDefaults = { costUsd: Number(pk.provider_cost_usd) || 0.85, priceEgp: Number(pk.price_egp) || 100 };
+  } catch {}
+  renderExtForm();
+  loadExtChecks();
+}
+function closeExtChecks(){ document.getElementById('extChecksOverlay').classList.remove('open'); }
+function _extLocalInput(d){ const x = new Date(d); x.setMinutes(x.getMinutes() - x.getTimezoneOffset()); return x.toISOString().slice(0, 16); }
+function renderExtForm(row){
+  const ar = admAr(), r = row || null;
+  const cur = r ? r.currency : 'EGP';
+  const v = r || { at: new Date().toISOString(), checks: 1, check_type: 'sim_ai', currency: 'EGP',
+    unit_cost: Math.round(_extDefaults.costUsd * EXT_USD * 100) / 100, unit_price: _extDefaults.priceEgp };
+  const esc = x => escapeHtml(x == null ? '' : String(x));
+  document.getElementById('extChecksBox').innerHTML = `
+    <div class="ext-head"><b>${r ? (ar ? 'تعديل فحص خارجي' : 'Edit external check') : (ar ? 'إضافة فحص خارجي' : 'Add external check')}</b>
+      <button type="button" class="ext-x" onclick="closeExtChecks()" aria-label="${ar ? 'إغلاق' : 'Close'}">×</button></div>
+    <div class="ext-sub">${ar ? 'فحوصات عملتها مباشرة على TurniScan خارج المنصة. بتتحسب في الإيرادات والأرباح، ومش بتأثر على رصيد أي عميل.'
+      : 'Checks you ran directly on TurniScan, outside the platform. They count in revenue and profit and change no customer balance.'}</div>
+    <div class="ext-grid">
+      <div class="ext-f"><label>${ar ? 'عدد الفحوصات' : 'Checks'}</label><input id="extChecks" type="number" min="1" step="1" value="${esc(v.checks)}" oninput="extCalc()"></div>
+      <div class="ext-f"><label>${ar ? 'السعر الخارجي للفحص' : 'External price / check'}</label><input id="extCost" type="number" min="0" step="0.01" value="${esc(v.unit_cost)}" oninput="extCalc()"></div>
+      <div class="ext-f"><label>${ar ? 'سعر البيع للفحص' : 'Sale price / check'}</label><input id="extPrice" type="number" min="0" step="0.01" value="${esc(v.unit_price)}" oninput="extCalc()"></div>
+      <div class="ext-f"><label>${ar ? 'العملة' : 'Currency'}</label><select id="extCur" onchange="extCurChange(this)" data-prev="${esc(cur)}">
+        <option value="EGP"${v.currency === 'EGP' ? ' selected' : ''}>${ar ? 'جنيه' : 'EGP'}</option><option value="USD"${v.currency === 'USD' ? ' selected' : ''}>USD</option></select></div>
+      <div class="ext-f"><label>${ar ? 'نوع الفحص' : 'Check type'}</label><select id="extType">
+        <option value="sim_ai"${v.check_type === 'sim_ai' ? ' selected' : ''}>${ar ? 'تشابه + AI' : 'Plagiarism + AI'}</option>
+        <option value="sim_only"${v.check_type === 'sim_only' ? ' selected' : ''}>${ar ? 'تشابه فقط' : 'Plagiarism only'}</option></select></div>
+      <div class="ext-f"><label>${ar ? 'التاريخ والوقت' : 'Date & time'}</label><input id="extAt" type="datetime-local" value="${_extLocalInput(v.at)}"></div>
+    </div>
+    <div class="ext-sum" id="extSum"></div>
+    <details class="ext-more"${r && (r.customer || r.pay_method || r.reference || r.ts_file_id || r.note) ? ' open' : ''}>
+      <summary>${ar ? 'تفاصيل إضافية (اختياري)' : 'More details (optional)'}</summary>
+      <div class="ext-grid two">
+        <div class="ext-f"><label>${ar ? 'العميل (اسم أو رقم)' : 'Customer (name or number)'}</label><input id="extCustomer" maxlength="120" value="${esc(v.customer)}"></div>
+        <div class="ext-f"><label>${ar ? 'طريقة الدفع' : 'Payment method'}</label><input id="extPay" list="extPayList" maxlength="60" value="${esc(v.pay_method)}">
+          <datalist id="extPayList"><option value="${ar ? 'كاش' : 'Cash'}"><option value="Vodafone Cash"><option value="InstaPay"><option value="Binance"><option value="PayPal"></datalist></div>
+        <div class="ext-f"><label>${ar ? 'رقم العملية / المرجع' : 'Transaction / reference'}</label><input id="extRef" maxlength="120" value="${esc(v.reference)}"></div>
+        <div class="ext-f"><label>${ar ? 'رقم الملف عند TurniScan' : 'TurniScan file id'}</label><input id="extTs" maxlength="80" placeholder="FL-…" value="${esc(v.ts_file_id)}"></div>
+      </div>
+      <div class="ext-f" style="margin-top:10px;"><label>${ar ? 'ملاحظة' : 'Note'}</label><textarea id="extNote" rows="2" maxlength="500">${esc(v.note)}</textarea></div>
+    </details>
+    <div class="ext-actions">
+      <button type="button" class="ext-save" id="extSaveBtn" onclick="saveExtCheck()">${r ? (ar ? 'حفظ التعديل' : 'Save changes') : (ar ? 'إضافة' : 'Add')}</button>
+      ${r ? `<button type="button" onclick="renderExtForm()">${ar ? 'إلغاء التعديل' : 'Discard edit'}</button>` : ''}
+    </div>
+    <div class="ext-list-title"><span>${ar ? 'آخر الفحوصات الخارجية' : 'Recent external checks'}</span><span id="extListTotal"></span></div>
+    <div id="extList"><div style="color:var(--muted);font-size:12px;">${ar ? 'جاري التحميل…' : 'Loading…'}</div></div>`;
+  extCalc();
+  if (_extRows.length) renderExtList();
+}
+function _extMoney(n, cur){ return (Math.round(n * 100) / 100).toLocaleString('en-US') + ' ' + (cur === 'USD' ? '$' : (admAr() ? 'ج' : 'EGP')); }
+function extCalc(){
+  const ar = admAr();
+  const n = Math.max(0, parseInt(document.getElementById('extChecks')?.value, 10) || 0);
+  const cost = Math.max(0, Number(document.getElementById('extCost')?.value) || 0);
+  const price = Math.max(0, Number(document.getElementById('extPrice')?.value) || 0);
+  const cur = document.getElementById('extCur')?.value || 'EGP';
+  const rev = n * price, c = n * cost, p = rev - c;
+  const egp = x => cur === 'USD' ? `<em>≈ ${_extMoney(x * EXT_USD, 'EGP')}</em>` : '';
+  const box = document.getElementById('extSum');
+  if (box) box.innerHTML = `
+    <div><small>${ar ? 'الإجمالي' : 'Total'}</small><b>${_extMoney(rev, cur)}</b>${egp(rev)}</div>
+    <div><small>${ar ? 'التكلفة' : 'Cost'}</small><b>${_extMoney(c, cur)}</b>${egp(c)}</div>
+    <div class="p${p < 0 ? ' neg' : ''}"><small>${ar ? 'الربح' : 'Profit'}</small><b>${_extMoney(p, cur)}</b>${egp(p)}</div>`;
+}
+// Switching the currency converts the two prices already entered (50 EGP = 1 USD).
+function extCurChange(sel){
+  const prev = sel.dataset.prev || 'EGP', next = sel.value;
+  if (prev !== next) {
+    const f = next === 'USD' ? 1 / EXT_USD : EXT_USD;
+    ['extCost', 'extPrice'].forEach(id => { const el = document.getElementById(id); if (el.value !== '') el.value = Math.round(Number(el.value) * f * 10000) / 10000; });
+  }
+  sel.dataset.prev = next;
+  extCalc();
+}
+async function loadExtChecks(){
+  const { data, error } = await supabaseClient.from('external_checks').select('*').order('at', { ascending: false }).limit(50);
+  if (error) { console.error('external_checks', error); const l = document.getElementById('extList'); if (l) l.innerHTML = `<div style="color:var(--danger);font-size:12px;">${escapeHtml(error.message)}</div>`; return; }
+  _extRows = data || [];
+  renderExtList();
+}
+function renderExtList(){
+  const ar = admAr(), host = document.getElementById('extList');
+  if (!host) return;
+  if (!_extRows.length) { host.innerHTML = `<div style="color:var(--muted);font-size:12px;">${ar ? 'مفيش فحوصات خارجية لسه' : 'No external checks yet'}</div>`; document.getElementById('extListTotal').textContent = ''; return; }
+  const live = _extRows.filter(r => !r.cancelled_at);
+  const profitEgp = live.reduce((s, r) => s + r.checks * (r.unit_price - r.unit_cost) * (r.currency === 'USD' ? EXT_USD : 1), 0);
+  document.getElementById('extListTotal').textContent = `${live.reduce((s, r) => s + r.checks, 0)} ${ar ? 'فحص' : 'checks'} · ${ar ? 'ربح' : 'profit'} ${_extMoney(profitEgp, 'EGP')}`;
+  host.innerHTML = _extRows.map(r => {
+    const off = !!r.cancelled_at;
+    const extra = [r.customer, r.pay_method, r.reference, r.ts_file_id ? 'TS ' + r.ts_file_id : '', r.note].filter(Boolean).join(' · ');
+    return `<div class="ext-row${off ? ' off' : ''}">
+      <div class="m"><b>${r.checks} × ${r.check_type === 'sim_only' ? (ar ? 'تشابه فقط' : 'Plagiarism only') : (ar ? 'تشابه + AI' : 'Plagiarism + AI')}</b>
+        ${off ? `<span class="ext-off-tag">${ar ? 'ملغي' : 'Cancelled'}</span>` : ''}
+        <div>${escapeHtml(fmtDate(new Date(r.at)))} ${escapeHtml(fmtTime(new Date(r.at)))} · ${ar ? 'بيع' : 'sale'} ${_extMoney(r.unit_price, r.currency)} · ${ar ? 'خارجي' : 'external'} ${_extMoney(r.unit_cost, r.currency)}</div>
+        ${extra ? `<div>${escapeHtml(extra)}</div>` : ''}</div>
+      <span class="pf">${_extMoney(r.checks * (r.unit_price - r.unit_cost), r.currency)}</span>
+      ${off ? '' : `<button type="button" onclick="editExtCheck('${r.id}')">${ar ? 'تعديل' : 'Edit'}</button><button type="button" class="c" onclick="cancelExtCheck('${r.id}')">${ar ? 'إلغاء' : 'Cancel'}</button>`}
+    </div>`;
+  }).join('');
+}
+function editExtCheck(id){
+  const r = _extRows.find(x => x.id === id);
+  if (!r) return;
+  _extEditId = id;
+  renderExtForm(r);
+  document.getElementById('extChecksBox').scrollTop = 0;
+}
+async function saveExtCheck(){
+  const ar = admAr();
+  const n = parseInt(document.getElementById('extChecks').value, 10);
+  const cost = Number(document.getElementById('extCost').value);
+  const price = Number(document.getElementById('extPrice').value);
+  const atVal = document.getElementById('extAt').value;
+  if (!(n > 0)) { toast(ar ? 'اكتب عدد الفحوصات (1 أو أكتر)' : 'Enter the number of checks (1 or more)', 'error'); return; }
+  if (!(cost >= 0) || document.getElementById('extCost').value === '') { toast(ar ? 'اكتب السعر الخارجي للفحص' : 'Enter the external price of one check', 'error'); return; }
+  if (!(price >= 0) || document.getElementById('extPrice').value === '') { toast(ar ? 'اكتب سعر البيع للفحص' : 'Enter the sale price of one check', 'error'); return; }
+  const val = id => (document.getElementById(id).value || '').trim() || null;
+  const row = {
+    at: atVal ? new Date(atVal).toISOString() : new Date().toISOString(),
+    checks: n, check_type: document.getElementById('extType').value, currency: document.getElementById('extCur').value,
+    unit_price: price, unit_cost: cost,
+    customer: val('extCustomer'), pay_method: val('extPay'), reference: val('extRef'), ts_file_id: val('extTs'), note: val('extNote'),
+    updated_at: new Date().toISOString(),
+  };
+  const btn = document.getElementById('extSaveBtn'); btn.disabled = true;
+  const editing = _extEditId;
+  const { error } = editing
+    ? await supabaseClient.from('external_checks').update(row).eq('id', editing)
+    : await supabaseClient.from('external_checks').insert(row);
+  btn.disabled = false;
+  if (error) { toast((ar ? 'لم يتم الحفظ: ' : 'Not saved: ') + error.message, 'error'); return; }
+  const desc = `${editing ? 'تعديل' : 'إضافة'} فحص خارجي: ${n} × ${price} ${row.currency} (تكلفة ${cost})`;
+  try { await logAdminActivity('setting_change', null, '', desc); } catch {}
+  toast(editing ? (ar ? 'تم حفظ التعديل' : 'Changes saved') : (ar ? 'تمت إضافة الفحص الخارجي' : 'External check added'));
+  _extEditId = null;
+  renderExtForm();
+  await loadExtChecks();
+  if (typeof loadOverview === 'function') loadOverview();
+}
+async function cancelExtCheck(id){
+  const ar = admAr();
+  const r = _extRows.find(x => x.id === id);
+  if (!r) return;
+  const ok = await adminConfirm(ar ? `إلغاء الفحص الخارجي (${r.checks} فحص)؟ هيتشال من الإيرادات والأرباح، والسطر هيفضل محفوظ كملغي.`
+    : `Cancel this external entry (${r.checks} checks)? It leaves revenue and profit; the entry stays saved as cancelled.`,
+    { danger: true, confirmLabel: ar ? 'إلغاء الفحص' : 'Cancel entry' });
+  if (!ok) return;
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  const { error } = await supabaseClient.from('external_checks').update({ cancelled_at: new Date().toISOString(), cancelled_by: user?.id || null }).eq('id', id);
+  if (error) { toast((ar ? 'لم يتم الإلغاء: ' : 'Not cancelled: ') + error.message, 'error'); return; }
+  try { await logAdminActivity('setting_change', null, '', `إلغاء فحص خارجي: ${r.checks} × ${r.unit_price} ${r.currency}`); } catch {}
+  if (_extEditId === id) { _extEditId = null; renderExtForm(); }
+  toast(ar ? 'تم إلغاء الفحص الخارجي' : 'External check cancelled');
+  await loadExtChecks();
+  if (typeof loadOverview === 'function') loadOverview();
+}
 function setKpiPeriod(kind, p){
   _kpiPeriod[kind] = KPI_PERIODS.includes(p) ? p : 'today';
   try { localStorage.setItem(KPI_PERIOD_KEY, JSON.stringify(_kpiPeriod)); } catch {}
@@ -5265,6 +5471,11 @@ function deliveryTime(o){
       <div id="cannedManagerList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
       <button class="adm-modal-cancel" style="width:100%;padding:10px;border-radius:9px;border:1.5px solid var(--paper-line);background:var(--paper);cursor:pointer;font-family:'Cairo',sans-serif;font-weight:700;" onclick="closeCannedManager()">إغلاق</button>
     </div>
+  </div>
+
+  <!-- EXTERNAL CHECKS: checks done directly on TurniScan, counted in revenue -->
+  <div class="adm-modal-overlay" id="extChecksOverlay" onclick="if(event.target===this)closeExtChecks()">
+    <div class="adm-modal-box ext-box" id="extChecksBox"></div>
   </div>
 
   <!-- ADMIN'S OWN PROFILE -->
