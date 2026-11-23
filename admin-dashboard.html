@@ -4597,6 +4597,7 @@ function buildAdminOrderRow(o){
       ${(['floating','uploading','pending','queued'].includes(o.status) && !o.external_order_id) ? `<button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash, #fdecec);" onclick="cancelOrderBeforeSend('${o.id}')" title="${currentLang === 'ar' ? 'إلغاء الطلب قبل إرساله لـ Turnitin (الفحص بيرجع لرصيد العميل)' : 'Cancel the order before it is sent to Turnitin (the check goes back to the customer)'}">✕ ${currentLang === 'ar' ? 'إلغاء' : 'Cancel'}</button>` : ''}
       ${(['error','failed_invalid'].includes(o.status) && o.source_file_path) ? `<button class="msg-btn" onclick="resendOrderToApi('${o.id}')" title="إعادة إرسال نفس الملف للفحص">🔁 إعادة إرسال</button>` : ''}
       ${(['error','failed_invalid'].includes(o.status) && o.processing_mode === 'api') ? `<button class="msg-btn" style="color:var(--blue-deep);border-color:var(--blue-light);" onclick="adoptOrderManually('${o.id}')" title="تولى الطلب يدوياً ورفع التقارير بنفسك">🖐 يدوي</button>` : ''}
+      ${(o.status === 'queued' && !o.external_order_id) ? `<button class="msg-btn" style="color:var(--blue-deep);border-color:var(--blue-light);" onclick="adoptQueuedManually('${o.id}')" title="${currentLang === 'ar' ? 'افحص الملف بنفسك وارفع التقريرين. العميل هيشوف «جاري الفحص» لحد التسليم.' : 'Check the file yourself and upload the reports. The customer sees “Checking” until delivery.'}">🖐 ${currentLang === 'ar' ? 'يدوي' : 'Manual'}</button>` : ''}
     </div></td>
   </tr>`;
 }
@@ -4933,6 +4934,41 @@ async function adoptOrderManually(orderId){
   renderOrdersTable();
 }
 
+// A queued order (TurniScan busy) taken over by the admin: it leaves the queue (never sent to TurniScan),
+// the admin checks the file outside and uploads the two reports (Orders table, report cells).
+// The customer only sees "Checking" from now until delivery; nothing tells them it was done by hand.
+// The slot already held for the order is the one charged on delivery (no second charge).
+async function adoptQueuedManually(orderId){
+  const ar = currentLang === 'ar';
+  const o = allOrders.find(x => x.id === orderId);
+  if (!o) return;
+  const ok = await adminConfirm(ar
+    ? `تحويل الطلب ${o.display_id || orderId.slice(0, 8)} للفحص اليدوي؟\n\nالملف هيخرج من قائمة الانتظار ومش هيتبعت لـ TurniScan. افحصه بنفسك (افتح الملف من اسمه في الجدول) وارفع التقريرين من خانتي الاقتباس والـ AI.\n\nالعميل هيشوف «جاري الفحص» لحد ما التقارير تتسلم، ومش هيعرف إن الفحص اتعمل يدوي.`
+    : `Switch order ${o.display_id || orderId.slice(0, 8)} to a manual check?\n\nThe file leaves the queue and is not sent to TurniScan. Check it yourself (open the file from its name in the table) and upload the two reports in the similarity and AI cells.\n\nThe customer sees “Checking” until the reports are delivered, and is not told it was done by hand.`,
+    { icon: '🖐', confirmLabel: ar ? 'تحويل يدوي' : 'Switch to manual' });
+  if (!ok) return;
+  const now = new Date().toISOString();
+  // Only while it is still waiting and not being sent by the queue right now (a send in progress holds
+  // queue_attempt_at for at most 5 minutes).
+  const stale = new Date(Date.now() - 5 * 60000).toISOString();
+  const { data, error } = await supabaseClient.from('orders').update({
+    processing_mode: 'manual', status: 'processing', sent_at: now, error_reason: null,
+    queue_attempt_at: null, completed_at: null, updated_at: now,
+  }).eq('id', orderId).eq('status', 'queued').or(`queue_attempt_at.is.null,queue_attempt_at.lt.${stale}`).select('id');
+  if (error) { await adminAlert((ar ? 'تعذر التحويل: ' : 'Could not switch: ') + error.message, { icon: '❌', danger: true }); return; }
+  if (!data || !data.length) {
+    await adminAlert(ar ? 'الطلب بيتبعت لـ TurniScan في اللحظة دي أو اتغيرت حالته. استنى ثواني وحدّث الصفحة، وجرب تاني لو لسه في الانتظار.'
+      : 'The order is being sent to TurniScan right now, or its status changed. Wait a few seconds, refresh, and try again if it is still queued.', { icon: '⏳' });
+    return;
+  }
+  const p = profilesByUserId[o.user_id];
+  await logAdminActivity('order_accept', o.user_id || null, p ? `PK${formatPkNumber(p.pk_number)}` : '', `تحويل طلب من قائمة الانتظار للفحص اليدوي: ${o.display_id || orderId.slice(0, 8)}`);
+  Object.assign(o, { processing_mode: 'manual', status: 'processing', sent_at: now, error_reason: null, queue_attempt_at: null });
+  renderOrdersTable();
+  if (typeof renderTodayOrders === 'function') renderTodayOrders();
+  toast(ar ? 'اتحوّل للفحص اليدوي. ارفع التقريرين من خانتي الاقتباس والـ AI.' : 'Switched to manual. Upload the two reports in the similarity and AI cells.');
+}
+
 // Uploads a manually-produced report file (Similarity or AI) to the public
 // order-reports bucket, saves the resulting URL on the order row, and
 // auto-completes the order once every file it needs is present — this is
@@ -5038,6 +5074,13 @@ function reportButton(o, kind){
   const score = kind === 'ai' ? o.ai_score : o.similarity_score;
   const field = kind === 'ai' ? 'ai_report_url' : 'report_url';
   if (kind === 'ai' && o.check_type === 'sim_only') return '<span class="source-none">—</span>';
+  // Handled manually and not delivered yet: the admin uploads the report here.
+  if (o.processing_mode === 'manual' && !url && ['processing', 'run', 'checking'].includes(o.status)) {
+    const ar = currentLang === 'ar';
+    return `<label class="msg-btn manual-upload-btn" title="${kind === 'ai' ? (ar ? 'رفع تقرير الـ AI' : 'Upload the AI report') : (ar ? 'رفع تقرير الاقتباس' : 'Upload the similarity report')}">
+      ${kind === 'ai' ? (ar ? '🤖 رفع AI' : '🤖 Upload AI') : (ar ? '📊 رفع الاقتباس' : '📊 Upload similarity')}
+      <input type="file" accept=".pdf,application/pdf" style="display:none;" onchange="uploadManualReportFile('${o.id}','${kind}',this)"></label>`;
+  }
   const hasScore = score !== null && score !== undefined;
   // Completed orders always show the button (disabled when there is no value or file).
   if (!url && !hasScore && o.status !== 'completed') return '<span class="source-none">—</span>';
