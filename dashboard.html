@@ -1987,6 +1987,36 @@ if (new URLSearchParams(location.search).has('preview')) {
 </script>
 <style>
   #failAlerts{position:relative;display:flex;flex-direction:column;gap:10px;margin:4px 0 16px;}
+  #queueAlerts:empty{display:none;}
+  .open-topup-note{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:12px 16px;border-radius:12px;
+    background:#eff6ff;border:1px solid #bfdbfe;border-inline-start:4px solid #3b82f6;font-size:12.5px;color:#1e3a8a;line-height:1.7;}
+  .open-topup-note .mono{font-family:'IBM Plex Mono',monospace;}
+  .open-topup-new{flex:none;background:#fff;border:1px solid #93c5fd;color:#1d4ed8;border-radius:8px;padding:6px 12px;font-weight:800;font-size:12px;cursor:pointer;font-family:inherit;}
+  [data-theme="dark"] .open-topup-note{background:rgba(59,130,246,.12);border-color:rgba(147,197,253,.35);color:#bfdbfe;}
+  [data-theme="dark"] .open-topup-new{background:transparent;color:#93c5fd;}
+  #queueAlerts{margin:4px 0 12px;}
+  .open-topup-note{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:12px 16px;border-radius:12px;
+    background:#eff6ff;border:1px solid #bfdbfe;border-inline-start:4px solid #3b82f6;font-size:12.5px;color:#1e3a8a;line-height:1.7;}
+  .open-topup-note .mono{font-family:'IBM Plex Mono',monospace;}
+  .open-topup-new{flex:none;background:#fff;border:1px solid #93c5fd;color:#1d4ed8;border-radius:8px;padding:6px 12px;font-weight:800;font-size:12px;cursor:pointer;font-family:inherit;}
+  [data-theme="dark"] .open-topup-note{background:rgba(59,130,246,.12);border-color:rgba(147,197,253,.35);color:#bfdbfe;}
+  [data-theme="dark"] .open-topup-new{background:transparent;color:#93c5fd;}
+  #queueAlerts{margin:4px 0 12px;}
+  /* Queue notice: same layout as the failure notice, in amber */
+  .fail-alert.queue-alert{background:linear-gradient(90deg,#fffbeb,#fffdf5);border-color:#fde68a;border-inline-start:5px solid #f59e0b;}
+  .fail-alert.queue-alert .fa-ic{background:#f59e0b;box-shadow:0 8px 18px -8px rgba(245,158,11,.7);}
+  .fail-alert.queue-alert .fa-tag{color:#b45309;background:#fef3c7;border-color:#fcd34d;}
+  .fail-alert.queue-alert .fa-title b{color:#b45309;}
+  .fail-alert.queue-alert .fa-reason{color:#92400e;}
+  .fail-alert.queue-alert .fa-code{color:#92400e;}
+  .fail-alert.queue-alert .fa-guide{border-color:#fde68a;}
+  .fail-alert.queue-alert .fa-gi{background:#f59e0b;}
+  .fail-alert.queue-alert .fa-count{color:#92400e;border-color:#fde68a;}
+  .fail-alert.queue-alert .qa-btn{background:#fff;color:#b45309;border:1.5px solid #f59e0b;box-shadow:none;}
+  .fail-alert.queue-alert .qa-btn:hover{background:#fef3c7;}
+  [data-theme="dark"] .fail-alert.queue-alert{background:linear-gradient(90deg,rgba(245,158,11,.14),rgba(245,158,11,.06));border-color:rgba(252,211,77,.35);}
+  [data-theme="dark"] .fail-alert.queue-alert .fa-reason{color:#fcd34d;}
+  [data-theme="dark"] .fail-alert.queue-alert .qa-btn{background:transparent;color:#fcd34d;}
   /* Stack: the cards waiting behind peek out under the top one */
   #failAlerts.fa-stacked{margin-bottom:calc(16px + var(--fa-behind, 0) * 7px);}
   #failAlerts .fail-alert{z-index:3;}
@@ -2298,6 +2328,7 @@ if (new URLSearchParams(location.search).has('preview')) {
         </div>
       </div>
 
+      <div id="queueAlerts"></div>
       <div id="failAlerts"></div>
 
       <div class="sec-head">
@@ -2564,6 +2595,7 @@ if (new URLSearchParams(location.search).has('preview')) {
 
       <!-- Full-width payment section, shown only after pack selection -->
       <div id="walletPayBlock" style="display:none;margin-top:30px;">
+        <div id="walletOpenNote" style="display:none;"></div>
         <div class="panel-block">
           <div class="panel-block-head">
             <span class="phicon"><svg class="ic" data-icon-key="wal_pay_head" viewBox="0 0 24 24" style="width:16px;height:16px;"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5c0-1.4 1.3-2.5 3-2.5s3 1 3 2.2c0 2.8-6 1.8-6 5 0 1.4 1.3 2.3 3 2.3s3-1 3-2.3"/></svg></span>
@@ -4474,6 +4506,7 @@ async function loadTopupPacks(){
   const { data, error } = await supabaseClient.rpc('list_slot_packages');
   if (error || !Array.isArray(data)) { console.error('loadTopupPacks failed:', error); return; }
   SLOT_PACK_NAMES = {};
+  setTimeout(() => { try { restoreOpenTopup(); } catch (e) { console.warn('restoreOpenTopup', e); } }, 0);
   TOPUP_PACKS = data.map(r => {
     const key = r.pack_key || r.legacy_pack_id;
     SLOT_PACK_NAMES[key] = { ar: r.name_ar, en: r.name_en };
@@ -4879,6 +4912,7 @@ function selectPack(tab, id){
   // Render details for the currently selected gateway
   const currentCard = document.querySelector('#walletPayGrid .paycard.on');
   if(currentCard) renderPaymentDetails(currentCard.dataset.pay);
+  if (!selectedPack.store) saveOpenTopup();
 }
 
 // Slider arrow navigation
@@ -4917,6 +4951,7 @@ function selectPayCard(card){
   document.querySelectorAll('#walletPayGrid .paycard').forEach(x=>x.classList.remove('on'));
   card.classList.add('on');
   renderPaymentDetails(card.dataset.pay);
+  if (selectedPack && !selectedPack.store) saveOpenTopup();
 }
 // Hide tabs whose gateways the admin turned off, and keep a valid selection.
 function refreshPayTabs(){
@@ -4942,6 +4977,94 @@ document.addEventListener('click', e=>{
 // the customer sees in the payment history, so support can match the two directly.
 let currentPayRef = null;
 let currentPayId = null;
+
+/* ── Open top-up kept in this browser ──
+   A customer who picks a package and a payment method, leaves to pay, and comes back (even after
+   closing the tab) finds the same top-up open: same package, method, transfer reference (PKC-…)
+   and the same pending payment, so they only enter the transaction number. Kept 24 hours,
+   cleared once the payment is sent for review or confirmed, or when they start a new one. */
+const OPEN_TOPUP_KEY = 'pk-open-topup';
+const OPEN_TOPUP_MS = 24 * 3600 * 1000;
+function readOpenTopup(){
+  try {
+    const v = JSON.parse(localStorage.getItem(OPEN_TOPUP_KEY) || 'null');
+    if (!v || v.user !== PROKEYS_USER_ID || Date.now() - v.at > OPEN_TOPUP_MS) return null;
+    return v;
+  } catch { return null; }
+}
+function saveOpenTopup(patch){
+  if (!selectedPack || selectedPack.store || !PROKEYS_USER_ID) return;
+  const prev = readOpenTopup() || {};
+  const gateway = document.querySelector('#walletPayGrid .paycard.on')?.dataset.pay || prev.gateway || null;
+  const samePack = prev.packId === selectedPack.id;
+  const v = {
+    user: PROKEYS_USER_ID, packId: selectedPack.id, tab: selectedPack.tab, gateway,
+    payRef: currentPayRef || (samePack ? prev.payRef : null) || null,
+    payId: currentPayId || (samePack ? prev.payId : null) || null,
+    rowId: samePack ? (prev.rowId || null) : null,          // the pending payment, and the method it was made with
+    rowGateway: samePack ? (prev.rowGateway || null) : null,
+    restored: samePack ? !!prev.restored : false,
+    at: prev.at && samePack ? prev.at : Date.now(),
+    ...(patch || {}),
+  };
+  try { localStorage.setItem(OPEN_TOPUP_KEY, JSON.stringify(v)); } catch {}
+  renderOpenTopupNote();
+}
+function clearOpenTopup(){
+  try { localStorage.removeItem(OPEN_TOPUP_KEY); } catch {}
+  renderOpenTopupNote();
+}
+// Note at the top of the payment block while a top-up from earlier is open.
+function renderOpenTopupNote(){
+  const host = document.getElementById('walletOpenNote');
+  if (!host) return;
+  const v = readOpenTopup();
+  if (!v || !v.restored || !selectedPack || selectedPack.store || selectedPack.id !== v.packId) { host.innerHTML = ''; host.style.display = 'none'; return; }
+  const ar = currentLang === 'ar';
+  const ref = v.payRef ? `<b dir="ltr" class="mono">${escapeHtml(v.payRef)}</b>${cpBtn(v.payRef)}` : '';
+  host.style.display = '';
+  host.innerHTML = `<div class="open-topup-note">
+    <div><b>${ar ? 'لديك عملية شحن لم تكتمل بعد.' : 'You have a top-up that is not finished yet.'}</b>
+      ${ar ? 'إذا أتممت الدفع، أدخل رقم العملية في الأسفل لتأكيده.' : 'If you have already paid, enter the transaction number below to confirm it.'}
+      ${ref ? `<div style="margin-top:4px;">${ar ? 'رمز العملية:' : 'Reference:'} ${ref}</div>` : ''}</div>
+    <button type="button" class="open-topup-new" onclick="startNewTopup()">${ar ? 'بدء عملية جديدة' : 'Start a new top-up'}</button>
+  </div>`;
+}
+function startNewTopup(){
+  clearOpenTopup();
+  currentPayRef = null; currentPayId = null;
+  const sel = document.querySelector('#walletPayGrid .paycard.on');
+  if (sel) renderPaymentDetails(sel.dataset.pay);
+}
+// Opens the saved top-up again (once per page load, after the packages are loaded).
+let _openTopupRestored = false;
+function restoreOpenTopup(){
+  if (_openTopupRestored) return;
+  _openTopupRestored = true;
+  const v = readOpenTopup();
+  if (!v || selectedPack) return;
+  const packs = v.tab === 'topup' ? TOPUP_PACKS : DAILY_PACKS;
+  if (!packs || !packs.some(p => p.id === v.packId)) return;
+  selectPack(v.tab, v.packId);
+  currentPayRef = v.payRef || null;
+  currentPayId = v.payId || null;
+  try { localStorage.setItem(OPEN_TOPUP_KEY, JSON.stringify({ ...v, restored: true })); } catch {}
+  // The payment methods load separately: wait a little for the saved method's card.
+  let tries = 0;
+  const pick = () => {
+    const card = v.gateway && document.querySelector(`#walletPayGrid .paycard[data-pay="${CSS.escape(v.gateway)}"]`);
+    if (card && card.style.display !== 'none') {
+      currentPayRef = v.payRef || null;
+      currentPayId = v.payId || null;
+      const panel = card.closest('.pay-tab-panel');
+      if (panel) setPayTab(panel.dataset.ptabPanel);
+      selectPayCard(card);
+      renderOpenTopupNote();
+    } else if (++tries < 20) setTimeout(pick, 300);
+  };
+  pick();
+  renderOpenTopupNote();
+}
 
 // Copy button next to a code (PK, order, payment...). ClipboardJS handles every .copy-btn on the page.
 const CP_ICON = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5.25" y="5.25" width="8.5" height="8.5" rx="2"/><path d="M3.5 10.75 L2.875 10.75 C2.53 10.75 2.25 10.47 2.25 10.125 L2.25 4.25 C2.25 3.145 3.145 2.25 4.25 2.25 L10.125 2.25 C10.47 2.25 10.75 2.53 10.75 2.875 L10.75 3.5"/></svg>';
@@ -4998,7 +5121,13 @@ function renderLockBox(gateway, cfg){
   const box = document.getElementById('walletLockBox');
   if (!box) return;
   if (!cfg.lock || !selectedPack) { box.style.display = 'none'; box.innerHTML = ''; return; }
-  if (!currentPayRef) currentPayRef = newPayReference();
+  if (!currentPayRef) {
+    // Keep the reference the customer may already have used in their transfer note.
+    const open = readOpenTopup();
+    if (open && open.payRef && open.payId && open.packId === selectedPack.id) { currentPayRef = open.payRef; currentPayId = open.payId; }
+    else currentPayRef = newPayReference();
+  }
+  if (!selectedPack.store) saveOpenTopup({ payRef: currentPayRef, payId: currentPayId });
   const ar = currentLang === 'ar';
   const amt = packChargeAmount(selectedPack, false).toFixed(2);
   const note = currentPayRef;
@@ -5227,6 +5356,7 @@ async function paypalFinish(orderID){
 // Paid and credited: the store flows finish their own way; check packages show the success
 // message, then the payment block closes and the customer is back at the top of the wallet.
 async function paypalPaid(){
+  clearOpenTopup();
   if (selectedPack && selectedPack.store) { hidePaypalButtons(); await acCheckoutPaid(); return; }
   const ar = currentLang === 'ar';
   const credits = selectedPack ? selectedPack.credits + (selectedPack.bonus || 0) : 0;
@@ -5305,6 +5435,7 @@ async function checkEasykashPayment(paymentId){
           : '✅ Top-up request received!\n\nYour payment is pending admin approval. Slots will be added once approved.',
         {icon:'success'}
       );
+      clearOpenTopup();
       selectedPack = null;
       const payBlock = document.getElementById('walletPayBlock');
       if(payBlock) payBlock.style.display = 'none';
@@ -5398,6 +5529,13 @@ async function handleDynamicGatewayPurchase(gateway, cfg){
 
 // Step 1: creates the pending payment row before any verification happens.
 async function createPendingPayment(gateway, amountForDb, isEgp, credits){
+  // The open top-up already has a pending payment for this package and method: use it again
+  // instead of leaving several pending payments behind.
+  const open = readOpenTopup();
+  if (open && open.rowId && selectedPack && !selectedPack.store && open.packId === selectedPack.id && open.rowGateway === gateway) {
+    const { data: prev } = await supabaseClient.from('payments').select('id, gateway, status, transaction_id').eq('id', open.rowId).maybeSingle();
+    if (prev && prev.status === 'pending' && !prev.transaction_id) return { id: prev.id, gateway: prev.gateway };
+  }
   const lockGateway = !!(PAYMENT_DETAILS[gateway] && PAYMENT_DETAILS[gateway].lock);
   const reference = lockGateway ? (currentPayRef || newPayReference()) : null;
   const paymentId = lockGateway ? currentPayId : null;
@@ -5419,6 +5557,7 @@ async function createPendingPayment(gateway, amountForDb, isEgp, credits){
     .single();
 
   if (insertErr) throw insertErr;
+  if (selectedPack && !selectedPack.store) saveOpenTopup({ rowId: paymentRow.id, rowGateway: gateway });
   // The next attempt gets a fresh reference, so a payment row is never reused.
   currentPayRef = null;
   currentPayId = null;
@@ -5442,6 +5581,7 @@ async function markPaymentForManualReview(paymentRow, refValue){
     throw updErr;
   }
   document.getElementById('walletTxidInput').value = '';
+  clearOpenTopup();
   const isPaypal = paymentRow.gateway === 'paypal' || paymentRow.gateway === 'paypal_manual';
   await appAlert(
     currentLang==='ar'
@@ -5482,6 +5622,7 @@ async function handleVerificationResult(json, credits){
   }
   if (json.verified) {
     // Payment verified — awaiting admin approval before credits are added
+    clearOpenTopup();
     document.getElementById('walletTxidInput').value = '';
     await appAlert(
       currentLang==='ar'
@@ -11740,7 +11881,37 @@ async function loadFailSlotStates(ids){
   _failSlotLoading = false;
   renderFailAlerts();
 }
+// Amber notice for files waiting in the queue (the check service is busy). One notice, newest file first.
+function renderQueueAlerts(){
+  const box = document.getElementById('queueAlerts');
+  if (!box) return;
+  const ar = currentLang === 'ar';
+  const list = (orders || []).filter(o => o.phase === 'queued').sort((a, b) => b.phaseStart - a.phaseStart);
+  if (!list.length) { box.innerHTML = ''; return; }
+  const o = list[0], more = list.length - 1;
+  const name = escapeHtml(o.file || (ar ? 'ملفك' : 'your file'));
+  box.innerHTML = `<div class="fail-alert queue-alert" role="status">
+    <div class="fa-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 7v5l3 2"/></svg></div>
+    <div class="fa-main">
+      <div class="fa-top">
+        <span class="fa-tag">${ar ? 'في قائمة الانتظار' : 'QUEUED'}</span>
+        <span class="fa-title">${ar ? 'ملفك بانتظار الفحص:' : 'Your file is waiting to be checked:'} <b>${name}</b></span>
+        ${more > 0 ? `<span class="fa-count">${ar ? `+${more} ملف آخر` : `+${more} more`}</span>` : ''}
+      </div>
+      <div class="fa-reason">${ar
+        ? 'خدمة الفحص مشغولة حاليًا، ولم يُخصم أي فحص منها. سيُرسل ملفك تلقائيًا فور توفر مكان شاغر، دون أي إجراء منك.'
+        : 'The check service is busy right now, and nothing has been charged there. Your file will be sent automatically as soon as a slot is free, with no action needed from you.'}
+        <span class="fa-code mono">${escapeHtml(o.displayId || '')}</span></div>
+      <div class="fa-guide"><span class="fa-gi">i</span><div>${ar
+        ? 'يمكنك إلغاء الطلب في أي وقت قبل إرساله، وسيُعاد الفحص إلى رصيدك.'
+        : 'You can cancel the order at any time before it is sent, and the check will be returned to your balance.'}</div></div>
+      <div class="fa-actions"><button type="button" class="fa-btn qa-btn" onclick="cancelQueuedOrder('${o.id}')">${ar ? 'إلغاء الطلب' : 'Cancel order'}</button></div>
+    </div>
+  </div>`;
+}
+
 function renderFailAlerts(){
+  renderQueueAlerts();
   const box = document.getElementById('failAlerts');
   if (!box) return;
   const ar = currentLang === 'ar', gone = failDismissed(), since = Date.now() - 3 * 86400000;
