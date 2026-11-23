@@ -4506,7 +4506,7 @@ async function loadTopupPacks(){
   const { data, error } = await supabaseClient.rpc('list_slot_packages');
   if (error || !Array.isArray(data)) { console.error('loadTopupPacks failed:', error); return; }
   SLOT_PACK_NAMES = {};
-  setTimeout(() => { try { restoreOpenTopup(); } catch (e) { console.warn('restoreOpenTopup', e); } }, 0);
+  setTimeout(() => { restoreOpenTopup().catch(e => console.warn('restoreOpenTopup', e)); }, 0);
   TOPUP_PACKS = data.map(r => {
     const key = r.pack_key || r.legacy_pack_id;
     SLOT_PACK_NAMES[key] = { ar: r.name_ar, en: r.name_en };
@@ -4978,11 +4978,12 @@ document.addEventListener('click', e=>{
 let currentPayRef = null;
 let currentPayId = null;
 
-/* ── Open top-up kept in this browser ──
-   A customer who picks a package and a payment method, leaves to pay, and comes back (even after
-   closing the tab) finds the same top-up open: same package, method, transfer reference (PKC-…)
-   and the same pending payment, so they only enter the transaction number. Kept 24 hours,
-   cleared once the payment is sent for review or confirmed, or when they start a new one. */
+/* ── Open top-up, kept on the customer's account ──
+   A customer who picks a package and a payment method, leaves to pay, and comes back (on this or
+   another device) finds the same top-up open: same package, method, transfer reference (PKC-…)
+   and the same pending payment, so they only enter the transaction number. Saved in the browser
+   and on the account (table open_topups); kept 24 hours, cleared once the payment is sent for
+   review or confirmed, or when they start a new one. */
 const OPEN_TOPUP_KEY = 'pk-open-topup';
 const OPEN_TOPUP_MS = 24 * 3600 * 1000;
 function readOpenTopup(){
@@ -5007,12 +5008,43 @@ function saveOpenTopup(patch){
     at: prev.at && samePack ? prev.at : Date.now(),
     ...(patch || {}),
   };
+  v.savedAt = Date.now();
   try { localStorage.setItem(OPEN_TOPUP_KEY, JSON.stringify(v)); } catch {}
+  syncOpenTopupToAccount(v);
   renderOpenTopupNote();
 }
 function clearOpenTopup(){
   try { localStorage.removeItem(OPEN_TOPUP_KEY); } catch {}
+  clearTimeout(_openTopupSyncTimer);
+  if (PROKEYS_USER_ID) supabaseClient.from('open_topups').delete().eq('user_id', PROKEYS_USER_ID).then(() => {}, () => {});
   renderOpenTopupNote();
+}
+// Saved on the account too (a short pause first, so quick changes are sent once).
+let _openTopupSyncTimer = null;
+function syncOpenTopupToAccount(v){
+  clearTimeout(_openTopupSyncTimer);
+  _openTopupSyncTimer = setTimeout(() => {
+    supabaseClient.from('open_topups').upsert({
+      user_id: v.user, pack_id: v.packId, tab: v.tab || 'topup', gateway: v.gateway || null,
+      pay_ref: v.payRef || null, pay_id: v.payId || null, row_id: v.rowId || null, row_gateway: v.rowGateway || null,
+      updated_at: new Date(v.savedAt || Date.now()).toISOString(),
+    }, { onConflict: 'user_id' }).then(({ error }) => { if (error) console.warn('open top-up not saved on the account', error.message); }, () => {});
+  }, 400);
+}
+// The account's copy wins when it is newer (the customer continued on another device).
+async function pullOpenTopupFromAccount(){
+  if (!PROKEYS_USER_ID) return;
+  try {
+    const { data: row } = await supabaseClient.from('open_topups').select('*').eq('user_id', PROKEYS_USER_ID).maybeSingle();
+    const local = readOpenTopup();
+    if (!row) return;
+    const remoteAt = Date.parse(row.updated_at) || 0;
+    if (Date.now() - remoteAt > OPEN_TOPUP_MS) return;
+    if (local && (local.savedAt || 0) >= remoteAt) return;
+    const v = { user: PROKEYS_USER_ID, packId: row.pack_id, tab: row.tab, gateway: row.gateway, payRef: row.pay_ref, payId: row.pay_id,
+      rowId: row.row_id, rowGateway: row.row_gateway, at: remoteAt, savedAt: remoteAt, restored: false };
+    localStorage.setItem(OPEN_TOPUP_KEY, JSON.stringify(v));
+  } catch (e) { console.warn('open top-up not read from the account', e); }
 }
 // Note at the top of the payment block while a top-up from earlier is open.
 function renderOpenTopupNote(){
@@ -5038,9 +5070,10 @@ function startNewTopup(){
 }
 // Opens the saved top-up again (once per page load, after the packages are loaded).
 let _openTopupRestored = false;
-function restoreOpenTopup(){
+async function restoreOpenTopup(){
   if (_openTopupRestored) return;
   _openTopupRestored = true;
+  await pullOpenTopupFromAccount();
   const v = readOpenTopup();
   if (!v || selectedPack) return;
   const packs = v.tab === 'topup' ? TOPUP_PACKS : DAILY_PACKS;
