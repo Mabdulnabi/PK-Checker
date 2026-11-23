@@ -5338,12 +5338,6 @@ function deliveryTime(o){
           <button class="uid-size-btn" onclick="changePayMethodQrSize(10)" title="أكبر">+</button>
         </div>
       </div>
-      <div id="payMethodPaypalMode" style="display:none;background:var(--paper-soft);border:1px solid var(--paper-line);border-radius:10px;padding:10px 12px;margin-bottom:10px;">
-        <label style="display:flex;align-items:flex-start;gap:8px;font-size:12.5px;font-weight:700;cursor:pointer;">
-          <input type="checkbox" id="payMethodPaypalManual" onchange="pgPaypalModeChanged()" style="margin-top:3px;">
-          <span>تأكيد يدوي (مؤقت)<br><small style="font-weight:500;color:var(--muted);">العميل بيحوّل على اسم مستخدم PayPal بتاعك ويكتب الـ Transaction ID، وإنت بتأكد الدفعة من تاب المدفوعات. المبلغ = سعر الباقة بالدولار + عمولة PayPal (4% + 0.5$).</small></span>
-        </label>
-      </div>
       <div id="payMethodUidBlock">
         <label class="pg-lbl">رقم / عنوان التحويل اللي العميل بيحول عليه</label>
         <input class="adm-modal-input" id="payMethodUid" placeholder="UID / رقم / عنوان المحفظة" style="margin-bottom:8px;direction:ltr;">
@@ -6279,7 +6273,7 @@ const PACK_NAMES = {
 };
 const GATEWAY_LABELS = {
   binance:'Binance Pay', bybit:'Bybit Pay', bep20:'BEP-20 USDT',
-  easykash:'EasyKash', paypal:'PayPal', instapay:'InstaPay', vodafone:'Vodafone Cash',
+  easykash:'EasyKash', paypal:'PayPal', paypal_manual:'PayPal (يدوي)', instapay:'InstaPay', vodafone:'Vodafone Cash',
   paypal:'PayPal', admin:'أدمن', manual:'يدوي',
 };
 
@@ -8156,7 +8150,7 @@ function renderCreditsTable(rows){
       : r.method === 'system' ? (ar ? 'النظام' : 'System')
       : (GATEWAY_LABELS[r.method] || r.method || '');
     // PayPal: the amount the customer sends, PayPal's fee (4% + 0.50 USD) included.
-    const paid = r.method === 'paypal' && r.amount_paid != null ? Math.ceil(((Number(r.amount_paid) + 0.5) / 0.96) * 100) / 100 : r.amount_paid;
+    const paid = (r.method === 'paypal' || r.method === 'paypal_manual') && r.amount_paid != null ? Math.ceil(((Number(r.amount_paid) + 0.5) / 0.96) * 100) / 100 : r.amount_paid;
     const amt = paid != null ? `${Number(paid).toFixed(2)} ${r.currency || ''}` : '';
     const [tcls, tlbl] = TYPE[r.kind] || ['cr-badge-ded', r.kind];
     const n = Number(r.slots);
@@ -8741,31 +8735,16 @@ function pgSetupPopup(m, group){
   document.getElementById('payMethodNewOnly').style.display = custom ? 'flex' : 'none';
   document.getElementById('payMethodGroup').value = group || (m ? pgGroupOf(m) : 'wallets');
   document.getElementById('payMethodCurrency').value = String(m?.currency || 'EGP').toUpperCase() === 'EGP' ? 'EGP' : 'USD';
-  const isPaypal = m?.key === 'paypal';
-  document.getElementById('payMethodPaypalMode').style.display = isPaypal ? '' : 'none';
-  document.getElementById('payMethodPaypalManual').checked = isPaypal && m.is_auto === false;
-  document.getElementById('payMethodUidBlock').style.display = (custom || b?.uid || (isPaypal && m.is_auto === false)) ? '' : 'none';
+  document.getElementById('payMethodUidBlock').style.display = (custom || b?.uid) ? '' : 'none';
   document.getElementById('payMethodQrBlock').style.display = (custom || b?.qr) ? '' : 'none';
   document.getElementById('payMethodLogo').innerHTML = m ? pgLogoHtml(m) : PG_CARD_SVG;
   document.getElementById('payMethodLogoBtn').style.display = m ? '' : 'none';
   document.getElementById('payMethodTypeNote').innerHTML = !m
     ? 'الوسيلة الجديدة بتتراجع يدوياً: العميل بيحوّل ويكتب الرقم المرجعي، وإنت بتأكد الدفعة من تاب المدفوعات. الشعار هيتضاف لتصميم الواجهة تلقائياً بعد الحفظ.'
-    : (m.key === 'paypal' && m.is_auto === false) ? 'وضع التأكيد اليدوي: العميل بيحوّل على اسم المستخدم ده ويكتب الـ Transaction ID، وإنت بتأكد الدفعة من تاب المدفوعات.'
+    : m.key === 'paypal_manual' ? 'PayPal يدوي: العميل بيحوّل على اسم المستخدم ده ويكتب الـ Transaction ID (المبلغ شامل عمولة PayPal)، وإنت بتأكد الدفعة من تاب المدفوعات.'
     : b?.how === 'auto' ? 'الدفعة بتتأكد تلقائياً، ومفيش حاجة تتراجع يدوياً.'
     : b ? 'العميل بيكتب الرقم المرجعي والدفعة بتتأكد تلقائياً.'
     : 'العميل بيكتب الرقم المرجعي وإنت بتأكد الدفعة من تاب المدفوعات.';
-}
-// PayPal: turning manual mode on shows the username field (prefilled the first time).
-function pgPaypalModeChanged(){
-  const on = document.getElementById('payMethodPaypalManual').checked;
-  document.getElementById('payMethodUidBlock').style.display = on ? '' : 'none';
-  if (on) {
-    const uid = document.getElementById('payMethodUid');
-    if (!uid.value.trim()) uid.value = 'mabdulnabi';
-    const la = document.getElementById('payMethodUidLabelAr'), le = document.getElementById('payMethodUidLabelEn');
-    if (!la.value.trim() || la.value.trim() === 'رقم التحويل') la.value = 'اسم مستخدم PayPal';
-    if (!le.value.trim() || le.value.trim() === 'Reference number') le.value = 'PayPal username';
-  }
 }
 async function togglePayMethodVisible(id, visible){
   const { error } = await supabaseClient.from('payment_methods').update({ visible, updated_at:new Date().toISOString() }).eq('id', id);
@@ -8900,11 +8879,7 @@ async function submitPayMethod(){
     updated_at: new Date().toISOString(),
   };
   const editing = editingPayMethodId ? allPayMethods.find(x => x.id === editingPayMethodId) : null;
-  if (editing && editing.key === 'paypal') {
-    const manual = document.getElementById('payMethodPaypalManual').checked;
-    payload.is_auto = !manual;
-    if (manual && !payload.uid) { await adminAlert('اكتب اسم مستخدم PayPal اللي العميل هيحوّل عليه', {icon:'⚠️'}); return; }
-  }
+  if (editing && editing.key === 'paypal_manual' && !payload.uid) { await adminAlert('اكتب اسم مستخدم PayPal اللي العميل هيحوّل عليه', {icon:'⚠️'}); return; }
   if (!editing || !editing.is_builtin) {
     // Methods you add: tab + currency are yours to choose, and they are always checked by hand.
     payload.pay_group = document.getElementById('payMethodGroup').value;
