@@ -123,10 +123,160 @@ async function logApiCredit(client: any, orderId: string, event: string, before:
   if (error) console.error("api_credit_log insert failed:", error.message);
 }
 
+// ---- Sending to TurniScan (shared by the first send and the queue) ----
+type SendOpts = { exQuotes: boolean; exBiblio: boolean; exCit: boolean; exSmallLim: string | null };
+type SubmitResult =
+  | { ok: true; fileId: string }
+  | { ok: false; unavailable: boolean; ambiguous: boolean; detail: string; providerMessage: string };
+
+function buildProviderForm(file: File, orderId: string, service: ServiceKey, o: SendOpts): FormData {
+  const f = new FormData();
+  f.append("file", file, file.name);
+  f.append("custom_id", orderId);
+  f.append("service_type", service === "plag_only" ? "Turnitin Plagiarism" : "Both");
+  if (o.exQuotes) f.append("exclude_quotes", "1");
+  if (o.exBiblio) f.append("exclude_biblio", "1");
+  if (o.exCit) f.append("exclude_citations", "1");
+  if (o.exSmallLim) {
+    f.append("exclude_small_matches", "1");
+    f.append("small_match_threshold", o.exSmallLim);
+  }
+  f.append("webhook_url", `${SUPABASE_URL}/functions/v1/turnitin-webhook`);
+  return f;
+}
+
+// TurniScan sometimes answers with an HTML error page instead of JSON. That means the provider
+// is unavailable, not that the file was refused, so it is reported separately (never sent twice).
+async function sendToProvider(form: FormData): Promise<SubmitResult> {
+  try {
+    const tsRes = await fetch(`${TURNISCAN_BASE}/scan/submit`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` },
+      body: form,
+      signal: AbortSignal.timeout(90000),
+    });
+    const raw = await tsRes.text();
+    let data: Record<string, unknown> | null = null;
+    try { data = JSON.parse(raw) as Record<string, unknown>; } catch { data = null; }
+    if (data === null) {
+      return { ok: false, unavailable: true, ambiguous: false, detail: `HTTP ${tsRes.status} non-JSON body: ${raw.slice(0, 300)}`, providerMessage: `HTTP ${tsRes.status}: ${raw.slice(0, 300)}` };
+    }
+    const fid = data.file_id;
+    if (tsRes.ok && data.success === true && typeof fid === "string") return { ok: true, fileId: fid };
+    return {
+      ok: false,
+      unavailable: tsRes.status >= 500,
+      ambiguous: false,
+      detail: `HTTP ${tsRes.status} ${JSON.stringify(data).slice(0, 300)}`,
+      providerMessage: String(data.message ?? data.error ?? JSON.stringify(data)),
+    };
+  } catch (e) {
+    // Timeout or network error: the provider may still have received the file.
+    return { ok: false, unavailable: true, ambiguous: true, detail: `request failed: ${String(e)}`, providerMessage: String(e) };
+  }
+}
+
+// A refusal that only means "busy, try again" (e.g. "temporary database concurrency ... Your scan credit
+// was NOT deducted ... Please retry", "database is locked", HTTP 5xx). Such files wait in the queue.
+function isTemporaryRefusal(r: SubmitResult): boolean {
+  if (r.ok || r.ambiguous) return false;
+  return r.unavailable || /concurren|database is locked|temporar|try again|please retry|not deducted|preserved|unavailable|overload|busy/i.test(r.providerMessage);
+}
+
+// Keeps a copy of the file so the queue can send it again later (safe storage name).
+// deno-lint-ignore no-explicit-any
+async function saveSourceCopy(client: any, orderId: string, file: File): Promise<string | null> {
+  const ext = ((file.name.match(/\.([A-Za-z0-9]{1,8})$/) || [])[1] || "bin").toLowerCase();
+  const path = `${orderId}/source.${ext}`;
+  const { error } = await client.storage.from("order-source-files").upload(path, file, { upsert: true, contentType: file.type || undefined });
+  if (error) { console.error("submit-check: source copy failed", orderId, error.message); return null; }
+  await client.from("orders").update({ source_file_path: path }).eq("id", orderId);
+  return path;
+}
+
+const QUEUE_MAX_HOURS = 12;   // a queued file still not accepted after this fails (slot returned)
+
+// The queue: sends waiting files again, oldest first. Run every 20 seconds by the database scheduler.
+// One file at a time; while TurniScan still answers "busy", the rest keep waiting.
+// deno-lint-ignore no-explicit-any
+async function processQueue(admin: any) {
+  const out: Record<string, unknown>[] = [];
+  const { data: rows } = await admin.from("orders")
+    .select("id, user_id, file_name, check_type, source_file_path, exclude_quotes, exclude_bibliography, exclude_small_matches_word_limit, submitted_at")
+    .eq("status", "queued").order("submitted_at", { ascending: true }).limit(5);
+  for (const o of rows ?? []) {
+    const ageH = (Date.now() - new Date(o.submitted_at).getTime()) / 3600000;
+    if (ageH > QUEUE_MAX_HOURS || !o.source_file_path) {
+      const msg = "The check service is temporarily unavailable. Please try again in a few minutes. Your check was not used.";
+      await admin.from("orders").update({ status: "error", error_reason: msg, completed_at: new Date().toISOString() })
+        .eq("id", o.id).eq("status", "queued");   // slot goes back (trg_refund_on_order_failure)
+      out.push({ order: o.id, result: o.source_file_path ? "expired" : "no file copy" });
+      continue;
+    }
+    // Claim it, so two queue runs never send the same file.
+    const { data: claimed } = await admin.from("orders").update({ status: "uploading" })
+      .eq("id", o.id).eq("status", "queued").select("id");
+    if (!claimed || !claimed.length) continue;
+
+    const { data: blob, error: dlErr } = await admin.storage.from("order-source-files").download(o.source_file_path);
+    if (dlErr || !blob) {
+      await admin.from("orders").update({ status: "queued" }).eq("id", o.id).eq("status", "uploading");
+      out.push({ order: o.id, result: "file read failed" });
+      continue;
+    }
+    const file = new File([blob], o.file_name || "document", { type: blob.type || "application/octet-stream" });
+    const service: ServiceKey = o.check_type === "sim_only" ? "plag_only" : "plag_ai";
+    const form = buildProviderForm(file, o.id, service, {
+      exQuotes: !!o.exclude_quotes, exBiblio: !!o.exclude_bibliography, exCit: false,
+      exSmallLim: o.exclude_small_matches_word_limit ? String(o.exclude_small_matches_word_limit) : null,
+    });
+    // Cancelled meanwhile (by the customer or an admin): not sent.
+    const { data: now } = await admin.from("orders").select("status").eq("id", o.id).maybeSingle();
+    if (!now || now.status !== "uploading") { out.push({ order: o.id, result: "cancelled before send" }); continue; }
+    const before = await providerBalance();
+    const r = await sendToProvider(form);
+    const after = await providerBalance();
+    await logApiCredit(admin, o.id, "submit", before, after, r.ok ? "accepted (from queue)" : (isTemporaryRefusal(r) ? "still busy (queue)" : "provider refused (queue)"));
+
+    if (r.ok) {
+      await admin.from("orders").update({ external_order_id: r.fileId, status: "run", error_reason: null, provider_error: null, completed_at: null }).eq("id", o.id);
+      out.push({ order: o.id, result: "sent" });
+      continue;
+    }
+    if (r.ambiguous) {
+      await admin.from("orders").update({ status: "checking", error_reason: null, completed_at: new Date().toISOString() }).eq("id", o.id);
+      await saveProviderError(admin, o.id, r.providerMessage);
+      out.push({ order: o.id, result: "outcome unknown" });
+      continue;
+    }
+    if (isTemporaryRefusal(r)) {
+      // Still busy: back in the queue, and the others wait too.
+      await admin.from("orders").update({ status: "queued" }).eq("id", o.id).eq("status", "uploading");
+      await saveProviderError(admin, o.id, r.providerMessage);
+      out.push({ order: o.id, result: "still busy" });
+      break;
+    }
+    const errMsg = "The file could not be submitted for checking. Please try again later.";
+    await admin.from("orders").update({ status: "error", error_reason: errMsg, completed_at: new Date().toISOString() }).eq("id", o.id);
+    await saveProviderError(admin, o.id, r.providerMessage);
+    out.push({ order: o.id, result: "refused" });
+  }
+  return out;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
   try {
+    // The database scheduler runs the queue (internal secret, no user).
+    const internal = req.headers.get("x-internal-secret");
+    if (internal) {
+      const adminQ = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+      const { data: expected } = await adminQ.rpc("get_internal_cron_secret");
+      if (!expected || internal !== expected) return cors_json({ success: false, error: "Forbidden" }, 403);
+      return cors_json({ success: true, queue: await processQueue(adminQ) });
+    }
+
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) return cors_json({ success: false, error: "Unauthorized" }, 401);
 
@@ -240,63 +390,11 @@ Deno.serve(async (req: Request) => {
       return cors_json({ success: false, code: "CANCELLED", error: "This order was cancelled." }, 409);
     }
 
-    const tsForm = new FormData();
-    tsForm.append("file", file, file.name);
-    tsForm.append("custom_id", orderId);
-    tsForm.append("service_type", service === "plag_only" ? "Turnitin Plagiarism" : "Both");
-    if (exQuotes) tsForm.append("exclude_quotes", "1");
-    if (exBiblio) tsForm.append("exclude_biblio", "1");
-    if (exCit) tsForm.append("exclude_citations", "1");
-    if (exSmallLim) {
-      tsForm.append("exclude_small_matches", "1");
-      tsForm.append("small_match_threshold", exSmallLim);
-    }
-    tsForm.append("webhook_url", `${SUPABASE_URL}/functions/v1/turnitin-webhook`);
-
-    // TurniScan sometimes answers with an HTML error page instead of JSON. That means the provider
-    // is unavailable, not that the file was refused, so it is reported separately (never sent twice).
-    type SubmitResult =
-      | { ok: true; fileId: string }
-      | { ok: false; unavailable: boolean; ambiguous: boolean; detail: string; providerMessage: string };
-
-    const sendToProvider = async (): Promise<SubmitResult> => {
-      try {
-        const tsRes = await fetch(`${TURNISCAN_BASE}/scan/submit`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` },
-          body: tsForm,
-          signal: AbortSignal.timeout(90000),
-        });
-        const raw = await tsRes.text();
-        let data: Record<string, unknown> | null = null;
-        try {
-          data = JSON.parse(raw) as Record<string, unknown>;
-        } catch {
-          data = null;
-        }
-        if (data === null) {
-          return { ok: false, unavailable: true, ambiguous: false, detail: `HTTP ${tsRes.status} non-JSON body: ${raw.slice(0, 300)}`, providerMessage: `HTTP ${tsRes.status}: ${raw.slice(0, 300)}` };
-        }
-        const fid = data.file_id;
-        if (tsRes.ok && data.success === true && typeof fid === "string") {
-          return { ok: true, fileId: fid };
-        }
-        return {
-          ok: false,
-          unavailable: tsRes.status >= 500,
-          ambiguous: false,
-          detail: `HTTP ${tsRes.status} ${JSON.stringify(data).slice(0, 300)}`,
-          providerMessage: String(data.message ?? data.error ?? JSON.stringify(data)),
-        };
-      } catch (e) {
-        // Timeout or network error: the provider may still have received the file.
-        return { ok: false, unavailable: true, ambiguous: true, detail: `request failed: ${String(e)}`, providerMessage: String(e) };
-      }
-    };
+    const tsForm = buildProviderForm(file, orderId, service, { exQuotes, exBiblio, exCit, exSmallLim });
 
     // One send only: a second send could create a second check at the provider.
     const apiBefore = await providerBalance();
-    const result = await sendToProvider();
+    const result = await sendToProvider(tsForm);
     const apiAfter = await providerBalance();
     const apiNote = result.ok ? "accepted"
       : result.ambiguous ? "outcome unknown"
@@ -312,6 +410,21 @@ Deno.serve(async (req: Request) => {
       await saveProviderError(admin, orderId, result.providerMessage);
       console.error("submit-check: provider outcome unknown, order left in checking", orderId, result.detail);
       return cors_json({ success: true, pending: true, status: "checking" }, 202);
+    }
+
+    if (isTemporaryRefusal(result)) {
+      // TurniScan is busy ("temporary database concurrency ... Please retry"): the file waits in the
+      // queue and is sent again automatically (every 20 seconds). The slot stays held for it; if the
+      // customer cancels, or it is never accepted, the slot goes back.
+      let src = (await admin.from("orders").select("source_file_path").eq("id", orderId).maybeSingle()).data?.source_file_path;
+      if (!src) src = await saveSourceCopy(admin, orderId, file);
+      if (src) {
+        await admin.from("orders").update({ status: "queued", error_reason: null, completed_at: null }).eq("id", orderId);
+        await saveProviderError(admin, orderId, result.providerMessage);
+        console.error("submit-check: provider busy, order queued", orderId, result.detail);
+        return cors_json({ success: true, queued: true, status: "queued" }, 202);
+      }
+      // Without a copy of the file it cannot be sent later: fails as before.
     }
 
     if (!result.ok) {

@@ -2049,6 +2049,11 @@ if (new URLSearchParams(location.search).has('preview')) {
     .fa-layer-2{transform:translateY(12px) scale(.94);}
   }
 </style>
+<style>
+  .mf-cancel-q{display:inline-flex;align-items:center;margin-top:6px;margin-inline-start:6px;padding:3px 10px;border-radius:8px;border:1px solid #fecdd3;background:#fff1f2;color:#be123c;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;}
+  .mf-cancel-q:hover{background:#ffe4e6;}
+  [data-theme="dark"] .mf-cancel-q{background:rgba(225,29,72,.12);border-color:rgba(251,113,133,.35);color:#fda4af;}
+</style>
 </head>
 <body>
 
@@ -4129,7 +4134,7 @@ const I18N = {
     err_unconfirmed:"تعذّر التحقق من وصول الملف إلى خدمة الفحص، وقد أُعيد الفحص إلى رصيدك. يُرجى إعادة المحاولة.",
     err_maintenance:"الخدمة متوقفة مؤقتًا لأعمال الصيانة. يُرجى المحاولة لاحقًا.",
     err_cooldown:"تعذّر فحص هذا الملف منذ قليل. يُرجى الانتظار دقيقة واحدة ثم إعادة المحاولة.",
-    err_generic:"تعذّر إتمام هذا الطلب. يُرجى إعادة المحاولة أو التواصل مع فريق الدعم.", phase_floating:"جاهز للإرسال", phase_uploading:"جاري الرفع", phase_pending:"في انتظار المعالجة", phase_processing:"قيد الفحص", phase_completed:"مكتمل", phase_error:"خطأ في الفحص", phase_failed_invalid:"ملف غير صالح", phase_rejected:"مرفوض", phase_cancelled:"ملغي", mf_cancelled:"تم الإلغاء",
+    err_generic:"تعذّر إتمام هذا الطلب. يُرجى إعادة المحاولة أو التواصل مع فريق الدعم.", phase_floating:"جاهز للإرسال", phase_uploading:"جاري الرفع", phase_pending:"في انتظار المعالجة", phase_processing:"قيد الفحص", phase_completed:"مكتمل", phase_error:"خطأ في الفحص", phase_failed_invalid:"ملف غير صالح", phase_rejected:"مرفوض", phase_cancelled:"ملغي", mf_cancelled:"تم الإلغاء", phase_queued:"في انتظار الفحص", mf_queued:"في انتظار الفحص", mf_cancel_queued:"إلغاء الطلب",
     similarity:"اقتباس", ai:"AI", sim_only:"اقتباس فقط", sim_ai:"اقتباس + AI",
     col_order_id:"رقم الطلب", col_file:"اسم الملف", col_submitted:"وقت الإرسال", col_completed:"اكتمل", col_handle:"وقت المعالجة",
     stat_completed:"مكتمل", stat_pending:"قيد الانتظار", stat_rejected:"مرفوض",
@@ -4337,7 +4342,7 @@ const I18N = {
     err_maintenance:"The service is temporarily unavailable for maintenance. Please try again later.",
     err_cooldown:"This file could not be checked a moment ago. Please wait one minute and try again.",
     err_generic:"This order could not be completed. Please try again or contact our support team.",
-    phase_floating:"Ready to send", phase_uploading:"Uploading", phase_pending:"Awaiting processing", phase_processing:"Processing", phase_completed:"Completed", phase_error:"Check error", phase_failed_invalid:"Invalid file", phase_rejected:"Rejected", phase_cancelled:"Cancelled", mf_cancelled:"Cancelled",
+    phase_floating:"Ready to send", phase_uploading:"Uploading", phase_pending:"Awaiting processing", phase_processing:"Processing", phase_completed:"Completed", phase_error:"Check error", phase_failed_invalid:"Invalid file", phase_rejected:"Rejected", phase_cancelled:"Cancelled", mf_cancelled:"Cancelled", phase_queued:"Waiting to be checked", mf_queued:"Waiting to be checked", mf_cancel_queued:"Cancel order",
     similarity:"Similarity", ai:"AI", sim_only:"Similarity only", sim_ai:"Similarity + AI",
     col_order_id:"Order ID", col_file:"File", col_submitted:"Submitted", col_completed:"Completed", col_handle:"Handle time",
     stat_completed:"Completed", stat_pending:"Pending", stat_rejected:"Rejected",
@@ -8199,6 +8204,8 @@ async function submitCheckToApi(orderId, file){
     });
     if (res.status === 409) return { ok: true, alreadySubmitted: true };
     const json = await res.json();
+    // TurniScan busy: the file waits in the queue and is sent automatically.
+    if (json.queued) return { ok: true, queued: true };
     // Outcome unknown on the provider side: the order waits in "checking" until the provider confirms.
     if (json.pending) return { ok: true, pending: true };
     if (!res.ok || !json.success) {
@@ -10441,7 +10448,8 @@ async function insertOrderRow(fileName, fileToSubmit, checkTypeDb, willUseApi){
 // are only logged, never thrown.
 async function backupOrderSourceFile(orderRow, fileToSubmit, fileName){
   try {
-    const sourcePath = `${orderRow.id}/${fileName}`;
+    const ext = ((String(fileName).match(/\.([A-Za-z0-9]{1,8})$/) || [])[1] || 'bin').toLowerCase();
+    const sourcePath = `${orderRow.id}/source.${ext}`;
     const { error: uploadErr } = await supabaseClient.storage
       .from('order-source-files')
       .upload(sourcePath, fileToSubmit);
@@ -10508,6 +10516,15 @@ async function submitOrderViaApi(orderRow, fileToSubmit){
   if (apiResult.alreadySubmitted) {
     // The same order was already sent by another request: keep what the server stored.
     renderOrders();
+    return;
+  }
+  if (apiResult.queued) {
+    const q = orders.find(o => o.id === orderRow.id);
+    if (q) q.phase = 'queued';
+    renderOrders(); renderKpis();
+    await appAlert(currentLang === 'ar'
+      ? 'خدمة الفحص مشغولة حاليًا، ولم يُخصم أي فحص منها. ملفك في قائمة الانتظار وسيُرسل تلقائيًا فور توفر الخدمة، ويمكنك إلغاء الطلب في أي وقت قبل إرساله.'
+      : 'The check service is busy right now and nothing was charged there. Your file is in the queue and will be sent automatically as soon as the service is available. You can cancel the order any time before it is sent.', { icon: 'info' });
     return;
   }
   if (apiResult.pending) {
@@ -10784,7 +10801,7 @@ let handleTime = {};
 // uploaded custom icons only later (async), so that snapshot never picked
 // up custom uploads. A function that reads ICONS fresh on every call does.
 function statusIconFor(phase){
-  const map = { completed: 'check', processing: 'clock', run: 'clock', checking: 'hourglass', pending: 'hourglass', uploading: 'hourglass', floating: 'hourglass', error: 'x', failed_invalid: 'x', rejected: 'x', cancelled: 'x' };
+  const map = { completed: 'check', processing: 'clock', run: 'clock', checking: 'hourglass', pending: 'hourglass', uploading: 'hourglass', floating: 'hourglass', error: 'x', failed_invalid: 'x', rejected: 'x', cancelled: 'x', queued: 'hourglass' };
   return ICONS[map[phase]] || '';
 }
 
@@ -10826,7 +10843,7 @@ function localizeOrderError(reason){
 const LEGACY_STATUS_MAP = { floating:'checking', pending:'run', failed_invalid:'error' };
 function apiStatus(s){ return LEGACY_STATUS_MAP[s] || s; }
 
-const ORDER_BADGE_CLASS = { cancelled:'badge-no', run:'badge-run', checking:'badge-run', completed:'badge-ok', processing:'badge-run', pending:'badge-wait', uploading:'badge-wait', floating:'badge-wait', error:'badge-no', failed_invalid:'badge-no', rejected:'badge-no' };
+const ORDER_BADGE_CLASS = { queued:'badge-wait', cancelled:'badge-no', run:'badge-run', checking:'badge-run', completed:'badge-ok', processing:'badge-run', pending:'badge-wait', uploading:'badge-wait', floating:'badge-wait', error:'badge-no', failed_invalid:'badge-no', rejected:'badge-no' };
 
 // Formats a timestamp as "Jun 25, 2026 03:57 AM" — using the viewer's own
 // device/browser timezone (not a fixed one), in 12-hour format with AM/PM.
@@ -10882,7 +10899,8 @@ function buildOrderRow(o){
     aiDl = `<div class="dl-btn disabled" title="${t('ai')}">${ICONS.download}</div>`;
   }
 
-  const badge = `<span class="badge ${ORDER_BADGE_CLASS[o.phase]}"><span class="dot"></span>${t('phase_'+o.phase)}</span>`;
+  const badge = `<span class="badge ${ORDER_BADGE_CLASS[o.phase]}"><span class="dot"></span>${t('phase_'+o.phase)}</span>`
+    + (o.phase === 'queued' ? `<button type="button" class="mf-cancel-q" onclick="cancelQueuedOrder('${o.id}')">${escapeHtml(t('mf_cancel_queued'))}</button>` : '');
   const errorReasonLine = (o.phase === 'error' || o.phase === 'failed_invalid' || o.phase === 'rejected') && o.errorReason
     ? `<div class="order-error-reason">${escapeHtml(localizeOrderError(o.errorReason))}</div>` : '';
   const submittedLabel = formatOrderDate(o.phaseStart);
@@ -11480,6 +11498,11 @@ function mfStatusCell(f){
     }
     return `<span class="mf-status ok">⚡ ${escapeHtml(t('mf_delivered_plain'))}</span>`;
   }
+  if (f.status === 'cancelled') return `<span class="mf-status bad">${escapeHtml(t('mf_cancelled'))}</span>`;
+  if (f.status === 'queued') {
+    return `<span class="mf-status run">⏳ ${escapeHtml(t('mf_queued'))}</span>
+      <button type="button" class="mf-cancel-q" onclick="cancelQueuedOrder('${f.id}')">${escapeHtml(t('mf_cancel_queued'))}</button>`;
+  }
   if (MF_FINAL.includes(f.status)) {
     return `<span class="mf-status bad">${escapeHtml(t('mf_failed'))}</span>`;
   }
@@ -11490,6 +11513,7 @@ function mfStatusCell(f){
 // One score cell (AI or similarity). Shows the real provider score, or a status.
 function mfScoreCell(f, kind){
   if (kind === 'ai' && f.check_type === 'sim_only') return `<span class="mf-muted">${escapeHtml(t('mf_not_included'))}</span>`;
+  if (f.status === 'queued') return `<span class="mf-muted">${escapeHtml(t('mf_queued'))}</span>`;
   if (!MF_FINAL.includes(f.status)) return `<span class="mf-muted">${escapeHtml(t('mf_checking'))}</span>`;
   if (f.status === 'cancelled') return `<span class="mf-muted">${escapeHtml(t('mf_cancelled'))}</span>`;
   if (f.status !== 'completed') return `<span class="mf-muted">${escapeHtml(t('mf_failed'))}</span>`;
@@ -11548,6 +11572,27 @@ function renderMyFiles(){
       </div>
     </div>`;
   }).join('');
+}
+
+// The customer cancels an order that is still waiting in the queue (not yet accepted by the check service).
+async function cancelQueuedOrder(orderId){
+  const ar = currentLang === 'ar';
+  const ok = await appConfirm(ar
+    ? 'هل تريد إلغاء هذا الطلب؟ لم يُرسل ملفك إلى خدمة الفحص بعد، وسيُعاد الفحص إلى رصيدك.'
+    : 'Cancel this order? Your file has not been sent to the check service yet, and the check will go back to your balance.',
+    { confirmLabel: ar ? 'إلغاء الطلب' : 'Cancel order', cancelLabel: ar ? 'رجوع' : 'Back', danger: true });
+  if (!ok) return;
+  const { data, error } = await supabaseClient.rpc('customer_cancel_queued_order', { p_order_id: orderId });
+  if (error || !data?.ok) {
+    await appAlert(data?.error === 'NOT_QUEUED'
+      ? (ar ? 'لم يعد بالإمكان إلغاء الطلب، فقد أُرسل الملف إلى خدمة الفحص.' : 'The order can no longer be cancelled: the file was already sent to the check service.')
+      : (ar ? 'تعذّر إلغاء الطلب، حاول مرة أخرى.' : 'Could not cancel the order, please try again.'), { icon: 'warning' });
+  } else {
+    if (typeof toast === 'function') toast(ar ? 'تم إلغاء الطلب وأُعيد الفحص إلى رصيدك' : 'Order cancelled; the check went back to your balance');
+  }
+  if (typeof loadOrders === 'function') loadOrders();
+  if (typeof loadMyFiles === 'function') loadMyFiles();
+  if (typeof loadSlots === 'function') loadSlots();
 }
 
 let _reportDownloading = false;

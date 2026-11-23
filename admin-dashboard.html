@@ -4217,12 +4217,12 @@ function setOrderFilter(f){
   renderOrdersTable();
 }
 
-const ORDER_BADGE_CLASS = { cancelled:'badge-no', completed:'badge-ok', processing:'badge-run', pending:'badge-run', uploading:'badge-wait', floating:'badge-wait', error:'badge-no', failed_invalid:'badge-no', rejected:'badge-no' };
-const ORDER_STATUS_KEY = { completed:'st_completed', processing:'st_processing', pending:'st_processing', uploading:'st_uploading', run:'st_run', checking:'st_checking', floating:'lbl_floating', error:'st_error', failed_invalid:'st_invalid', rejected:'st_rejected', cancelled:'st_cancelled' };
+const ORDER_BADGE_CLASS = { queued:'badge-wait', cancelled:'badge-no', completed:'badge-ok', processing:'badge-run', pending:'badge-run', uploading:'badge-wait', floating:'badge-wait', error:'badge-no', failed_invalid:'badge-no', rejected:'badge-no' };
+const ORDER_STATUS_KEY = { completed:'st_completed', processing:'st_processing', pending:'st_processing', uploading:'st_uploading', run:'st_run', checking:'st_checking', floating:'lbl_floating', error:'st_error', failed_invalid:'st_invalid', rejected:'st_rejected', cancelled:'st_cancelled', queued:'st_queued' };
 I18N.ar.st_run='تم الإرسال للمزوّد'; I18N.en.st_run='Sent to provider';
 I18N.ar.st_checking='جاري التأكد من الاستلام'; I18N.en.st_checking='Confirming receipt';
-I18N.ar.st_completed='مكتملة'; I18N.ar.st_processing='قيد التنفيذ'; I18N.ar.st_uploading='رفع الملف'; I18N.ar.st_error='خطأ'; I18N.ar.st_invalid='ملف غير صالح'; I18N.ar.st_rejected='مرفوض'; I18N.ar.st_cancelled='ملغي';
-I18N.en.st_completed='Completed'; I18N.en.st_processing='Processing'; I18N.en.st_uploading='Uploading'; I18N.en.st_error='Error'; I18N.en.st_invalid='Invalid file'; I18N.en.st_rejected='Rejected'; I18N.en.st_cancelled='Cancelled';
+I18N.ar.st_completed='مكتملة'; I18N.ar.st_processing='قيد التنفيذ'; I18N.ar.st_uploading='رفع الملف'; I18N.ar.st_error='خطأ'; I18N.ar.st_invalid='ملف غير صالح'; I18N.ar.st_rejected='مرفوض'; I18N.ar.st_cancelled='ملغي'; I18N.ar.st_queued='في الانتظار (المزود مشغول)';
+I18N.en.st_completed='Completed'; I18N.en.st_processing='Processing'; I18N.en.st_uploading='Uploading'; I18N.en.st_error='Error'; I18N.en.st_invalid='Invalid file'; I18N.en.st_rejected='Rejected'; I18N.en.st_cancelled='Cancelled'; I18N.en.st_queued='Queued (provider busy)';
 I18N.ar.manual_queue_title='🖐 فحص يدوي'; I18N.ar.manual_queue_action='الإجراء';
 I18N.ar.back_btn='رجوع'; I18N.ar.claim_conv_title='استلام المحادثة'; I18N.ar.claim_conv_btn='🙋 استلام';
 I18N.ar.transfer_placeholder='تحويل لـ...'; I18N.ar.delete_chat_title='حذف المحادثة بالكامل'; I18N.ar.internal_notes_title='ملاحظات داخلية';
@@ -4364,7 +4364,7 @@ function buildAdminOrderRow(o){
   const submittedCell = `${formatDate(o.submitted_at)}${delivery !== '—' ? `<div style="margin-top:4px;"><span class="badge badge-ok" title="${currentLang==='ar'?'مدة التسليم':'Delivery time'}">⏱ ${delivery}</span></div>` : ''}`;
   const rowCls = o.status === 'completed' ? 'row-ok'
     : ['error','rejected','failed_invalid'].includes(o.status) ? 'row-bad'
-    : ['run','processing','pending','checking','uploading','floating'].includes(o.status) ? 'row-run' : '';
+    : ['run','processing','pending','checking','uploading','floating','queued'].includes(o.status) ? 'row-run' : '';
   return `<tr class="${rowCls}">
     <td class="mono oc-order" style="font-size:11px;">${escapeHtml(o.display_id || o.id.slice(0,8))} ${cpBtn(o.display_id || o.id.slice(0,8))}${o.external_order_id ? `<div class="ts-id" title="${currentLang === 'ar' ? 'رقم الملف عند TurniScan' : 'TurniScan file id'}"><span>TS</span> <b>${escapeHtml(o.external_order_id)}</b>${cpBtn(o.external_order_id)}</div>` : ''}</td>
     <td class="u-cell oc-user">${userCell}</td>
@@ -4374,7 +4374,7 @@ function buildAdminOrderRow(o){
     <td class="oc-status"><span class="badge ${badgeClass}"><span class="dot"></span>${badgeLabel}</span></td>
     <td class="oc-sent" style="font-size:11px;color:var(--muted);">${submittedCell}</td>
     <td class="oc-act"><div style="display:flex;flex-wrap:wrap;gap:6px;">
-      ${(['floating','uploading','pending'].includes(o.status) && !o.external_order_id) ? `<button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash, #fdecec);" onclick="cancelOrderBeforeSend('${o.id}')" title="${currentLang === 'ar' ? 'إلغاء الطلب قبل إرساله لـ Turnitin (الفحص بيرجع لرصيد العميل)' : 'Cancel the order before it is sent to Turnitin (the check goes back to the customer)'}">✕ ${currentLang === 'ar' ? 'إلغاء' : 'Cancel'}</button>` : ''}
+      ${(['floating','uploading','pending','queued'].includes(o.status) && !o.external_order_id) ? `<button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash, #fdecec);" onclick="cancelOrderBeforeSend('${o.id}')" title="${currentLang === 'ar' ? 'إلغاء الطلب قبل إرساله لـ Turnitin (الفحص بيرجع لرصيد العميل)' : 'Cancel the order before it is sent to Turnitin (the check goes back to the customer)'}">✕ ${currentLang === 'ar' ? 'إلغاء' : 'Cancel'}</button>` : ''}
       ${(['error','failed_invalid'].includes(o.status) && o.source_file_path) ? `<button class="msg-btn" onclick="resendOrderToApi('${o.id}')" title="إعادة إرسال نفس الملف للفحص">🔁 إعادة إرسال</button>` : ''}
       ${(['error','failed_invalid'].includes(o.status) && o.processing_mode === 'api') ? `<button class="msg-btn" style="color:var(--blue-deep);border-color:var(--blue-light);" onclick="adoptOrderManually('${o.id}')" title="تولى الطلب يدوياً ورفع التقارير بنفسك">🖐 يدوي</button>` : ''}
     </div></td>
@@ -4488,7 +4488,7 @@ function renderTodayOrders(){
 
 const ORDER_STATUS_TEST = {
   all: () => true,
-  processing: o => ['run', 'processing'].includes(o.status),
+  processing: o => ['run', 'processing', 'queued'].includes(o.status),
   completed: o => o.status === 'completed',
   problem: o => ['error', 'rejected'].includes(o.status),
 };
