@@ -1040,6 +1040,9 @@
   .hist-status.pend{background:#FFF7E0;color:#8A5A00;border-color:#F5D98B;}
   .hist-status.bad{background:var(--danger-wash);color:var(--danger);border-color:#F5C2CB;}
   .hist-status.run{background:var(--blue-wash);color:var(--blue-deep);border-color:#BFD7FF;}
+  .hist-status.refund{display:inline-flex;align-items:center;gap:5px;background:#F3E8FF;color:#6B21A8;border-color:#D8B4FE;}
+  .hist-status.refund svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;}
+  [data-theme="dark"] .hist-status.refund{background:rgba(168,85,247,.15);color:#D8B4FE;border-color:rgba(216,180,254,.35);}
   .hist-date{font-size:12.5px;font-weight:700;color:var(--navy);}
   .hist-date small{display:block;color:var(--muted);font-weight:600;font-size:11px;margin-top:2px;}
   .hist-empty{text-align:center;padding:26px;color:var(--muted);font-size:13px;font-family:'Cairo',sans-serif;}
@@ -10425,6 +10428,8 @@ function histActivity(e){
   return { name: hx('شراء أونلاين', 'Online Order Purchase'), sub: e.txn || '', icon: HIST_ICON_CART, cls: 'green' };
 }
 
+// Arrow turning back: the slot was returned to the balance.
+const HIST_ICON_REFUND = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>';
 function histStatus(e){
   const map = {
     success:   ['ok',   hx('ناجح', 'SUCCESS')],
@@ -10432,6 +10437,7 @@ function histStatus(e){
     pending:   ['pend', hx('معلّق', 'PENDING')],
     failed:    ['bad',  hx('فشل', 'Failed')],
     checking:  ['run',  hx('جاري الفحص', 'Checking')],
+    refunded:  ['refund', hx('تم الاسترداد', 'Refunded')],   // slot taken, then given back
   };
   return map[e.status] || ['run', e.status || ''];
 }
@@ -10544,7 +10550,7 @@ function renderMyHistory(){
       <div class="hist-cell start"><div class="hist-item-name">${escapeHtml(itemName)}</div>${itemTag ? `<span class="hist-tag">${escapeHtml(itemTag)}</span>` : ''}${itemSub ? `<div class="hist-sub">${escapeHtml(itemSub)}</div>` : ''}</div>
       <div class="hist-cell" data-label="${escapeHtml(hx('التغيير', 'Change'))}"><span class="hist-change ${chCls}">${escapeHtml(chText)}</span></div>
       <div class="hist-cell" data-label="${escapeHtml(hx('الرصيد المتبقي', 'Balance left'))}"><span class="hist-bal ${balN <= 0 ? 'zero' : ''}">${balN} <small>${escapeHtml(hx('فحص', balN === 1 ? 'Slot' : 'Slots'))}</small></span></div>
-      <div class="hist-cell"><span class="hist-status ${stCls}">${escapeHtml(stText)}</span></div>
+      <div class="hist-cell"><span class="hist-status ${stCls}">${e.status === 'refunded' ? HIST_ICON_REFUND : ''}${escapeHtml(stText)}</span></div>
       <div class="hist-cell"><div class="hist-date">${escapeHtml(dt.d)}<small>${escapeHtml(dt.t)}</small></div></div>
     </div>`;
   }).join('');

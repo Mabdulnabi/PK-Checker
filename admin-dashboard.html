@@ -4112,7 +4112,7 @@ async function loadApiCredits(){
       el.title = data?.error?.message || '';
       return;
     }
-    el.textContent = `${data.creditsRemaining} / ${data.creditsTotal}`;
+    el.textContent = `${data.creditsRemaining}`;   // current balance only
     renderValidityCard(data.expiresAt);
     el.title = data.isActive
       ? `متزامن: ${data.currentConcurrent}/${data.concurrencyLimit}`
