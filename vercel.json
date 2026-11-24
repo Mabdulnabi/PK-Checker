@@ -5,6 +5,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/v1/:path*",
+      "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/pk-api/v1/:path*"
+    },
+    {
       "source": "/api/fn/check-availability",
       "destination": "https://ixpgqhwausnfjphitsty.supabase.co/functions/v1/check-availability"
     },

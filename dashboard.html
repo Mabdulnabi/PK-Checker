@@ -968,6 +968,29 @@
   .mf-status.ok{background:var(--ok-wash);color:#0F7A55;border:1px solid #B7EBD5;}
   .mf-status.run{background:var(--blue-wash);color:var(--blue-deep);border:1px solid #BFD7FF;}
   .mf-status.bad{background:var(--danger-wash);color:var(--danger);border:1px solid #F5C2CB;}
+  /* Developer API card (My account) */
+  .dev-card{background:var(--paper);border:1px solid var(--paper-line);border-radius:14px;padding:18px 20px;margin-bottom:16px;}
+  .dev-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .dev-ic{width:40px;height:40px;border-radius:12px;background:var(--blue-wash);color:var(--blue-deep);display:flex;align-items:center;justify-content:center;flex:none;}
+  .dev-ic svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .dev-title{font-weight:800;font-size:14px;color:var(--navy);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .dev-beta{font-size:10px;font-weight:800;letter-spacing:.4px;color:#92400e;background:#fef3c7;border:1px solid #fcd34d;border-radius:999px;padding:1px 8px;}
+  .dev-desc{font-size:12px;color:var(--muted);line-height:1.7;margin-top:3px;}
+  .dev-base{display:flex;align-items:center;gap:8px;margin-top:14px;padding:9px 12px;border-radius:10px;background:var(--paper-soft,#f6f8fc);border:1px solid var(--paper-line);font-size:12.5px;flex-wrap:wrap;}
+  .dev-base code,.dev-key code{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--navy);direction:ltr;unicode-bidi:isolate;word-break:break-all;}
+  .dev-btn{padding:8px 14px;border-radius:10px;border:none;background:var(--blue);color:#fff;font-family:inherit;font-weight:800;font-size:12.5px;cursor:pointer;white-space:nowrap;}
+  .dev-btn.ghost{background:var(--paper);color:var(--blue-deep);border:1.5px solid var(--paper-line);}
+  .dev-btn.danger{background:var(--paper);color:var(--danger);border:1.5px solid #F5C2CB;padding:5px 10px;font-size:11.5px;}
+  .dev-key-new{margin-top:14px;padding:12px 14px;border-radius:10px;background:#ecfdf5;border:1px solid #a7f3d0;}
+  .dev-key-new b{display:block;font-size:12.5px;color:#065f46;margin-bottom:6px;}
+  .dev-key-new .dev-key{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .dev-key-new small{display:block;margin-top:6px;font-size:11.5px;color:#047857;}
+  .dev-keys{margin-top:14px;display:flex;flex-direction:column;gap:8px;}
+  .dev-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--paper-line);border-radius:10px;font-size:12.5px;flex-wrap:wrap;}
+  .dev-row .m{flex:1;min-width:180px;}
+  .dev-row .m b{color:var(--navy);}
+  .dev-row .m div{color:var(--muted);font-size:11.5px;}
+  .dev-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
   .ai-ns-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:9px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:12px;font-weight:800;white-space:nowrap;cursor:help;}
   .ai-ns-badge svg{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
   [data-theme="dark"] .ai-ns-badge{background:rgba(148,163,184,.12);border-color:rgba(148,163,184,.3);color:#cbd5e1;}
@@ -3530,6 +3553,7 @@ if (new URLSearchParams(location.search).has('preview')) {
 
     <!-- ============ MY PROFILE ============ -->
     <div class="tabpane" id="pane-my-profile" style="display:none;">
+      <div id="devApiCard" class="dev-card" style="display:none;"></div>
       <div id="pushCard" style="background:var(--paper);border:1px solid var(--paper-line);border-radius:14px;padding:18px 20px;margin-bottom:16px;">
         <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
           <div style="width:40px;height:40px;border-radius:12px;background:var(--blue-wash);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none;">🔔</div>
@@ -8245,6 +8269,7 @@ function applyLang(){
   renderNotifications();
   renderInbox();
   applyCheckSettings();
+  if (typeof renderDevApi === "function" && typeof PK_TESTER !== "undefined" && PK_TESTER) renderDevApi();
   renderPaymentHistory();
   if (typeof refreshRatingModalLang === 'function') refreshRatingModalLang();
   // My Files rows are built in JS, so they must be rebuilt to show the new language.
@@ -12378,7 +12403,7 @@ function renderQueueAlerts(){
 // only the similarity report is produced. Newest such order of the last 7 days, until dismissed.
 const AI_LIMIT_DISMISS_KEY = 'pk-ai-limit-dismissed';
 // Testing account (table tester_accounts, PK001): new features also show on older orders.
-let PK_TESTER = false;
+var PK_TESTER = false;   // var: read by applyLang, which can run before this line
 async function loadTesterFlag(){
   if (!PROKEYS_USER_ID) return;
   try {
@@ -12386,6 +12411,7 @@ async function loadTesterFlag(){
     const was = PK_TESTER;
     PK_TESTER = !!data;
     if (PK_TESTER !== was && typeof renderFailAlerts === 'function') renderFailAlerts();
+    if (typeof renderDevApi === 'function') renderDevApi();
   } catch (e) { /* not a tester */ }
 }
 function aiLimitDismissed(){ try { return JSON.parse(localStorage.getItem(AI_LIMIT_DISMISS_KEY) || '[]'); } catch { return []; } }
@@ -12464,6 +12490,69 @@ function stackNotices(){
   if (head) head.insertAdjacentHTML('beforeend', `<button type="button" class="ns-next" onclick="nextNotice()" title="${ar ? 'الإشعار التالي' : 'Next notice'}" aria-label="${ar ? 'الإشعار التالي' : 'Next notice'}">${top + 1}/${n}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>`);
 }
 function nextNotice(){ _nsIdx++; stackNotices(); }
+
+/* ── Developer API (My account): keys to connect the customer's own site. In testing: only testing
+   accounts (PK001) see this card; the server refuses keys for anyone else too. ── */
+const DEV_API_BASE = 'https://www.pkchecker.com/v1';
+let _devNewKey = null;
+async function renderDevApi(){
+  const card = document.getElementById('devApiCard');
+  if (!card) return;
+  if (!PK_TESTER) { card.style.display = 'none'; card.innerHTML = ''; return; }
+  const ar = currentLang === 'ar';
+  const { data: keys } = await supabaseClient.from('api_keys').select('id, name, key_prefix, created_at, last_used_at, revoked_at')
+    .eq('user_id', PROKEYS_USER_ID).is('revoked_at', null).order('created_at', { ascending: false });
+  const list = keys || [];
+  const when = d => d ? `${fmtDayMonthYear ? fmtDayMonthYear(new Date(d)) : new Date(d).toLocaleDateString()}` : (ar ? 'لم يُستخدم بعد' : 'Not used yet');
+  card.style.display = '';
+  card.innerHTML = `
+    <div class="dev-head">
+      <div class="dev-ic"><svg viewBox="0 0 24 24"><path d="M8 9l-4 3 4 3M16 9l4 3-4 3M13.5 6l-3 12"/></svg></div>
+      <div style="flex:1;min-width:200px;">
+        <div class="dev-title">Developer API <span class="dev-beta">${ar ? 'تجريبي' : 'BETA'}</span></div>
+        <div class="dev-desc">${ar ? 'اربط موقعك بـ PK Checker: ارفع الملفات وتابع حالتها وحمّل التقارير من نظامك مباشرة. كل ملف يُحتسب فحصًا واحدًا من رصيدك.'
+          : 'Connect your own site to PK Checker: send files, follow their status and download the reports from your system. Each file uses one check from your balance.'}</div>
+      </div>
+    </div>
+    <div class="dev-base"><span style="color:var(--muted);font-weight:700;">Base URL</span><code>${DEV_API_BASE}</code>${cpBtn(DEV_API_BASE)}</div>
+    ${_devNewKey ? `<div class="dev-key-new"><b>${ar ? 'مفتاحك الجديد — انسخه الآن' : 'Your new key — copy it now'}</b>
+      <div class="dev-key"><code>${escapeHtml(_devNewKey)}</code>${cpBtn(_devNewKey)}</div>
+      <small>${ar ? 'لن يظهر هذا المفتاح مرة أخرى. احفظه في مكان آمن، ولا تشاركه مع أحد.' : 'This key will not be shown again. Keep it somewhere safe and do not share it.'}</small></div>` : ''}
+    <div class="dev-keys">${list.length ? list.map(k => `<div class="dev-row">
+        <div class="m"><b>${escapeHtml(k.name)}</b> <code style="font-family:'IBM Plex Mono',monospace;color:var(--muted);direction:ltr;unicode-bidi:isolate;">${escapeHtml(k.key_prefix)}…</code>
+          <div>${ar ? 'أُنشئ' : 'Created'} ${escapeHtml(when(k.created_at))} · ${ar ? 'آخر استخدام' : 'Last used'}: ${escapeHtml(when(k.last_used_at))}</div></div>
+        <button type="button" class="dev-btn danger" onclick="revokeDevKey('${k.id}')">${ar ? 'إلغاء المفتاح' : 'Revoke'}</button>
+      </div>`).join('') : `<div class="dev-desc">${ar ? 'لا توجد مفاتيح بعد.' : 'No keys yet.'}</div>`}</div>
+    <div class="dev-actions">
+      <button type="button" class="dev-btn" onclick="createDevKey()" ${list.length >= 5 ? 'disabled' : ''}>${ar ? '+ إنشاء مفتاح API' : '+ Create API key'}</button>
+      <a class="dev-btn ghost" href="developer-api.html" target="_blank" rel="noopener" style="text-decoration:none;">${ar ? 'التوثيق والأمثلة' : 'Docs & examples'}</a>
+    </div>`;
+}
+async function createDevKey(){
+  const ar = currentLang === 'ar';
+  const ok = await appConfirm(ar ? 'إنشاء مفتاح API جديد لحسابك؟ سيظهر المفتاح مرة واحدة فقط، فانسخه واحفظه.' : 'Create a new API key for your account? It is shown only once, so copy it and keep it safe.',
+    { confirmLabel: ar ? 'إنشاء' : 'Create', cancelLabel: ar ? 'رجوع' : 'Back' });
+  if (!ok) return;
+  const { data, error } = await supabaseClient.rpc('create_api_key', { p_name: (ar ? 'مفتاح ' : 'Key ') + new Date().toISOString().slice(0, 10) });
+  if (error) {
+    const m = String(error.message || '');
+    await appAlert(m.includes('TOO_MANY_KEYS') ? (ar ? 'وصلت إلى الحد الأقصى (5 مفاتيح). ألغِ مفتاحًا قديمًا أولًا.' : 'You reached the limit of 5 keys. Revoke an old key first.')
+      : (ar ? 'تعذّر إنشاء المفتاح. حاول مرة أخرى.' : 'The key could not be created. Please try again.'), { icon: 'error' });
+    return;
+  }
+  _devNewKey = data && data.key;
+  renderDevApi();
+}
+async function revokeDevKey(id){
+  const ar = currentLang === 'ar';
+  const ok = await appConfirm(ar ? 'إلغاء هذا المفتاح؟ أي موقع يستخدمه سيتوقف عن العمل فورًا.' : 'Revoke this key? Any site using it stops working at once.',
+    { confirmLabel: ar ? 'إلغاء المفتاح' : 'Revoke', cancelLabel: ar ? 'رجوع' : 'Back', danger: true });
+  if (!ok) return;
+  const { error } = await supabaseClient.rpc('revoke_api_key', { p_id: id });
+  if (error) { await appAlert(ar ? 'تعذّر إلغاء المفتاح.' : 'The key could not be revoked.', { icon: 'error' }); return; }
+  _devNewKey = null;
+  renderDevApi();
+}
 
 function renderFailAlerts(){
   renderQueueAlerts();

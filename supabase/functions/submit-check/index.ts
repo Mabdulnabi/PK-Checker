@@ -276,21 +276,30 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
   try {
-    // The database scheduler runs the queue (internal secret, no user).
+    // Internal calls (internal secret): the database scheduler runs the queue (no user), and the
+    // developer API (pk-api) sends a customer's file on their behalf (x-api-user = the key's owner,
+    // already checked by pk-api). Everything after this is the same as a file sent from the site.
     const internal = req.headers.get("x-internal-secret");
+    let apiUserId: string | null = null;
     if (internal) {
       const adminQ = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
       const { data: expected } = await adminQ.rpc("get_internal_cron_secret");
       if (!expected || internal !== expected) return cors_json({ success: false, error: "Forbidden" }, 403);
-      return cors_json({ success: true, queue: await processQueue(adminQ) });
+      apiUserId = req.headers.get("x-api-user");
+      if (!apiUserId) return cors_json({ success: true, queue: await processQueue(adminQ) });
     }
 
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) return cors_json({ success: false, error: "Unauthorized" }, 401);
-
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-    const { data: { user }, error: authErr } = await admin.auth.getUser(authHeader.replace("Bearer ", ""));
-    if (authErr || !user) return cors_json({ success: false, error: "Unauthorized" }, 401);
+    let user: { id: string };
+    if (apiUserId) {
+      user = { id: apiUserId };
+    } else {
+      const authHeader = req.headers.get("Authorization");
+      if (!authHeader) return cors_json({ success: false, error: "Unauthorized" }, 401);
+      const { data: { user: authUser }, error: authErr } = await admin.auth.getUser(authHeader.replace("Bearer ", ""));
+      if (authErr || !authUser) return cors_json({ success: false, error: "Unauthorized" }, 401);
+      user = authUser;
+    }
 
     const fd = await req.formData();
     const orderId = fd.get("order_id") as string | null;
@@ -305,7 +314,7 @@ Deno.serve(async (req: Request) => {
 
     // An admin may resend a customer's failed order (admin page "Resend"). The order and its slot
     // then belong to the customer, never to the admin.
-    const { data: adminRow } = await admin.from("admins").select("id").eq("id", user.id).maybeSingle();
+    const { data: adminRow } = apiUserId ? { data: null } : await admin.from("admins").select("id").eq("id", user.id).maybeSingle();
     const isAdmin = !!adminRow;
 
     let orderQuery = admin.from("orders").select("id, user_id, status, check_type, external_order_id").eq("id", orderId);

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Developer API — PK Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Space+Grotesk:wght@600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#1B2556;--blue:#0E7AFE;--blue-deep:#1d4ed8;--blue-wash:#e8f0ff;--ink:#111827;--muted:#64748b;--line:#e2e8f0;--paper:#fff;--soft:#f6f8fc;--ok:#0E9F6E;--warn:#b45309;--danger:#e11d48;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Manrope',system-ui,sans-serif;color:var(--ink);background:linear-gradient(180deg,#eef4ff 0,#f8fafc 420px);line-height:1.6;}
+  a{color:var(--blue-deep);}
+  code,pre,.mono{font-family:'IBM Plex Mono',monospace;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px;}
+  header.top{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+  header.top .wrap{display:flex;align-items:center;gap:16px;height:60px;}
+  .brand{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;color:var(--navy);text-decoration:none;display:flex;align-items:center;gap:8px;}
+  .brand span{display:inline-flex;width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;align-items:center;justify-content:center;font-size:13px;}
+  header.top nav{margin-left:auto;display:flex;gap:6px;}
+  header.top nav a{padding:7px 12px;border-radius:9px;text-decoration:none;font-weight:700;font-size:13.5px;color:var(--navy);}
+  header.top nav a.cta{background:var(--blue);color:#fff;}
+  .hero{padding:44px 0 26px;}
+  .eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:12px;font-weight:800;letter-spacing:.5px;color:var(--blue-deep);background:var(--blue-wash);border:1px solid #bfd7ff;border-radius:999px;padding:4px 12px;text-transform:uppercase;}
+  h1{font-family:'Space Grotesk',sans-serif;font-size:40px;line-height:1.15;margin:14px 0 8px;color:var(--navy);}
+  .lead{font-size:16px;color:#334155;max-width:720px;margin:0;}
+  .base{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:20px;background:var(--navy);color:#fff;border-radius:12px;padding:12px 16px;}
+  .base b{font-size:12px;letter-spacing:.4px;opacity:.75;text-transform:uppercase;}
+  .base code{font-size:15px;}
+  .copy{border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;border-radius:8px;padding:4px 10px;font:700 12px 'Manrope',sans-serif;cursor:pointer;margin-left:auto;}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+  .chip{font-size:12.5px;font-weight:700;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 12px;color:#334155;}
+  .chip b{color:var(--navy);}
+  .beta{background:#fffbeb;border:1px solid #fcd34d;color:#92400e;}
+  section{margin:28px 0;}
+  h2{font-family:'Space Grotesk',sans-serif;font-size:24px;color:var(--navy);margin:0 0 10px;}
+  h3{font-size:17px;margin:0;color:var(--navy);}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 10px 30px -22px rgba(27,37,86,.35);}
+  .access{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;align-items:center;}
+  .steps-list{margin:8px 0 0;padding-left:20px;color:#334155;}
+  .btns{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:11px;font-weight:800;font-size:14px;text-decoration:none;border:1.5px solid var(--line);color:var(--navy);background:#fff;cursor:pointer;font-family:inherit;}
+  .btn.primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .tabs{display:flex;gap:6px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:5px;width:fit-content;flex-wrap:wrap;}
+  .tabs button{border:none;background:none;padding:9px 16px;border-radius:9px;font:800 13.5px 'Manrope',sans-serif;color:var(--muted);cursor:pointer;}
+  .tabs button.on{background:var(--navy);color:#fff;}
+  .panel{display:none;margin-top:18px;}
+  .panel.on{display:block;}
+  .flow{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .flow .card{padding:18px;}
+  .num{display:inline-flex;width:28px;height:28px;border-radius:50%;background:var(--blue-wash);color:var(--blue-deep);font-weight:800;align-items:center;justify-content:center;margin-bottom:8px;}
+  .flow p{margin:6px 0 0;font-size:13.5px;color:#475569;}
+  .ep{margin-top:16px;}
+  .ep-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+  .m{font:700 12px 'IBM Plex Mono',monospace;padding:3px 9px;border-radius:7px;color:#fff;}
+  .m.post{background:#16a34a;} .m.get{background:#2563eb;}
+  .path{font:600 15px 'IBM Plex Mono',monospace;color:var(--navy);}
+  .cost{margin-left:auto;font-size:12px;font-weight:800;border-radius:999px;padding:3px 10px;background:var(--soft);border:1px solid var(--line);color:#334155;}
+  .cost.paid{background:#fffbeb;border-color:#fcd34d;color:#92400e;}
+  .ep p.d{margin:0 0 10px;color:#334155;font-size:14px;}
+  .limits{margin:0 0 12px;padding-left:18px;font-size:13.5px;color:#475569;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:6px 0 12px;}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{font-size:12px;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);background:var(--soft);}
+  td code{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:12.5px;}
+  .req{color:var(--danger);font-weight:800;font-size:12px;}
+  .opt{color:var(--muted);font-weight:700;font-size:12px;}
+  pre{background:#0f172a;color:#e2e8f0;border-radius:12px;padding:14px 16px;overflow:auto;font-size:12.8px;line-height:1.55;margin:6px 0 0;}
+  .lbl{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-top:10px;}
+  .note{display:flex;gap:10px;align-items:flex-start;background:#fffbeb;border:1px solid #fde68a;color:#78350f;border-radius:12px;padding:12px 14px;font-size:13.5px;}
+  .note.blue{background:var(--blue-wash);border-color:#bfd7ff;color:#1e3a8a;}
+  .codetabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+  .codetabs button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 12px;font:800 12.5px 'Manrope',sans-serif;cursor:pointer;color:var(--muted);}
+  .codetabs button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .console{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .console input{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font:600 13px 'IBM Plex Mono',monospace;}
+  .console pre{min-height:180px;}
+  footer{padding:30px 0 50px;color:var(--muted);font-size:13px;text-align:center;}
+  @media (max-width:760px){ h1{font-size:30px;} .access,.flow,.console{grid-template-columns:1fr;} .cost{margin-left:0;} th:nth-child(4),td:nth-child(4){display:none;} }
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/"><span>PK</span>PK Checker</a>
+  <nav><a href="/">Home</a><a class="cta" href="/dashboard.html">Dashboard</a></nav>
+</div></header>
+
+<main class="wrap">
+  <div class="hero">
+    <span class="eyebrow">REST API v1.0 · Developer Hub</span>
+    <h1>Developer API</h1>
+    <p class="lead">Connect your own website or system to PK Checker. Send a document, follow its status, and download the official Turnitin similarity and AI reports, all from your code.</p>
+    <div class="base"><b>Base URL</b><code id="baseUrl">https://www.pkchecker.com/v1</code><button class="copy" type="button" onclick="copyText(document.getElementById('baseUrl').textContent, this)">Copy</button></div>
+    <div class="chips">
+      <span class="chip">Auth: <b>Bearer API key</b></span>
+      <span class="chip">Rate limit: <b>60 req / min</b></span>
+      <span class="chip">Cost: <b>1 check per file</b></span>
+      <span class="chip beta">Beta: <b>available to selected accounts</b></span>
+    </div>
+  </div>
+
+  <section>
+    <div class="card access">
+      <div>
+        <h2>Developer API access</h2>
+        <p style="margin:0;color:#334155;">Every request is authenticated with your own API key, and each submitted file uses one check from your PK Checker balance, exactly like a file uploaded from the dashboard.</p>
+        <ol class="steps-list">
+          <li>Sign in and open <b>My account → Developer API</b>.</li>
+          <li>Create a key and copy it (it is shown only once).</li>
+          <li>Send it in the <code>Authorization: Bearer YOUR_API_KEY</code> header.</li>
+        </ol>
+      </div>
+      <div class="btns" style="justify-content:flex-end;">
+        <a class="btn primary" href="/dashboard.html">Get your API key</a>
+        <a class="btn" href="/dashboard.html#wallet">Buy checks</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="tabs" role="tablist">
+    <button type="button" class="on" data-tab="docs">Endpoints &amp; Docs</button>
+    <button type="button" data-tab="code">Code Examples</button>
+    <button type="button" data-tab="console">Live Console</button>
+  </div>
+
+  <!-- ENDPOINTS & DOCS -->
+  <div class="panel on" id="tab-docs">
+    <section>
+      <h2>How it works</h2>
+      <div class="flow">
+        <div class="card"><span class="num">1</span><h3>Submit a document</h3><p><code>POST /v1/scan/submit</code> with the file. You get a <code>file_id</code>.</p></div>
+        <div class="card"><span class="num">2</span><h3>Check the status</h3><p><code>GET /v1/scan/status</code> until the status is <code>Completed</code> (poll every 10–20 seconds).</p></div>
+        <div class="card"><span class="num">3</span><h3>Download the reports</h3><p><code>GET /v1/scan/download</code> for the similarity PDF, and with <code>report_type=ai</code> for the AI PDF.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Endpoints</h2>
+
+      <div class="card ep">
+        <div class="ep-head"><span class="m post">POST</span><span class="path">/v1/scan/submit</span><span class="cost paid">1 check / file</span></div>
+        <p class="d">Submit a file (or raw text) for a Turnitin similarity check, with or without AI detection. Send the request as <code>multipart/form-data</code>.</p>
+        <ul class="limits">
+          <li>Formats: PDF, DOCX, DOC, TXT, ODT · up to 50 MB</li>
+          <li>Similarity: up to 50,000 words · AI detection: up to 30,000 words (longer files get the similarity report only)</li>
+          <li>AI detection languages: English, Spanish, Japanese, Arabic · minimum 300 words</li>
+          <li>Raw text: at least 40 words</li>
+        </ul>
+        <table>
+          <thead><tr><th>Field</th><th>Type</th><th></th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>file</code></td><td>File</td><td><span class="req">Required*</span></td><td>The document. *Or send <code>text</code> instead.</td></tr>
+            <tr><td><code>text</code></td><td>String</td><td><span class="opt">Optional</span></td><td>Raw text to check when no file is sent (min 40 words).</td></tr>
+            <tr><td><code>service_type</code></td><td>String</td><td><span class="opt">Optional</span></td><td><code>Both</code> (default: similarity + AI), <code>Turnitin AI</code> (same as Both), or <code>Turnitin Plagiarism</code> (similarity only, needs similarity-only checks in your balance).</td></tr>
+            <tr><td><code>exclude_quotes</code></td><td>0 / 1</td><td><span class="opt">Optional</span></td><td>Exclude quoted text from the similarity score. Default 0.</td></tr>
+            <tr><td><code>exclude_biblio</code></td><td>0 / 1</td><td><span class="opt">Optional</span></td><td>Exclude the bibliography / references. Alias: <code>exclude_bibliography</code>. Default 0.</td></tr>
+            <tr><td><code>exclude_citations</code></td><td>0 / 1</td><td><span class="opt">Optional</span></td><td>Exclude in-text citations. Default 0.</td></tr>
+            <tr><td><code>exclude_small_matches</code></td><td>0 / 1</td><td><span class="opt">Optional</span></td><td>Exclude matches shorter than <code>small_match_threshold</code> words. Default 0.</td></tr>
+            <tr><td><code>small_match_threshold</code></td><td>Integer 8–250</td><td><span class="opt">Optional</span></td><td>Word threshold for small matches. Alias: <code>exclude_words</code>. Default 8.</td></tr>
+            <tr><td><code>custom_id</code></td><td>String</td><td><span class="opt">Optional</span></td><td>Your own order or user id (up to 100 characters). Returned in every response.</td></tr>
+            <tr><td><code>server</code></td><td>String</td><td><span class="opt">Optional</span></td><td>Accepted for compatibility (<code>s1</code>); ignored.</td></tr>
+          </tbody>
+        </table>
+        <div class="lbl">Response · 200</div>
+<pre>{
+  "success": true,
+  "file_id": "PK1-261124-21",
+  "filename": "Research_Thesis.docx",
+  "custom_id": "order_9812",
+  "status": "Pending",
+  "message": "File submitted successfully and queued for Turnitin scanning",
+  "slots_remaining": 14
+}</pre>
+        <p class="d" style="margin-top:10px;">If the check service is busy, the file is kept and sent automatically as soon as possible; the response is the same (<code>status: "Pending"</code>) with a note in <code>message</code>.</p>
+      </div>
+
+      <div class="card ep">
+        <div class="ep-head"><span class="m get">GET</span><span class="path">/v1/scan/status?file_id={file_id}</span><span class="cost">Free</span></div>
+        <p class="d">The state of a file, its scores and the report links. Status values: <code>Pending</code> (waiting to be sent), <code>Processing</code> (being checked), <code>Completed</code>, <code>Failed</code> (with an <code>error</code> field).</p>
+<pre>{
+  "success": true,
+  "file_id": "PK1-261124-21",
+  "filename": "Research_Thesis.docx",
+  "custom_id": "order_9812",
+  "status": "Completed",
+  "similarity_score": 14,
+  "ai_score": 2,
+  "word_count": 4850,
+  "download_url": "https://www.pkchecker.com/v1/scan/download?file_id=PK1-261124-21",
+  "ai_download_url": "https://www.pkchecker.com/v1/scan/download?file_id=PK1-261124-21&amp;report_type=ai",
+  "completed_at": 1727443320
+}</pre>
+        <p class="d" style="margin-top:10px;"><code>ai_score</code> is <code>null</code> when the AI report shows "*%" (20% or less), when AI detection was not requested, or when it could not run (word limit, language).</p>
+      </div>
+
+      <div class="card ep">
+        <div class="ep-head"><span class="m get">GET</span><span class="path">/v1/scan/download?file_id={file_id}&amp;report_type={type}</span><span class="cost">Free</span></div>
+        <p class="d">Downloads the official Turnitin report as a PDF (<code>Content-Type: application/pdf</code>).</p>
+        <table>
+          <thead><tr><th>Field</th><th>Type</th><th></th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>file_id</code></td><td>String</td><td><span class="req">Required</span></td><td>The <code>file_id</code> from the submit response.</td></tr>
+            <tr><td><code>report_type</code></td><td>String</td><td><span class="opt">Optional</span></td><td><code>plagiarism</code> (default, similarity report) or <code>ai</code> (AI writing report).</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card ep">
+        <div class="ep-head"><span class="m get">GET</span><span class="path">/v1/account/balance</span><span class="cost">Free</span></div>
+        <p class="d">The checks available in your PK Checker balance (active packages).</p>
+<pre>{
+  "success": true,
+  "status": "Active",
+  "available_credits": 14,
+  "total_credits": 20,
+  "used_credits": 6
+}</pre>
+      </div>
+    </section>
+
+    <section>
+      <div class="note"><span>🗂</span><div><b>48-hour storage.</b> Reports are kept for 48 hours after delivery and then deleted. Download them to your own storage after <code>Completed</code>.</div></div>
+    </section>
+
+    <section>
+      <h2>HTTP response codes</h2>
+      <div class="card">
+        <table>
+          <thead><tr><th>Code</th><th>Status</th><th colspan="2">Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>200</code></td><td>OK</td><td colspan="2">Request processed successfully.</td></tr>
+            <tr><td><code>400</code></td><td>Bad Request</td><td colspan="2">Missing or invalid parameters (no file or text, wrong format, file over 50 MB…).</td></tr>
+            <tr><td><code>401</code></td><td>Unauthorized</td><td colspan="2">Missing or invalid Bearer API key.</td></tr>
+            <tr><td><code>402</code></td><td>Payment Required</td><td colspan="2">No checks left in your balance for this type of check.</td></tr>
+            <tr><td><code>404</code></td><td>Not Found</td><td colspan="2">Unknown <code>file_id</code>, or the report does not exist.</td></tr>
+            <tr><td><code>409</code></td><td>Conflict</td><td colspan="2">The report is not ready yet.</td></tr>
+            <tr><td><code>410</code></td><td>Gone</td><td colspan="2">The report was deleted (48 hours after delivery).</td></tr>
+            <tr><td><code>422</code></td><td>Unprocessable</td><td colspan="2">The check service did not accept the file. No check was used.</td></tr>
+            <tr><td><code>429</code></td><td>Too Many Requests</td><td colspan="2">Over 60 requests a minute, or the same file just failed (wait a minute).</td></tr>
+            <tr><td><code>503</code></td><td>Unavailable</td><td colspan="2">The check service is temporarily unavailable. No check was used.</td></tr>
+          </tbody>
+        </table>
+        <p class="d" style="margin:0;">Every error response is JSON: <code>{"success": false, "error": "…"}</code>.</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- CODE EXAMPLES -->
+  <div class="panel" id="tab-code">
+    <section>
+      <h2>Integration snippets</h2>
+      <div class="codetabs" id="codeTabs">
+        <button type="button" class="on" data-code="curl">cURL</button>
+        <button type="button" data-code="py">Python</button>
+        <button type="button" data-code="php">PHP</button>
+        <button type="button" data-code="node">Node.js</button>
+      </div>
+<pre id="code-curl"># 1) Submit
+curl -X POST "https://www.pkchecker.com/v1/scan/submit" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -F "file=@thesis.docx" \
+  -F "service_type=Both" \
+  -F "exclude_quotes=1" \
+  -F "exclude_biblio=1" \
+  -F "custom_id=order_9812"
+
+# 2) Status
+curl "https://www.pkchecker.com/v1/scan/status?file_id=PK1-261124-21" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+
+# 3) Download (similarity, then AI)
+curl -o similarity.pdf "https://www.pkchecker.com/v1/scan/download?file_id=PK1-261124-21" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+curl -o ai.pdf "https://www.pkchecker.com/v1/scan/download?file_id=PK1-261124-21&amp;report_type=ai" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+<pre id="code-py" style="display:none;">import time, requests
+
+API = "https://www.pkchecker.com/v1"
+HEAD = {"Authorization": "Bearer YOUR_API_KEY"}
+
+# 1) Submit
+with open("thesis.docx", "rb") as f:
+    r = requests.post(f"{API}/scan/submit", headers=HEAD,
+                      files={"file": f},
+                      data={"service_type": "Both", "exclude_quotes": 1, "custom_id": "order_9812"})
+r.raise_for_status()
+file_id = r.json()["file_id"]
+
+# 2) Wait for the result
+while True:
+    s = requests.get(f"{API}/scan/status", headers=HEAD, params={"file_id": file_id}).json()
+    if s["status"] in ("Completed", "Failed"):
+        break
+    time.sleep(15)
+
+# 3) Download
+if s["status"] == "Completed":
+    pdf = requests.get(f"{API}/scan/download", headers=HEAD, params={"file_id": file_id})
+    open("similarity.pdf", "wb").write(pdf.content)
+    if s.get("ai_download_url"):
+        ai = requests.get(f"{API}/scan/download", headers=HEAD, params={"file_id": file_id, "report_type": "ai"})
+        open("ai.pdf", "wb").write(ai.content)
+else:
+    print("Failed:", s.get("error"))</pre>
+<pre id="code-php" style="display:none;">&lt;?php
+$api = "https://www.pkchecker.com/v1";
+$key = "YOUR_API_KEY";
+
+// 1) Submit
+$ch = curl_init("$api/scan/submit");
+curl_setopt_array($ch, [
+  CURLOPT_POST =&gt; true,
+  CURLOPT_RETURNTRANSFER =&gt; true,
+  CURLOPT_HTTPHEADER =&gt; ["Authorization: Bearer $key"],
+  CURLOPT_POSTFIELDS =&gt; [
+    "file" =&gt; new CURLFile("thesis.docx"),
+    "service_type" =&gt; "Both",
+    "custom_id" =&gt; "order_9812",
+  ],
+]);
+$res = json_decode(curl_exec($ch), true);
+$fileId = $res["file_id"];
+
+// 2) Status
+$ch = curl_init("$api/scan/status?file_id=" . urlencode($fileId));
+curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER =&gt; true, CURLOPT_HTTPHEADER =&gt; ["Authorization: Bearer $key"]]);
+$status = json_decode(curl_exec($ch), true);
+
+// 3) Download when Completed
+if ($status["status"] === "Completed") {
+  $fp = fopen("similarity.pdf", "w");
+  $ch = curl_init("$api/scan/download?file_id=" . urlencode($fileId));
+  curl_setopt_array($ch, [CURLOPT_FILE =&gt; $fp, CURLOPT_HTTPHEADER =&gt; ["Authorization: Bearer $key"]]);
+  curl_exec($ch);
+  fclose($fp);
+}</pre>
+<pre id="code-node" style="display:none;">// Node.js 18+ (built-in fetch, FormData and Blob)
+import { readFile, writeFile } from "node:fs/promises";
+
+const API = "https://www.pkchecker.com/v1";
+const HEAD = { Authorization: "Bearer YOUR_API_KEY" };
+
+// 1) Submit
+const form = new FormData();
+form.append("file", new Blob([await readFile("thesis.docx")]), "thesis.docx");
+form.append("service_type", "Both");
+form.append("custom_id", "order_9812");
+const sub = await (await fetch(`${API}/scan/submit`, { method: "POST", headers: HEAD, body: form })).json();
+
+// 2) Wait for the result
+let s;
+do {
+  await new Promise(r =&gt; setTimeout(r, 15000));
+  s = await (await fetch(`${API}/scan/status?file_id=${encodeURIComponent(sub.file_id)}`, { headers: HEAD })).json();
+} while (!["Completed", "Failed"].includes(s.status));
+
+// 3) Download
+if (s.status === "Completed") {
+  const pdf = await fetch(`${API}/scan/download?file_id=${encodeURIComponent(sub.file_id)}`, { headers: HEAD });
+  await writeFile("similarity.pdf", Buffer.from(await pdf.arrayBuffer()));
+}</pre>
+    </section>
+  </div>
+
+  <!-- LIVE CONSOLE -->
+  <div class="panel" id="tab-console">
+    <section>
+      <h2>Interactive handshake tester</h2>
+      <div class="card console">
+        <div>
+          <div class="ep-head"><span class="m get">GET</span><span class="path">/v1/account/balance</span></div>
+          <p class="d">Paste your API key and send a test request. Nothing is charged; the key stays in this page only.</p>
+          <input id="consoleKey" type="password" placeholder="pk_live_..." autocomplete="off">
+          <div class="btns" style="margin-top:10px;"><button class="btn primary" type="button" onclick="runConsole()">Send test request</button></div>
+        </div>
+        <div><div class="lbl" style="margin-top:0;">Response output</div><pre id="consoleOut">// The response appears here</pre></div>
+      </div>
+    </section>
+  </div>
+
+  <section>
+    <div class="note blue"><span>💬</span><div><b>Developer support.</b> Questions about the integration? Contact us from the live chat in your <a href="/dashboard.html">dashboard</a>.</div></div>
+  </section>
+</main>
+<footer>© PK Checker · Developer API v1.0</footer>
+
+<script>
+  // Tabs
+  document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b));
+    document.querySelectorAll('.panel').forEach(p => p.classList.toggle('on', p.id === 'tab-' + b.dataset.tab));
+  }));
+  document.querySelectorAll('#codeTabs button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('#codeTabs button').forEach(x => x.classList.toggle('on', x === b));
+    ['curl', 'py', 'php', 'node'].forEach(k => { document.getElementById('code-' + k).style.display = k === b.dataset.code ? '' : 'none'; });
+  }));
+  function copyText(t, btn){
+    navigator.clipboard.writeText(t).then(() => { const o = btn.textContent; btn.textContent = 'Copied'; setTimeout(() => btn.textContent = o, 1300); });
+  }
+  // Live console: same site, so the request goes to /v1 (the API address on www.pkchecker.com).
+  async function runConsole(){
+    const out = document.getElementById('consoleOut');
+    const key = document.getElementById('consoleKey').value.trim();
+    if (!key) { out.textContent = '// Paste your API key first'; return; }
+    out.textContent = '// Sending…';
+    const base = /pkchecker\.com$/i.test(location.hostname) ? '/v1' : 'https://www.pkchecker.com/v1';
+    try {
+      const res = await fetch(base + '/account/balance', { headers: { Authorization: 'Bearer ' + key } });
+      const body = await res.text();
+      let pretty = body; try { pretty = JSON.stringify(JSON.parse(body), null, 2); } catch {}
+      out.textContent = `HTTP ${res.status}\n\n${pretty}`;
+    } catch (e) { out.textContent = '// Request failed: ' + e.message; }
+  }
+</script>
+</body>
+</html>
