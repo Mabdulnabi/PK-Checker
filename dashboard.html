@@ -968,6 +968,9 @@
   .mf-status.ok{background:var(--ok-wash);color:#0F7A55;border:1px solid #B7EBD5;}
   .mf-status.run{background:var(--blue-wash);color:var(--blue-deep);border:1px solid #BFD7FF;}
   .mf-status.bad{background:var(--danger-wash);color:var(--danger);border:1px solid #F5C2CB;}
+  .ai-ns-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:9px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:12px;font-weight:800;white-space:nowrap;cursor:help;}
+  .ai-ns-badge svg{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  [data-theme="dark"] .ai-ns-badge{background:rgba(148,163,184,.12);border-color:rgba(148,163,184,.3);color:#cbd5e1;}
   .ai-wl-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:9px;background:#fffbeb;border:1px solid #fcd34d;color:#b45309;font-size:12px;font-weight:800;white-space:nowrap;cursor:help;}
   .ai-wl-badge svg{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
   [data-theme="dark"] .ai-wl-badge{background:rgba(245,158,11,.14);border-color:rgba(252,211,77,.35);color:#fcd34d;}
@@ -4209,7 +4212,7 @@ const I18N = {
     pg_rows_per_page:"عدد الصفوف",
     file_req_notice_title:"متطلبات Turnitin لقبول ملفات الفحص",
     file_req_li1:"شروط Turnitin: لتقارير الاقتباس فقط، لا توجد قيود على عدد الصفحات ويدعم النظام جميع اللغات بصيغة DOC أو DOCX.",
-    file_req_li2:"أما إذا كان تقرير الذكاء الاصطناعي مطلوباً، فيشترط رفع ملف DOCX نصي فقط باللغة الإنجليزية أو الإسبانية أو اليابانية، بعدد كلمات يتراوح بين 300 و 30,000 كلمة، مع ضرورة حذف صفحة الغلاف التي تتضمن اسم وشعار الجامعة وكذلك الصور والجداول والمعادلات المعقدة.",
+    file_req_li2:"أما إذا كان تقرير الذكاء الاصطناعي مطلوباً، فيشترط رفع ملف DOCX نصي فقط باللغة الإنجليزية أو الإسبانية أو اليابانية أو العربية، بعدد كلمات يتراوح بين 300 و 30,000 كلمة، مع ضرورة حذف صفحة الغلاف التي تتضمن اسم وشعار الجامعة وكذلك الصور والجداول والمعادلات المعقدة.",
     file_req_li3:"وفي كافة الأحوال، يجب ألا يتجاوز حجم الملف 50 ميجابايت، وألا يزيد عدد كلماته عن 50,000 كلمة لفحص الاقتباس، أو 30,000 كلمة إذا كان تقرير الذكاء الاصطناعي مطلوبًا؛ الملفات الأكبر من ذلك لا يتم قبولها.",
     file_req_li4:"الالتزام بهذه الشروط هو مسؤولية الباحث بالكامل، وعدم التقيد بها سيؤدي إلى خصم الرصيد نظراً لاحتساب عملية الفحص تلقائياً.",
     file_privacy_notice_title:"خصوصية الملفات",
@@ -4416,7 +4419,7 @@ const I18N = {
     pg_rows_per_page:"Rows per page",
     file_req_notice_title:"Turnitin requirements for accepted files",
     file_req_li1:"Turnitin requirements: for Similarity-only reports, there is no page limit and the system supports all languages in DOC or DOCX format.",
-    file_req_li2:"If an AI report is required, the file must be a text-only DOCX in English, Spanish, or Japanese, between 300 and 30,000 words, with the cover page (containing the university name/logo) removed, along with images, tables, and complex equations.",
+    file_req_li2:"If an AI report is required, the file must be a text-only DOCX in English, Spanish, Japanese, or Arabic, between 300 and 30,000 words, with the cover page (containing the university name/logo) removed, along with images, tables, and complex equations.",
     file_req_li3:"In all cases, the file must not exceed 50 MB, and 50,000 words for a plagiarism check or 30,000 words when an AI report is required; larger files are not accepted.",
     file_req_li4:"Compliance with these requirements is entirely the researcher's responsibility — failing to follow them will still result in a slot deduction, since the check is billed automatically.",
     file_privacy_notice_title:"File privacy",
@@ -10853,10 +10856,11 @@ async function insertOrderRow(fileName, fileToSubmit, checkTypeDb, willUseApi){
       exclude_abstract:     false,
       exclude_small_matches_word_limit: (document.getElementById('sfSmall')?.checked ? (parseInt(document.getElementById('sfSmallWords')?.value)||8) : null),
       word_count: Number.isFinite(pendingWordCount) ? pendingWordCount : null,
+      doc_lang: pendingDocLang || null,
     })
     .select()
     .single();
-  pendingWordCount = null;
+  pendingWordCount = null; pendingDocLang = null;
 
   if (orderError) throw orderError;
 
@@ -11319,6 +11323,8 @@ function buildOrderRow(o){
   let aiDl;
   if (!hasAi) {
     aiDl = `<span style="color:var(--muted);font-size:11px;">—</span>`;
+  } else if (o.phase === 'completed' && aiLangUnsupported(o.checkType, o.lang, o.words, !!o.aiReportUrl)) {
+    aiDl = aiLangBadge(o.lang);
   } else if (overAiWordLimit(o.checkType, o.words, !!o.aiReportUrl) && ['completed', 'run', 'processing', 'checking', 'pending'].includes(o.phase)) {
     aiDl = aiWordLimitBadge(o.words);
   } else if (canDownload && o.aiReportUrl) {
@@ -11638,29 +11644,86 @@ function pkPdfPageText(items){
   }
   return out;
 }
+// The main language of a text: by its script, and for Latin-script text by its most frequent
+// small words. Returns a code (en, es, ja, ar, fr, de, ...) or null when there is too little text.
+const PK_STOPWORDS = {
+  en: 'the of and to in is that for with are as be by this on which from was it an or were not have has their these can between'.split(' '),
+  es: 'el la de que y los las en por con para una del se al es un como más pero sus fue entre son está también'.split(' '),
+  fr: 'le les des et est une dans pour que du la en au sont par sur pas qui ce avec plus être aux cette'.split(' '),
+  de: 'der die und das ist nicht mit den zu ein eine von im dem des auf für sich auch werden wird bei oder'.split(' '),
+  pt: 'o os da do não uma em que para com dos das ao pelo pela são foi está também mais seu sua'.split(' '),
+  it: 'il di che e la per un non sono della del dei delle nel alla anche come più gli questo'.split(' '),
+  tr: 've bir bu için ile da de olarak olan gibi daha çok ancak ise veya kadar sonra göre'.split(' '),
+  id: 'dan yang di untuk dengan ini itu dari dalam pada adalah tidak akan oleh juga sebagai atau'.split(' '),
+  nl: 'de het een van en in is dat op te zijn voor met niet die aan door wordt ook'.split(' '),
+};
+function pkDetectLang(text){
+  const t = String(text || '').slice(0, 60000);
+  const count = re => (t.match(re) || []).length;
+  const arab = count(/[؀-ۿݐ-ݿ]/g), kana = count(/[぀-ヿ]/g), han = count(/[一-鿿]/g);
+  const hangul = count(/[가-힯]/g), cyr = count(/[Ѐ-ӿ]/g), greek = count(/[Ͱ-Ͽ]/g), hebrew = count(/[֐-׿]/g);
+  const thai = count(/[฀-๿]/g), deva = count(/[ऀ-ॿ]/g), latin = count(/[A-Za-zÀ-ɏ]/g);
+  const letters = arab + kana + han + hangul + cyr + greek + hebrew + thai + deva + latin;
+  if (letters < 200) return null;
+  const share = n => n / letters;
+  if (share(kana) > 0.05 || (share(kana + han) > 0.3 && kana > 0)) return 'ja';
+  if (share(han) > 0.3) return 'zh';
+  if (share(hangul) > 0.3) return 'ko';
+  if (share(arab) > 0.3) {
+    const persian = count(/[پچژگک]/g) + count(/ی/g) * 0.2;   // letters Arabic does not use
+    return persian / Math.max(1, arab) > 0.03 ? 'fa' : 'ar';
+  }
+  if (share(cyr) > 0.3) return 'ru';
+  if (share(greek) > 0.3) return 'el';
+  if (share(hebrew) > 0.3) return 'he';
+  if (share(thai) > 0.3) return 'th';
+  if (share(deva) > 0.3) return 'hi';
+  if (share(latin) < 0.5) return null;
+  const words = (t.toLowerCase().match(/[a-zÀ-ɏ]+/g) || []).slice(0, 8000);
+  const freq = {};
+  for (const w of words) freq[w] = (freq[w] || 0) + 1;
+  let best = null, bestScore = 0;
+  for (const [lang, list] of Object.entries(PK_STOPWORDS)) {
+    const score = list.reduce((sum, w) => sum + (freq[w] || 0), 0);
+    if (score > bestScore) { best = lang; bestScore = score; }
+  }
+  return bestScore >= 15 ? best : null;
+}
+const AI_LANGS = ['en', 'es', 'ja', 'ar'];   // Turnitin's AI detection languages
+const LANG_NAMES = { en: ['الإنجليزية', 'English'], es: ['الإسبانية', 'Spanish'], ja: ['اليابانية', 'Japanese'], ar: ['العربية', 'Arabic'],
+  fr: ['الفرنسية', 'French'], de: ['الألمانية', 'German'], pt: ['البرتغالية', 'Portuguese'], it: ['الإيطالية', 'Italian'], tr: ['التركية', 'Turkish'],
+  id: ['الإندونيسية', 'Indonesian'], nl: ['الهولندية', 'Dutch'], fa: ['الفارسية', 'Persian'], zh: ['الصينية', 'Chinese'], ko: ['الكورية', 'Korean'],
+  ru: ['الروسية', 'Russian'], el: ['اليونانية', 'Greek'], he: ['العبرية', 'Hebrew'], th: ['التايلاندية', 'Thai'], hi: ['الهندية', 'Hindi'] };
+let pkLastLang = null;   // language of the last file counted
 async function pkFileWordCount(file, limit){
+  pkLastLang = null;
   try {
     if (/\.docx$/i.test(file.name)) {
       const xml = await pkDocxXml(file);
       if (xml == null) return null;
-      return pkCountWords(pkDocxText(xml));
+      const text = pkDocxText(xml);
+      pkLastLang = pkDetectLang(text);
+      return pkCountWords(text);
     }
     if (/\.pdf$/i.test(file.name) && window.pdfjsLib) {
       if (!pdfjsLib.GlobalWorkerOptions.workerSrc) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.worker.min.js';
       const doc = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
-      let n = 0;
+      let n = 0, sample = '';
       for (let p = 1; p <= doc.numPages; p++) {
         const tc = await (await doc.getPage(p)).getTextContent();
-        n += pkCountWords(pkPdfPageText(tc.items));
+        const pageText = pkPdfPageText(tc.items);
+        n += pkCountWords(pageText);
+        if (sample.length < 60000) sample += ' ' + pageText;
         if (n > limit) break;
       }
+      pkLastLang = pkDetectLang(sample);
       return n;
     }
   } catch (e) { console.warn('word count failed:', e); }
   return null;
 }
-let sfFileWords = null, _sfCountSeq = 0;
-let pendingWordCount = null;
+let sfFileWords = null, sfFileLang = null, _sfCountSeq = 0;
+let pendingWordCount = null, pendingDocLang = null;
 
 const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
@@ -11884,7 +11947,7 @@ async function sfPickFile(file){
     return;
   }
   el.textContent = '';
-  sfFile = file; sfFileWords = words;
+  sfFile = file; sfFileWords = words; sfFileLang = pkLastLang;
   sfSetStep('filters');
   if (tooLongForAi && checkType !== 'sim' && !(await sfConfirmOverAiLimit(words))) {
     sfClearFile();   // the customer picks another file
@@ -11907,6 +11970,7 @@ async function sfUploadFile(){
 
   currentFile = sfFile;
   pendingWordCount = sfFileWords;   // saved with the order (AI word-limit notice)
+  pendingDocLang = sfFileLang;      // saved with the order (AI language badge)
   pendingGrantId = sfSelectedGrant.grant_id;
   btn.disabled = true;
   window._sfHandedOff = () => {
@@ -12021,9 +12085,23 @@ function aiWordLimitBadge(words){
     : `The file has ${Number(words).toLocaleString('en-US')} words; Turnitin's AI detection limit is 30,000 words, so only the similarity report was produced.`;
   return `<span class="ai-wl-badge" title="${escapeHtml(tip)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5L2.5 20h19z"/><path d="M12 10v4.5"/><path d="M12 17.3v.2"/></svg>${ar ? 'حد الكلمات (&gt;30k)' : 'Word Limit (&gt;30k)'}</span>`;
 }
+// A check with AI on a file in a language Turnitin's AI detection does not support (and not over the
+// word limit): the AI column shows "Not Supported" instead of "Result unavailable".
+function aiLangUnsupported(checkType, lang, words, hasAiReport){
+  return checkType !== 'sim_only' && !!lang && !AI_LANGS.includes(lang) && !hasAiReport
+    && !(Number(words) > (typeof SF_MAX_WORDS_AI !== 'undefined' ? SF_MAX_WORDS_AI : 30000));
+}
+function aiLangBadge(lang){
+  const ar = currentLang === 'ar';
+  const name = (LANG_NAMES[lang] || [lang, lang])[ar ? 0 : 1];
+  const tip = ar ? `كشف الذكاء الاصطناعي في Turnitin يدعم الإنجليزية والإسبانية واليابانية والعربية فقط، ولغة هذا الملف هي ${name}، لذا صدر تقرير الاقتباس فقط.`
+    : `Turnitin's AI detection supports English, Spanish, Japanese and Arabic only. This file is in ${name}, so only the similarity report was produced.`;
+  return `<span class="ai-ns-badge" title="${escapeHtml(tip)}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8 1c0 1.7-2.4 2.2-2.4 3.7"/><path d="M12 17.2v.3"/></svg>${ar ? 'غير مدعوم' : 'Not Supported'}</span>`;
+}
 // One score cell (AI or similarity). Shows the real provider score, or a status.
 function mfScoreCell(f, kind){
   if (kind === 'ai' && f.check_type === 'sim_only') return `<span class="mf-muted">${escapeHtml(t('mf_not_included'))}</span>`;
+  if (kind === 'ai' && f.status === 'completed' && aiLangUnsupported(f.check_type, f.doc_lang, f.word_count, f.has_ai_report)) return aiLangBadge(f.doc_lang);
   if (kind === 'ai' && overAiWordLimit(f.check_type, f.word_count, f.has_ai_report) && !['error', 'rejected', 'failed_invalid', 'cancelled', 'queued'].includes(f.status) && !MF_PRE_SEND.includes(f.status)) return aiWordLimitBadge(f.word_count);
   if (f.status === 'queued') return `<span class="mf-muted">${escapeHtml(t('mf_queued'))}</span>`;
   if (MF_PRE_SEND.includes(f.status)) return mfLiveBadge('mf_uploading', 'up big');
@@ -12678,6 +12756,7 @@ async function loadOrders(){
     rating: row.rating,
     ratingComment: row.rating_comment,
     words: row.word_count,
+    lang: row.doc_lang,
   }));
 
   submittedAt = {};
