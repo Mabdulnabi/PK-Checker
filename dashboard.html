@@ -968,6 +968,9 @@
   .mf-status.ok{background:var(--ok-wash);color:#0F7A55;border:1px solid #B7EBD5;}
   .mf-status.run{background:var(--blue-wash);color:var(--blue-deep);border:1px solid #BFD7FF;}
   .mf-status.bad{background:var(--danger-wash);color:var(--danger);border:1px solid #F5C2CB;}
+  .ai-wl-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:9px;background:#fffbeb;border:1px solid #fcd34d;color:#b45309;font-size:12px;font-weight:800;white-space:nowrap;cursor:help;}
+  .ai-wl-badge svg{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+  [data-theme="dark"] .ai-wl-badge{background:rgba(245,158,11,.14);border-color:rgba(252,211,77,.35);color:#fcd34d;}
   .mf-status.mf-live{display:inline-flex;align-items:center;gap:6px;animation:mfPulse 1.8s ease-in-out infinite;}
   .mf-status.mf-live.up{background:var(--paper-soft);color:var(--muted);border:1px solid var(--paper-line);}
   .mf-status.mf-live.big{padding:7px 16px;border-radius:10px;font-size:13px;}
@@ -2044,20 +2047,22 @@ if (new URLSearchParams(location.search).has('preview')) {
 <style>
   #failAlerts{position:relative;display:flex;flex-direction:column;gap:10px;margin:4px 0 16px;}
   #queueAlerts:empty{display:none;}
+  #aiLimitAlerts{margin:4px 0 20px;}
+  #aiLimitAlerts:empty{display:none;}
   .open-topup-note{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:12px 16px;border-radius:12px;
     background:#eff6ff;border:1px solid #bfdbfe;border-inline-start:4px solid #3b82f6;font-size:12.5px;color:#1e3a8a;line-height:1.7;}
   .open-topup-note .mono{font-family:'IBM Plex Mono',monospace;}
   .open-topup-new{flex:none;background:#fff;border:1px solid #93c5fd;color:#1d4ed8;border-radius:8px;padding:6px 12px;font-weight:800;font-size:12px;cursor:pointer;font-family:inherit;}
   [data-theme="dark"] .open-topup-note{background:rgba(59,130,246,.12);border-color:rgba(147,197,253,.35);color:#bfdbfe;}
   [data-theme="dark"] .open-topup-new{background:transparent;color:#93c5fd;}
-  #queueAlerts{margin:4px 0 12px;}
+  #queueAlerts{margin:4px 0 16px;}
   .open-topup-note{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:12px 16px;border-radius:12px;
     background:#eff6ff;border:1px solid #bfdbfe;border-inline-start:4px solid #3b82f6;font-size:12.5px;color:#1e3a8a;line-height:1.7;}
   .open-topup-note .mono{font-family:'IBM Plex Mono',monospace;}
   .open-topup-new{flex:none;background:#fff;border:1px solid #93c5fd;color:#1d4ed8;border-radius:8px;padding:6px 12px;font-weight:800;font-size:12px;cursor:pointer;font-family:inherit;}
   [data-theme="dark"] .open-topup-note{background:rgba(59,130,246,.12);border-color:rgba(147,197,253,.35);color:#bfdbfe;}
   [data-theme="dark"] .open-topup-new{background:transparent;color:#93c5fd;}
-  #queueAlerts{margin:4px 0 12px;}
+  #queueAlerts{margin:4px 0 16px;}
   /* Queue notice: same layout as the failure notice, in amber */
   .fail-alert.queue-alert{background:linear-gradient(90deg,#fffbeb,#fffdf5);border-color:#fde68a;border-inline-start:5px solid #f59e0b;}
   .fail-alert.queue-alert .fa-ic{background:#f59e0b;box-shadow:0 8px 18px -8px rgba(245,158,11,.7);}
@@ -11276,6 +11281,8 @@ function buildOrderRow(o){
   let aiDl;
   if (!hasAi) {
     aiDl = `<span style="color:var(--muted);font-size:11px;">—</span>`;
+  } else if (overAiWordLimit(o.checkType, o.words, !!o.aiReportUrl) && ['completed', 'run', 'processing', 'checking', 'pending'].includes(o.phase)) {
+    aiDl = aiWordLimitBadge(o.words);
   } else if (canDownload && o.aiReportUrl) {
     // CDN URL — direct link exactly like similarity
     aiDl = `<a class="dl-btn" href="${escapeHtml(safeUrl(o.aiReportUrl))}" target="_blank" rel="noopener" title="${t('ai')}" onclick="trackReportDownload('${o.id}','ai',${hasAi})">${ICONS.download}</a><button type="button" class="dl-btn pdf-preview-btn" onclick="openPdfPreview('${o.aiReportUrl}')" title="${currentLang==='ar'?'معاينة':'Preview'}">👁</button>`;
@@ -11965,9 +11972,21 @@ function mfStatusCell(f){
   return mfLiveBadge('mf_checking', 'run', elapsed);
 }
 
+// A check with AI detection sent with more than 30,000 words: Turnitin gives no AI report
+// (its AI limit), so the AI column shows this badge instead of a download or "Result unavailable".
+function overAiWordLimit(checkType, words, hasAiReport){
+  return checkType !== 'sim_only' && Number(words) > (typeof SF_MAX_WORDS_AI !== 'undefined' ? SF_MAX_WORDS_AI : 30000) && !hasAiReport;
+}
+function aiWordLimitBadge(words){
+  const ar = currentLang === 'ar';
+  const tip = ar ? `يحتوي الملف على ${Number(words).toLocaleString('en-US')} كلمة، والحد الأقصى لكشف الذكاء الاصطناعي في Turnitin هو 30,000 كلمة، لذا صدر تقرير الاقتباس فقط.`
+    : `The file has ${Number(words).toLocaleString('en-US')} words; Turnitin's AI detection limit is 30,000 words, so only the similarity report was produced.`;
+  return `<span class="ai-wl-badge" title="${escapeHtml(tip)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5L2.5 20h19z"/><path d="M12 10v4.5"/><path d="M12 17.3v.2"/></svg>${ar ? 'حد الكلمات (&gt;30k)' : 'Word Limit (&gt;30k)'}</span>`;
+}
 // One score cell (AI or similarity). Shows the real provider score, or a status.
 function mfScoreCell(f, kind){
   if (kind === 'ai' && f.check_type === 'sim_only') return `<span class="mf-muted">${escapeHtml(t('mf_not_included'))}</span>`;
+  if (kind === 'ai' && overAiWordLimit(f.check_type, f.word_count, f.has_ai_report) && !['error', 'rejected', 'failed_invalid', 'cancelled', 'queued'].includes(f.status) && !MF_PRE_SEND.includes(f.status)) return aiWordLimitBadge(f.word_count);
   if (f.status === 'queued') return `<span class="mf-muted">${escapeHtml(t('mf_queued'))}</span>`;
   if (MF_PRE_SEND.includes(f.status)) return mfLiveBadge('mf_uploading', 'up big');
   if (!MF_FINAL.includes(f.status)) return mfLiveBadge('mf_checking', 'run big');
