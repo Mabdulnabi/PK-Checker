@@ -1272,8 +1272,12 @@
   .pay-tab.on .pay-tab-cur{background:var(--blue-wash,#e8f0ff);color:var(--blue-deep);border-color:#BFD7FF;}
   @media (max-width:640px){ .pay-tab{flex-wrap:wrap;gap:3px 5px;} .pay-tab-cur{font-size:9px;padding:0 5px;} }
   /* Bank transfer: the account details, one copyable line each */
+  .pp-btns{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;}
+  .pp-btns .pp-btn{flex:1 1 0;min-width:150px;}   /* PayPal buttons need at least 150px */
   .bank-rows{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;cursor:default;}
-  .bank-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;border:1px solid var(--paper-line);border-radius:9px;background:var(--paper);}
+  .bank-row{display:grid;grid-template-columns:52px 1fr 52px;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--paper-line);border-radius:9px;background:var(--paper);text-align:center;}
+  .bank-row > div{grid-column:2;min-width:0;}
+  .bank-row .bank-copy{grid-column:3;justify-self:end;}
   .bank-row small{display:block;font-family:'Cairo',sans-serif;font-size:10.5px;font-weight:700;color:var(--muted);}
   .bank-row b{font-size:13px;color:var(--navy);word-break:break-all;}
   .bank-copy{flex:none;border:1px solid var(--paper-line);background:var(--paper-soft,#f6f8fc);border-radius:8px;padding:4px 9px;font-family:'Cairo',sans-serif;font-size:11px;font-weight:800;color:var(--blue-deep);cursor:pointer;}
@@ -4767,7 +4771,7 @@ async function loadPaymentMethodsConfig(){
           input_label_ar: m.uid_label_ar, input_label_en: m.uid_label_en,
           input_ph_ar: m.uid_label_ar, input_ph_en: m.uid_label_en,
           instructions_ar: m.instructions_ar || '', instructions_en: m.instructions_en || '',
-          edge_fn: null, payload_key: 'ref_number', currency: String(m.currency || 'EGP').toUpperCase() === 'EGP' ? 'EGP' : 'USD', qr: m.qr_url || '', qrSize: m.qr_size || 120,
+          edge_fn: null, payload_key: 'ref_number', currency: String(m.currency || 'EGP').toUpperCase() === 'EGP' ? 'EGP' : 'USD', qr: (m.key !== 'bank_transfer' && m.qr_url && !/\.html?(\?|#|$)/i.test(m.qr_url)) ? m.qr_url : '', qrSize: m.qr_size || 120,
         };
         if (m.key === 'bank_transfer') {
           const d = m.details || {};
@@ -4778,8 +4782,8 @@ async function loadPaymentMethodsConfig(){
               { ar: 'Routing number (ABA)', en: 'Routing number (ABA)', v: d.routing_number || '' },
               { ar: 'نوع الحساب', en: 'Account type', v: d.account_type || 'Checking' },
             ],
-            input_label_ar: 'رقم مرجع التحويل من البنك', input_label_en: 'Bank transfer reference',
-            input_ph_ar: 'مثال: رقم المرجع أو الـ Confirmation number', input_ph_en: 'e.g. the reference or confirmation number',
+            input_label_ar: 'رقم مرجع التحويل / ID', input_label_en: 'Bank transfer reference/ID',
+            input_ph_ar: 'رقم المرجع أو الـ ID من البنك', input_ph_en: 'Reference or ID from your bank',
           });
         }
         if (m.key === 'paypal_manual') {
@@ -5404,7 +5408,7 @@ async function renderPaypalButtons(){
   const ar = currentLang === 'ar';
   if (_ppButtons) { try { _ppButtons.close(); } catch (e) {} _ppButtons = null; }
   box.style.display = '';
-  box.innerHTML = `<div id="walletPaypalBtns" style="min-height:48px;"></div><div id="walletPaypalMsg" style="font-size:11.5px;color:var(--muted);text-align:center;">${ar ? 'جاري تحميل PayPal...' : 'Loading PayPal...'}</div>`;
+  box.innerHTML = `<div id="walletPaypalBtns" class="pp-btns" style="min-height:48px;"><div id="walletPaypalBtnPp" class="pp-btn"></div><div id="walletPaypalBtnCard" class="pp-btn"></div></div><div id="walletPaypalMsg" style="font-size:11.5px;color:var(--muted);text-align:center;">${ar ? 'جاري تحميل PayPal...' : 'Loading PayPal...'}</div>`;
   try { await loadPaypalSdk(); }
   catch (e) {
     if (seq !== _ppRenderSeq) return;
@@ -5413,7 +5417,7 @@ async function renderPaypalButtons(){
   }
   if (seq !== _ppRenderSeq) return; // the customer picked another gateway meanwhile
   document.getElementById('walletPaypalMsg').textContent = '';
-  _ppButtons = window.paypal.Buttons({
+  const ppOpts = {
     style: { layout: 'vertical', shape: 'rect', label: 'pay', height: 44 },
     createOrder: async () => {
       if (!PROKEYS_USER_ID) { window.location.href = 'index.html'; throw new Error('not signed in'); }
@@ -5433,8 +5437,17 @@ async function renderPaypalButtons(){
       console.error('PayPal error', err);
       appAlert(ar ? 'حصلت مشكلة في PayPal. جرب تاني أو اختار وسيلة دفع تانية.' : 'Something went wrong with PayPal. Try again or choose another payment method.', { icon: 'error' });
     },
-  });
-  try { await _ppButtons.render('#walletPaypalBtns'); } catch (e) { console.error('PayPal render failed', e); }
+  };
+  // One button per way to pay, side by side: the PayPal account, and a debit or credit card.
+  const sources = [[window.paypal.FUNDING.PAYPAL, '#walletPaypalBtnPp'], [window.paypal.FUNDING.CARD, '#walletPaypalBtnCard']];
+  const made = [];
+  for (const [fundingSource, sel] of sources) {
+    const btn = window.paypal.Buttons({ ...ppOpts, fundingSource, style: fundingSource === window.paypal.FUNDING.CARD ? { ...ppOpts.style, color: 'black' } : ppOpts.style });
+    if (!btn.isEligible()) { document.querySelector(sel)?.remove(); continue; }
+    made.push(btn);
+    try { await btn.render(sel); } catch (e) { console.error('PayPal render failed', e); }
+  }
+  _ppButtons = { close(){ made.forEach(b => { try { b.close(); } catch (e) {} }); } };
 }
 // Paid and credited: the store flows finish their own way; check packages show the new balance.
 async function paypalFinish(orderID){
@@ -6804,7 +6817,7 @@ function updateSidebarUserPopup(){
   const sbUid = document.getElementById('sidebarUid');
   const sbAv = document.getElementById('sidebarAv');
   if(sbName) sbName.textContent = name;
-  if(sbUid) { sbUid.textContent = uid; pkAttachCopy(sbUid, uid); }
+  if(sbUid) sbUid.textContent = uid;   // no copy icon here: the code and the slots badge sit side by side
   if(sbAv) renderUserAvatar(sbAv);
   // Popup header
   const supName = document.getElementById('supName');
