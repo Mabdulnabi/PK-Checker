@@ -12238,6 +12238,17 @@ function renderQueueAlerts(){
 // Amber notice: a check with AI detection sent with more than 30,000 words (Turnitin's AI limit), so
 // only the similarity report is produced. Newest such order of the last 7 days, until dismissed.
 const AI_LIMIT_DISMISS_KEY = 'pk-ai-limit-dismissed';
+// Testing account (table tester_accounts, PK001): new features also show on older orders.
+let PK_TESTER = false;
+async function loadTesterFlag(){
+  if (!PROKEYS_USER_ID) return;
+  try {
+    const { data } = await supabaseClient.from('tester_accounts').select('user_id').eq('user_id', PROKEYS_USER_ID).maybeSingle();
+    const was = PK_TESTER;
+    PK_TESTER = !!data;
+    if (PK_TESTER !== was && typeof renderFailAlerts === 'function') renderFailAlerts();
+  } catch (e) { /* not a tester */ }
+}
 function aiLimitDismissed(){ try { return JSON.parse(localStorage.getItem(AI_LIMIT_DISMISS_KEY) || '[]'); } catch { return []; } }
 function dismissAiLimitAlert(id){
   const list = aiLimitDismissed(); if (!list.includes(id)) list.push(id);
@@ -12251,7 +12262,7 @@ function dismissAiLimitAlert(id){
 function renderAiLimitAlerts(){
   const box = document.getElementById('aiLimitAlerts');
   if (!box) return;
-  const ar = currentLang === 'ar', gone = aiLimitDismissed(), since = Date.now() - 7 * 86400000;
+  const ar = currentLang === 'ar', gone = aiLimitDismissed(), since = PK_TESTER ? 0 : Date.now() - 7 * 86400000;
   const o = (orders || []).filter(x => x.checkType === 'sim_ai' && Number(x.words) > (typeof SF_MAX_WORDS_AI !== 'undefined' ? SF_MAX_WORDS_AI : 30000)
     && !['error', 'failed_invalid', 'rejected', 'cancelled'].includes(x.phase) && x.phaseStart >= since && !gone.includes(x.id))
     .sort((a, b) => b.phaseStart - a.phaseStart)[0];
@@ -12626,6 +12637,7 @@ async function loadDashboardData(){
   }
 
   // loadUserProfile skips itself after first success (_profileLoaded flag)
+  loadTesterFlag();
   await Promise.all([ loadUserProfile(), loadOrders(), loadWallet(), loadSlots(), refreshServiceAvailability(), loadMyFiles(), loadMyHistory(), loadTopupPacks(), loadTickets(), loadApiSettings(), loadNotifications() ]);
   updatePrice();
   renderOrders();
