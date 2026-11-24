@@ -2098,6 +2098,23 @@ if (new URLSearchParams(location.search).has('preview')) {
   [data-theme="dark"] .fail-alert.queue-alert .qa-btn{background:transparent;color:#fcd34d;}
   /* Stack: the cards waiting behind peek out under the top one */
   #failAlerts.fa-stacked{margin-bottom:calc(16px + var(--fa-behind, 0) * 7px);}
+  .notice-stack{position:relative;}
+  .notice-stack.ns-multi{margin:4px 0 calc(20px + var(--ns-behind, 0) * 7px);}
+  .notice-stack.ns-multi > div{margin:0 !important;position:relative;z-index:3;}
+  .notice-stack.ns-multi > .ns-hidden{display:none !important;}
+  .notice-stack.ns-multi .fa-layer{display:none;}
+  .ns-layer{position:absolute;left:0;right:0;top:0;bottom:0;border-radius:14px;pointer-events:none;}
+  .ns-layer-1{z-index:2;transform:translateY(7px) scale(.975);opacity:.9;}
+  .ns-layer-2{z-index:1;transform:translateY(14px) scale(.95);opacity:.65;}
+  .ns-amber{background:#fffbeb;border:1px solid #fde68a;}
+  .ns-rose{background:#fff1f2;border:1px solid #fecdd3;}
+  [data-theme="dark"] .ns-amber{background:rgba(245,158,11,.10);border-color:rgba(252,211,77,.3);}
+  [data-theme="dark"] .ns-rose{background:rgba(225,29,72,.10);border-color:rgba(251,113,133,.3);}
+  .ns-next{display:inline-flex;align-items:center;gap:2px;margin-inline-start:auto;margin-inline-end:24px;padding:2px 6px 2px 9px;border-radius:999px;border:1px solid var(--paper-line);background:#fff;color:#374151;font-size:11px;font-weight:800;font-family:'Space Grotesk',sans-serif;cursor:pointer;white-space:nowrap;}
+  .ns-next:hover{background:var(--paper-soft,#f3f6fc);}
+  .ns-next svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;}
+  html[dir="rtl"] .ns-next svg{transform:scaleX(-1);}
+  .queue-alert:not(.ai-limit-alert) .ns-next{margin-inline-end:0;}
   #failAlerts .fail-alert{z-index:3;}
   .fa-layer{position:absolute;left:0;right:0;top:0;bottom:0;border-radius:14px;background:#fff1f2;border:1px solid #fecdd3;pointer-events:none;}
   .fa-layer-1{z-index:2;transform:translateY(7px) scale(.975);opacity:.85;}
@@ -2168,6 +2185,11 @@ if (new URLSearchParams(location.search).has('preview')) {
     .queue-alert .qa-guide{flex:none;width:auto;}
     .fail-alert.queue-alert .qa-btn{width:100%;justify-content:center;margin-inline-start:0;}
     .fa-layer-1{transform:translateY(6px) scale(.97);}
+    .ns-layer-1{transform:translateY(6px) scale(.97);}
+    .ns-layer-2{transform:translateY(12px) scale(.94);}
+    .notice-stack.ns-multi{margin-bottom:calc(16px + var(--ns-behind, 0) * 6px);}
+    .ns-next{position:absolute;top:12px;inset-inline-end:44px;margin:0;z-index:4;}
+    .queue-alert:not(.ai-limit-alert) .ns-next{inset-inline-end:12px;}
     .fa-layer-2{transform:translateY(12px) scale(.94);}
   }
 </style>
@@ -2422,9 +2444,11 @@ if (new URLSearchParams(location.search).has('preview')) {
         </div>
       </div>
 
+      <div id="noticeStack" class="notice-stack">
       <div id="queueAlerts"></div>
       <div id="aiLimitAlerts"></div>
       <div id="failAlerts"></div>
+      </div>
 
       <div class="sec-head">
         <div class="sec-head-titles">
@@ -12289,7 +12313,7 @@ function dismissAiLimitAlert(id){
   try { localStorage.setItem(AI_LIMIT_DISMISS_KEY, JSON.stringify(list.slice(-200))); } catch {}
   const box = document.getElementById('aiLimitAlerts');
   const card = box && box.querySelector('.fail-alert');
-  const done = () => { if (box) box.dataset.key = ''; renderAiLimitAlerts(); };
+  const done = () => { if (box) box.dataset.key = ''; renderAiLimitAlerts(); stackNotices(); };
   if (card && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) { card.classList.add('fa-out'); setTimeout(done, 260); }
   else done();
 }
@@ -12330,6 +12354,36 @@ function renderAiLimitAlerts(){
   </div>`;
 }
 
+/* All the notices (queued, AI word limit, failed) in one pile: only the top one shows, the edges of the
+   others show behind it, and "1/3 ›" brings the next one to the front (none is closed by that). */
+let _failTotal = 0, _nsIdx = 0;
+const NS_GROUPS = [['queueAlerts', 'amber'], ['aiLimitAlerts', 'amber'], ['failAlerts', 'rose']];
+function stackNotices(){
+  const stack = document.getElementById('noticeStack');
+  if (!stack) return;
+  const present = NS_GROUPS.filter(([id]) => document.querySelector(`#${id} .fail-alert`));
+  stack.querySelectorAll('.ns-layer').forEach(x => x.remove());
+  document.querySelectorAll('#noticeStack .ns-next').forEach(x => x.remove());
+  const multi = present.length > 1;
+  stack.classList.toggle('ns-multi', multi);
+  NS_GROUPS.forEach(([id]) => document.getElementById(id)?.classList.remove('ns-hidden'));
+  if (!multi) { stack.style.removeProperty('--ns-behind'); return; }
+  const n = present.length, top = ((_nsIdx % n) + n) % n;
+  present.forEach(([id], k) => document.getElementById(id).classList.toggle('ns-hidden', k !== top));
+  // Every notice behind counts (several failures are several notices).
+  const cards = present.reduce((sum, [id]) => sum + (id === 'failAlerts' ? Math.max(1, _failTotal) : 1), 0);
+  const behind = Math.min(cards - 1, 2);
+  stack.style.setProperty('--ns-behind', behind);
+  for (let i = 1; i <= behind; i++) {
+    const tone = present[(top + i) % n][1];
+    stack.insertAdjacentHTML('beforeend', `<div class="ns-layer ns-layer-${i} ns-${tone}" aria-hidden="true"></div>`);
+  }
+  const ar = currentLang === 'ar';
+  const head = document.querySelector(`#${present[top][0]} .fail-alert .fa-top`);
+  if (head) head.insertAdjacentHTML('beforeend', `<button type="button" class="ns-next" onclick="nextNotice()" title="${ar ? 'الإشعار التالي' : 'Next notice'}" aria-label="${ar ? 'الإشعار التالي' : 'Next notice'}">${top + 1}/${n}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>`);
+}
+function nextNotice(){ _nsIdx++; stackNotices(); }
+
 function renderFailAlerts(){
   renderQueueAlerts();
   renderAiLimitAlerts();
@@ -12341,6 +12395,7 @@ function renderFailAlerts(){
   loadFailSlotStates(list.map(o => o.id));
   // One alert at a time: the newest on top, the older ones stacked behind it. Closing it shows the next.
   const total = list.length;
+  _failTotal = total;
   const behind = Math.min(total - 1, 2);
   box.classList.toggle('fa-stacked', total > 1);
   box.style.setProperty('--fa-behind', behind);
@@ -12387,6 +12442,7 @@ function renderFailAlerts(){
       <button type="button" class="fa-x" onclick="dismissFailAlert('${o.id}')" title="${ar ? (total > 1 ? 'إخفاء وعرض التالي' : 'إخفاء') : (total > 1 ? 'Dismiss and show the next' : 'Dismiss')}">×</button>
     </div>`;
   }).join('') + Array.from({ length: behind }, (_, i) => `<div class="fa-layer fa-layer-${i + 1}" aria-hidden="true"></div>`).join('');
+  stackNotices();
 }
 renderKpis();
 renderOrders();
