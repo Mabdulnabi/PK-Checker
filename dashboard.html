@@ -970,6 +970,19 @@
   .mf-status.bad{background:var(--danger-wash);color:var(--danger);border:1px solid #F5C2CB;}
   /* Developer API tab (scoped to .dvx): one scrolling page, cards like a developer hub, contents list on the side */
   .sidebar-nav > .sid-section{ flex:none; }
+  /* Compact sidebar: every tab fits without a scrollbar */
+  .sidebar-nav{ gap:2px; }
+  .sidebar-nav > .sidebar-item{ flex:none; padding:7px 12px; gap:18px; }
+  .sidebar-nav .sid-chip{ width:32px; height:32px; border-radius:9px; }
+  .sidebar-nav .sid-chip svg{ width:20px; height:20px; }
+  .sidebar-nav > .sidebar-item > span{ font-size:14px; }
+  .sidebar-nav > .sid-section{ padding:10px 14px 3px; }
+  @media (max-height:700px){
+    .sidebar-nav > .sidebar-item{ padding:5px 12px; }
+    .sidebar-nav .sid-chip{ width:28px; height:28px; }
+    .sidebar-nav .sid-chip svg{ width:18px; height:18px; }
+    .sidebar-nav > .sid-section{ padding:6px 14px 2px; }
+  }
   .sid-violet{ background:#9333ea1a; color:#9333ea; }
   .sid-chip.sid-violet, .sidebar-item.on .sid-chip.sid-violet{ color:#9333ea !important; }
   .sidebar-item.on .sid-violet{ background:#9333ea29; }
@@ -4624,7 +4637,7 @@ const ICONS = {
 const ICON_SIZE_MAP = {
   logo_dashboard:'52px',
   header_notif:'18px', header_notif_dark:'18px', header_lightmode:'18px', header_darkmode:'18px', header_tour:'18px', header_tour_dark:'18px', header_profile:'16px', header_signout:'16px',
-  tab_home:'18px', tab_new_check:'18px', tab_orders:'18px', tab_wallet:'18px', tab_support:'18px', tab_academic:'24px', tab_my_orders:'24px', tab_focus:'24px',
+  tab_home:'18px', tab_new_check:'18px', tab_orders:'18px', tab_wallet:'18px', tab_support:'18px', tab_academic:'24px', tab_my_orders:'24px', tab_focus:'24px', tab_dev_api:'24px',
   ac_cat_all:'100%', badge_instant:'13px', badge_request:'13px', badge_stock:'13px', badge_sold:'13px', badge_discount:'13px', ac_tab_store:'16px', ac_tab_orders:'16px', ac_tab_wallet:'16px', ac_kpi_active:'16px', ac_kpi_renewal:'16px', ac_kpi_spend:'16px', ac_kpi_savings:'16px', ac_buy:'16px', ac_help:'20px', fx_calc:'16px', fx_export:'16px', fx_import:'16px', fx_fullscreen:'16px', fx_lock:'16px', fx_bookmarks:'16px', fx_notes:'16px', fx_tasks:'16px', fx_calendar:'16px', fx_reminder:'16px', fx_timer_reset:'16px', fx_timer_settings:'16px',
   home_watch:'15px', home_g1:'20px', home_g2:'20px', home_g3:'20px',
   nc_balance:'18px', nc_floating:'18px', nc_api_active:'18px', nc_api_maintenance:'18px', nc_completed:'18px', redeem_code_icon:'18px',
