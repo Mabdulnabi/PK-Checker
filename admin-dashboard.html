@@ -5654,6 +5654,15 @@ function deliveryTime(o){
           <button class="uid-size-btn" onclick="changePayMethodQrSize(10)" title="أكبر">+</button>
         </div>
       </div>
+      <div id="payMethodBankBlock" style="display:none;margin-bottom:8px;">
+        <label class="pg-lbl">رقم الحساب (Account number)</label>
+        <input class="adm-modal-input" id="payMethodBankAcc" placeholder="Account number" style="margin-bottom:8px;direction:ltr;" maxlength="40">
+        <label class="pg-lbl">Routing number (ABA)</label>
+        <input class="adm-modal-input" id="payMethodBankRouting" placeholder="9 digits" style="margin-bottom:8px;direction:ltr;" maxlength="20">
+        <label class="pg-lbl">نوع الحساب (Account type)</label>
+        <input class="adm-modal-input" id="payMethodBankType" list="payMethodBankTypes" placeholder="Checking" style="margin-bottom:8px;direction:ltr;" maxlength="30">
+        <datalist id="payMethodBankTypes"><option value="Checking"><option value="Savings"></datalist>
+      </div>
       <div id="payMethodUidBlock">
         <label class="pg-lbl">رقم / عنوان التحويل اللي العميل بيحول عليه</label>
         <input class="adm-modal-input" id="payMethodUid" placeholder="UID / رقم / عنوان المحفظة" style="margin-bottom:8px;direction:ltr;">
@@ -6589,7 +6598,7 @@ const PACK_NAMES = {
 };
 const GATEWAY_LABELS = {
   binance:'Binance Pay', bybit:'Bybit Pay', bep20:'BEP-20 USDT',
-  easykash:'EasyKash', paypal:'PayPal', get paypal_manual(){ return admAr() ? 'PayPal (يدوي)' : 'PayPal (manual)'; }, instapay:'InstaPay', vodafone:'Vodafone Cash',
+  easykash:'EasyKash', paypal:'PayPal', get paypal_manual(){ return admAr() ? 'PayPal (يدوي)' : 'PayPal (manual)'; }, get bank_transfer(){ return admAr() ? 'تحويل بنكي' : 'Bank transfer'; }, instapay:'InstaPay', vodafone:'Vodafone Cash',
   paypal:'PayPal', admin:'أدمن', manual:'يدوي',
 };
 
@@ -8962,12 +8971,14 @@ async function initPayGatewaysTab(){
 const PG_GROUPS = [['wallets', 'محافظ إلكترونية', 'E-Wallets'], ['card', 'الدفع بالكارت', 'Card'], ['crypto', 'العملات الرقمية', 'Crypto']];
 // What each built-in method uses on the customer page (fields that do nothing are not shown).
 const PG_BUILTIN = {
-  instapay: { uid: true, qr: true, how: 'ref' }, vodafone: { uid: true, qr: true, how: 'ref' },
+  instapay: { uid: true, qr: true, how: 'ref' }, vodafone: { uid: true, qr: true, how: 'ref' },   // EasyKash is in E-Wallets too
   easykash: { uid: false, qr: false, how: 'auto' }, paypal: { uid: false, qr: false, how: 'auto' },
   binance: { uid: true, qr: true, how: 'auto' }, bybit: { uid: true, qr: true, how: 'auto' }, bep20: { uid: true, qr: true, how: 'auto' },
 };
 const PG_CARD_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>';
-function pgGroupOf(m){ return m.pay_group || (['easykash', 'paypal'].includes(m.key) ? 'card' : ['binance', 'bybit', 'bep20'].includes(m.key) ? 'crypto' : 'wallets'); }
+function pgGroupOf(m){ return m.pay_group || (['paypal', 'paypal_manual', 'bank_transfer'].includes(m.key) ? 'card' : ['binance', 'bybit', 'bep20'].includes(m.key) ? 'crypto' : 'wallets'); }
+// The currency each tab is paid in (badge next to the tab name, like the customer page).
+const PG_GROUP_CUR = { wallets: ['ج.م', 'EGP'], card: ['دولار', 'USD'], crypto: ['USDT', 'USDT'] };
 // The logo the customer sees: the UI Design icon if one was uploaded, else the default drawing.
 function pgLogoHtml(m){
   const key = 'wal_pay_' + m.key;
@@ -9013,14 +9024,14 @@ function renderPayMethodsList(){
         <span class="pg-logo">${pgLogoHtml(m)}</span>
         <div class="pg-info">
           <div class="pg-name">${escapeHtml(m.name)}</div>
-          <div class="pg-meta">${pgTypeBadge(m)}<span class="pg-badge cur">${escapeHtml(String(m.currency || 'EGP').replace('USDT', 'USD'))}</span>${m.uid ? `<span class="pg-uid" dir="ltr">${escapeHtml(m.uid)}</span>` : ''}</div>
+          <div class="pg-meta">${pgTypeBadge(m)}<span class="pg-badge cur">${escapeHtml(String(m.currency || 'EGP').replace('USDT', 'USD'))}</span>${m.uid ? `<span class="pg-uid" dir="ltr">${escapeHtml(m.uid)}</span>` : ''}${m.key === 'bank_transfer' && m.details?.account_number ? `<span class="pg-uid" dir="ltr">${escapeHtml(m.details.account_number)}</span>` : ''}</div>
         </div>
         <span class="pg-state">${m.visible ? (isAr ? 'ظاهرة' : 'Shown') : (isAr ? 'مخفية' : 'Hidden')}</span>
         <label class="side-toggle-sw" title="${isAr ? 'إظهار للعملاء' : 'Show to customers'}"><input type="checkbox" ${m.visible ? 'checked' : ''} onchange="togglePayMethodVisible('${m.id}',this.checked)"><span class="side-toggle-slider"></span></label>
         <button class="msg-btn" onclick="openEditPayMethodPopup('${m.id}')">${isAr ? 'تعديل' : 'Edit'}</button>
         ${m.is_builtin ? '' : `<button class="msg-btn" style="color:var(--danger);border-color:var(--danger-wash);" data-a="${escapeHtml(m.id)}" data-b="${escapeHtml(m.name)}" onclick="runWithData(this, deletePayMethod)">${isAr ? 'حذف' : 'Delete'}</button>`}
       </div>`).join('');
-    return `<div class="pg-group"><div class="pg-group-head"><b>${isAr ? arName : enName}</b><span>${list.filter(m => m.visible).length} / ${list.length} ${isAr ? 'ظاهرة' : 'shown'}</span>
+    return `<div class="pg-group"><div class="pg-group-head"><b>${isAr ? arName : enName} <span class="pg-badge cur">${PG_GROUP_CUR[g][isAr ? 0 : 1]}</span></b><span>${list.filter(m => m.visible).length} / ${list.length} ${isAr ? 'ظاهرة' : 'shown'}</span>
         <button type="button" class="msg-btn" onclick="openAddPayMethodPopup('${g}')">${isAr ? '+ إضافة هنا' : '+ Add here'}</button></div>
       ${rows || `<div class="pg-empty">${isAr ? 'مفيش وسائل في التاب ده' : 'No methods in this tab'}</div>`}</div>`;
   }).join('');
@@ -9058,14 +9069,24 @@ function pgSetupPopup(m, group){
   document.getElementById('payMethodNewOnly').style.display = custom ? 'flex' : 'none';
   document.getElementById('payMethodGroup').value = group || (m ? pgGroupOf(m) : 'wallets');
   document.getElementById('payMethodCurrency').value = String(m?.currency || 'EGP').toUpperCase() === 'EGP' ? 'EGP' : 'USD';
-  document.getElementById('payMethodUidBlock').style.display = (custom || b?.uid) ? '' : 'none';
-  document.getElementById('payMethodQrBlock').style.display = (custom || b?.qr) ? '' : 'none';
+  const isBank = m?.key === 'bank_transfer';
+  document.getElementById('payMethodUidBlock').style.display = !isBank && (custom || b?.uid) ? '' : 'none';
+  document.getElementById('payMethodQrBlock').style.display = !isBank && (custom || b?.qr) ? '' : 'none';
+  document.getElementById('payMethodBankBlock').style.display = isBank ? '' : 'none';
+  if (isBank) {
+    const d = m.details || {};
+    document.getElementById('payMethodBankAcc').value = d.account_number || '';
+    document.getElementById('payMethodBankRouting').value = d.routing_number || '';
+    document.getElementById('payMethodBankType').value = d.account_type || 'Checking';
+  }
   document.getElementById('payMethodLogo').innerHTML = m ? pgLogoHtml(m) : PG_CARD_SVG;
   document.getElementById('payMethodLogoBtn').style.display = m ? '' : 'none';
   const ar = admAr();
   document.getElementById('payMethodTypeNote').innerHTML = !m
     ? (ar ? 'الوسيلة الجديدة بتتراجع يدوياً: العميل بيحوّل ويكتب الرقم المرجعي، وإنت بتأكد الدفعة من تاب المدفوعات. الشعار هيتضاف لتصميم الواجهة تلقائياً بعد الحفظ.'
           : 'New methods are reviewed by hand: the customer transfers and enters the reference number, and you confirm the payment from the Payments tab. The logo is added to UI Design automatically after saving.')
+    : m.key === 'bank_transfer' ? (ar ? 'تحويل بنكي دولي لحساب أمريكي بالدولار: العميل بيحوّل ويكتب رقم مرجع التحويل من البنك، وإنت بتأكد الدفعة من تاب المدفوعات. اكتب بيانات الحساب وبعدين فعّل الوسيلة.'
+          : 'International bank transfer to a US account, in USD: the customer transfers and enters the bank\'s reference, and you confirm the payment from the Payments tab. Enter the account details, then turn the method on.')
     : m.key === 'paypal_manual' ? (ar ? 'PayPal يدوي: العميل بيحوّل على اسم المستخدم ده ويكتب الـ Transaction ID (المبلغ شامل عمولة PayPal)، وإنت بتأكد الدفعة من تاب المدفوعات.'
           : 'Manual PayPal: the customer sends the money to this username and enters the Transaction ID (the amount includes PayPal\'s fee); you confirm the payment from the Payments tab.')
     : b?.how === 'auto' ? (ar ? 'الدفعة بتتأكد تلقائياً، ومفيش حاجة تتراجع يدوياً.' : 'Payments are confirmed automatically; nothing to review by hand.')
@@ -9206,6 +9227,15 @@ async function submitPayMethod(){
   };
   const editing = editingPayMethodId ? allPayMethods.find(x => x.id === editingPayMethodId) : null;
   if (editing && editing.key === 'paypal_manual' && !payload.uid) { await adminAlert('اكتب اسم مستخدم PayPal اللي العميل هيحوّل عليه', {icon:'⚠️'}); return; }
+  if (editing && editing.key === 'bank_transfer') {
+    const acc = document.getElementById('payMethodBankAcc').value.trim();
+    const routing = document.getElementById('payMethodBankRouting').value.trim();
+    const type = document.getElementById('payMethodBankType').value.trim() || 'Checking';
+    if (routing && !/^\d{9}$/.test(routing)) { await adminAlert(admAr() ? 'الـ Routing number الأمريكي لازم يكون 9 أرقام.' : 'A US routing number has 9 digits.', { icon: '⚠️' }); return; }
+    if (editing.visible && (!acc || !routing)) { await adminAlert(admAr() ? 'الوسيلة ظاهرة للعملاء: اكتب رقم الحساب والـ Routing number.' : 'The method is shown to customers: enter the account number and the routing number.', { icon: '⚠️' }); return; }
+    payload.details = { ...(editing.details || {}), account_number: acc, routing_number: routing, account_type: type };
+    payload.uid = null;
+  }
   if (!editing || !editing.is_builtin) {
     // Methods you add: tab + currency are yours to choose, and they are always checked by hand.
     payload.pay_group = document.getElementById('payMethodGroup').value;
