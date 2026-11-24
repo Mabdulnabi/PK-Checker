@@ -24,6 +24,8 @@
 <meta name="twitter:image" content="https://ixpgqhwausnfjphitsty.supabase.co/storage/v1/object/public/Logo/Meta.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.paypal.com">
+<link rel="dns-prefetch" href="https://www.paypalobjects.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="shared/pk-shared.js"></script>
@@ -1287,6 +1289,8 @@
   .pay-tab.on .pay-tab-cur{background:var(--blue-wash,#e8f0ff);color:var(--blue-deep);border-color:#BFD7FF;}
   @media (max-width:640px){ .pay-tab{flex-wrap:wrap;gap:3px 5px;} .pay-tab-cur{font-size:9px;padding:0 5px;} }
   /* Bank transfer: the account details, one copyable line each */
+  .pp-skel{height:44px;border-radius:6px;background:linear-gradient(90deg,var(--paper-soft,#eef2f8) 25%,#e2e8f2 50%,var(--paper-soft,#eef2f8) 75%);background-size:200% 100%;animation:ppSkel 1.1s linear infinite;}
+  @keyframes ppSkel{to{background-position:-200% 0;}}
   .pp-btns{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;}
   .pp-btns .pp-btn{flex:1 1 0;min-width:150px;}   /* PayPal buttons need at least 150px */
   .bank-rows{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;cursor:default;}
@@ -4827,6 +4831,7 @@ async function loadPaymentMethodsConfig(){
     });
     if (typeof applyCustomIcons === 'function') applyCustomIcons();
     refreshPayTabs();
+    preloadPaypalSdk();
     // If the selected method was just hidden, select the first one still shown.
     const sel = document.querySelector('#walletPayGrid .paycard.on');
     if (sel && sel.style.display === 'none') {
@@ -5433,6 +5438,8 @@ const PAYPAL_CLIENT_ID = 'BAA48o-YrMao9vqRoOOdS9QYumXeaFpn8PIINSdA9JmdU68Vlwmvse
 // Price with PayPal's fee added, so the full price reaches us (same formula as the server).
 const paypalCharge = usd => Math.ceil(((Number(usd) + 0.5) / 0.96) * 100) / 100;
 let _ppSdk = null, _ppButtons = null, _ppPaymentId = null, _ppRenderSeq = 0;
+let _ppState = 'none';    // 'none' | 'loading' | 'ready': the buttons are kept once made
+let _ppVisible = false;   // the PayPal method is the one shown right now
 function loadPaypalSdk(){
   if (window.paypal && window.paypal.Buttons) return Promise.resolve(window.paypal);
   if (!_ppSdk) _ppSdk = new Promise((resolve, reject) => {
@@ -5444,11 +5451,25 @@ function loadPaypalSdk(){
   });
   return _ppSdk;
 }
-function hidePaypalButtons(){
-  _ppRenderSeq++;
-  if (_ppButtons) { try { _ppButtons.close(); } catch (e) {} _ppButtons = null; }
+// Switching to another method only hides the buttons (they stay ready); destroy=true removes them
+// (after a payment). They read the package and its price when clicked, so they never go stale.
+function hidePaypalButtons(destroy){
+  _ppVisible = false;
   const box = document.getElementById('walletPaypalBox');
-  if (box) { box.style.display = 'none'; box.innerHTML = ''; }
+  if (box) box.style.display = 'none';
+  if (destroy) {
+    _ppRenderSeq++;
+    if (_ppButtons) { try { _ppButtons.close(); } catch (e) {} _ppButtons = null; }
+    _ppState = 'none';
+    if (box) box.innerHTML = '';
+  }
+}
+// Loaded in the background once the payment methods are known, so choosing PayPal is quick.
+function preloadPaypalSdk(){
+  const card = document.querySelector('#walletPayGrid .paycard[data-pay="paypal"]');
+  if (!card || card.style.display === 'none') return;
+  const go = () => loadPaypalSdk().catch(() => {});
+  if ('requestIdleCallback' in window) requestIdleCallback(go, { timeout: 4000 }); else setTimeout(go, 1500);
 }
 async function paypalCall(fn, body){
   const { data: { session } } = await supabaseClient.auth.getSession();
@@ -5462,14 +5483,20 @@ async function paypalCall(fn, body){
 async function renderPaypalButtons(){
   const box = document.getElementById('walletPaypalBox');
   if (!box) return;
+  _ppVisible = true;
+  box.style.display = '';
+  if (_ppState !== 'none') return;   // already made (or being made): just shown again
+  _ppState = 'loading';
   const seq = ++_ppRenderSeq;
   const ar = currentLang === 'ar';
   if (_ppButtons) { try { _ppButtons.close(); } catch (e) {} _ppButtons = null; }
-  box.style.display = '';
-  box.innerHTML = `<div id="walletPaypalBtns" class="pp-btns" style="min-height:48px;"><div id="walletPaypalBtnPp" class="pp-btn"></div><div id="walletPaypalBtnCard" class="pp-btn"></div></div><div id="walletPaypalMsg" style="font-size:11.5px;color:var(--muted);text-align:center;">${ar ? 'جاري تحميل PayPal...' : 'Loading PayPal...'}</div>`;
+  // Placeholders the size of the two buttons, so nothing jumps while PayPal loads.
+  box.innerHTML = `<div id="walletPaypalBtns" class="pp-btns" style="min-height:48px;"><div id="walletPaypalBtnPp" class="pp-btn"><div class="pp-skel"></div></div><div id="walletPaypalBtnCard" class="pp-btn"><div class="pp-skel"></div></div></div><div id="walletPaypalMsg" style="font-size:11.5px;color:var(--muted);text-align:center;"></div>`;
   try { await loadPaypalSdk(); }
   catch (e) {
     if (seq !== _ppRenderSeq) return;
+    _ppState = 'none';   // tried again next time PayPal is chosen
+    box.querySelectorAll('.pp-skel').forEach(x => x.remove());
     document.getElementById('walletPaypalMsg').textContent = ar ? 'تعذر تحميل PayPal. اتأكد من الإنترنت أو جرب وسيلة تانية.' : 'PayPal could not be loaded. Check your connection or choose another method.';
     return;
   }
@@ -5495,7 +5522,7 @@ async function renderPaypalButtons(){
       console.error('PayPal error', err);
       // The customer moved to another payment method (the buttons were closed while loading): not an error.
       const box = document.getElementById('walletPaypalBox');
-      if (seq !== _ppRenderSeq || !box || box.style.display === 'none' || !document.body.contains(box)) return;
+      if (!_ppVisible || seq !== _ppRenderSeq || !box || box.style.display === 'none' || !document.body.contains(box)) return;
       appAlert(ar ? 'حصلت مشكلة في PayPal. جرب تاني أو اختار وسيلة دفع تانية.' : 'Something went wrong with PayPal. Try again or choose another payment method.', { icon: 'error' });
     },
   };
@@ -5504,18 +5531,22 @@ async function renderPaypalButtons(){
   const made = [];
   // Known at once, so switching to another method while they load closes them both.
   _ppButtons = { close(){ made.forEach(b => { try { b.close(); } catch (e) {} }); } };
-  for (const [fundingSource, sel] of sources) {
-    if (seq !== _ppRenderSeq) return;   // the customer picked another method meanwhile
+  await Promise.all(sources.map(async ([fundingSource, sel]) => {
+    if (seq !== _ppRenderSeq) return;
     const btn = window.paypal.Buttons({ ...ppOpts, fundingSource, style: fundingSource === window.paypal.FUNDING.CARD ? { ...ppOpts.style, color: 'black' } : ppOpts.style });
-    if (!btn.isEligible()) { document.querySelector(sel)?.remove(); continue; }
+    if (!btn.isEligible()) { document.querySelector(sel)?.remove(); return; }
     made.push(btn);
     try { await btn.render(sel); } catch (e) { if (seq === _ppRenderSeq) console.error('PayPal render failed', e); }
-  }
+    document.querySelector(sel)?.querySelector('.pp-skel')?.remove();
+  }));
+  if (seq === _ppRenderSeq) _ppState = made.length ? 'ready' : 'none';
 }
 // Paid and credited: the store flows finish their own way; check packages show the new balance.
 async function paypalFinish(orderID){
   const ar = currentLang === 'ar';
   const box = document.getElementById('walletPaypalBox');
+  _ppState = 'none';
+  if (_ppButtons) { try { _ppButtons.close(); } catch (e) {} _ppButtons = null; }
   if (box) box.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:16px;font-size:13px;font-weight:600;color:var(--muted);"><span class="pp-spin" style="width:18px;height:18px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;display:inline-block;animation:ppSpin .8s linear infinite;"></span>${ar ? 'جاري تأكيد الدفع...' : 'Confirming your payment...'}</div><style>@keyframes ppSpin{to{transform:rotate(360deg)}}</style>`;
   let res;
   try { res = await paypalCall('paypal-capture-order', { payment_id: _ppPaymentId, order_id: orderID }); }
@@ -5540,10 +5571,10 @@ async function paypalFinish(orderID){
 // message, then the payment block closes and the customer is back at the top of the wallet.
 async function paypalPaid(){
   clearOpenTopup();
-  if (selectedPack && selectedPack.store) { hidePaypalButtons(); await acCheckoutPaid(); return; }
+  if (selectedPack && selectedPack.store) { hidePaypalButtons(true); await acCheckoutPaid(); return; }
   const ar = currentLang === 'ar';
   const credits = selectedPack ? selectedPack.credits + (selectedPack.bonus || 0) : 0;
-  hidePaypalButtons();
+  hidePaypalButtons(true);
   if (typeof launchConfetti === 'function') launchConfetti();
   Promise.all([typeof loadSlots === 'function' ? loadSlots() : null, typeof loadPaymentHistory === 'function' ? loadPaymentHistory() : null]).catch(() => {});
   await appAlert(ar ? `تم الدفع بنجاح ✅ واتضاف ${credits} فحص لرصيدك.` : `Payment successful ✅ ${credits} checks were added to your balance.`, { icon: 'success' });
