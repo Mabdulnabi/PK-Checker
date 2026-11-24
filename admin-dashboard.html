@@ -8334,7 +8334,7 @@ async function loadCreditsTab(){
   // additions and slot deductions (admin_slot_adjustments), and old admin credit
   // rows (20 credits = 1 slot). Each row gets its own log code (LOG-...).
   const [payRes, adjRes, packRes, legacyRes, usageRes, redeemRes] = await Promise.all([
-    supabaseClient.from('payments').select('id, user_id, pack_id, gateway, amount, currency, status, created_at, verified_at, reference, transaction_id').in('status', ['completed', 'pending', 'rejected']).order('created_at', { ascending: false }).limit(1000),
+    supabaseClient.from('payments').select('id, user_id, pack_id, quantity, gateway, amount, currency, status, created_at, verified_at, reference, transaction_id').in('status', ['completed', 'pending', 'rejected']).order('created_at', { ascending: false }).limit(1000),
     supabaseClient.from('admin_slot_adjustments').select('*').order('created_at', { ascending: false }).limit(1000),
     supabaseClient.from('slot_packages').select('id, legacy_pack_id, slots, price_egp, name_ar, name_en'),
     supabaseClient.from('wallet_transactions').select('*').in('type', ['admin_credit', 'admin_debit']).order('created_at', { ascending: false }).limit(500),
@@ -8393,8 +8393,8 @@ async function loadCreditsTab(){
     const done = p.status === 'completed';
     rows.push({
       code: payCode(p.id), user_id: p.user_id, pk_number: pr.pk_number, full_name: pr.full_name || '—',
-      plan: pack ? pack.name : (p.pack_id || '—'), method: p.gateway, amount_paid: p.amount, currency: p.currency || 'EGP',
-      slots: done && pack ? pack.slots : null,
+      plan: (pack ? pack.name : (p.pack_id || '—')) + ((Number(p.quantity) || 1) > 1 ? ' × ' + p.quantity : ''), method: p.gateway, amount_paid: p.amount, currency: p.currency || 'EGP',
+      slots: done && pack ? pack.slots * (Number(p.quantity) || 1) : null,
       kind: done ? 'topup' : (p.status === 'pending' ? 'pending' : 'rejected'),
       status: p.status, created_at: done ? (p.verified_at || p.created_at) : p.created_at,
       payment_id: p.id, txid: p.transaction_id || null,
@@ -10236,7 +10236,7 @@ function slotTotal(uid){
 }
 // Slots a payment bought: from its package; old credit payments: 20 credits = 1 slot.
 function slotsOfPayment(p){
-  if (p.pack_id && slotPackSlots[p.pack_id] != null) return slotPackSlots[p.pack_id];
+  if (p.pack_id && slotPackSlots[p.pack_id] != null) return slotPackSlots[p.pack_id] * (Number(p.quantity) || 1);
   return Math.round((Number(p.credits) || 0) / 20);
 }
 let qcLookupTimerToolbar = null;

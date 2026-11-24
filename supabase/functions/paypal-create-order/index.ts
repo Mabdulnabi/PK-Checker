@@ -1,7 +1,8 @@
 // paypal-create-order/index.ts
 // Creates a PayPal order for one of the caller's pending payments (gateway "paypal").
 // The price is worked out here, never taken from the browser:
-//   - check package: its price_egp, in USD at 50 EGP = 1 USD (same rounding as the site)
+//   - check package: its price_egp, in USD at 50 EGP = 1 USD (same rounding as the site), times the
+//     quantity bought (payments.quantity, 1 to 10)
 //   - store order (pack_id "store-order:<id>"): the order total
 //   - store wallet top-up (pack_id "store-topup"): the amount the customer chose (1 to 1000 USD)
 // PayPal's fee (4% + 0.50 USD) is added on top so the full price reaches us:
@@ -63,7 +64,7 @@ Deno.serve(async (req) => {
     if (!payment_id) return json({ success: false, error: 'payment_id is required' }, 400);
 
     const { data: pay } = await admin.from('payments')
-      .select('id, user_id, amount, currency, status, gateway, pack_id, order_id')
+      .select('id, user_id, amount, currency, status, gateway, pack_id, order_id, quantity')
       .eq('id', payment_id).eq('user_id', userId).maybeSingle();
     if (!pay) return json({ success: false, error: 'Payment not found' }, 404);
     if (pay.gateway !== 'paypal') return json({ success: false, error: 'Not a PayPal payment' }, 400);
@@ -93,8 +94,9 @@ Deno.serve(async (req) => {
         ({ data: pkg } = await admin.from('slot_packages').select(cols).eq('id', packId).limit(1).maybeSingle());
       }
       if (!pkg || !pkg.is_active) return json({ success: false, error: 'Package not available' }, 400);
-      usd = usdFromEgp(Number(pkg.price_egp));
-      description = `${pkg.name_en || 'Check package'} (${pkg.slots} checks)`.slice(0, 120);
+      const qty = Math.min(10, Math.max(1, Math.floor(Number(pay.quantity) || 1)));
+      usd = Math.round(usdFromEgp(Number(pkg.price_egp)) * qty * 100) / 100;
+      description = `${pkg.name_en || 'Check package'} (${pkg.slots} checks)${qty > 1 ? ` x ${qty}` : ''}`.slice(0, 120);
     }
     if (!(usd > 0)) return json({ success: false, error: 'Invalid price' }, 400);
     const charged = withPaypalFee(usd);

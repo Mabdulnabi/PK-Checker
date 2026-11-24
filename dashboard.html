@@ -1140,6 +1140,14 @@
   .wplan-feats li{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--navy);line-height:1.5;}
   .wplan-tick{width:15px;height:15px;flex:none;margin-top:2px;fill:none;stroke:#10B981;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;}
   .wplan-chip{font-size:11.5px;font-weight:800;color:#0F7A55;background:#E6F7EF;border-radius:6px;padding:1px 7px;}
+  .wplan-qty-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px;}
+  .wplan-qty-lbl{font-size:12px;font-weight:800;color:var(--muted);}
+  .wplan-qty{display:inline-flex;align-items:center;border:1.5px solid var(--paper-line);border-radius:10px;overflow:hidden;background:var(--paper);}
+  .wplan-qty button{width:34px;height:32px;border:none;background:var(--paper-soft,#f3f6fc);color:var(--blue-deep);font-size:18px;font-weight:800;cursor:pointer;line-height:1;font-family:inherit;}
+  .wplan-qty button:disabled{opacity:.35;cursor:not-allowed;}
+  .wplan-qty b{min-width:32px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:15px;color:var(--navy);}
+  .wplan-total{margin-top:6px;font-size:12px;font-weight:700;color:var(--muted);background:var(--blue-wash,#eef4ff);border:1px solid #BFD7FF;border-radius:10px;padding:7px 10px;line-height:1.6;}
+  .wplan-total b{color:var(--blue-deep);font-size:13px;}
   .wplan-buy{margin-top:8px;width:100%;display:flex;align-items:center;justify-content:center;gap:6px;background:#2563EB;color:#fff;border:none;border-radius:12px;padding:12px;font-family:'Cairo',sans-serif;font-weight:800;font-size:13.5px;letter-spacing:.3px;cursor:pointer;}
   .wplan-buy:hover{background:#1D4ED8;}
   @media (max-width:1100px){ .wplan-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
@@ -4943,6 +4951,15 @@ function buildPlanCard(p){
         ${feat(ar ? 'تسليم سريع فوري' : 'Fast Instant Delivery')}
         ${feat(ar ? 'يدعم ملفات حتى 30,000 كلمة' : 'Supports files up to 30,000 words')}
       </ul>
+      ${selected ? `<div class="wplan-qty-row">
+        <span class="wplan-qty-lbl">${ar ? 'العدد' : 'Quantity'}</span>
+        <div class="wplan-qty" role="group" aria-label="${ar ? 'عدد الباقات' : 'Number of packages'}">
+          <button type="button" onclick="changePackQty(-1)" ${packQty <= 1 ? 'disabled' : ''} aria-label="${ar ? 'أقل' : 'Less'}">−</button>
+          <b>${packQty}</b>
+          <button type="button" onclick="changePackQty(1)" ${packQty >= PACK_QTY_MAX ? 'disabled' : ''} aria-label="${ar ? 'أكثر' : 'More'}">+</button>
+        </div>
+      </div>
+      ${packQty > 1 ? `<div class="wplan-total">${ar ? 'الإجمالي' : 'Total'}: <b>${p.priceEgp * packQty} ${ar ? 'ج.م' : 'EGP'}</b> · $${(Math.round(Number(usd) * packQty * 100) / 100).toFixed(2)} · ${files * packQty} ${ar ? 'ملف' : 'Files'}${p.expiryDays && checkSettings.slot_expiry_enabled !== false ? ` · ${ar ? `صلاحية ${p.expiryDays * packQty} يوم` : `${p.expiryDays * packQty} days`}` : ''}</div>` : ''}` : ''}
       <button class="wplan-buy" type="button" onclick='selectPack("topup","${p.id}")'><svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h9.9a1 1 0 0 0 1-.8L21 8H7"/><circle cx="10" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg>${ar ? 'اشتري الآن' : 'BUY NOW'}</button>
     </div>`;
 }
@@ -4967,16 +4984,41 @@ function packValidityNote(p, tab){
   return tab === 'daily' ? t('daily_expiry_note') : t('credits_no_expiry');
 }
 
-function selectPack(tab, id){
+/* ── How many of the chosen package (1 to 10) ──
+   The selected package is a copy with its price, checks and validity multiplied, so every total
+   on the page (summary, prices per payment method, crypto amount, PayPal) follows it. The server
+   works the price out again from the package and payments.quantity. */
+const PACK_QTY_MAX = 10;
+let packQty = 1;
+function scaledPack(base, q){
+  if (q <= 1) return { ...base, qty: 1 };
+  const unitUsd = packChargeAmount(base, false);
+  return { ...base, qty: q, unitPriceEgp: base.priceEgp, unitCredits: base.credits,
+    priceEgp: base.priceEgp != null ? base.priceEgp * q : base.priceEgp,
+    price: unitUsd ? Math.round(unitUsd * q * 100) / 100 : base.price,
+    credits: (Number(base.credits) || 0) * q, bonus: (Number(base.bonus) || 0) * q,
+    expiryDays: base.expiryDays ? base.expiryDays * q : base.expiryDays };
+}
+function changePackQty(delta){
+  if (!selectedPack || selectedPack.store || selectedPack.tab !== 'topup') return;
+  const q = Math.min(PACK_QTY_MAX, Math.max(1, packQty + delta));
+  if (q === packQty) return;
+  packQty = q;
+  selectPack('topup', selectedPack.id, true);
+}
+function selectPack(tab, id, keepQty){
   currentPayRef = null;
   currentPayId = null;
   const packs = tab === 'topup' ? TOPUP_PACKS : DAILY_PACKS;
-  selectedPack = packs.find(p => p.id === id);
+  const base = packs.find(p => p.id === id);
+  if (!keepQty && !(selectedPack && !selectedPack.store && selectedPack.id === id && selectedPack.tab === tab)) packQty = 1;
+  if (tab !== 'topup') packQty = 1;
+  selectedPack = scaledPack(base, packQty);
   selectedPack.tab = tab;
   if (typeof pkTrack === 'function') pkTrack('InitiateCheckout', { value: Number(selectedPack.priceEgp) || 0, currency: 'EGP', content_ids: [String(selectedPack.id)] });
   renderPacks();
   document.getElementById('walletPayBlock').style.display = 'block';
-  document.getElementById('walletPackSummary').textContent = `${packName(id)} — ${selectedPack.credits} ${creditsWord(selectedPack.credits)} (${formatPrice(packPriceNumber(selectedPack))})`;
+  document.getElementById('walletPackSummary').textContent = `${packName(id)}${packQty > 1 ? ' × ' + packQty : ''} — ${selectedPack.credits} ${creditsWord(selectedPack.credits)} (${formatPrice(packPriceNumber(selectedPack))})`;
   const expiryNote = packValidityNote(selectedPack, tab);
   document.getElementById('walletPriceOut').innerHTML = `${formatPrice(packPriceNumber(selectedPack))} <small>${expiryNote}</small>`;
   document.getElementById('walletPayBlock').scrollIntoView({behavior:'smooth', block:'nearest'});
@@ -5068,9 +5110,9 @@ function saveOpenTopup(patch){
   if (!selectedPack || selectedPack.store || !PROKEYS_USER_ID) return;
   const prev = readOpenTopup() || {};
   const gateway = document.querySelector('#walletPayGrid .paycard.on')?.dataset.pay || prev.gateway || null;
-  const samePack = prev.packId === selectedPack.id;
+  const samePack = prev.packId === selectedPack.id && (prev.qty || 1) === (selectedPack.qty || 1);
   const v = {
-    user: PROKEYS_USER_ID, packId: selectedPack.id, tab: selectedPack.tab, gateway,
+    user: PROKEYS_USER_ID, packId: selectedPack.id, qty: selectedPack.qty || 1, tab: selectedPack.tab, gateway,
     payRef: currentPayRef || (samePack ? prev.payRef : null) || null,
     payId: currentPayId || (samePack ? prev.payId : null) || null,
     rowId: samePack ? (prev.rowId || null) : null,          // the pending payment, and the method it was made with
@@ -5096,7 +5138,7 @@ function syncOpenTopupToAccount(v){
   clearTimeout(_openTopupSyncTimer);
   _openTopupSyncTimer = setTimeout(() => {
     supabaseClient.from('open_topups').upsert({
-      user_id: v.user, pack_id: v.packId, tab: v.tab || 'topup', gateway: v.gateway || null,
+      user_id: v.user, pack_id: v.packId, quantity: v.qty || 1, tab: v.tab || 'topup', gateway: v.gateway || null,
       pay_ref: v.payRef || null, pay_id: v.payId || null, row_id: v.rowId || null, row_gateway: v.rowGateway || null,
       updated_at: new Date(v.savedAt || Date.now()).toISOString(),
     }, { onConflict: 'user_id' }).then(({ error }) => { if (error) console.warn('open top-up not saved on the account', error.message); }, () => {});
@@ -5112,7 +5154,7 @@ async function pullOpenTopupFromAccount(){
     const remoteAt = Date.parse(row.updated_at) || 0;
     if (Date.now() - remoteAt > OPEN_TOPUP_MS) return;
     if (local && (local.savedAt || 0) >= remoteAt) return;
-    const v = { user: PROKEYS_USER_ID, packId: row.pack_id, tab: row.tab, gateway: row.gateway, payRef: row.pay_ref, payId: row.pay_id,
+    const v = { user: PROKEYS_USER_ID, packId: row.pack_id, qty: row.quantity || 1, tab: row.tab, gateway: row.gateway, payRef: row.pay_ref, payId: row.pay_id,
       rowId: row.row_id, rowGateway: row.row_gateway, at: remoteAt, savedAt: remoteAt, restored: false };
     localStorage.setItem(OPEN_TOPUP_KEY, JSON.stringify(v));
   } catch (e) { console.warn('open top-up not read from the account', e); }
@@ -5149,7 +5191,8 @@ async function restoreOpenTopup(){
   if (!v || selectedPack) return;
   const packs = v.tab === 'topup' ? TOPUP_PACKS : DAILY_PACKS;
   if (!packs || !packs.some(p => p.id === v.packId)) return;
-  selectPack(v.tab, v.packId);
+  packQty = Math.min(PACK_QTY_MAX, Math.max(1, Number(v.qty) || 1));
+  selectPack(v.tab, v.packId, true);
   currentPayRef = v.payRef || null;
   currentPayId = v.payId || null;
   try { localStorage.setItem(OPEN_TOPUP_KEY, JSON.stringify({ ...v, restored: true })); } catch {}
@@ -5217,7 +5260,7 @@ function refreshGatewayPrice(gateway){
   const out = document.getElementById('walletPriceOut');
   if (out) out.innerHTML = `${gatewayPriceText(selectedPack, gateway)} <small>${packValidityNote(selectedPack, selectedPack.tab)}</small>`;
   const sum = document.getElementById('walletPackSummary');
-  if (sum) sum.textContent = `${packName(selectedPack.id)} — ${selectedPack.credits} ${creditsWord(selectedPack.credits)} (${gatewayPriceText(selectedPack, gateway)})`;
+  if (sum) sum.textContent = `${packName(selectedPack.id)}${(selectedPack.qty || 1) > 1 ? ' × ' + selectedPack.qty : ''} — ${selectedPack.credits} ${creditsWord(selectedPack.credits)} (${gatewayPriceText(selectedPack, gateway)})`;
 }
 
 // Exact amount and transfer note, shown for the lock gateways.
@@ -5228,7 +5271,7 @@ function renderLockBox(gateway, cfg){
   if (!currentPayRef) {
     // Keep the reference the customer may already have used in their transfer note.
     const open = readOpenTopup();
-    if (open && open.payRef && open.payId && open.packId === selectedPack.id) { currentPayRef = open.payRef; currentPayId = open.payId; }
+    if (open && open.payRef && open.payId && open.packId === selectedPack.id && (open.qty || 1) === (selectedPack.qty || 1)) { currentPayRef = open.payRef; currentPayId = open.payId; }
     else currentPayRef = newPayReference();
   }
   if (!selectedPack.store) saveOpenTopup({ payRef: currentPayRef, payId: currentPayId });
@@ -5633,6 +5676,7 @@ async function handleDynamicGatewayPurchase(gateway, cfg){
         status: 'pending',
         credits: credits,
         pack_id: selectedPack.id || null,
+        quantity: selectedPack.store ? 1 : (selectedPack.qty || 1),
         transaction_id: null,
       })
       .select('id')
@@ -5662,7 +5706,7 @@ async function createPendingPayment(gateway, amountForDb, isEgp, credits){
   // The open top-up already has a pending payment for this package and method: use it again
   // instead of leaving several pending payments behind.
   const open = readOpenTopup();
-  if (open && open.rowId && selectedPack && !selectedPack.store && open.packId === selectedPack.id && open.rowGateway === gateway) {
+  if (open && open.rowId && selectedPack && !selectedPack.store && open.packId === selectedPack.id && (open.qty || 1) === (selectedPack.qty || 1) && open.rowGateway === gateway) {
     const { data: prev } = await supabaseClient.from('payments').select('id, gateway, status, transaction_id').eq('id', open.rowId).maybeSingle();
     if (prev && prev.status === 'pending' && !prev.transaction_id) return { id: prev.id, gateway: prev.gateway };
   }
@@ -5681,6 +5725,7 @@ async function createPendingPayment(gateway, amountForDb, isEgp, credits){
       status: 'pending',
       credits: credits,
       pack_id: selectedPack.id || null,
+      quantity: selectedPack.store ? 1 : (selectedPack.qty || 1),
       transaction_id: null, // will be set by edge function on success
     })
     .select('id, gateway')
@@ -6679,7 +6724,7 @@ function formatPaymentAmount(amount, storedCurrency){
 // Slots bought with a payment: the package's slots, or 20 old credits = 1 slot.
 function paymentSlots(p){
   const pack = TOPUP_PACKS.find(x => x.id === p.pack_id);
-  if (pack) return pack.credits;
+  if (pack) return pack.credits * (Number(p.quantity) || 1);
   if (p.credits != null) return Math.round(Number(p.credits) / 20);
   return '—';
 }
@@ -6712,7 +6757,7 @@ function renderPaymentHistory(){
     const amount = charged != null ? `${Number(charged).toFixed(2)} ${p.currency || ''}` : '—';
     return `<div class="hist-row hist-entry is-purchase">
       <div class="hist-cell start"><div class="hist-activity"><span class="hist-chip green">${CART}</span><div><div class="hist-act-name">${escapeHtml(ar ? 'شراء أونلاين' : 'Online Order Purchase')}</div><div class="hist-act-sub">${escapeHtml(code)}${cpBtn(code)}</div></div></div></div>
-      <div class="hist-cell start"><div class="hist-item-name">${escapeHtml(p.pack_id ? packName(p.pack_id) : '—')}</div><div class="hist-sub">${escapeHtml(GATEWAY_LABELS[p.gateway] || p.gateway || '—')}</div></div>
+      <div class="hist-cell start"><div class="hist-item-name">${escapeHtml(p.pack_id ? packName(p.pack_id) + ((Number(p.quantity) || 1) > 1 ? ' × ' + p.quantity : '') : '—')}</div><div class="hist-sub">${escapeHtml(GATEWAY_LABELS[p.gateway] || p.gateway || '—')}</div></div>
       <div class="hist-cell" data-label="${ar ? 'فحوصات' : 'Slots'}"><span class="hist-change plus">${typeof slots === 'number' ? '+' + slots : '—'}</span></div>
       <div class="hist-cell" data-label="${escapeHtml(t('ph_col_amount'))}"><span class="hist-bal">${escapeHtml(amount)}</span></div>
       <div class="hist-cell"><span class="hist-status ${STATUS_CLS[p.status] || 'pend'}">${escapeHtml(STATUS_LABEL[p.status] || p.status)}</span></div>
