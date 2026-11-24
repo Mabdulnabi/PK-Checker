@@ -5493,19 +5493,24 @@ async function renderPaypalButtons(){
     onCancel: () => { toast(ar ? 'اتلغى الدفع بـ PayPal' : 'PayPal payment cancelled', 'info'); },
     onError: (err) => {
       console.error('PayPal error', err);
+      // The customer moved to another payment method (the buttons were closed while loading): not an error.
+      const box = document.getElementById('walletPaypalBox');
+      if (seq !== _ppRenderSeq || !box || box.style.display === 'none' || !document.body.contains(box)) return;
       appAlert(ar ? 'حصلت مشكلة في PayPal. جرب تاني أو اختار وسيلة دفع تانية.' : 'Something went wrong with PayPal. Try again or choose another payment method.', { icon: 'error' });
     },
   };
   // One button per way to pay, side by side: the PayPal account, and a debit or credit card.
   const sources = [[window.paypal.FUNDING.PAYPAL, '#walletPaypalBtnPp'], [window.paypal.FUNDING.CARD, '#walletPaypalBtnCard']];
   const made = [];
+  // Known at once, so switching to another method while they load closes them both.
+  _ppButtons = { close(){ made.forEach(b => { try { b.close(); } catch (e) {} }); } };
   for (const [fundingSource, sel] of sources) {
+    if (seq !== _ppRenderSeq) return;   // the customer picked another method meanwhile
     const btn = window.paypal.Buttons({ ...ppOpts, fundingSource, style: fundingSource === window.paypal.FUNDING.CARD ? { ...ppOpts.style, color: 'black' } : ppOpts.style });
     if (!btn.isEligible()) { document.querySelector(sel)?.remove(); continue; }
     made.push(btn);
-    try { await btn.render(sel); } catch (e) { console.error('PayPal render failed', e); }
+    try { await btn.render(sel); } catch (e) { if (seq === _ppRenderSeq) console.error('PayPal render failed', e); }
   }
-  _ppButtons = { close(){ made.forEach(b => { try { b.close(); } catch (e) {} }); } };
 }
 // Paid and credited: the store flows finish their own way; check packages show the new balance.
 async function paypalFinish(orderID){
