@@ -2134,6 +2134,10 @@ if (new URLSearchParams(location.search).has('preview')) {
   .fa-link{color:#e11d48;font-weight:800;text-decoration:none;white-space:nowrap;margin-inline-start:4px;}
   .fa-link:hover{text-decoration:underline;}
   .fa-actions{display:flex;justify-content:flex-end;margin-top:10px;}
+  .fa-row{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;}
+  .fa-row .fa-guide{margin-top:0;flex:1 1 360px;padding:8px 12px;align-items:center;line-height:1.6;}
+  .fa-row .fa-guide .fa-gi{margin-top:0;}
+  .fa-row .fa-btn{margin-inline-start:auto;}
   .fa-btn{flex:none;display:inline-flex;align-items:center;gap:8px;background:#e11d48;color:#fff;border:none;border-radius:10px;padding:11px 18px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;box-shadow:0 8px 18px -10px rgba(225,29,72,.9);transition:transform .15s ease,background .15s ease;}
   .fa-btn:hover{background:#be123c;transform:translateY(-1px);}
   .fa-btn svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
@@ -2158,6 +2162,9 @@ if (new URLSearchParams(location.search).has('preview')) {
     .fa-btn{width:100%;justify-content:center;padding:12px 16px;font-size:14px;}
     .fa-x{top:6px;inset-inline-end:6px;font-size:22px;padding:6px 8px;}
     .queue-alert .qa-row{grid-column:1 / -1;flex-direction:column;align-items:stretch;}
+    .fa-row{grid-column:1 / -1;flex-direction:column;align-items:stretch;margin-top:0;}
+    .fa-row .fa-guide{flex:none;width:auto;}
+    .fa-row .fa-btn{margin-inline-start:0;}
     .queue-alert .qa-guide{flex:none;width:auto;}
     .fail-alert.queue-alert .qa-btn{width:100%;justify-content:center;margin-inline-start:0;}
     .fa-layer-1{transform:translateY(6px) scale(.97);}
@@ -12178,7 +12185,11 @@ function failGuidance(reason){
     title: ar ? 'إرشادات صيغة الملف:' : 'File Format Guidance:',
     body: ar ? 'يُرجى رفع الملف بصيغة <b>PDF</b> أو <b>DOCX</b>، والتأكد من أنه يُفتح بشكل سليم وغير محمي بكلمة مرور.'
              : 'Upload the file as <b>PDF</b> or <b>DOCX</b>, and make sure it opens normally and is not password-protected.' };
-  if (/(unavailable|try again|temporar)/.test(r)) return {
+  if (/(could not be sent|could not be submitted|could not accept|تعذّر إرسال الملف|تعذّر على خدمة الفحص قبول)/i.test(reason || '')) return {
+    title: ar ? 'المطلوب:' : 'What to do:',
+    body: ar ? 'يُرجى التأكد من أن الملف بصيغة <b>PDF</b> أو <b>DOCX</b>، ويُفتح بشكل سليم، وغير محمي بكلمة مرور، وضمن حدود الحجم وعدد الكلمات، ثم رفعه مرة أخرى. وإذا تكرر الخطأ مع الملف نفسه، يُرجى التواصل مع الدعم.'
+             : 'Make sure the file is a <b>PDF</b> or <b>DOCX</b> that opens normally, is not password-protected, and is within the size and word limits, then upload it again. If the same file fails again, please contact support.' };
+  if (/(unavailable|temporar)/.test(r) || /غير متاحة حاليًا|مؤقت/.test(reason || '')) return {
     title: ar ? 'ملاحظة:' : 'Note:',
     body: ar ? 'هذه مشكلة مؤقتة في خدمة الفحص وليست في ملفك. يُرجى الانتظار بضع دقائق ثم رفع الملف نفسه مجددًا.'
              : 'This is a temporary problem with the check service, not with your file. Wait a few minutes and upload the same file again.' };
@@ -12324,7 +12335,7 @@ function renderFailAlerts(){
   renderAiLimitAlerts();
   const box = document.getElementById('failAlerts');
   if (!box) return;
-  const ar = currentLang === 'ar', gone = failDismissed(), since = Date.now() - 3 * 86400000;
+  const ar = currentLang === 'ar', gone = failDismissed(), since = PK_TESTER ? 0 : Date.now() - 3 * 86400000;   // testing account: older failures too
   const list = (orders || []).filter(o => ['error', 'failed_invalid', 'rejected'].includes(o.phase)
     && o.phaseStart >= since && !gone.includes(o.id)).sort((a, b) => b.phaseStart - a.phaseStart).slice(0, 10);
   loadFailSlotStates(list.map(o => o.id));
@@ -12368,8 +12379,10 @@ function renderFailAlerts(){
         </div>
         <div class="fa-reason"><b>${ar ? 'السبب:' : 'Reason:'}</b> ${escapeHtml(reason)} <span class="fa-code mono">${escapeHtml(o.displayId || '')}</span>
           ${reasonNote ? `<div class="fa-orig" dir="ltr">${escapeHtml(reasonNote)}</div>` : ''}</div>
+        <div class="fa-row">
         <div class="fa-guide"><span class="fa-gi">i</span><div><b>${g.title}</b> ${g.body}</div></div>
-        <div class="fa-actions"><button type="button" class="fa-btn" onclick="openSubmitFilesModal()"><svg viewBox="0 0 24 24"><path d="M12 16V8M8.5 11.5 12 8l3.5 3.5"/><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 9.5a4 4 0 0 1-.5 8"/></svg>${ar ? 'ارفع الملف مرة أخرى' : 'Re-upload file'}</button></div>
+        <button type="button" class="fa-btn" onclick="openSubmitFilesModal()"><svg viewBox="0 0 24 24"><path d="M12 16V8M8.5 11.5 12 8l3.5 3.5"/><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 9.5a4 4 0 0 1-.5 8"/></svg>${ar ? 'ارفع الملف مرة أخرى' : 'Re-upload file'}</button>
+        </div>
       </div>
       <button type="button" class="fa-x" onclick="dismissFailAlert('${o.id}')" title="${ar ? (total > 1 ? 'إخفاء وعرض التالي' : 'إخفاء') : (total > 1 ? 'Dismiss and show the next' : 'Dismiss')}">×</button>
     </div>`;
