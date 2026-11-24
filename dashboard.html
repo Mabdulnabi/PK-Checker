@@ -745,12 +745,13 @@
   /* Centered "completed" card — circular icon above a big number, matches reference design */
   .kpi.kpi-centered{display:flex;flex-direction:column;align-items:center;text-align:center;padding:14px 14px 13px;}
   .kpi.kpi-centered .icon-circle{width:44px;height:44px;border-radius:50%;background:var(--ok-wash);color:var(--ok);display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
-  /* Balance card: Redeem code and Top up, same small buttons in one row at the top
-     (Redeem code at the start, Top up at the end: Redeem code top left in English). */
-  .kpi .kpi-btns{display:flex;justify-content:space-between;align-items:center;gap:6px;width:100%;margin:-2px 0 8px;}
+  /* Balance card: Redeem code and Top up, same-size buttons in one row at the bottom of the card
+     (the icon stays at the top, like the other cards; Redeem code first, on the left in English). */
+  .kpi .kpi-btns{display:flex;justify-content:center;align-items:center;gap:8px;width:100%;margin:10px 0 0;}
   .kpi .kpi-btns .topup-btn,.kpi .kpi-btns .redeem-code-btn.kpi-redeem{position:static;margin:0;padding:5px 12px;border-radius:7px;font-size:11.5px;line-height:1.5;box-shadow:none;white-space:nowrap;}
-  .kpi .redeem-code-btn.kpi-redeem{gap:5px;}
-  .kpi .redeem-code-btn.kpi-redeem svg{width:13px;height:13px;}
+  /* Same width for both, each with its icon */
+  .kpi .kpi-btns .topup-btn,.kpi .kpi-btns .redeem-code-btn.kpi-redeem{flex:1 1 0;min-width:0;max-width:150px;display:inline-flex;align-items:center;justify-content:center;gap:5px;overflow:hidden;text-overflow:ellipsis;}
+  .kpi .kpi-btns svg{width:13px;height:13px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
   .kpi.kpi-centered .icon-circle svg{width:22px;height:22px;}
   .kpi.kpi-centered .num{font-size:25px;}
   .kpi.kpi-centered .lbl{margin-top:2px;}
@@ -2345,16 +2346,16 @@ if (new URLSearchParams(location.search).has('preview')) {
     <div class="tabpane" id="pane-new-check" style="display:none;">
       <div class="kpi-row">
         <div class="kpi gold kpi-centered">
+          <div class="icon-circle" style="background:rgba(0,186,247,0.16);"><svg class="ic" data-icon-key="nc_balance" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5c0-1.4 1.3-2.5 3-2.5s3 1 3 2.2c0 2.8-6 1.8-6 5 0 1.4 1.3 2.3 3 2.3s3-1 3-2.3"/></svg></div>
+          <div class="num"><span class="latin" id="kpiBalanceNum">17</span> <small data-i18n="kpi_credits_unit">فحص</small></div>
+          <div class="lbl" data-i18n="kpi_slots_label">فحوصات متبقية</div>
           <div class="kpi-btns">
           <button class="redeem-code-btn kpi-redeem" type="button" onclick="openRedeemCodeModal()">
             <svg data-icon-key="redeem_code_icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2"/></svg>
             <span data-i18n="redeem_btn">كود خصم</span>
           </button>
-          <button class="topup-btn" onclick="goTab('wallet')" data-i18n="kpi_topup">شحن +</button>
+          <button class="topup-btn" onclick="goTab('wallet')"><svg data-icon-key="kpi_topup_icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span data-i18n="kpi_topup_btn">شحن</span></button>
           </div>
-          <div class="icon-circle" style="background:rgba(0,186,247,0.16);"><svg class="ic" data-icon-key="nc_balance" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 9.5c0-1.4 1.3-2.5 3-2.5s3 1 3 2.2c0 2.8-6 1.8-6 5 0 1.4 1.3 2.3 3 2.3s3-1 3-2.3"/></svg></div>
-          <div class="num"><span class="latin" id="kpiBalanceNum">17</span> <small data-i18n="kpi_credits_unit">فحص</small></div>
-          <div class="lbl" data-i18n="kpi_slots_label">فحوصات متبقية</div>
         </div>
         <div class="kpi kpi-centered">
           <div class="icon-circle" style="background:var(--paper-soft);color:var(--muted);"><svg class="ic" data-icon-key="nc_floating" viewBox="0 0 24 24"><path d="M6 2h12M6 22h12M7 2c0 5 5 6 5 10s-5 5-5 10M17 2c0 5-5 6-5 10s5 5 5 10"/></svg></div>
@@ -4089,7 +4090,7 @@ const I18N = {
     tour_pay_tabs_title:"اختار طريقة الدفع", tour_pay_tabs_desc:"وسائل الدفع مقسّمة في 3 تابات: <b>محافظ إلكترونية</b> (InstaPay وفودافون كاش)، و<b>Card</b> (داخل مصر فقط)، و<b>Crypto</b>.",
     tour_coupon_title:"عندك كود خصم؟", tour_coupon_desc:"لو معاك كود خصم أو هدية، اكتبه في الخانة دي واضغط <b>تفعيل</b> — الفحوصات بتتضاف لرصيدك فوراً.",
     coupon_title:"عندك كود؟", coupon_sub:"أكواد الخصم بتضيف فحوصات لرصيدك فوراً", coupon_btn:"تفعيل",
-    kpi_topup:"شحن +", kpi_credits_unit:"فحص", credit_unit_singular:"فحص", kpi_balance:"رصيدك الحالي",
+    kpi_topup:"شحن +", kpi_topup_btn:"شحن", kpi_credits_unit:"فحص", credit_unit_singular:"فحص", kpi_balance:"رصيدك الحالي",
     kpi_processing:"قيد الفحص الآن", kpi_floating:"رصيد عائم (معلّق)",
     kpi_completed_label:"مكتمل بالكامل", kpi_rejected_word:"مرفوض", kpi_cancelled_word:"ملغي",
     balance_check_title:"الدفع من رصيدك", balance_current_label:"رصيدك الحالي",
@@ -4296,7 +4297,7 @@ const I18N = {
     tour_pay_tabs_title:"Choose a payment method", tour_pay_tabs_desc:"Payment methods are split into 3 tabs: <b>E-Wallets</b> (InstaPay, Vodafone Cash), <b>Card</b> (inside Egypt only), and <b>Crypto</b>.",
     tour_coupon_title:"Have a discount code?", tour_coupon_desc:"If you have a discount or gift code, enter it in this box and press <b>Redeem</b> — the checks are added to your balance right away.",
     coupon_title:"Have a code?", coupon_sub:"Gift and promo codes add checks to your balance right away", coupon_btn:"Redeem",
-    kpi_topup:"Top up", kpi_credits_unit:"slots", credit_unit_singular:"slot", kpi_balance:"Current balance",
+    kpi_topup:"Top up", kpi_topup_btn:"Top up", kpi_credits_unit:"slots", credit_unit_singular:"slot", kpi_balance:"Current balance",
     kpi_processing:"Processing now", kpi_floating:"Floating (pending)",
     kpi_completed_label:"Total completed", kpi_rejected_word:"rejected", kpi_cancelled_word:"cancelled",
     balance_check_title:"Pay from your balance", balance_current_label:"Your current balance",
