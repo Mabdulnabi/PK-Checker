@@ -968,97 +968,185 @@
   .mf-status.ok{background:var(--ok-wash);color:#0F7A55;border:1px solid #B7EBD5;}
   .mf-status.run{background:var(--blue-wash);color:var(--blue-deep);border:1px solid #BFD7FF;}
   .mf-status.bad{background:var(--danger-wash);color:var(--danger);border:1px solid #F5C2CB;}
-  /* Developer API tab: the docs (scoped to .dvx) */
-.dvx{--navy:#1B2556;--blue:#0E7AFE;--blue-deep:#1d4ed8;--blue-wash:#e8f0ff;--ink:#111827;--muted:#64748b;--line:#e2e8f0;--paper:#fff;--soft:#f6f8fc;--ok:#0E9F6E;--warn:#b45309;--danger:#e11d48;font-family:'Manrope',system-ui,sans-serif;color:var(--ink);line-height:1.6;direction:ltr;text-align:left;}
-.dvx a{color:var(--blue-deep);}
-.dvx code,.dvx pre,.dvx .mono{font-family:'IBM Plex Mono',monospace;}
-.dvx .brand{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;color:var(--navy);text-decoration:none;display:flex;align-items:center;gap:8px;}
-.dvx .brand span{display:inline-flex;width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;align-items:center;justify-content:center;font-size:13px;}
-.dvx .dvx-hero{padding:44px 0 26px;}
-.dvx .dvx-eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:12px;font-weight:800;letter-spacing:.5px;color:var(--blue-deep);background:var(--blue-wash);border:1px solid #bfd7ff;border-radius:999px;padding:4px 12px;text-transform:uppercase;}
-.dvx h1{font-family:'Space Grotesk',sans-serif;font-size:40px;line-height:1.15;margin:14px 0 8px;color:var(--navy);}
-.dvx .dvx-lead{font-size:16px;color:#334155;max-width:720px;margin:0;}
-.dvx .dvx-base{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:20px;background:var(--navy);color:#fff;border-radius:12px;padding:12px 16px;}
-.dvx .dvx-base b{font-size:12px;letter-spacing:.4px;opacity:.75;text-transform:uppercase;}
-.dvx .dvx-base code{font-size:15px;}
-.dvx .dvx-copy{border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;border-radius:8px;padding:4px 10px;font:700 12px 'Manrope',sans-serif;cursor:pointer;margin-left:auto;}
-.dvx .dvx-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
-.dvx .dvx-chip{font-size:12.5px;font-weight:700;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 12px;color:#334155;}
-.dvx .dvx-chip b{color:var(--navy);}
-.dvx .dvx-beta{background:#fffbeb;border:1px solid #fcd34d;color:#92400e;}
-.dvx section{margin:28px 0;}
-.dvx h2{font-family:'Space Grotesk',sans-serif;font-size:24px;color:var(--navy);margin:0 0 10px;}
-.dvx h3{font-size:17px;margin:0;color:var(--navy);}
-.dvx .dvx-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 10px 30px -22px rgba(27,37,86,.35);}
-.dvx .dvx-access{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;align-items:center;}
-.dvx .dvx-steps-list{margin:8px 0 0;padding-left:20px;color:#334155;}
-.dvx .dvx-btns{display:flex;gap:10px;flex-wrap:wrap;}
-.dvx .dvx-btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:11px;font-weight:800;font-size:14px;text-decoration:none;border:1.5px solid var(--line);color:var(--navy);background:#fff;cursor:pointer;font-family:inherit;}
-.dvx .dvx-btn.dvx-primary{background:var(--blue);color:#fff;border-color:var(--blue);}
-.dvx .dvx-tabs{display:flex;gap:6px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:5px;width:fit-content;flex-wrap:wrap;}
-.dvx .dvx-tabs button{border:none;background:none;padding:9px 16px;border-radius:9px;font:800 13.5px 'Manrope',sans-serif;color:var(--muted);cursor:pointer;}
-.dvx .dvx-tabs button.dvx-on{background:var(--navy);color:#fff;}
-.dvx .dvx-panel{display:none;margin-top:18px;}
-.dvx .dvx-panel.dvx-on{display:block;}
-.dvx .dvx-flow{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
-.dvx .dvx-flow .dvx-card{padding:18px;}
-.dvx .dvx-num{display:inline-flex;width:28px;height:28px;border-radius:50%;background:var(--blue-wash);color:var(--blue-deep);font-weight:800;align-items:center;justify-content:center;margin-bottom:8px;}
-.dvx .dvx-flow p{margin:6px 0 0;font-size:13.5px;color:#475569;}
-.dvx .dvx-ep{margin-top:16px;}
-.dvx .dvx-ep-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
-.dvx .dvx-m{font:700 12px 'IBM Plex Mono',monospace;padding:3px 9px;border-radius:7px;color:#fff;}
-.dvx .dvx-m.dvx-post{background:#16a34a;}
-.dvx .dvx-m.dvx-get{background:#2563eb;}
-.dvx .dvx-path{font:600 15px 'IBM Plex Mono',monospace;color:var(--navy);}
-.dvx .dvx-cost{margin-left:auto;font-size:12px;font-weight:800;border-radius:999px;padding:3px 10px;background:var(--soft);border:1px solid var(--line);color:#334155;}
-.dvx .dvx-cost.dvx-paid{background:#fffbeb;border-color:#fcd34d;color:#92400e;}
-.dvx .dvx-ep p.dvx-d{margin:0 0 10px;color:#334155;font-size:14px;}
-.dvx .dvx-limits{margin:0 0 12px;padding-left:18px;font-size:13.5px;color:#475569;}
-.dvx table{width:100%;border-collapse:collapse;font-size:13.5px;margin:6px 0 12px;}
-.dvx th,.dvx td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
-.dvx th{font-size:12px;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);background:var(--soft);}
-.dvx td code{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:12.5px;}
-.dvx .dvx-req{color:var(--danger);font-weight:800;font-size:12px;}
-.dvx .dvx-opt{color:var(--muted);font-weight:700;font-size:12px;}
-.dvx pre{background:#0f172a;color:#e2e8f0;border-radius:12px;padding:14px 16px;overflow:auto;font-size:12.8px;line-height:1.55;margin:6px 0 0;}
-.dvx .dvx-lbl{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-top:10px;}
-.dvx .dvx-note{display:flex;gap:10px;align-items:flex-start;background:#fffbeb;border:1px solid #fde68a;color:#78350f;border-radius:12px;padding:12px 14px;font-size:13.5px;}
-.dvx .dvx-note.dvx-blue{background:var(--blue-wash);border-color:#bfd7ff;color:#1e3a8a;}
-.dvx .dvx-codetabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
-.dvx .dvx-codetabs button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 12px;font:800 12.5px 'Manrope',sans-serif;cursor:pointer;color:var(--muted);}
-.dvx .dvx-codetabs button.dvx-on{background:var(--navy);color:#fff;border-color:var(--navy);}
-.dvx .dvx-console{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.dvx .dvx-console input{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font:600 13px 'IBM Plex Mono',monospace;}
-.dvx .dvx-console pre{min-height:180px;}
-@media (max-width:760px){.dvx h1{font-size:30px;}
-.dvx .dvx-access,.dvx .dvx-flow,.dvx .dvx-console{grid-template-columns:1fr;}
-.dvx .dvx-cost{margin-left:0;}
-.dvx th:nth-child(4),.dvx td:nth-child(4){display:none;}}
-  .dvx .dvx-hero{padding:8px 0 6px;}
-  .dvx h1{font-size:34px;}
-  /* Developer API card (keys) */
-  .dev-card{background:var(--paper);border:1px solid var(--paper-line);border-radius:14px;padding:18px 20px;margin-bottom:16px;}
-  .dev-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-  .dev-ic{width:40px;height:40px;border-radius:12px;background:var(--blue-wash);color:var(--blue-deep);display:flex;align-items:center;justify-content:center;flex:none;}
-  .dev-ic svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
-  .dev-title{font-weight:800;font-size:14px;color:var(--navy);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-  .dev-beta{font-size:10px;font-weight:800;letter-spacing:.4px;color:#92400e;background:#fef3c7;border:1px solid #fcd34d;border-radius:999px;padding:1px 8px;}
-  .dev-desc{font-size:12px;color:var(--muted);line-height:1.7;margin-top:3px;}
-  .dev-base{display:flex;align-items:center;gap:8px;margin-top:14px;padding:9px 12px;border-radius:10px;background:var(--paper-soft,#f6f8fc);border:1px solid var(--paper-line);font-size:12.5px;flex-wrap:wrap;}
-  .dev-base code,.dev-key code{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--navy);direction:ltr;unicode-bidi:isolate;word-break:break-all;}
-  .dev-btn{padding:8px 14px;border-radius:10px;border:none;background:var(--blue);color:#fff;font-family:inherit;font-weight:800;font-size:12.5px;cursor:pointer;white-space:nowrap;}
-  .dev-btn.ghost{background:var(--paper);color:var(--blue-deep);border:1.5px solid var(--paper-line);}
-  .dev-btn.danger{background:var(--paper);color:var(--danger);border:1.5px solid #F5C2CB;padding:5px 10px;font-size:11.5px;}
-  .dev-key-new{margin-top:14px;padding:12px 14px;border-radius:10px;background:#ecfdf5;border:1px solid #a7f3d0;}
-  .dev-key-new b{display:block;font-size:12.5px;color:#065f46;margin-bottom:6px;}
-  .dev-key-new .dev-key{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-  .dev-key-new small{display:block;margin-top:6px;font-size:11.5px;color:#047857;}
-  .dev-keys{margin-top:14px;display:flex;flex-direction:column;gap:8px;}
-  .dev-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--paper-line);border-radius:10px;font-size:12.5px;flex-wrap:wrap;}
-  .dev-row .m{flex:1;min-width:180px;}
-  .dev-row .m b{color:var(--navy);}
-  .dev-row .m div{color:var(--muted);font-size:11.5px;}
-  .dev-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+  /* Developer API tab (scoped to .dvx): one scrolling page, cards like a developer hub, contents list on the side */
+  .sidebar-nav > .sid-section{ flex:none; }
+  .sid-violet{ background:#9333ea1a; color:#9333ea; }
+  .sid-chip.sid-violet, .sidebar-item.on .sid-chip.sid-violet{ color:#9333ea !important; }
+  .sidebar-item.on .sid-violet{ background:#9333ea29; }
+  .sidebar-item[data-tab="dev-api"]{ --tab-color:#9333ea; }
+  .mob-nav-item[data-tab="dev-api"]{ --tc:#9333ea; }
+  .dvx{--dx-ink:#0f172a;--dx-text:#334155;--dx-muted:#64748b;--dx-faint:#94a3b8;--dx-line:#e2e8f0;--dx-soft:#f8fafc;--dx-blue:#2563eb;--dx-blue-d:#1d4ed8;--dx-blue-w:#eff6ff;--dx-green:#059669;--dx-green-w:#ecfdf5;--dx-violet:#9333ea;
+    font-family:'Inter','Manrope',system-ui,sans-serif;color:var(--dx-text);direction:ltr;text-align:left;line-height:1.55;font-size:13px;}
+  .dvx *{box-sizing:border-box;}
+  .dvx code{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:.92em;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:1px 5px;color:#0f172a;}
+  .dvx pre code,.dvx .dx-term code{background:none;border:0;padding:0;color:inherit;}
+  .dvx a{color:var(--dx-blue-d);font-weight:700;text-decoration:none;}
+  .dx-layout{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:28px;align-items:start;max-width:1180px;margin:0 auto;}
+  .dx-main{display:flex;flex-direction:column;gap:18px;min-width:0;}
+  .dx-sec{scroll-margin-top:84px;display:flex;flex-direction:column;gap:14px;}
+  .dx-h2{font-size:18px;font-weight:900;color:var(--dx-ink);letter-spacing:-.01em;margin:6px 0 0;display:flex;align-items:center;gap:8px;}
+  .dx-h2 small{font-size:11px;font-weight:800;color:var(--dx-faint);text-transform:uppercase;letter-spacing:.08em;}
+  .dx-p{margin:0;color:var(--dx-text);font-size:13px;}
+  .dx-card{background:#fff;border:1px solid var(--dx-line);border-radius:16px;padding:20px 22px;box-shadow:0 1px 2px rgba(15,23,42,.04);}
+  /* header */
+  .dx-head{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;}
+  .dx-head > div:first-child{flex:1 1 340px;min-width:0;}
+  .dx-head > .dx-stat{flex:0 0 auto;}
+  .dx-pill{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:999px;font-size:11px;font-weight:800;background:var(--dx-blue-w);color:var(--dx-blue-d);border:1px solid #bfdbfe;}
+  .dx-pill i{width:6px;height:6px;border-radius:50%;background:var(--dx-blue);display:inline-block;}
+  .dx-pill.violet{background:#faf5ff;color:#7e22ce;border-color:#e9d5ff;}
+  .dx-pill.violet i{background:var(--dx-violet);}
+  .dx-h1{font-size:28px;font-weight:900;color:var(--dx-ink);letter-spacing:-.02em;margin:8px 0 4px;line-height:1.15;}
+  .dx-base{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:12px;color:var(--dx-muted);}
+  .dx-base span.v{display:inline-flex;align-items:center;gap:6px;background:var(--dx-soft);border:1px solid var(--dx-line);border-radius:9px;padding:4px 6px 4px 10px;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:12px;color:var(--dx-ink);}
+  .dx-icobtn{border:0;background:transparent;color:var(--dx-faint);cursor:pointer;padding:3px;border-radius:6px;display:inline-flex;}
+  .dx-icobtn:hover{color:var(--dx-blue);background:#e0e7ff55;}
+  .dx-icobtn svg{width:14px;height:14px;}
+  .dx-stat{background:var(--dx-soft);border:1px solid var(--dx-line);border-radius:12px;padding:12px 14px;min-width:230px;display:flex;flex-direction:column;gap:8px;font-size:12px;}
+  .dx-stat > div{display:flex;justify-content:space-between;align-items:center;gap:12px;}
+  .dx-stat > div + div{border-top:1px solid var(--dx-line);padding-top:8px;}
+  .dx-stat span{color:var(--dx-muted);font-weight:600;}
+  .dx-stat b{color:var(--dx-ink);font-weight:900;}
+  .dx-live{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:999px;font-size:11px;font-weight:900;background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;}
+  .dx-live i{width:6px;height:6px;border-radius:50%;background:#059669;animation:dxPulse 1.6s ease-in-out infinite;}
+  @keyframes dxPulse{50%{opacity:.35}}
+  /* buttons */
+  .dx-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 14px;border-radius:11px;border:1px solid transparent;font:800 12px/1.2 inherit;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,transform .1s;}
+  .dx-btn:active{transform:scale(.97);}
+  .dx-btn svg{width:14px;height:14px;flex:none;}
+  .dx-btn.primary{background:var(--dx-blue);color:#fff;}
+  .dx-btn.primary:hover{background:var(--dx-blue-d);}
+  .dx-btn.ghost{background:var(--dx-soft);border-color:var(--dx-line);color:#475569;}
+  .dx-btn.ghost:hover{background:#f1f5f9;color:var(--dx-ink);}
+  .dx-btn.soft{background:var(--dx-blue-w);border-color:#bfdbfe;color:var(--dx-blue-d);}
+  .dx-btn.dark{background:#1e293b;color:#fff;}
+  .dx-btn.danger{background:#fff;border-color:#fecdd3;color:#e11d48;padding:6px 10px;font-size:11.5px;}
+  .dx-btn[disabled]{opacity:.5;cursor:not-allowed;}
+  /* keys */
+  .dx-keys-card{border-color:#a7f3d0;}
+  .dx-cardhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid #f1f5f9;}
+  .dx-cardhead .t{display:flex;align-items:center;gap:12px;}
+  .dx-badgeic{width:36px;height:36px;border-radius:11px;background:var(--dx-green);color:#fff;display:flex;align-items:center;justify-content:center;flex:none;}
+  .dx-badgeic svg{width:18px;height:18px;}
+  .dx-cardhead h3{margin:0;font-size:14.5px;font-weight:900;color:var(--dx-ink);}
+  .dx-cardhead p{margin:1px 0 0;font-size:11.5px;color:var(--dx-muted);}
+  .dx-newkey{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:stretch;}
+  .dx-newkey .f{position:relative;flex:1;min-width:220px;}
+  .dx-newkey input{width:100%;background:var(--dx-soft);border:1px solid #cbd5e1;border-radius:11px;padding:10px 40px 10px 14px;font:700 12.5px 'IBM Plex Mono',monospace;color:var(--dx-ink);letter-spacing:.03em;box-shadow:inset 0 1px 2px rgba(0,0,0,.04);}
+  .dx-newkey .f button{position:absolute;right:8px;top:50%;transform:translateY(-50%);}
+  .dx-newkey-note{margin-top:8px;font-size:11.5px;color:#047857;background:var(--dx-green-w);border:1px solid #a7f3d0;border-radius:9px;padding:7px 10px;}
+  .dx-keyrows{margin-top:14px;display:flex;flex-direction:column;gap:8px;}
+  .dx-keyrow{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--dx-line);border-radius:12px;background:#fff;flex-wrap:wrap;}
+  .dx-keyrow .m{flex:1;min-width:180px;font-size:12.5px;}
+  .dx-keyrow .m b{color:var(--dx-ink);}
+  .dx-keyrow .m div{font-size:11px;color:var(--dx-muted);margin-top:2px;}
+  .dx-empty{font-size:12px;color:var(--dx-muted);padding:12px;border:1px dashed #cbd5e1;border-radius:12px;text-align:center;background:var(--dx-soft);}
+  .dx-keyfoot{margin-top:14px;padding-top:12px;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:11.5px;color:var(--dx-muted);}
+  /* steps */
+  .dx-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
+  .dx-step{background:#fff;border:1px solid var(--dx-line);border-radius:13px;padding:14px;}
+  .dx-step .n{width:24px;height:24px;border-radius:8px;background:#dbeafe;color:var(--dx-blue-d);font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
+  .dx-step h4{margin:0 0 3px;font-size:12.5px;font-weight:900;color:var(--dx-ink);}
+  .dx-step p{margin:0;font-size:11.5px;color:var(--dx-muted);}
+  /* endpoint cards */
+  .dx-ep{background:#fff;border:1px solid var(--dx-line);border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.04);scroll-margin-top:84px;}
+  .dx-ep-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;background:var(--dx-soft);border-bottom:1px solid var(--dx-line);}
+  .dx-ep-h .l{display:flex;align-items:center;gap:10px;min-width:0;}
+  .dx-ep-h .l b.name{font-size:12px;color:var(--dx-muted);font-weight:700;}
+  .dx-m{padding:2px 8px;border-radius:6px;font-size:10.5px;font-weight:900;color:#fff;letter-spacing:.04em;}
+  .dx-m.post{background:var(--dx-blue);}
+  .dx-m.get{background:var(--dx-green);}
+  .dx-path{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:var(--dx-ink);word-break:break-all;}
+  .dx-cost{font-size:11px;font-weight:800;padding:2px 9px;border-radius:999px;background:#f1f5f9;color:var(--dx-muted);white-space:nowrap;}
+  .dx-cost.paid{background:var(--dx-green-w);color:#047857;border:1px solid #a7f3d0;}
+  .dx-ep-b{padding:16px 18px;display:flex;flex-direction:column;gap:14px;}
+  .dx-specs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;}
+  .dx-spec{border:1px solid var(--dx-line);background:var(--dx-soft);border-radius:11px;padding:8px;text-align:center;}
+  .dx-spec span{display:block;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--dx-faint);}
+  .dx-spec b{display:block;font-size:11.5px;font-weight:900;color:var(--dx-ink);margin-top:2px;}
+  .dx-spec.blue{background:#eff6ff;border-color:#bfdbfe;} .dx-spec.blue span{color:#1d4ed8;}
+  .dx-spec.violet{background:#faf5ff;border-color:#e9d5ff;} .dx-spec.violet span{color:#7e22ce;}
+  .dx-lbl{font-size:10.5px;font-weight:900;color:var(--dx-faint);text-transform:uppercase;letter-spacing:.08em;}
+  .dx-table-wrap{overflow-x:auto;border:1px solid #f1f5f9;border-radius:12px;}
+  .dx-table{width:100%;border-collapse:collapse;font-size:12px;}
+  .dx-table th{background:var(--dx-soft);color:var(--dx-muted);font-weight:800;text-align:left;padding:8px 12px;border-bottom:1px solid var(--dx-line);white-space:nowrap;}
+  .dx-table td{padding:9px 12px;border-top:1px solid #f1f5f9;vertical-align:top;color:var(--dx-text);}
+  .dx-table td.f{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--dx-blue);white-space:nowrap;}
+  .dx-table td.t{font-family:'IBM Plex Mono',monospace;color:var(--dx-muted);white-space:nowrap;}
+  .dx-table td.req{color:var(--dx-green);font-weight:800;white-space:nowrap;}
+  .dx-table td.opt{color:var(--dx-faint);white-space:nowrap;}
+  .dx-table td.c2{font-family:'IBM Plex Mono',monospace;font-weight:900;}
+  .dx-table td.ok{color:var(--dx-green);} .dx-table td.wa{color:#d97706;} .dx-table td.er{color:#e11d48;}
+  /* code */
+  .dx-code{display:flex;flex-direction:column;gap:6px;}
+  .dx-code-h{display:flex;justify-content:space-between;align-items:center;font:600 11.5px 'IBM Plex Mono',monospace;color:var(--dx-faint);}
+  .dx-copy{border:0;background:none;color:var(--dx-blue);font:800 11.5px inherit;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:4px;}
+  .dx-copy svg{width:13px;height:13px;}
+  .dvx pre.dx-pre{margin:0;background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:14px 16px;font:12px/1.6 'IBM Plex Mono',monospace;color:#e2e8f0;overflow-x:auto;white-space:pre;box-shadow:inset 0 2px 4px rgba(0,0,0,.25);}
+  .dvx pre.dx-pre.json{color:#6ee7b7;}
+  .dx-langs{display:inline-flex;gap:3px;background:#f1f5f9;border:1px solid var(--dx-line);border-radius:11px;padding:3px;}
+  .dx-langs button{border:0;background:none;padding:6px 12px;border-radius:8px;font:800 12px inherit;font-family:inherit;color:var(--dx-muted);cursor:pointer;}
+  .dx-langs button.on{background:#fff;color:var(--dx-blue);box-shadow:0 1px 2px rgba(0,0,0,.08);}
+  .dx-row-between{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  /* console */
+  .dx-console-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .dx-console-bar .ep{flex:1;min-width:200px;display:flex;align-items:center;gap:8px;background:var(--dx-soft);border:1px solid #cbd5e1;border-radius:11px;padding:8px 12px;font:600 12px 'IBM Plex Mono',monospace;color:#334155;}
+  .dx-console-bar .ep b{color:var(--dx-green);}
+  .dx-console-bar input{flex:1;min-width:200px;border:1px solid #cbd5e1;border-radius:11px;padding:9px 12px;font:600 12px 'IBM Plex Mono',monospace;background:#fff;color:var(--dx-ink);}
+  .dx-btn.go{background:var(--dx-green);color:#fff;}
+  .dx-btn.go:hover{background:#047857;}
+  .dvx pre#dx-consoleOut{min-height:120px;max-height:260px;overflow:auto;color:#cbd5e1;}
+  /* notes */
+  .dx-note{display:flex;gap:12px;align-items:flex-start;border-radius:16px;padding:16px 18px;border:1px solid #a7f3d0;background:#ecfdf599;}
+  .dx-note .ic{width:34px;height:34px;border-radius:11px;background:var(--dx-green);color:#fff;display:flex;align-items:center;justify-content:center;flex:none;}
+  .dx-note .ic svg{width:17px;height:17px;}
+  .dx-note h4{margin:0 0 3px;font-size:12px;font-weight:900;color:#064e3b;text-transform:uppercase;letter-spacing:.05em;}
+  .dx-note p{margin:0;font-size:12px;color:#065f46;}
+  .dx-limits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+  .dx-limit{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1px solid var(--dx-line);border-radius:13px;padding:12px 14px;}
+  .dx-limit .ic{width:28px;height:28px;border-radius:9px;background:var(--dx-blue-w);color:var(--dx-blue);display:flex;align-items:center;justify-content:center;flex:none;}
+  .dx-limit .ic svg{width:15px;height:15px;}
+  .dx-limit b{display:block;font-size:12.5px;color:var(--dx-ink);}
+  .dx-limit span{font-size:11.5px;color:var(--dx-muted);}
+  .dx-support{position:relative;overflow:hidden;border-radius:18px;padding:24px 26px;color:#fff;background:linear-gradient(135deg,#0f172a,#1e1b4b 55%,#0f172a);display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;}
+  .dx-support::after{content:'';position:absolute;right:-50px;bottom:-60px;width:240px;height:240px;border-radius:50%;background:#3b82f61f;filter:blur(30px);pointer-events:none;}
+  .dx-support h3{margin:8px 0 4px;font-size:19px;font-weight:900;color:#fff;}
+  .dx-support p{margin:0;font-size:12.5px;color:#cbd5e1;max-width:560px;}
+  .dx-support .dx-pill{background:#3b82f633;color:#93c5fd;border-color:#60a5fa4d;}
+  .dx-support .dx-btn{position:relative;z-index:1;}
+  /* contents list ("On this page") */
+  .dx-toc{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 96px);overflow:auto;padding:4px 0 12px;}
+  .dx-toc-t{font-size:10.5px;font-weight:900;letter-spacing:.12em;color:var(--dx-faint);text-transform:uppercase;margin:0 0 10px 2px;}
+  .dx-toc ul{list-style:none;margin:0;padding:0;border-left:1px solid var(--dx-line);}
+  .dx-toc li a{display:block;padding:5px 0 5px 14px;margin-left:-1px;border-left:2px solid transparent;font-size:12.5px;font-weight:500;color:var(--dx-muted);transition:color .15s,border-color .15s;}
+  .dx-toc li.sub a{padding-left:26px;font-size:12px;}
+  .dx-toc li a:hover{color:var(--dx-ink);}
+  .dx-toc li a.on{color:var(--dx-ink);font-weight:800;border-left-color:var(--dx-ink);}
+  .dx-agent{margin-top:16px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:9px 12px;border:1px solid var(--dx-line);background:#fff;border-radius:11px;font:700 12px inherit;font-family:inherit;color:#334155;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.04);}
+  .dx-agent:hover{border-color:#cbd5e1;color:var(--dx-ink);}
+  .dx-agent svg{width:15px;height:15px;}
+  .dx-agent-top{display:none;}
+  @media (max-width:1180px){
+    .dx-layout{grid-template-columns:minmax(0,1fr);}
+    .dx-toc{display:none;}
+    .dx-agent-top{display:flex;width:auto;margin-top:12px;}
+  }
+  @media (max-width:760px){
+    .dx-card{padding:16px;}
+    .dx-steps,.dx-limits{grid-template-columns:minmax(0,1fr);}
+    .dx-specs{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .dx-stat{min-width:0;width:100%;}
+    .dx-h1{font-size:23px;}
+    .dx-ep-b{padding:14px;}
+    .dx-head > .dx-stat{flex:1 1 100%;}
+    /* tables become stacked rows: name, type and required on one line, the description under them */
+    .dx-table thead{display:none;}
+    .dx-table, .dx-table tbody{display:block;}
+    .dx-table tr{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;padding:10px 12px;border-top:1px solid #f1f5f9;}
+    .dx-table tr:first-child{border-top:0;}
+    .dx-table td{padding:0;border:0;}
+    .dx-table td:last-child{flex-basis:100%;color:var(--dx-text);}
+  }
   .ai-ns-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:9px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:12px;font-weight:800;white-space:nowrap;cursor:help;}
   .ai-ns-badge svg{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
   [data-theme="dark"] .ai-ns-badge{background:rgba(148,163,184,.12);border-color:rgba(148,163,184,.3);color:#cbd5e1;}
@@ -2354,7 +2442,7 @@ if (new URLSearchParams(location.search).has('preview')) {
         <span data-i18n="nav_focus">Focus mode</span>
       </div>
       <div class="navtab sidebar-item" data-tab="dev-api" style="display:none;">
-        <div class="sid-chip sid-indigo">
+        <div class="sid-chip sid-violet">
           <svg data-icon-key="tab_dev_api" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><path d="M8 9l-4 3 4 3M16 9l4 3-4 3M13.5 6l-3 12"/></svg>
         </div>
         <span>Developer API</span>
@@ -3559,87 +3647,96 @@ if (new URLSearchParams(location.search).has('preview')) {
       .fx-calc-d b{ display:block; font-size:24px; font-weight:900; color:var(--fx-ink); font-family:'IBM Plex Mono',monospace; overflow:hidden; text-overflow:ellipsis; }
     </style>
     <div class="tabpane" id="pane-focus" style="display:none;"><div id="fxRoot"></div></div>
-    <!-- Developer API: keys + docs (testing accounts only for now) -->
+    <!-- Developer API: keys + docs on one page, contents list on the side (testing accounts only for now) -->
     <div class="tabpane" id="pane-dev-api" style="display:none;">
-      <div id="devApiCard" class="dev-card" style="display:none;"></div>
       <div class="dvx" id="dvxRoot" style="display:none;">
-  <div class="dvx-hero">
-    <span class="dvx-eyebrow">REST API v1.0 · Developer Hub</span>
-    <h1>Developer API</h1>
-    <p class="dvx-lead">Connect your own website or system to PK Checker. Send a document, follow its status, and download the official Turnitin similarity and AI reports, all from your code.</p>
-    <div class="dvx-base"><b>Base URL</b><code id="dvx-baseUrl">https://www.pkchecker.com/v1</code><button class="dvx-copy" type="button" onclick="dvxCopy(document.getElementById('dvx-baseUrl').textContent, this)">Copy</button></div>
-    <div class="dvx-chips">
-      <span class="dvx-chip">Auth: <b>Bearer API key</b></span>
-      <span class="dvx-chip">Rate limit: <b>60 req / min</b></span>
-      <span class="dvx-chip">Cost: <b>1 check per file</b></span>
-      <span class="dvx-chip dvx-beta">Beta: <b>available to selected accounts</b></span>
-    </div>
-  </div>
+      <div class="dx-layout">
+      <div class="dx-main">
 
-  <section>
-    <div class="dvx-card dvx-access">
-      <div>
-        <h2>Developer API access</h2>
-        <p style="margin:0;color:#334155;">Every request is authenticated with your own API key, and each submitted file uses one check from your PK Checker balance, exactly like a file uploaded from the dashboard.</p>
-        <ol class="dvx-steps-list">
-          <li>Use the <b>API keys</b> card at the top of this page.</li>
-          <li>Create a key and copy it (it is shown only once).</li>
-          <li>Send it in the <code>Authorization: Bearer YOUR_API_KEY</code> header.</li>
-        </ol>
-      </div>
-      <div class="dvx-btns" style="justify-content:flex-end;">
-        <a class="dvx-btn dvx-primary" href="#devApiCard" onclick="event.preventDefault();document.getElementById('devApiCard').scrollIntoView({behavior:'smooth',block:'start'})">Get your API key</a>
-        <a class="dvx-btn" href="#" onclick="event.preventDefault();goTab('wallet')">Buy checks</a>
-      </div>
-    </div>
-  </section>
+        <!-- 1. Header -->
+        <div class="dx-card dx-head" id="dx-top">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <span class="dx-pill"><i></i>REST API v1.0</span>
+              <span class="dx-pill violet"><i></i>Beta</span>
+              <span style="font-size:12px;color:var(--dx-faint);font-weight:600;">Developer Hub</span>
+            </div>
+            <h1 class="dx-h1">Developer API</h1>
+            <p class="dx-p" style="max-width:560px;">Connect your own website or system to PK Checker: send a document, follow its status, and download the official Turnitin similarity and AI reports from your code.</p>
+            <div class="dx-base">Base URL:
+              <span class="v"><span id="dvx-baseUrl">https://www.pkchecker.com/v1</span><button type="button" class="dx-icobtn" title="Copy Base URL" onclick="dvxCopy(document.getElementById('dvx-baseUrl').textContent, this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></span>
+            </div>
+            <button type="button" class="dx-agent dx-agent-top" onclick="dvxCopyForAgent(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M4 16V5a1 1 0 0 1 1-1h11"/></svg><span>Copy for your AI agent</span></button>
+          </div>
+          <div class="dx-stat">
+            <div><span>Status</span><span class="dx-live"><i></i>Active</span></div>
+            <div><span>Credits</span><b id="dx-credits">—</b></div>
+            <div><span>Rate limit</span><b>60 req / min</b></div>
+            <div><span>Cost</span><b>1 check / file</b></div>
+          </div>
+        </div>
 
-  <div class="dvx-tabs" role="tablist">
-    <button type="button" class="dvx-on" data-tab="docs">Endpoints &amp; Docs</button>
-    <button type="button" data-tab="code">Code Examples</button>
-    <button type="button" data-tab="console">Live Console</button>
-  </div>
+        <!-- 2. API key -->
+        <section class="dx-sec" id="dx-key">
+          <div id="devApiCard" class="dx-card dx-keys-card"></div>
+        </section>
 
-  <!-- ENDPOINTS & DOCS -->
-  <div class="dvx-panel dvx-on" id="dvx-tab-docs">
-    <section>
-      <h2>How it works</h2>
-      <div class="dvx-flow">
-        <div class="dvx-card"><span class="dvx-num">1</span><h3>Submit a document</h3><p><code>POST /v1/scan/submit</code> with the file. You get a <code>file_id</code>.</p></div>
-        <div class="dvx-card"><span class="dvx-num">2</span><h3>Check the status</h3><p><code>GET /v1/scan/status</code> until the status is <code>Completed</code> (poll every 10–20 seconds).</p></div>
-        <div class="dvx-card"><span class="dvx-num">3</span><h3>Download the reports</h3><p><code>GET /v1/scan/download</code> for the similarity PDF, and with <code>report_type=ai</code> for the AI PDF.</p></div>
-      </div>
-    </section>
+        <!-- 3. Authentication -->
+        <section class="dx-sec" id="dx-auth">
+          <h2 class="dx-h2">Authentication</h2>
+          <div class="dx-card" style="display:flex;flex-direction:column;gap:12px;">
+            <p class="dx-p">Every request carries your API key in the <code>Authorization</code> header as a Bearer token. Keep the key on your server; never put it in a public web page or a mobile app.</p>
+            <div class="dx-code">
+              <div class="dx-code-h"><span>Header</span><button type="button" class="dx-copy" onclick="dvxCopySnippet('dx-authHdr', this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>Copy</button></div>
+              <pre class="dx-pre" id="dx-authHdr">Authorization: Bearer YOUR_API_KEY</pre>
+            </div>
+            <p class="dx-p" style="font-size:12px;color:var(--dx-muted);">A missing, wrong or revoked key gets <code>401</code>. Each key allows 60 requests a minute; more get <code>429</code>.</p>
+          </div>
+        </section>
 
-    <section>
-      <h2>Endpoints</h2>
+        <!-- 4. Quickstart -->
+        <section class="dx-sec" id="dx-quick">
+          <h2 class="dx-h2">Quickstart</h2>
+          <div class="dx-steps">
+            <div class="dx-step"><div class="n">1</div><h4>Submit a document</h4><p><code>POST /v1/scan/submit</code> with the file. You get a <code>file_id</code>.</p></div>
+            <div class="dx-step"><div class="n">2</div><h4>Check the status</h4><p><code>GET /v1/scan/status</code> every 10–20 seconds until it is <code>Completed</code>.</p></div>
+            <div class="dx-step"><div class="n">3</div><h4>Download the reports</h4><p><code>GET /v1/scan/download</code> for the similarity PDF; add <code>report_type=ai</code> for the AI PDF.</p></div>
+          </div>
+        </section>
 
-      <div class="dvx-card dvx-ep">
-        <div class="dvx-ep-head"><span class="dvx-m dvx-post">POST</span><span class="dvx-path">/v1/scan/submit</span><span class="dvx-cost dvx-paid">1 check / file</span></div>
-        <p class="dvx-d">Submit a file (or raw text) for a Turnitin similarity check, with or without AI detection. Send the request as <code>multipart/form-data</code>.</p>
-        <ul class="dvx-limits">
-          <li>Formats: PDF, DOCX, DOC, TXT, ODT · up to 50 MB</li>
-          <li>Similarity: up to 50,000 words · AI detection: up to 30,000 words (longer files get the similarity report only)</li>
-          <li>AI detection languages: English, Spanish, Japanese, Arabic · minimum 300 words</li>
-          <li>Raw text: at least 40 words</li>
-        </ul>
-        <table>
-          <thead><tr><th>Field</th><th>Type</th><th></th><th>Description</th></tr></thead>
-          <tbody>
-            <tr><td><code>file</code></td><td>File</td><td><span class="dvx-req">Required*</span></td><td>The document. *Or send <code>text</code> instead.</td></tr>
-            <tr><td><code>text</code></td><td>String</td><td><span class="dvx-opt">Optional</span></td><td>Raw text to check when no file is sent (min 40 words).</td></tr>
-            <tr><td><code>service_type</code></td><td>String</td><td><span class="dvx-opt">Optional</span></td><td><code>Both</code> (default: similarity + AI), <code>Turnitin AI</code> (same as Both), or <code>Turnitin Plagiarism</code> (similarity only, needs similarity-only checks in your balance).</td></tr>
-            <tr><td><code>exclude_quotes</code></td><td>0 / 1</td><td><span class="dvx-opt">Optional</span></td><td>Exclude quoted text from the similarity score. Default 0.</td></tr>
-            <tr><td><code>exclude_biblio</code></td><td>0 / 1</td><td><span class="dvx-opt">Optional</span></td><td>Exclude the bibliography / references. Alias: <code>exclude_bibliography</code>. Default 0.</td></tr>
-            <tr><td><code>exclude_citations</code></td><td>0 / 1</td><td><span class="dvx-opt">Optional</span></td><td>Exclude in-text citations. Default 0.</td></tr>
-            <tr><td><code>exclude_small_matches</code></td><td>0 / 1</td><td><span class="dvx-opt">Optional</span></td><td>Exclude matches shorter than <code>small_match_threshold</code> words. Default 0.</td></tr>
-            <tr><td><code>small_match_threshold</code></td><td>Integer 8–250</td><td><span class="dvx-opt">Optional</span></td><td>Word threshold for small matches. Alias: <code>exclude_words</code>. Default 8.</td></tr>
-            <tr><td><code>custom_id</code></td><td>String</td><td><span class="dvx-opt">Optional</span></td><td>Your own order or user id (up to 100 characters). Returned in every response.</td></tr>
-            <tr><td><code>server</code></td><td>String</td><td><span class="dvx-opt">Optional</span></td><td>Accepted for compatibility (<code>s1</code>); ignored.</td></tr>
-          </tbody>
-        </table>
-        <div class="dvx-lbl">Response · 200</div>
-<pre>{
+        <!-- 5. Endpoints -->
+        <section class="dx-sec" id="dx-endpoints">
+          <h2 class="dx-h2">Endpoints</h2>
+
+          <div class="dx-ep" id="dx-ep-submit">
+            <div class="dx-ep-h"><div class="l"><span class="dx-m post">POST</span><span class="dx-path">/v1/scan/submit</span></div><span class="dx-cost paid">1 check / file</span></div>
+            <div class="dx-ep-b">
+              <p class="dx-p">Submit a file (or raw text) for a Turnitin similarity check, with or without AI detection. Send the request as <code>multipart/form-data</code>.</p>
+              <div class="dx-specs">
+                <div class="dx-spec blue"><span>Similarity</span><b>Up to 50,000 words</b></div>
+                <div class="dx-spec violet"><span>AI detection</span><b>Up to 30,000 words</b></div>
+                <div class="dx-spec"><span>Max file size</span><b>50 MB</b></div>
+                <div class="dx-spec"><span>Formats</span><b>PDF, DOCX, DOC, TXT, ODT</b></div>
+                <div class="dx-spec"><span>Min text</span><b>40 words</b></div>
+              </div>
+              <div class="dx-lbl">Parameters (multipart/form-data)</div>
+              <div class="dx-table-wrap"><table class="dx-table">
+                <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+                <tbody>
+                  <tr><td class="f">file</td><td class="t">File</td><td class="req">Yes*</td><td>The document. *Or send <code>text</code> instead.</td></tr>
+                  <tr><td class="f">text</td><td class="t">String</td><td class="opt">No</td><td>Raw text to check when no file is sent (min 40 words).</td></tr>
+                  <tr><td class="f">service_type</td><td class="t">String</td><td class="opt">No</td><td><code>Both</code> (default: similarity + AI), <code>Turnitin AI</code> (same as Both), or <code>Turnitin Plagiarism</code> (similarity only; needs similarity-only checks in your balance).</td></tr>
+                  <tr><td class="f">exclude_quotes</td><td class="t">0 / 1</td><td class="opt">No</td><td>Exclude quoted text from the similarity score. Default 0.</td></tr>
+                  <tr><td class="f">exclude_biblio</td><td class="t">0 / 1</td><td class="opt">No</td><td>Exclude the bibliography / references. Also accepts <code>exclude_bibliography</code>. Default 0.</td></tr>
+                  <tr><td class="f">exclude_citations</td><td class="t">0 / 1</td><td class="opt">No</td><td>Exclude in-text citations. Default 0.</td></tr>
+                  <tr><td class="f">exclude_small_matches</td><td class="t">0 / 1</td><td class="opt">No</td><td>Exclude matches shorter than <code>small_match_threshold</code> words. Default 0.</td></tr>
+                  <tr><td class="f">small_match_threshold</td><td class="t">Integer 8–250</td><td class="opt">No</td><td>Word threshold for small matches. Also accepts <code>exclude_words</code>. Default 8.</td></tr>
+                  <tr><td class="f">custom_id</td><td class="t">String</td><td class="opt">No</td><td>Your own order or user id (up to 100 characters), returned in every response.</td></tr>
+                </tbody>
+              </table></div>
+              <div class="dx-code">
+                <div class="dx-code-h"><span>Response JSON (HTTP 200)</span><button type="button" class="dx-copy" onclick="dvxCopySnippet('dx-r-submit', this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>Copy</button></div>
+<pre class="dx-pre json" id="dx-r-submit">{
   "success": true,
   "file_id": "PK1-261124-21",
   "filename": "Research_Thesis.docx",
@@ -3648,13 +3745,18 @@ if (new URLSearchParams(location.search).has('preview')) {
   "message": "File submitted successfully and queued for Turnitin scanning",
   "slots_remaining": 14
 }</pre>
-        <p class="dvx-d" style="margin-top:10px;">If the check service is busy, the file is kept and sent automatically as soon as possible; the response is the same (<code>status: "Pending"</code>) with a note in <code>message</code>.</p>
-      </div>
+              </div>
+              <p class="dx-p" style="font-size:12px;color:var(--dx-muted);">If the check service is busy, the file is kept and sent automatically as soon as possible. The response is the same (<code>status: "Pending"</code>) with a note in <code>message</code>.</p>
+            </div>
+          </div>
 
-      <div class="dvx-card dvx-ep">
-        <div class="dvx-ep-head"><span class="dvx-m dvx-get">GET</span><span class="dvx-path">/v1/scan/status?file_id={file_id}</span><span class="dvx-cost">Free</span></div>
-        <p class="dvx-d">The state of a file, its scores and the report links. Status values: <code>Pending</code> (waiting to be sent), <code>Processing</code> (being checked), <code>Completed</code>, <code>Failed</code> (with an <code>error</code> field).</p>
-<pre>{
+          <div class="dx-ep" id="dx-ep-status">
+            <div class="dx-ep-h"><div class="l"><span class="dx-m get">GET</span><span class="dx-path">/v1/scan/status?file_id={file_id}</span></div><span class="dx-cost">Free</span></div>
+            <div class="dx-ep-b">
+              <p class="dx-p">The state of a file, its scores and the report links. Status values: <code>Pending</code> (waiting to be sent), <code>Processing</code> (being checked), <code>Completed</code>, <code>Failed</code> (with an <code>error</code> field).</p>
+              <div class="dx-code">
+                <div class="dx-code-h"><span>Response JSON (Completed)</span><button type="button" class="dx-copy" onclick="dvxCopySnippet('dx-r-status', this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>Copy</button></div>
+<pre class="dx-pre json" id="dx-r-status">{
   "success": true,
   "file_id": "PK1-261124-21",
   "filename": "Research_Thesis.docx",
@@ -3667,72 +3769,48 @@ if (new URLSearchParams(location.search).has('preview')) {
   "ai_download_url": "https://www.pkchecker.com/v1/scan/download?file_id=PK1-261124-21&amp;report_type=ai",
   "completed_at": 1727443320
 }</pre>
-        <p class="dvx-d" style="margin-top:10px;"><code>ai_score</code> is <code>null</code> when the AI report shows "*%" (20% or less), when AI detection was not requested, or when it could not run (word limit, language).</p>
-      </div>
+              </div>
+              <p class="dx-p" style="font-size:12px;color:var(--dx-muted);"><code>ai_score</code> is <code>null</code> when the AI report shows "*%" (20% or less), when AI detection was not requested, or when it could not run (word limit, language).</p>
+            </div>
+          </div>
 
-      <div class="dvx-card dvx-ep">
-        <div class="dvx-ep-head"><span class="dvx-m dvx-get">GET</span><span class="dvx-path">/v1/scan/download?file_id={file_id}&amp;report_type={type}</span><span class="dvx-cost">Free</span></div>
-        <p class="dvx-d">Downloads the official Turnitin report as a PDF (<code>Content-Type: application/pdf</code>).</p>
-        <table>
-          <thead><tr><th>Field</th><th>Type</th><th></th><th>Description</th></tr></thead>
-          <tbody>
-            <tr><td><code>file_id</code></td><td>String</td><td><span class="dvx-req">Required</span></td><td>The <code>file_id</code> from the submit response.</td></tr>
-            <tr><td><code>report_type</code></td><td>String</td><td><span class="dvx-opt">Optional</span></td><td><code>plagiarism</code> (default, similarity report) or <code>ai</code> (AI writing report).</td></tr>
-          </tbody>
-        </table>
-      </div>
+          <div class="dx-ep" id="dx-ep-download">
+            <div class="dx-ep-h"><div class="l"><span class="dx-m get">GET</span><span class="dx-path">/v1/scan/download?file_id={file_id}&amp;report_type={type}</span></div><span class="dx-cost">Binary PDF stream</span></div>
+            <div class="dx-ep-b">
+              <p class="dx-p">Streams the official Turnitin report as a PDF (<code>Content-Type: application/pdf</code>).</p>
+              <div class="dx-table-wrap"><table class="dx-table">
+                <thead><tr><th>Parameter</th><th>Required</th><th>Options &amp; description</th></tr></thead>
+                <tbody>
+                  <tr><td class="f">file_id</td><td class="req">Yes</td><td>The <code>file_id</code> from the submit response.</td></tr>
+                  <tr><td class="f">report_type</td><td class="opt">No</td><td><code>plagiarism</code> (default): the similarity report. <code>ai</code>: the AI writing report.</td></tr>
+                </tbody>
+              </table></div>
+            </div>
+          </div>
 
-      <div class="dvx-card dvx-ep">
-        <div class="dvx-ep-head"><span class="dvx-m dvx-get">GET</span><span class="dvx-path">/v1/account/balance</span><span class="dvx-cost">Free</span></div>
-        <p class="dvx-d">The checks available in your PK Checker balance (active packages).</p>
-<pre>{
+          <div class="dx-ep" id="dx-ep-balance">
+            <div class="dx-ep-h"><div class="l"><span class="dx-m get">GET</span><span class="dx-path">/v1/account/balance</span></div><span class="dx-cost">Free</span></div>
+            <div class="dx-ep-b">
+              <p class="dx-p">The checks available in your PK Checker balance (active packages).</p>
+<pre class="dx-pre json">{
   "success": true,
   "status": "Active",
   "available_credits": 14,
   "total_credits": 20,
   "used_credits": 6
 }</pre>
-      </div>
-    </section>
+            </div>
+          </div>
+        </section>
 
-    <section>
-      <div class="dvx-note"><span>🗂</span><div><b>48-hour storage.</b> Reports are kept for 48 hours after delivery and then deleted. Download them to your own storage after <code>Completed</code>.</div></div>
-    </section>
-
-    <section>
-      <h2>HTTP response codes</h2>
-      <div class="dvx-card">
-        <table>
-          <thead><tr><th>Code</th><th>Status</th><th colspan="2">Meaning</th></tr></thead>
-          <tbody>
-            <tr><td><code>200</code></td><td>OK</td><td colspan="2">Request processed successfully.</td></tr>
-            <tr><td><code>400</code></td><td>Bad Request</td><td colspan="2">Missing or invalid parameters (no file or text, wrong format, file over 50 MB…).</td></tr>
-            <tr><td><code>401</code></td><td>Unauthorized</td><td colspan="2">Missing or invalid Bearer API key.</td></tr>
-            <tr><td><code>402</code></td><td>Payment Required</td><td colspan="2">No checks left in your balance for this type of check.</td></tr>
-            <tr><td><code>404</code></td><td>Not Found</td><td colspan="2">Unknown <code>file_id</code>, or the report does not exist.</td></tr>
-            <tr><td><code>409</code></td><td>Conflict</td><td colspan="2">The report is not ready yet.</td></tr>
-            <tr><td><code>410</code></td><td>Gone</td><td colspan="2">The report was deleted (48 hours after delivery).</td></tr>
-            <tr><td><code>422</code></td><td>Unprocessable</td><td colspan="2">The check service did not accept the file. No check was used.</td></tr>
-            <tr><td><code>429</code></td><td>Too Many Requests</td><td colspan="2">Over 60 requests a minute, or the same file just failed (wait a minute).</td></tr>
-            <tr><td><code>503</code></td><td>Unavailable</td><td colspan="2">The check service is temporarily unavailable. No check was used.</td></tr>
-          </tbody>
-        </table>
-        <p class="dvx-d" style="margin:0;">Every error response is JSON: <code>{"success": false, "error": "…"}</code>.</p>
-      </div>
-    </section>
-  </div>
-
-  <!-- CODE EXAMPLES -->
-  <div class="dvx-panel" id="dvx-tab-code">
-    <section>
-      <h2>Integration snippets</h2>
-      <div class="dvx-codetabs" id="dvx-codeTabs">
-        <button type="button" class="dvx-on" data-code="curl">cURL</button>
-        <button type="button" data-code="py">Python</button>
-        <button type="button" data-code="php">PHP</button>
-        <button type="button" data-code="node">Node.js</button>
-      </div>
-<pre id="dvx-code-curl"># 1) Submit
+        <!-- 6. Code examples -->
+        <section class="dx-sec" id="dx-code">
+          <div class="dx-row-between"><h2 class="dx-h2">Code examples</h2>
+            <div class="dx-langs" id="dx-langs"><button type="button" class="on" data-code="curl">cURL</button><button type="button" data-code="py">Python</button><button type="button" data-code="php">PHP</button><button type="button" data-code="node">Node.js</button></div>
+          </div>
+          <div class="dx-code">
+            <div class="dx-code-h"><span id="dx-langName">Bash / Terminal</span><button type="button" class="dx-copy" onclick="dvxCopySnippet(dvxCodeId(), this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>Copy</button></div>
+<pre class="dx-pre" id="dvx-code-curl"># 1) Submit
 curl -X POST "https://www.pkchecker.com/v1/scan/submit" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -F "file=@thesis.docx" \
@@ -3750,7 +3828,7 @@ curl -o similarity.pdf "https://www.pkchecker.com/v1/scan/download?file_id=PK1-2
   -H "Authorization: Bearer YOUR_API_KEY"
 curl -o ai.pdf "https://www.pkchecker.com/v1/scan/download?file_id=PK1-261124-21&amp;report_type=ai" \
   -H "Authorization: Bearer YOUR_API_KEY"</pre>
-<pre id="dvx-code-py" style="display:none;">import time, requests
+<pre class="dx-pre" id="dvx-code-py" style="display:none;">import time, requests
 
 API = "https://www.pkchecker.com/v1"
 HEAD = {"Authorization": "Bearer YOUR_API_KEY"}
@@ -3779,7 +3857,7 @@ if s["status"] == "Completed":
         open("ai.pdf", "wb").write(ai.content)
 else:
     print("Failed:", s.get("error"))</pre>
-<pre id="dvx-code-php" style="display:none;">&lt;?php
+<pre class="dx-pre" id="dvx-code-php" style="display:none;">&lt;?php
 $api = "https://www.pkchecker.com/v1";
 $key = "YOUR_API_KEY";
 
@@ -3811,7 +3889,7 @@ if ($status["status"] === "Completed") {
   curl_exec($ch);
   fclose($fp);
 }</pre>
-<pre id="dvx-code-node" style="display:none;">// Node.js 18+ (built-in fetch, FormData and Blob)
+<pre class="dx-pre" id="dvx-code-node" style="display:none;">// Node.js 18+ (built-in fetch, FormData and Blob)
 import { readFile, writeFile } from "node:fs/promises";
 
 const API = "https://www.pkchecker.com/v1";
@@ -3836,29 +3914,96 @@ if (s.status === "Completed") {
   const pdf = await fetch(`${API}/scan/download?file_id=${encodeURIComponent(sub.file_id)}`, { headers: HEAD });
   await writeFile("similarity.pdf", Buffer.from(await pdf.arrayBuffer()));
 }</pre>
-    </section>
-  </div>
+          </div>
+        </section>
 
-  <!-- LIVE CONSOLE -->
-  <div class="dvx-panel" id="dvx-tab-console">
-    <section>
-      <h2>Interactive handshake tester</h2>
-      <div class="dvx-card dvx-console">
-        <div>
-          <div class="dvx-ep-head"><span class="dvx-m dvx-get">GET</span><span class="dvx-path">/v1/account/balance</span></div>
-          <p class="dvx-d">Paste your API key and send a test request. Nothing is charged; the key stays in this page only.</p>
-          <input id="dvx-consoleKey" type="password" placeholder="pk_live_..." autocomplete="off">
-          <div class="dvx-btns" style="margin-top:10px;"><button class="dvx-btn dvx-primary" type="button" onclick="dvxRunConsole()">Send test request</button></div>
-        </div>
-        <div><div class="dvx-lbl" style="margin-top:0;">Response output</div><pre id="dvx-consoleOut">// The response appears here</pre></div>
+        <!-- 7. Live console -->
+        <section class="dx-sec" id="dx-console">
+          <h2 class="dx-h2">Live console</h2>
+          <div class="dx-card" style="display:flex;flex-direction:column;gap:12px;">
+            <p class="dx-p">Test your key from this page. Nothing is charged, and the key is not saved.</p>
+            <div class="dx-console-bar">
+              <div class="ep"><b>GET</b>/v1/account/balance</div>
+              <input id="dvx-consoleKey" type="password" placeholder="pk_live_..." autocomplete="off">
+              <button type="button" class="dx-btn go" onclick="dvxRunConsole()"><svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M7 4.5v15l12-7.5z"/></svg>Send test request</button>
+            </div>
+            <div class="dx-code">
+              <div class="dx-code-h"><span>Response output</span><span id="dx-consoleState">Waiting for request…</span></div>
+              <pre class="dx-pre" id="dx-consoleOut">// Click "Send test request" to check your key.</pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- 8. Limits -->
+        <section class="dx-sec" id="dx-limits">
+          <h2 class="dx-h2">Limits</h2>
+          <div class="dx-limits">
+            <div class="dx-limit"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg></div><div><b>50,000 words · 50 MB</b><span>Largest document for the similarity report. PDF, DOCX, DOC, TXT, ODT.</span></div></div>
+            <div class="dx-limit"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg></div><div><b>AI detection: 300–30,000 words</b><span>English, Spanish, Japanese and Arabic. Longer files get the similarity report only.</span></div></div>
+            <div class="dx-limit"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg></div><div><b>60 requests / minute</b><span>Per API key. Up to 5 active keys per account.</span></div></div>
+            <div class="dx-limit"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div><b>Reports kept 48 hours</b><span>Download them to your own storage after <code>Completed</code>.</span></div></div>
+          </div>
+          <div class="dx-note"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div><h4>Automatic 48-hour storage purge</h4><p>Reports are deleted 48 hours after delivery to protect your documents. After that, <code>/v1/scan/download</code> answers <code>410 Gone</code>.</p></div></div>
+        </section>
+
+        <!-- 9. Errors -->
+        <section class="dx-sec" id="dx-errors">
+          <h2 class="dx-h2">Errors</h2>
+          <div class="dx-card" style="display:flex;flex-direction:column;gap:12px;">
+            <div class="dx-table-wrap"><table class="dx-table">
+              <thead><tr><th>Code</th><th>Status</th><th>Meaning</th></tr></thead>
+              <tbody>
+                <tr><td class="c2 ok">200</td><td><b>OK</b></td><td>Request processed successfully.</td></tr>
+                <tr><td class="c2 wa">400</td><td><b>Bad Request</b></td><td>Missing or invalid parameters (no file or text, wrong format, file over 50 MB…).</td></tr>
+                <tr><td class="c2 er">401</td><td><b>Unauthorized</b></td><td>Missing or invalid Bearer API key.</td></tr>
+                <tr><td class="c2 er">402</td><td><b>Payment Required</b></td><td>No checks left in your balance for this type of check.</td></tr>
+                <tr><td class="c2 wa">404</td><td><b>Not Found</b></td><td>Unknown <code>file_id</code>, or the report does not exist.</td></tr>
+                <tr><td class="c2 wa">409</td><td><b>Conflict</b></td><td>The report is not ready yet.</td></tr>
+                <tr><td class="c2 wa">410</td><td><b>Gone</b></td><td>The report was deleted (48 hours after delivery).</td></tr>
+                <tr><td class="c2 er">422</td><td><b>Unprocessable</b></td><td>The check service did not accept the file. No check was used.</td></tr>
+                <tr><td class="c2 wa">429</td><td><b>Too Many Requests</b></td><td>Over 60 requests a minute, or the same file just failed (wait a minute).</td></tr>
+                <tr><td class="c2 er">503</td><td><b>Unavailable</b></td><td>The check service is temporarily unavailable. No check was used.</td></tr>
+              </tbody>
+            </table></div>
+            <p class="dx-p" style="font-size:12px;color:var(--dx-muted);">Every error response is JSON: <code>{"success": false, "error": "…"}</code>.</p>
+          </div>
+        </section>
+
+        <!-- 10. Support -->
+        <section class="dx-sec" id="dx-support">
+          <div class="dx-support">
+            <div style="position:relative;z-index:1;">
+              <span class="dx-pill"><i style="background:#60a5fa"></i>Developer support</span>
+              <h3>Stuck on the integration? We will help.</h3>
+              <p>Higher rate limits, debugging a response or reviewing your code: message us and we answer personally.</p>
+            </div>
+            <button type="button" class="dx-btn go" onclick="goTab('support')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>Chat with us</button>
+          </div>
+        </section>
       </div>
-    </section>
-  </div>
 
-  <section>
-    <div class="dvx-note dvx-blue"><span>💬</span><div><b>Developer support.</b> Questions about the integration? Contact us from the <a href="#" onclick="event.preventDefault();goTab('support')">live chat</a>.</div></div>
-  </section>
-</div>
+      <!-- Contents list: follows the scroll -->
+      <aside class="dx-toc" id="dx-toc">
+        <div class="dx-toc-t">On this page</div>
+        <ul>
+          <li><a href="#dx-key">API key</a></li>
+          <li><a href="#dx-auth">Authentication</a></li>
+          <li><a href="#dx-quick">Quickstart</a></li>
+          <li><a href="#dx-endpoints">Endpoints</a></li>
+          <li class="sub"><a href="#dx-ep-submit">Submit a file</a></li>
+          <li class="sub"><a href="#dx-ep-status">Check status</a></li>
+          <li class="sub"><a href="#dx-ep-download">Download a report</a></li>
+          <li class="sub"><a href="#dx-ep-balance">Get your balance</a></li>
+          <li><a href="#dx-code">Code examples</a></li>
+          <li><a href="#dx-console">Live console</a></li>
+          <li><a href="#dx-limits">Limits</a></li>
+          <li><a href="#dx-errors">Errors</a></li>
+          <li><a href="#dx-support">Support</a></li>
+        </ul>
+        <button type="button" class="dx-agent" onclick="dvxCopyForAgent(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M4 16V5a1 1 0 0 1 1-1h11"/></svg><span>Copy for your AI agent</span></button>
+      </aside>
+      </div>
+      </div>
     </div>
 
     <div class="tabpane" id="pane-support" style="display:none;">
@@ -7602,6 +7747,7 @@ const TAB_COLORS = {
   'my-profile': '#dc2626',
   'academic'  : '#d4930a',
   'focus'     : '#0891b2',
+  'dev-api'   : '#9333ea',
 };
 
 function movePill(activeEl){
@@ -11460,6 +11606,8 @@ function renderWalletSlotCards(){
     sbBadge.textContent = ar ? `${totalSlots} فحص` : `${totalSlots} ${totalSlots === 1 ? 'slot' : 'slots'}`;
     sbBadge.style.display = _slotsLoaded ? '' : 'none';
   }
+  const dxc = document.getElementById('dx-credits');
+  if (dxc) dxc.textContent = `${totalSlots} ${totalSlots === 1 ? 'check' : 'checks'}`;
 }
 
 // A failed or missing response counts as "unavailable", so a customer is never sent into a dead provider.
@@ -12877,66 +13025,176 @@ function showDevApiNav(){
   if (root) root.style.display = PK_TESTER ? '' : 'none';
   if (!PK_TESTER && document.getElementById('pane-dev-api')?.style.display === 'block') goTab('new-check');
 }
-function dvxCopy(t, btn){
-  navigator.clipboard.writeText(t).then(() => { const o = btn.textContent; btn.textContent = 'Copied'; setTimeout(() => btn.textContent = o, 1300); });
+const DX_ICON_COPY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
+const DX_ICON_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+function dvxFlash(btn){
+  if (!btn) return;
+  const o = btn.innerHTML;
+  const label = btn.querySelector('span');
+  if (label) label.textContent = 'Copied!'; else btn.innerHTML = DX_ICON_OK + (btn.classList.contains('dx-icobtn') ? '' : 'Copied');
+  setTimeout(() => { btn.innerHTML = o; }, 1400);
 }
+function dvxCopy(t, btn){ navigator.clipboard.writeText(t).then(() => dvxFlash(btn)); }
+function dvxCopySnippet(id, btn){ const el = document.getElementById(id); if (el) dvxCopy(el.textContent, btn); }
+const DX_LANGS = { curl: 'Bash / Terminal', py: 'Python 3 (requests)', php: 'PHP (cURL)', node: 'Node.js 18+ (fetch)' };
+function dvxCodeId(){ const on = document.querySelector('#dx-langs button.on'); return 'dvx-code-' + (on ? on.dataset.code : 'curl'); }
 async function dvxRunConsole(){
-  const out = document.getElementById('dvx-consoleOut');
+  const out = document.getElementById('dx-consoleOut');
+  const st = document.getElementById('dx-consoleState');
   const key = document.getElementById('dvx-consoleKey').value.trim();
-  if (!key) { out.textContent = '// Paste your API key first'; return; }
-  out.textContent = '// Sending…';
+  if (!key) { out.textContent = '// Paste your API key first'; st.textContent = 'Waiting for request…'; st.style.color = ''; return; }
+  out.textContent = '// Sending…'; st.textContent = 'Contacting API…'; st.style.color = '#2563eb';
   const base = /pkchecker\.com$/i.test(location.hostname) ? '/v1' : DEV_API_BASE;
+  const t0 = performance.now();
   try {
     const res = await fetch(base + '/account/balance', { headers: { Authorization: 'Bearer ' + key } });
     const body = await res.text();
     let pretty = body; try { pretty = JSON.stringify(JSON.parse(body), null, 2); } catch {}
-    out.textContent = `HTTP ${res.status}\n\n${pretty}`;
-  } catch (e) { out.textContent = '// Request failed: ' + e.message; }
+    const ms = Math.round(performance.now() - t0);
+    st.textContent = `HTTP ${res.status} (${ms} ms)`; st.style.color = res.ok ? '#059669' : '#e11d48';
+    out.style.color = res.ok ? '#6ee7b7' : '#fda4af';
+    out.textContent = pretty;
+  } catch (e) { st.textContent = 'Error'; st.style.color = '#e11d48'; out.textContent = '// Request failed: ' + e.message; }
 }
+// Everything an AI coding agent needs to set up the integration, as one Markdown text.
+function dvxAgentText(){
+  const B = DEV_API_BASE;
+  return `# PK Checker Developer API (v1) - integration brief
+
+Use this to integrate PK Checker (official Turnitin similarity + AI detection reports) into my project.
+
+## Basics
+- Base URL: ${B}
+- Auth: header \`Authorization: Bearer <API_KEY>\` on every request. Keep the key server-side only (env var PKCHECKER_API_KEY); never expose it in frontend code.
+- Rate limit: 60 requests/minute per key. Cost: 1 check from the account balance per submitted file. Status and download calls are free.
+- All JSON errors look like: {"success": false, "error": "..."}
+
+## Endpoints
+### POST /scan/submit  (multipart/form-data)
+Fields:
+- file (File, required unless \`text\` is sent): PDF, DOCX, DOC, TXT, ODT; max 50 MB; similarity up to 50,000 words, AI detection up to 30,000 words (longer files get the similarity report only)
+- text (string, optional): raw text instead of a file, min 40 words
+- service_type (optional): "Both" (default, similarity + AI) | "Turnitin AI" (same as Both) | "Turnitin Plagiarism" (similarity only)
+- exclude_quotes, exclude_biblio (alias exclude_bibliography), exclude_citations, exclude_small_matches: "0" | "1" (default 0)
+- small_match_threshold (alias exclude_words): integer 8-250, default 8
+- custom_id (optional, <=100 chars): my own order id, echoed back
+Response 200: {"success": true, "file_id": "PK1-261124-21", "filename": "...", "custom_id": "...", "status": "Pending", "message": "...", "slots_remaining": 14}
+
+### GET /scan/status?file_id={file_id}
+status: "Pending" | "Processing" | "Completed" | "Failed" (Failed includes "error").
+Completed response: {"success": true, "file_id": "...", "filename": "...", "custom_id": "...", "status": "Completed", "similarity_score": 14, "ai_score": 2, "word_count": 4850, "download_url": "${B}/scan/download?file_id=...", "ai_download_url": "${B}/scan/download?file_id=...&report_type=ai", "completed_at": 1727443320}
+ai_score is null when the AI result is "*%" (20% or less), not requested, or could not run. ai_download_url is absent when there is no AI report.
+
+### GET /scan/download?file_id={file_id}&report_type={plagiarism|ai}
+Returns the PDF (Content-Type: application/pdf). Default report_type is plagiarism (similarity report).
+409 = not ready yet, 410 = deleted (reports are kept 48 hours after delivery), 404 = unknown file or no such report.
+
+### GET /account/balance
+{"success": true, "status": "Active", "available_credits": 14, "total_credits": 20, "used_credits": 6}
+
+## HTTP codes
+200 OK | 400 bad/missing parameters | 401 missing or invalid key | 402 no checks left | 404 not found | 409 report not ready | 410 report deleted | 422 file not accepted by the check service (no check used) | 429 rate limit or same file just failed (retry after 60 s) | 503 check service temporarily unavailable (no check used; retry later)
+
+## Recommended flow
+1. POST /scan/submit, store file_id (and my custom_id) in my database.
+2. Poll GET /scan/status every 15 seconds (stop after ~30 minutes) until Completed or Failed. Back off on 429/503.
+3. On Completed, download the similarity PDF and, if ai_download_url exists, the AI PDF (report_type=ai); save them to my own storage within 48 hours.
+4. Show the scores (similarity_score, ai_score) and the stored PDFs to my users. On Failed, show "error" and let the user re-upload.
+
+## Example (cURL)
+curl -X POST "${B}/scan/submit" -H "Authorization: Bearer $PKCHECKER_API_KEY" -F "file=@thesis.docx" -F "service_type=Both" -F "custom_id=order_9812"
+curl "${B}/scan/status?file_id=PK1-261124-21" -H "Authorization: Bearer $PKCHECKER_API_KEY"
+curl -o similarity.pdf "${B}/scan/download?file_id=PK1-261124-21" -H "Authorization: Bearer $PKCHECKER_API_KEY"
+curl -o ai.pdf "${B}/scan/download?file_id=PK1-261124-21&report_type=ai" -H "Authorization: Bearer $PKCHECKER_API_KEY"
+
+Please set this up in my project: a small API client module, the submit -> poll -> download flow, error handling for the codes above, and config via the PKCHECKER_API_KEY environment variable.
+`;
+}
+function dvxCopyForAgent(btn){ dvxCopy(dvxAgentText(), btn); }
 (function wireDvx(){
   const root = document.getElementById('dvxRoot');
   if (!root) return;
-  root.querySelectorAll('.dvx-tabs button').forEach(b => b.addEventListener('click', () => {
-    root.querySelectorAll('.dvx-tabs button').forEach(x => x.classList.toggle('dvx-on', x === b));
-    root.querySelectorAll('.dvx-panel').forEach(p => p.classList.toggle('dvx-on', p.id === 'dvx-tab-' + b.dataset.tab));
+  // Code example languages
+  root.querySelectorAll('#dx-langs button').forEach(b => b.addEventListener('click', () => {
+    root.querySelectorAll('#dx-langs button').forEach(x => x.classList.toggle('on', x === b));
+    Object.keys(DX_LANGS).forEach(k => { const el = document.getElementById('dvx-code-' + k); if (el) el.style.display = k === b.dataset.code ? '' : 'none'; });
+    document.getElementById('dx-langName').textContent = DX_LANGS[b.dataset.code];
   }));
-  root.querySelectorAll('#dvx-codeTabs button').forEach(b => b.addEventListener('click', () => {
-    root.querySelectorAll('#dvx-codeTabs button').forEach(x => x.classList.toggle('dvx-on', x === b));
-    ['curl', 'py', 'php', 'node'].forEach(k => { document.getElementById('dvx-code-' + k).style.display = k === b.dataset.code ? '' : 'none'; });
+  // Contents list: smooth scroll on click, and the current section highlighted while scrolling
+  const links = [...root.querySelectorAll('#dx-toc a')];
+  const targets = links.map(a => document.getElementById(a.getAttribute('href').slice(1))).filter(Boolean);
+  links.forEach(a => a.addEventListener('click', e => {
+    e.preventDefault();
+    const t = document.getElementById(a.getAttribute('href').slice(1));
+    if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setActive(a);
   }));
+  // The element that scrolls this page (the dashboard's content area, or the window)
+  function dvxScroller(){
+    for (let el = root.parentElement; el; el = el.parentElement) {
+      const o = getComputedStyle(el).overflowY;
+      if ((o === 'auto' || o === 'scroll') && el.scrollHeight > el.clientHeight) return el;
+    }
+    return document.scrollingElement;
+  }
+  let lock = 0;
+  function setActive(a){ links.forEach(x => x.classList.toggle('on', x === a)); lock = Date.now(); }
+  function spy(){
+    if (Date.now() - lock < 700) return;          // let a clicked link stay highlighted during its smooth scroll
+    if (document.getElementById('pane-dev-api')?.style.display !== 'block') return;
+    const line = 120;                              // just below the top bar
+    let cur = targets[0];
+    for (const t of targets) { if (t.getBoundingClientRect().top - line <= 0) cur = t; }
+    // At the very bottom, the last section is the current one
+    const sc = dvxScroller();
+    if (sc.scrollHeight > sc.clientHeight + 4 && Math.ceil(sc.scrollTop + sc.clientHeight) >= sc.scrollHeight - 2) cur = targets[targets.length - 1];
+    links.forEach(x => x.classList.toggle('on', x.getAttribute('href') === '#' + cur.id));
+  }
+  let raf = 0;
+  const onScroll = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; spy(); }); };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  document.addEventListener('scroll', onScroll, { passive: true, capture: true });
+  window.addEventListener('resize', onScroll);
+  window.dvxSpy = spy;
 })();
 async function renderDevApi(){
   const card = document.getElementById('devApiCard');
   if (!card) return;
-  if (!PK_TESTER) { card.style.display = 'none'; card.innerHTML = ''; return; }
-  const ar = currentLang === 'ar';
+  const cr = document.getElementById('dx-credits');
+  if (cr && typeof slotsByType !== 'undefined') {
+    const n = (slotsByType.plag_ai || 0) + (slotsByType.plag_only || 0);
+    cr.textContent = `${n} ${n === 1 ? 'check' : 'checks'}`;
+  }
+  if (!PK_TESTER) { card.innerHTML = ''; return; }
   const { data: keys } = await supabaseClient.from('api_keys').select('id, name, key_prefix, created_at, last_used_at, revoked_at')
     .eq('user_id', PROKEYS_USER_ID).is('revoked_at', null).order('created_at', { ascending: false });
   const list = keys || [];
-  const when = d => d ? `${fmtDayMonthYear ? fmtDayMonthYear(new Date(d)) : new Date(d).toLocaleDateString()}` : (ar ? 'لم يُستخدم بعد' : 'Not used yet');
-  card.style.display = '';
+  const when = d => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Not used yet';
+  const KEY_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 9.8-9.8M17 6l3 3M15 8l2 2"/></svg>';
+  const EYE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const TERM_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m4 17 6-5-6-5M12 19h8"/></svg>';
   card.innerHTML = `
-    <div class="dev-head">
-      <div class="dev-ic"><svg viewBox="0 0 24 24"><path d="M8 9l-4 3 4 3M16 9l4 3-4 3M13.5 6l-3 12"/></svg></div>
-      <div style="flex:1;min-width:200px;">
-        <div class="dev-title">Developer API <span class="dev-beta">${ar ? 'تجريبي' : 'BETA'}</span></div>
-        <div class="dev-desc">${ar ? 'اربط موقعك بـ PK Checker: ارفع الملفات وتابع حالتها وحمّل التقارير من نظامك مباشرة. كل ملف يُحتسب فحصًا واحدًا من رصيدك.'
-          : 'Connect your own site to PK Checker: send files, follow their status and download the reports from your system. Each file uses one check from your balance.'}</div>
+    <div class="dx-cardhead">
+      <div class="t"><div class="dx-badgeic">${KEY_SVG}</div>
+        <div><h3>Your API keys</h3><p>Bearer authentication header required for all requests.</p></div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button type="button" class="dx-btn soft" onclick="document.getElementById('dx-console').scrollIntoView({behavior:'smooth',block:'start'})">${TERM_SVG}Test console</button>
+        <button type="button" class="dx-btn primary" onclick="createDevKey()" ${list.length >= 5 ? 'disabled' : ''}>+ Create API key</button>
       </div>
     </div>
-    <div class="dev-base"><span style="color:var(--muted);font-weight:700;">Base URL</span><code>${DEV_API_BASE}</code>${cpBtn(DEV_API_BASE)}</div>
-    ${_devNewKey ? `<div class="dev-key-new"><b>${ar ? 'مفتاحك الجديد — انسخه الآن' : 'Your new key — copy it now'}</b>
-      <div class="dev-key"><code>${escapeHtml(_devNewKey)}</code>${cpBtn(_devNewKey)}</div>
-      <small>${ar ? 'لن يظهر هذا المفتاح مرة أخرى. احفظه في مكان آمن، ولا تشاركه مع أحد.' : 'This key will not be shown again. Keep it somewhere safe and do not share it.'}</small></div>` : ''}
-    <div class="dev-keys">${list.length ? list.map(k => `<div class="dev-row">
-        <div class="m"><b>${escapeHtml(k.name)}</b> <code style="font-family:'IBM Plex Mono',monospace;color:var(--muted);direction:ltr;unicode-bidi:isolate;">${escapeHtml(k.key_prefix)}…</code>
-          <div>${ar ? 'أُنشئ' : 'Created'} ${escapeHtml(when(k.created_at))} · ${ar ? 'آخر استخدام' : 'Last used'}: ${escapeHtml(when(k.last_used_at))}</div></div>
-        <button type="button" class="dev-btn danger" onclick="revokeDevKey('${k.id}')">${ar ? 'إلغاء المفتاح' : 'Revoke'}</button>
-      </div>`).join('') : `<div class="dev-desc">${ar ? 'لا توجد مفاتيح بعد.' : 'No keys yet.'}</div>`}</div>
-    <div class="dev-actions">
-      <button type="button" class="dev-btn" onclick="createDevKey()" ${list.length >= 5 ? 'disabled' : ''}>${ar ? '+ إنشاء مفتاح API' : '+ Create API key'}</button>
-      <button type="button" class="dev-btn ghost" onclick="document.getElementById('dvxRoot').scrollIntoView({behavior:'smooth',block:'start'})">${ar ? 'التوثيق والأمثلة' : 'Docs & examples'}</button>
-    </div>`;
+    ${_devNewKey ? `<div class="dx-newkey">
+        <div class="f"><input type="password" id="dx-newKeyInput" readonly value="${escapeHtml(_devNewKey)}">
+          <button type="button" class="dx-icobtn" title="Show / hide" onclick="const i=document.getElementById('dx-newKeyInput');i.type=i.type==='password'?'text':'password'">${EYE_SVG}</button></div>
+        <button type="button" class="dx-btn primary" onclick="dvxCopy(document.getElementById('dx-newKeyInput').value, this)">${DX_ICON_COPY}<span>Copy key</span></button>
+      </div>
+      <div class="dx-newkey-note"><b>Copy this key now.</b> It will not be shown again. Keep it on your server and do not share it.</div>` : ''}
+    <div class="dx-keyrows">${list.length ? list.map(k => `<div class="dx-keyrow">
+        <div class="m"><b>${escapeHtml(k.name)}</b> <code>${escapeHtml(k.key_prefix)}…</code>
+          <div>Created ${escapeHtml(when(k.created_at))} · Last used: ${escapeHtml(when(k.last_used_at))}</div></div>
+        <button type="button" class="dx-btn danger" onclick="revokeDevKey('${k.id}')">Revoke</button>
+      </div>`).join('') : `<div class="dx-empty">No API keys yet. Create one to start sending files from your site.</div>`}</div>
+    <div class="dx-keyfoot"><span>Active keys: <b style="color:var(--dx-ink)">${list.length} / 5</b></span>
+      <a href="#" onclick="event.preventDefault();goTab('wallet')">Buy checks →</a></div>`;
 }
 async function createDevKey(){
   const ar = currentLang === 'ar';
