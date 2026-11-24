@@ -957,6 +957,8 @@
   html[dir="ltr"] .mf-cols-head span:first-child{text-align:left;}
   html[dir="ltr"] .mf-row .mf-doc{align-items:flex-start;text-align:left;}
   .mf-name{font-weight:800;color:var(--navy);font-size:14px;white-space:normal;overflow-wrap:anywhere;word-break:break-word;line-height:1.35;max-width:100%;direction:ltr;text-align:start;}
+  /* Arabic page: the name reads right to left, so the extension (.pdf / .docx) sits at its end */
+  html[dir="rtl"] .mf-name{direction:rtl;}
   .mf-badge{display:inline-flex;align-items:center;margin-top:6px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:8px;background:var(--blue-wash);color:var(--blue-deep);border:1px solid #BFD7FF;font-family:'Cairo',sans-serif;}
   .mf-order{font-family:'Cairo',sans-serif;font-size:12px;font-weight:800;color:var(--navy);direction:ltr;text-align:start;white-space:nowrap;}
   .mf-order small{display:block;font-size:10.5px;font-weight:700;color:var(--muted);}
@@ -2072,6 +2074,19 @@ if (new URLSearchParams(location.search).has('preview')) {
   .queue-alert .qa-guide{margin-top:0;flex:0 1 auto;padding:7px 12px;font-size:12px;line-height:1.5;align-items:center;}
   .queue-alert .qa-guide .fa-gi{margin-top:0;}
   .queue-alert .qa-btn{padding:8px 14px;font-size:12.5px;}
+  /* AI word-limit notice: the queued notice's look, with a filled button and a dismiss × */
+  .ai-limit-alert .fa-x{color:#f59e0b;}
+  .ai-limit-alert .fa-x:hover{color:#b45309;}
+  .ai-limit-alert .fa-tag{text-transform:uppercase;}
+  .ai-limit-alert .ai-lim-n{color:#b45309;}
+  .ai-limit-alert .qa-guide{background:#fffbeb;border-color:#fde68a;color:#78350f;flex:1 1 360px;}
+  .ai-limit-alert .qa-guide b{color:#78350f;}
+  .ai-limit-alert .ai-lim-bulb{background:none;width:18px;height:18px;}
+  .ai-limit-alert .ai-lim-bulb svg{width:17px;height:17px;fill:none;stroke:#d97706;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .fail-alert.queue-alert.ai-limit-alert .ai-lim-btn{background:#d97706;color:#fff;border:none;box-shadow:0 8px 18px -10px rgba(217,119,6,.9);margin-inline-start:auto;}
+  .fail-alert.queue-alert.ai-limit-alert .ai-lim-btn:hover{background:#b45309;}
+  .ai-limit-alert .ai-lim-btn svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+  .ai-limit-alert .fa-ic svg{stroke-linejoin:round;}
   [data-theme="dark"] .fail-alert.queue-alert{background:linear-gradient(90deg,rgba(245,158,11,.14),rgba(245,158,11,.06));border-color:rgba(252,211,77,.35);}
   [data-theme="dark"] .fail-alert.queue-alert .fa-reason{color:#fcd34d;}
   [data-theme="dark"] .fail-alert.queue-alert .qa-btn{background:transparent;color:#fcd34d;}
@@ -2133,6 +2148,9 @@ if (new URLSearchParams(location.search).has('preview')) {
     .fa-actions{margin-top:0;}
     .fa-btn{width:100%;justify-content:center;padding:12px 16px;font-size:14px;}
     .fa-x{top:6px;inset-inline-end:6px;font-size:22px;padding:6px 8px;}
+    .queue-alert .qa-row{grid-column:1 / -1;flex-direction:column;align-items:stretch;}
+    .queue-alert .qa-guide{flex:none;width:auto;}
+    .fail-alert.queue-alert .qa-btn{width:100%;justify-content:center;margin-inline-start:0;}
     .fa-layer-1{transform:translateY(6px) scale(.97);}
     .fa-layer-2{transform:translateY(12px) scale(.94);}
   }
@@ -2389,6 +2407,7 @@ if (new URLSearchParams(location.search).has('preview')) {
       </div>
 
       <div id="queueAlerts"></div>
+      <div id="aiLimitAlerts"></div>
       <div id="failAlerts"></div>
 
       <div class="sec-head">
@@ -10790,9 +10809,11 @@ async function insertOrderRow(fileName, fileToSubmit, checkTypeDb, willUseApi){
       exclude_quotes:       document.getElementById('sfQuo')?.checked || false,
       exclude_abstract:     false,
       exclude_small_matches_word_limit: (document.getElementById('sfSmall')?.checked ? (parseInt(document.getElementById('sfSmallWords')?.value)||8) : null),
+      word_count: Number.isFinite(pendingWordCount) ? pendingWordCount : null,
     })
     .select()
     .single();
+  pendingWordCount = null;
 
   if (orderError) throw orderError;
 
@@ -11594,6 +11615,7 @@ async function pkFileWordCount(file, limit){
   return null;
 }
 let sfFileWords = null, _sfCountSeq = 0;
+let pendingWordCount = null;
 
 const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
@@ -11839,6 +11861,7 @@ async function sfUploadFile(){
   }
 
   currentFile = sfFile;
+  pendingWordCount = sfFileWords;   // saved with the order (AI word-limit notice)
   pendingGrantId = sfSelectedGrant.grant_id;
   btn.disabled = true;
   window._sfHandedOff = () => {
@@ -12212,8 +12235,59 @@ function renderQueueAlerts(){
   </div>`;
 }
 
+// Amber notice: a check with AI detection sent with more than 30,000 words (Turnitin's AI limit), so
+// only the similarity report is produced. Newest such order of the last 7 days, until dismissed.
+const AI_LIMIT_DISMISS_KEY = 'pk-ai-limit-dismissed';
+function aiLimitDismissed(){ try { return JSON.parse(localStorage.getItem(AI_LIMIT_DISMISS_KEY) || '[]'); } catch { return []; } }
+function dismissAiLimitAlert(id){
+  const list = aiLimitDismissed(); if (!list.includes(id)) list.push(id);
+  try { localStorage.setItem(AI_LIMIT_DISMISS_KEY, JSON.stringify(list.slice(-200))); } catch {}
+  const box = document.getElementById('aiLimitAlerts');
+  const card = box && box.querySelector('.fail-alert');
+  const done = () => { if (box) box.dataset.key = ''; renderAiLimitAlerts(); };
+  if (card && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) { card.classList.add('fa-out'); setTimeout(done, 260); }
+  else done();
+}
+function renderAiLimitAlerts(){
+  const box = document.getElementById('aiLimitAlerts');
+  if (!box) return;
+  const ar = currentLang === 'ar', gone = aiLimitDismissed(), since = Date.now() - 7 * 86400000;
+  const o = (orders || []).filter(x => x.checkType === 'sim_ai' && Number(x.words) > (typeof SF_MAX_WORDS_AI !== 'undefined' ? SF_MAX_WORDS_AI : 30000)
+    && !['error', 'failed_invalid', 'rejected', 'cancelled'].includes(x.phase) && x.phaseStart >= since && !gone.includes(x.id))
+    .sort((a, b) => b.phaseStart - a.phaseStart)[0];
+  // Redrawn only when it changes (a redraw would replay its entry animation).
+  const key = o ? `${currentLang}|${o.id}|${o.phase === 'completed'}` : currentLang + '|';
+  if (box.dataset.key === key) return;
+  box.dataset.key = key;
+  if (!o) { box.innerHTML = ''; return; }
+  const done = o.phase === 'completed';
+  const words = Number(o.words).toLocaleString('en-US');
+  const doc = `<b>${escapeHtml(o.file || (ar ? 'مستندك' : 'Your document'))}</b> <b class="ai-lim-n">(${words} ${ar ? 'كلمة' : 'words'})</b>`;
+  box.innerHTML = `<div class="fail-alert queue-alert ai-limit-alert" role="status">
+    <button type="button" class="fa-x" onclick="dismissAiLimitAlert('${o.id}')" aria-label="${ar ? 'إغلاق' : 'Dismiss'}">×</button>
+    <div class="fa-ic"><svg viewBox="0 0 24 24"><path d="M12 3.5L2.5 20h19z"/><path d="M12 10v4.5"/><path d="M12 17.3v.2"/></svg></div>
+    <div class="fa-main">
+      <div class="fa-top">
+        <span class="fa-tag">${ar ? 'تنبيه حد كلمات الذكاء الاصطناعي' : 'AI WORD LIMIT NOTICE'}</span>
+        <span class="fa-title">${ar ? 'لماذا لم يصدر تقرير الذكاء الاصطناعي؟ (تجاوز حد الكلمات)' : 'Why Was AI Report Skipped? (Word Limit Exceeded)'}</span>
+      </div>
+      <div class="fa-reason">${ar
+        ? `يعتمد محرك الذكاء الاصطناعي في Turnitin حدًا رسميًا أقصاه <b>30,000 كلمة</b>. يتجاوز مستندك (${doc}) هذا الحد، لذا ${done ? 'صدر' : 'سيصدر'} تقرير الاقتباس (التشابه) فقط.`
+        : `Turnitin AI Engine has an official limit of <b>maximum 30,000 words</b>. Your document (${doc}) exceeds this word limit, so only the Plagiarism (Similarity) report ${done ? 'was' : 'will be'} generated.`}
+        <span class="fa-code mono">${escapeHtml(o.displayId || '')}</span></div>
+      <div class="qa-row">
+        <div class="fa-guide qa-guide"><span class="fa-gi ai-lim-bulb"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></span><div>${ar
+          ? '<b>الحل:</b> يُرجى تقسيم المستند إلى <b>عدة فصول</b> (مثل: الفصول 1–3، والفصول 4–6)، ورفع كل جزء على حدة للحصول على تقريري الذكاء الاصطناعي والاقتباس كاملين لكل فصل.'
+          : '<b>Solution:</b> Please split your document into <b>multiple chapters (e.g. Chapter 1–3, Chapter 4–6)</b> and upload each part separately to generate 100% complete AI and Similarity reports for each chapter.'}</div></div>
+        <button type="button" class="fa-btn qa-btn ai-lim-btn" onclick="openSubmitFilesModal()"><svg viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 9.5"/><path d="M12 12v8M9 15l3-3 3 3"/></svg>${ar ? 'رفع على فصول' : 'Upload by Chapters'}</button>
+      </div>
+    </div>
+  </div>`;
+}
+
 function renderFailAlerts(){
   renderQueueAlerts();
+  renderAiLimitAlerts();
   const box = document.getElementById('failAlerts');
   if (!box) return;
   const ar = currentLang === 'ar', gone = failDismissed(), since = Date.now() - 3 * 86400000;
@@ -12497,6 +12571,7 @@ async function loadOrders(){
     aiReportUrl: row.ai_report_url ? buildAiReportUrl(row.id, row.ai_report_url) : null,
     rating: row.rating,
     ratingComment: row.rating_comment,
+    words: row.word_count,
   }));
 
   submittedAt = {};
