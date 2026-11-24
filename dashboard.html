@@ -2410,7 +2410,7 @@ if (new URLSearchParams(location.search).has('preview')) {
         <input type="file" id="fileInput" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;">
         <div class="uicon"><svg class="ic" data-icon-key="nc_upload" viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg></div>
         <b data-i18n="upload_cta">اختر الملف أو اسحبه هنا</b>
-        <span data-i18n="upload_hint">PDF, DOCX — حتى 50MB و30,000 كلمة · ملف واحد لكل طلب</span>
+        <span data-i18n="upload_hint">PDF, DOCX — حتى 50MB و50,000 كلمة · ملف واحد لكل طلب</span>
       </div>
 
       <div class="file-chip" id="fileChip" style="display:none;">
@@ -3695,7 +3695,7 @@ if (new URLSearchParams(location.search).has('preview')) {
         <div class="sf-dropzone" id="sfDropzone" role="button" tabindex="0">
           <svg data-icon-key="sf_dropzone_icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
           <b data-i18n="sf_pick">ارفع ورقتك البحثية أو رسالتك هنا</b>
-          <span data-i18n="sf_formats">PDF أو DOCX فقط، حتى 50MB و30,000 كلمة</span>
+          <span data-i18n="sf_formats">PDF أو DOCX فقط، حتى 50MB و50,000 كلمة</span>
           <button class="sf-browse" type="button" data-i18n="sf_browse">تصفح الملف</button>
         </div>
         <div class="sf-error" id="sfError" role="alert"></div>
@@ -3705,8 +3705,8 @@ if (new URLSearchParams(location.search).has('preview')) {
           <svg data-icon-key="plan_limits_icon" class="plb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           <div class="plb-body">
             <span class="plb-title" data-i18n="plan_limits_label">Turnitin Plan Limits:</span>
-            <span data-i18n="plan_limits_sim_pre"> Plagiarism up to </span><b>30,000</b><span data-i18n="plan_limits_words"> words.</span>
-            <span data-i18n="plan_limits_ai_pre"> AI Detection valid up to </span><b>30,000</b><span data-i18n="plan_limits_words_end"> words</span>
+            <span data-i18n="plan_limits_sim_pre"> Plagiarism up to </span><b>50,000</b><span data-i18n="plan_limits_words"> words.</span>
+            <span data-i18n="plan_limits_ai_pre"> AI Detection valid up to </span><b>50,000</b><span data-i18n="plan_limits_words_end"> words</span>
             <span class="plb-muted" data-i18n="plan_limits_note"> (Turnitin's official AI engine rule, not our platform limit).</span>
           </div>
           <span class="plan-limits-badge" data-i18n="plan_limits_badge">Turnitin Rule</span>
@@ -3735,7 +3735,7 @@ if (new URLSearchParams(location.search).has('preview')) {
             </div>
             <div class="req-cell">
               <div class="rc-icon green">🟩</div>
-              <span><b data-i18n="req_max_label">AI Max:</b> <span data-i18n="req_max_val">30,000 words</span></span>
+              <span><b data-i18n="req_max_label">AI Max:</b> <span data-i18n="req_max_val">50,000 words</span></span>
             </div>
           </div>
           <div class="req-privacy">
@@ -4086,8 +4086,8 @@ const I18N = {
     mf_delete_yes:"حذف", mf_delete_no:"إلغاء", mf_err_delete:"تعذر حذف الملف، حاول تاني.",
     mf_retention_note:"حمّل ملفاتك واحفظها، بتتمسح تلقائياً بعد 48 ساعة من انتهاء الفحص.",
     sf_open_btn:"إرسال الملفات", sf_opt_left:"{n} فحص متبقي", sf_opt_none:"خلصت", sf_opt_expired:"منتهية", sf_opt_until:"تنتهي: {d}", sf_slot_pick:"اختار الباقة", sf_pick_slot_err:"اختار باقة متاحة الأول", sf_title:"Pro Keys · رفع الملفات", sf_slot_label:"نوع الفحص", sf_no_slots:"مفيش فحوصات متاحة",
-    sf_opt_label:"Plagiarism + AI ({n} فحص متبقي - تنتهي: {d})", sf_pick:"ارفع ورقتك البحثية أو رسالتك هنا", sf_formats:"PDF أو DOCX فقط، حتى 50MB و30,000 كلمة", sf_browse:"تصفح الملف",
-    sf_err_format:"الصيغة دي مش مدعومة. ارفع ملف DOCX أو PDF بس.", sf_err_size:"حجم الملف يتجاوز الحد الأقصى المسموح (50 ميجابايت). يُرجى رفع ملف أصغر.", sf_err_words:"يحتوي الملف على نحو {n} كلمة، والحد الأقصى المسموح به 30,000 كلمة. يُرجى تقسيم الملف إلى أجزاء أصغر ورفع كل جزء في طلب مستقل.", sf_err_words_title:"الملف يتجاوز الحد المسموح", sf_counting:"جارٍ التحقق من عدد كلمات الملف...", sf_terms_title:"شروط الاستخدام",
+    sf_opt_label:"Plagiarism + AI ({n} فحص متبقي - تنتهي: {d})", sf_pick:"ارفع ورقتك البحثية أو رسالتك هنا", sf_formats:"PDF أو DOCX فقط، حتى 50MB و50,000 كلمة", sf_browse:"تصفح الملف",
+    sf_err_format:"الصيغة دي مش مدعومة. ارفع ملف DOCX أو PDF بس.", sf_err_size:"حجم الملف يتجاوز الحد الأقصى المسموح (50 ميجابايت). يُرجى رفع ملف أصغر.", sf_err_words:"يحتوي الملف على نحو {n} كلمة، والحد الأقصى المسموح به 50,000 كلمة. يُرجى تقسيم الملف إلى أجزاء أصغر ورفع كل جزء في طلب مستقل.", sf_err_words_title:"الملف يتجاوز الحد المسموح", sf_counting:"جارٍ التحقق من عدد كلمات الملف...", sf_terms_title:"شروط الاستخدام",
     sf_filters_title:"فلاتر التحليل", sf_f_bib:"استبعاد المراجع", sf_f_quo:"استبعاد الاقتباسات", sf_f_cit:"استبعاد الاستشهادات داخل النص",
     sf_f_small:"استبعاد التطابقات الصغيرة أقل من", sf_f_words:"كلمة", sf_notice_title:"لا يتم حفظ الملف في أي مستودع",
     sf_notice_body:"ملفك آمن 100%، ولن يُحفظ في أي قاعدة بيانات للطلاب أو مستودع مؤسسي.", sf_upload_btn:"رفع الملف",
@@ -4109,7 +4109,7 @@ const I18N = {
     balance_needed_label:"الفحوصات المطلوبة لهذا الطلب", balance_insufficient:"رصيدك غير كافٍ لإتمام هذا الطلب. اشحن محفظتك أولًا.",
     submit_to_queue:"أرسل الملف للفحص", topup_now:"اشحن المحفظة الآن",
     newcheck_title:"طلب فحص جديد", newcheck_hint:"ملف واحد في الطلب الواحد",
-    upload_cta:"اختر الملف أو اسحبه هنا", upload_hint:"PDF, DOCX — حتى 50MB و30,000 كلمة · ملف واحد لكل طلب",
+    upload_cta:"اختر الملف أو اسحبه هنا", upload_hint:"PDF, DOCX — حتى 50MB و50,000 كلمة · ملف واحد لكل طلب",
     check_opts_title:"خيارات الفحص", check_type_label:"نوع الفحص",
     file_requirements_chip:"📋 شروط الملف",
     
@@ -4147,8 +4147,8 @@ const I18N = {
     pg_rows_per_page:"عدد الصفوف",
     file_req_notice_title:"متطلبات Turnitin لقبول ملفات الفحص",
     file_req_li1:"شروط Turnitin: لتقارير الاقتباس فقط، لا توجد قيود على عدد الصفحات ويدعم النظام جميع اللغات بصيغة DOC أو DOCX.",
-    file_req_li2:"أما إذا كان تقرير الذكاء الاصطناعي مطلوباً، فيشترط رفع ملف DOCX نصي فقط باللغة الإنجليزية أو الإسبانية أو اليابانية، بعدد كلمات يتراوح بين 300 و 30,000 كلمة، مع ضرورة حذف صفحة الغلاف التي تتضمن اسم وشعار الجامعة وكذلك الصور والجداول والمعادلات المعقدة.",
-    file_req_li3:"وفي كافة الأحوال، يجب ألا يتجاوز حجم الملف 50 ميجابايت، وألا يزيد عدد كلماته عن 30,000 كلمة؛ الملفات الأكبر من ذلك لا يتم قبولها.",
+    file_req_li2:"أما إذا كان تقرير الذكاء الاصطناعي مطلوباً، فيشترط رفع ملف DOCX نصي فقط باللغة الإنجليزية أو الإسبانية أو اليابانية، بعدد كلمات يتراوح بين 300 و 50,000 كلمة، مع ضرورة حذف صفحة الغلاف التي تتضمن اسم وشعار الجامعة وكذلك الصور والجداول والمعادلات المعقدة.",
+    file_req_li3:"وفي كافة الأحوال، يجب ألا يتجاوز حجم الملف 50 ميجابايت، وألا يزيد عدد كلماته عن 50,000 كلمة؛ الملفات الأكبر من ذلك لا يتم قبولها.",
     file_req_li4:"الالتزام بهذه الشروط هو مسؤولية الباحث بالكامل، وعدم التقيد بها سيؤدي إلى خصم الرصيد نظراً لاحتساب عملية الفحص تلقائياً.",
     file_privacy_notice_title:"خصوصية الملفات",
     file_privacy_li1:"يتم رفع الأبحاث بإعداد \"No Repository\" مفعل دائماً (آمن 100%).",
@@ -4169,7 +4169,7 @@ const I18N = {
     req_min_label:"الحد الأدنى:",
     req_min_val:"300 كلمة (فقرة)",
     req_max_label:"حد الذكاء الاصطناعي:",
-    req_max_val:"30,000 كلمة",
+    req_max_val:"50,000 كلمة",
     req_privacy_label:"الخصوصية:",
     req_privacy_pre:"الملفات ",
     req_privacy_not_saved:"لا تُحفظ",
@@ -4293,8 +4293,8 @@ const I18N = {
     mf_delete_yes:"Delete", mf_delete_no:"Cancel", mf_err_delete:"Could not delete the file, please try again.",
     mf_retention_note:"Please download and save your checked files. They are automatically deleted 48 hours after the check finishes.",
     sf_open_btn:"Submit Files", sf_opt_left:"{n} checks left", sf_opt_none:"Used up", sf_opt_expired:"Expired", sf_opt_until:"Expires: {d}", sf_slot_pick:"Choose a package", sf_pick_slot_err:"Choose an available package first", sf_title:"Pro Keys · Submit Files", sf_slot_label:"Slot type", sf_no_slots:"No slots available",
-    sf_opt_label:"Plagiarism + AI ({n} Slots Remaining - Next Expiry: {d})", sf_pick:"Drag & drop your research paper or thesis here", sf_formats:"PDF or DOCX only, up to 50MB and 30,000 words", sf_browse:"Browse Local File",
-    sf_err_format:"This file type isn't supported. Upload a DOCX or PDF file.", sf_err_size:"The file exceeds the maximum size of 50 MB. Please upload a smaller file.", sf_err_words:"The file contains about {n} words, and the maximum allowed is 30,000 words. Please split it into smaller parts and submit each part as a separate request.", sf_err_words_title:"File over the limit", sf_counting:"Checking the file's word count...", sf_terms_title:"Terms & Conditions",
+    sf_opt_label:"Plagiarism + AI ({n} Slots Remaining - Next Expiry: {d})", sf_pick:"Drag & drop your research paper or thesis here", sf_formats:"PDF or DOCX only, up to 50MB and 50,000 words", sf_browse:"Browse Local File",
+    sf_err_format:"This file type isn't supported. Upload a DOCX or PDF file.", sf_err_size:"The file exceeds the maximum size of 50 MB. Please upload a smaller file.", sf_err_words:"The file contains about {n} words, and the maximum allowed is 50,000 words. Please split it into smaller parts and submit each part as a separate request.", sf_err_words_title:"File over the limit", sf_counting:"Checking the file's word count...", sf_terms_title:"Terms & Conditions",
     sf_filters_title:"Analysis filters", sf_f_bib:"Exclude bibliography", sf_f_quo:"Exclude quotes", sf_f_cit:"Exclude citations",
     sf_f_small:"Exclude small matches under", sf_f_words:"words", sf_notice_title:"Your file is not saved in any repository",
     sf_notice_body:"Your file is 100% safe. It will NOT be saved in any student database or institutional repository.", sf_upload_btn:"Upload File",
@@ -4316,7 +4316,7 @@ const I18N = {
     balance_needed_label:"Slots required for this order", balance_insufficient:"Your balance isn't enough to cover this order. Top up your wallet first.",
     submit_to_queue:"Send File for Check", topup_now:"Top up wallet now",
     newcheck_title:"New check request", newcheck_hint:"One file per request",
-    upload_cta:"Choose or drag your file here", upload_hint:"PDF, DOCX — up to 50MB and 30,000 words · one file per request",
+    upload_cta:"Choose or drag your file here", upload_hint:"PDF, DOCX — up to 50MB and 50,000 words · one file per request",
     check_opts_title:"Check options", check_type_label:"Check type",
     file_requirements_chip:"📋 File Requirements",
     
@@ -4354,8 +4354,8 @@ const I18N = {
     pg_rows_per_page:"Rows per page",
     file_req_notice_title:"Turnitin requirements for accepted files",
     file_req_li1:"Turnitin requirements: for Similarity-only reports, there is no page limit and the system supports all languages in DOC or DOCX format.",
-    file_req_li2:"If an AI report is required, the file must be a text-only DOCX in English, Spanish, or Japanese, between 300 and 30,000 words, with the cover page (containing the university name/logo) removed, along with images, tables, and complex equations.",
-    file_req_li3:"In all cases, the file must not exceed 50 MB or 30,000 words; larger files are not accepted.",
+    file_req_li2:"If an AI report is required, the file must be a text-only DOCX in English, Spanish, or Japanese, between 300 and 50,000 words, with the cover page (containing the university name/logo) removed, along with images, tables, and complex equations.",
+    file_req_li3:"In all cases, the file must not exceed 50 MB or 50,000 words; larger files are not accepted.",
     file_req_li4:"Compliance with these requirements is entirely the researcher's responsibility — failing to follow them will still result in a slot deduction, since the check is billed automatically.",
     file_privacy_notice_title:"File privacy",
     file_privacy_li1:"File privacy: papers are uploaded with \"No Repository\" always enabled (100% safe).",
@@ -4376,7 +4376,7 @@ const I18N = {
     req_min_label:"Min:",
     req_min_val:"300 words (para)",
     req_max_label:"AI Max:",
-    req_max_val:"30,000 words",
+    req_max_val:"50,000 words",
     req_privacy_label:"Privacy:",
     req_privacy_pre:"Files are ",
     req_privacy_not_saved:"not saved",
@@ -4954,7 +4954,7 @@ function buildPlanCard(p){
         ${feat(ar ? 'تقرير Plag + AI' : 'Plag + AI Report', true)}
         ${feat(ar ? 'آمن 100% — لا يُحفظ في أي مستودع' : '100% Non-Repository Safe')}
         ${feat(ar ? 'تسليم سريع فوري' : 'Fast Instant Delivery')}
-        ${feat(ar ? 'يدعم ملفات حتى 30,000 كلمة' : 'Supports files up to 30,000 words')}
+        ${feat(ar ? 'يدعم ملفات حتى 50,000 كلمة' : 'Supports files up to 50,000 words')}
       </ul>
       ${(() => { const q = cardQty[p.id] || 1; return `<div class="wplan-qty-row">
         <span class="wplan-qty-lbl">${ar ? 'العدد' : 'Quantity'}</span>
@@ -11501,7 +11501,7 @@ let slotExpiryInfo = { next: null, unlimited: false, hasAny: false };
 let siteTexts = {};
 let sfFile = null;
 const SF_MAX_BYTES = 50 * 1024 * 1024;
-const SF_MAX_WORDS = 30000;
+const SF_MAX_WORDS = 50000;
 // Words in a PDF or DOCX, counted in the browser (the file is not uploaded for this).
 // Stops once it is past the limit. null = the text could not be read (e.g. a scanned PDF).
 function pkCountWords(text){ const m = String(text || '').match(/[\p{L}\p{N}][\p{L}\p{N}'’\-]*/gu); return m ? m.length : 0; }
@@ -11528,13 +11528,46 @@ async function pkDocxXml(file){
   }
   return null;
 }
+// The text Word shows, from word/document.xml. Not counted: field codes (TOC, links, page refs),
+// deleted text (track changes), and the second copy Word keeps of text boxes (mc:Fallback).
+// Pieces of one word split across runs are joined; paragraphs, tabs and line breaks separate words.
+function pkDocxText(xml){
+  return xml
+    .replace(/<mc:Fallback\b[\s\S]*?<\/mc:Fallback>/g, ' ')
+    .replace(/<w:instrText\b[^>]*>[\s\S]*?<\/w:instrText>/g, '')
+    .replace(/<w:delText\b[^>]*>[\s\S]*?<\/w:delText>/g, '')
+    .replace(/<w:(tab|br|cr)\b[^>]*\/>|<\/w:p>|<\/w:tc>/g, ' ')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&(amp|lt|gt|quot|apos|#\d+|#x[0-9a-f]+);/gi, m => m === '&amp;' ? '&' : m === '&apos;' ? "'" : ' ');
+}
+// The text of one PDF page. PDF files often cut a word into several pieces: a space is put between
+// two pieces only when there is a visible gap between them (or a new line), never always
+// (joining every piece with a space counted one word as two or three). Works for right-to-left text.
+function pkPdfPageText(items){
+  let out = '', prev = null;
+  for (const it of items) {
+    if (!it || typeof it.str !== 'string') continue;
+    if (!it.str) { if (it.hasEOL) { out += ' '; prev = null; } continue; }
+    const tr = it.transform || [1, 0, 0, 1, 0, 0];
+    const x = tr[4], y = tr[5], w = Number(it.width) || 0;
+    const h = Math.abs(tr[3]) || Math.abs(tr[0]) || Number(it.height) || 10;
+    if (prev) {
+      const newLine = Math.abs(y - prev.y) > h * 0.5;
+      const gap = Math.max(x - prev.end, prev.x - (x + w));   // left-to-right or right-to-left
+      if (newLine || gap > h * 0.15) out += ' ';
+    }
+    out += it.str;
+    prev = { x, y, end: x + w };
+    if (it.hasEOL) { out += ' '; prev = null; }
+  }
+  return out;
+}
 async function pkFileWordCount(file, limit){
   try {
     if (/\.docx$/i.test(file.name)) {
       const xml = await pkDocxXml(file);
       if (xml == null) return null;
-      const text = xml.replace(/<w:tab\/>|<w:br\/>|<\/w:p>/g, ' ').replace(/<[^>]+>/g, '').replace(/&[a-z#0-9]+;/gi, ' ');
-      return pkCountWords(text);
+      return pkCountWords(pkDocxText(xml));
     }
     if (/\.pdf$/i.test(file.name) && window.pdfjsLib) {
       if (!pdfjsLib.GlobalWorkerOptions.workerSrc) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.worker.min.js';
@@ -11542,7 +11575,7 @@ async function pkFileWordCount(file, limit){
       let n = 0;
       for (let p = 1; p <= doc.numPages; p++) {
         const tc = await (await doc.getPage(p)).getTextContent();
-        n += pkCountWords(tc.items.map(i => i.str).join(' '));
+        n += pkCountWords(pkPdfPageText(tc.items));
         if (n > limit) break;
       }
       return n;
