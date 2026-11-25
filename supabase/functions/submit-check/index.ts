@@ -206,7 +206,7 @@ const QUEUE_MAX_HOURS = 12;   // a queued file still not accepted after this fai
 async function processQueue(admin: any) {
   const out: Record<string, unknown>[] = [];
   const { data: rows } = await admin.from("orders")
-    .select("id, user_id, file_name, check_type, source_file_path, exclude_quotes, exclude_bibliography, exclude_small_matches_word_limit, submitted_at, ai_highlights")
+    .select("id, user_id, file_name, check_type, source_file_path, exclude_quotes, exclude_bibliography, exclude_small_matches_word_limit, submitted_at, ai_highlights, exclude_citations")
     .eq("status", "queued").order("submitted_at", { ascending: true }).limit(5);
   for (const o of rows ?? []) {
     const ageH = (Date.now() - new Date(o.submitted_at).getTime()) / 3600000;
@@ -236,7 +236,7 @@ async function processQueue(admin: any) {
     const file = new File([blob], o.file_name || "document", { type: blob.type || "application/octet-stream" });
     const service: ServiceKey = o.check_type === "sim_only" ? "plag_only" : "plag_ai";
     const form = buildProviderForm(file, o.id, service, {
-      exQuotes: !!o.exclude_quotes, exBiblio: !!o.exclude_bibliography, exCit: false,
+      exQuotes: !!o.exclude_quotes, exBiblio: !!o.exclude_bibliography, exCit: !!o.exclude_citations,
       exSmallLim: o.exclude_small_matches_word_limit ? String(o.exclude_small_matches_word_limit) : null,
       aiHighlights: !!o.ai_highlights,
     });

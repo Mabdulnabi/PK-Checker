@@ -85,6 +85,7 @@ async function submit(req: Request, db: Db, userId: string, keyId: string) {
     status: "uploading", processing_mode: "api",
     exclude_bibliography: isOn(fd.get("exclude_biblio")) || isOn(fd.get("exclude_bibliography")),
     exclude_quotes: isOn(fd.get("exclude_quotes")), exclude_abstract: false,
+    exclude_citations: isOn(fd.get("exclude_citations")),
     exclude_small_matches_word_limit: threshold,
     source: "api", api_key_id: keyId, custom_id: customId,
     ai_highlights: checkType !== "sim_only" && isOn(fd.get("ai_highlights")),

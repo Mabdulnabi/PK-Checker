@@ -153,6 +153,7 @@ Deno.serve(async (req: Request) => {
         updates.completed_at = new Date().toISOString();
       }
       if (typeof tsData.similarity_score === "number") updates.similarity_score = tsData.similarity_score;
+      if (typeof tsData.word_count === "number" && tsData.word_count > 0) updates.word_count = tsData.word_count;
 
     } else if (internalStatus === "error") {
       console.error("check-status: provider reported failure", JSON.stringify(tsData));
@@ -161,7 +162,7 @@ Deno.serve(async (req: Request) => {
     }
 
     await supabase.from("orders").update(updates).eq("id", orderId);
-    if (internalStatus === "error") await saveProviderError(supabase, orderId, String(tsData.error ?? tsData.message ?? ""));
+    if (internalStatus === "error") await saveProviderError(supabase, orderId, String(tsData.error_message ?? tsData.error ?? tsData.message ?? ""));
     // An order that was waiting in "checking" and is now refused: give its slot back (same as the webhook).
     if (internalStatus === "error" && (order as { status: string }).status === "checking") {
       const { error: relErr } = await supabase.rpc("release_slot", { p_idempotency_key: `order:${orderId}` });

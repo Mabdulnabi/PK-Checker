@@ -8,6 +8,28 @@ const BUCKET = "order-reports";
 const SOURCE_BUCKET = "order-source-files";
 const SOURCE_RETENTION_MS = 48 * 60 * 60 * 1000;
 const FINAL_STATUSES = ["completed", "error", "rejected", "failed_invalid", "cancelled"];
+const TURNISCAN_API_KEY = Deno.env.get("TURNISCAN_API_KEY") ?? "";
+const TURNISCAN_BASE = "https://turniscan.com/v1";
+
+// Removes the file and its reports from TurniScan (POST /v1/scan/delete). Our copies are already stored.
+// true = gone there (deleted now, or already gone).
+async function deleteAtProvider(fileId: string): Promise<boolean> {
+  try {
+    // Form-encoded, as in TurniScan's own example (curl -d "file_id=...").
+    const res = await fetch(`${TURNISCAN_BASE}/scan/delete`, {
+      method: "POST", headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` }, body: new URLSearchParams({ file_id: fileId }),
+      signal: AbortSignal.timeout(20000),
+    });
+    const body = await res.text();
+    if (res.ok || res.status === 404 || res.status === 410) return true;
+    console.error("provider delete failed", fileId, res.status, body.slice(0, 200));
+    return false;
+  } catch (e) {
+    console.error("provider delete failed", fileId, String(e));
+    return false;
+  }
+}
+
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -128,7 +150,7 @@ Deno.serve(async (req: Request) => {
 
       const { data: order } = await admin
         .from("orders")
-        .select("id, user_id, status, purged_at")
+        .select("id, user_id, status, purged_at, external_order_id, provider_deleted_at")
         .eq("id", body.order_id)
         .maybeSingle();
       if (!order || order.user_id !== userData.user.id) return json({ success: false, error: "Not found" }, 404);
@@ -138,6 +160,12 @@ Deno.serve(async (req: Request) => {
       }
 
       await purgeOrder(admin, order.id);
+      // The customer deleted it: the copy at TurniScan goes too (best effort, never blocks the delete).
+      if (order.external_order_id && !order.provider_deleted_at && TURNISCAN_API_KEY) {
+        if (await deleteAtProvider(order.external_order_id)) {
+          await admin.from("orders").update({ provider_deleted_at: new Date().toISOString() }).eq("id", order.id);
+        }
+      }
       return json({ success: true });
     }
 

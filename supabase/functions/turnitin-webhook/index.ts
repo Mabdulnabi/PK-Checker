@@ -83,6 +83,25 @@ async function fetchAndStoreHighlights(supabase: any, orderId: string, fileId: s
   return url;
 }
 
+// Removes the file and its reports from TurniScan (POST /v1/scan/delete). Our copies are already stored.
+// true = gone there (deleted now, or already gone).
+async function deleteAtProvider(fileId: string): Promise<boolean> {
+  try {
+    // Form-encoded, as in TurniScan's own example (curl -d "file_id=...").
+    const res = await fetch(`${TURNISCAN_BASE}/scan/delete`, {
+      method: "POST", headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` }, body: new URLSearchParams({ file_id: fileId }),
+      signal: AbortSignal.timeout(20000),
+    });
+    const body = await res.text();
+    if (res.ok || res.status === 404 || res.status === 410) return true;
+    console.error("provider delete failed", fileId, res.status, body.slice(0, 200));
+    return false;
+  } catch (e) {
+    console.error("provider delete failed", fileId, String(e));
+    return false;
+  }
+}
+
 // Fixed file name, and never overwrite: a stored report is kept as it is.
 async function storeFixed(
   supabase: ReturnType<typeof createClient>,
@@ -129,6 +148,8 @@ interface ScanStatus {
   similarity_score?: number;
   ai_score?: number;
   error?: string;
+  error_message?: string | null;
+  word_count?: number;
   ai_highlights_url?: string | null;
 }
 
@@ -217,7 +238,16 @@ Deno.serve(async (req: Request) => {
       const others = [await storedBytes(supabase, o?.report_url), await storedBytes(supabase, o?.ai_report_url)];
       if (await fetchAndStoreHighlights(supabase, r.id, r.external_order_id, others)) stored++;
     }
-    return new Response(JSON.stringify({ success: true, checked: (due ?? []).length, stored }), { headers: { "Content-Type": "application/json" } });
+    // Completed checks whose reports are stored here: removed from TurniScan (privacy).
+    const { data: toDelete } = await supabase.rpc("orders_due_provider_delete");
+    let deleted = 0;
+    for (const r of (toDelete ?? []) as { id: string; external_order_id: string }[]) {
+      if (await deleteAtProvider(r.external_order_id)) {
+        await supabase.from("orders").update({ provider_deleted_at: new Date().toISOString() }).eq("id", r.id);
+        deleted++;
+      }
+    }
+    return new Response(JSON.stringify({ success: true, checked: (due ?? []).length, stored, deleted }), { headers: { "Content-Type": "application/json" } });
   }
 
   const fileId   = typeof payload.file_id === "string" ? payload.file_id : undefined;
@@ -231,12 +261,14 @@ Deno.serve(async (req: Request) => {
 
   const { data: order } = await supabase
     .from("orders")
-    .select("id, check_type, external_order_id, purged_at, completed_at, status, report_url, ai_report_url, ai_score, ai_highlights, ai_highlights_url")
+    .select("id, check_type, external_order_id, purged_at, completed_at, status, report_url, ai_report_url, ai_score, ai_highlights, ai_highlights_url, provider_deleted_at")
     .eq("id", customId)
     .maybeSingle();
   if (!order) return new Response("OK", { status: 200 });
   // Files were purged after the 48-hour retention window. Don't store them again.
   if (order.purged_at) return new Response("OK", { status: 200 });
+  // Already removed from TurniScan after its reports were stored: nothing left to read there.
+  if (order.provider_deleted_at) return new Response("OK", { status: 200 });
 
   // If we already stored a file id for this order, the webhook must refer to it.
   if (order.external_order_id && order.external_order_id !== fileId) {
@@ -299,6 +331,8 @@ Deno.serve(async (req: Request) => {
     // Keep the first completion time: a re-run must not move the delivery time.
     if (!order.completed_at) updates.completed_at = new Date().toISOString();
     if (typeof scan.similarity_score === "number") updates.similarity_score = scan.similarity_score;
+    // Turnitin's own word count replaces the estimate made in the customer's browser.
+    if (typeof scan.word_count === "number" && scan.word_count > 0) updates.word_count = scan.word_count;
   } else if (internalStatus === "error") {
     console.error("webhook: provider reported failure", JSON.stringify(scan));
     updates.error_reason = "The check could not be completed.";
@@ -336,7 +370,7 @@ Deno.serve(async (req: Request) => {
     const { error: relErr } = await supabase.rpc("release_slot", { p_idempotency_key: `order:${customId}` });
     if (relErr) console.error("webhook: release_slot failed", relErr.message, customId);
   }
-  if (internalStatus === "error") await saveProviderError(supabase, customId, String((scan as Record<string, unknown>).error ?? (scan as Record<string, unknown>).message ?? ""));
+  if (internalStatus === "error") await saveProviderError(supabase, customId, String(scan.error_message ?? scan.error ?? (scan as Record<string, unknown>).message ?? ""));
 
   return new Response("OK", { status: 200 });
 });

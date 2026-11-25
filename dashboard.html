@@ -11441,6 +11441,7 @@ async function insertOrderRow(fileName, fileToSubmit, checkTypeDb, willUseApi){
       processing_mode: willUseApi ? 'api' : 'manual',
       exclude_bibliography: document.getElementById('sfBib')?.checked || false,
       exclude_quotes:       document.getElementById('sfQuo')?.checked || false,
+      exclude_citations:    document.getElementById('sfCit')?.checked || false,
       exclude_abstract:     false,
       exclude_small_matches_word_limit: (document.getElementById('sfSmall')?.checked ? (parseInt(document.getElementById('sfSmallWords')?.value)||8) : null),
       word_count: Number.isFinite(pendingWordCount) ? pendingWordCount : null,
