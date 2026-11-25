@@ -917,6 +917,19 @@
   .sf-filters-title{font-weight:800;font-size:13.5px;color:var(--navy);margin:12px 0 4px;}
   .sf-check{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--navy);min-height:40px;cursor:pointer;flex-wrap:wrap;}
   .sf-check input[type=checkbox]{width:18px;height:18px;accent-color:var(--blue);flex:none;}
+  /* AI Highlights option (switch) */
+  .sf-hl{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0 6px;border-top:1px solid var(--paper-line);margin-top:4px;cursor:pointer;}
+  .sf-hl-txt{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .sf-hl-txt b{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--navy);}
+  .sf-hl-txt b svg{width:15px;height:15px;fill:none;stroke:#6366f1;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none;}
+  .sf-hl-txt small{font-size:11.5px;color:var(--muted);line-height:1.55;}
+  .sf-switch{position:relative;width:42px;height:24px;flex:none;}
+  .sf-switch input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;z-index:1;}
+  .sf-switch i{position:absolute;inset:0;border-radius:999px;background:#d1d5db;transition:background .18s;}
+  .sf-switch i::after{content:'';position:absolute;top:3px;inset-inline-start:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .18s;}
+  .sf-switch input:checked + i{background:#4f46e5;}
+  html[dir="ltr"] .sf-switch input:checked + i::after{transform:translateX(18px);}
+  html[dir="rtl"] .sf-switch input:checked + i::after{transform:translateX(-18px);}
   .sf-num{width:64px;padding:5px 8px;border:1.5px solid var(--paper-line);border-radius:8px;font-family:'Cairo',sans-serif;background:var(--paper);color:var(--navy);}
   .sf-notice{background:var(--ok-wash);border:1px solid var(--ok);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;margin-top:10px;}
   .sf-notice b{color:var(--ok);font-size:13px;}
@@ -1183,6 +1196,9 @@
   .mf-dl{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:5px;background:#0E9F6E;color:#fff;border:none;border-radius:9px;padding:7px 8px;font-family:'Cairo',sans-serif;font-weight:800;font-size:12px;cursor:pointer;white-space:nowrap;}
   .mf-dl svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
   .mf-dl:disabled{opacity:.55;cursor:not-allowed;}
+  .mf-ai-stack{display:flex;flex-direction:column;gap:6px;width:100%;}
+  .mf-dl.mf-dl-hl{background:#2563eb;box-shadow:0 6px 14px -8px rgba(37,99,235,.6);}
+  .mf-dl.mf-dl-hl:hover{background:#1d4ed8;}
   .mf-dl.mf-dl-high{background:#E0445B;box-shadow:0 6px 14px -8px rgba(224,68,91,.6);}
   .mf-muted{font-size:12px;color:var(--muted);font-family:'Cairo',sans-serif;}
   .mf-del{width:32px;height:32px;border-radius:10px;background:#FFF1F3;border:1px solid #F5C2CB;color:var(--danger);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
@@ -3744,6 +3760,7 @@ if (new URLSearchParams(location.search).has('preview')) {
                   <tr><td class="f">exclude_citations</td><td class="t">0 / 1</td><td class="opt">No</td><td>Exclude in-text citations. Default 0.</td></tr>
                   <tr><td class="f">exclude_small_matches</td><td class="t">0 / 1</td><td class="opt">No</td><td>Exclude matches shorter than <code>small_match_threshold</code> words. Default 0.</td></tr>
                   <tr><td class="f">small_match_threshold</td><td class="t">Integer 8–250</td><td class="opt">No</td><td>Word threshold for small matches. Also accepts <code>exclude_words</code>. Default 8.</td></tr>
+                  <tr><td class="f">ai_highlights</td><td class="t">0 / 1</td><td class="opt">No</td><td>Ask for the <b>AI Highlights report</b> (each sentence flagged as AI, highlighted in the document). Turnitin produces it only when the AI score is low (*% or under 20%). Default 0.</td></tr>
                   <tr><td class="f">custom_id</td><td class="t">String</td><td class="opt">No</td><td>Your own order or user id (up to 100 characters), returned in every response.</td></tr>
                 </tbody>
               </table></div>
@@ -3780,9 +3797,11 @@ if (new URLSearchParams(location.search).has('preview')) {
   "word_count": 4850,
   "download_url": "https://www.pkchecker.com/v1/scan/download?file_id=PK1-261124-21",
   "ai_download_url": "https://www.pkchecker.com/v1/scan/download?file_id=PK1-261124-21&amp;report_type=ai",
+  "ai_highlights_url": "https://www.pkchecker.com/v1/scan/download?file_id=PK1-261124-21&amp;report_type=highlights",
   "completed_at": 1727443320
 }</pre>
               </div>
+              <p class="dx-p" style="font-size:12px;color:var(--dx-muted);"><code>ai_highlights_url</code> is set only when you asked for it with <code>ai_highlights=1</code> and the report was produced; otherwise it is <code>null</code>. It can arrive a few minutes after <code>Completed</code>.</p>
               <p class="dx-p" style="font-size:12px;color:var(--dx-muted);"><code>ai_score</code> is <code>null</code> when the AI report shows "*%" (20% or less), when AI detection was not requested, or when it could not run (word limit, language).</p>
             </div>
           </div>
@@ -3795,7 +3814,7 @@ if (new URLSearchParams(location.search).has('preview')) {
                 <thead><tr><th>Parameter</th><th>Required</th><th>Options &amp; description</th></tr></thead>
                 <tbody>
                   <tr><td class="f">file_id</td><td class="req">Yes</td><td>The <code>file_id</code> from the submit response.</td></tr>
-                  <tr><td class="f">report_type</td><td class="opt">No</td><td><code>plagiarism</code> (default): the similarity report. <code>ai</code>: the AI writing report.</td></tr>
+                  <tr><td class="f">report_type</td><td class="opt">No</td><td><code>plagiarism</code> (default): the similarity report. <code>ai</code>: the AI writing report. <code>highlights</code> (or <code>ai_highlights</code>): the AI Highlights report, when it exists.</td></tr>
                 </tbody>
               </table></div>
             </div>
@@ -4375,6 +4394,13 @@ if (s.status === "Completed") {
         <label class="sf-check"><input type="checkbox" id="sfCit"><span data-i18n="sf_f_cit">استبعاد الاستشهادات داخل النص</span></label>
         <label class="sf-check"><input type="checkbox" id="sfSmall"><span data-i18n="sf_f_small">استبعاد التطابقات الصغيرة أقل من</span>
           <input type="number" id="sfSmallWords" class="sf-num" min="8" max="250" value="8"> <span data-i18n="sf_f_words">كلمة</span></label>
+        <label class="sf-hl" id="sfHlRow" style="display:none;" for="sfHl">
+          <span class="sf-hl-txt">
+            <b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 11-6 6v3h9l3-3"/><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/></svg><span data-i18n="sf_hl_title">تقرير تظليل الذكاء الاصطناعي</span></b>
+            <small data-i18n="sf_hl_desc">تظليل الجمل جملةً بجملة. يصدر فقط عندما تكون نسبة الذكاء الاصطناعي منخفضة (*% أو أقل من 20%).</small>
+          </span>
+          <span class="sf-switch"><input type="checkbox" id="sfHl" onchange="try{localStorage.setItem('pk_ai_hl', this.checked ? '1' : '0')}catch(e){}"><i></i></span>
+        </label>
         <div class="sf-ct-block" id="sfCheckTypeBlock">
           <span class="sf-filters-title" data-i18n="check_type_label">نوع الفحص</span>
           <div class="seg sf-seg">
@@ -4710,7 +4736,9 @@ const I18N = {
     sf_opt_label:"Plagiarism + AI ({n} فحص متبقي - تنتهي: {d})", sf_pick:"ارفع ورقتك البحثية أو رسالتك هنا", sf_formats:"PDF أو DOCX فقط، حتى 50MB · الاقتباس حتى 50,000 كلمة والذكاء الاصطناعي حتى 30,000", sf_browse:"تصفح الملف",
     sf_err_format:"الصيغة دي مش مدعومة. ارفع ملف DOCX أو PDF بس.", sf_err_size:"حجم الملف يتجاوز الحد الأقصى المسموح (50 ميجابايت). يُرجى رفع ملف أصغر.", sf_err_words:"يحتوي الملف على نحو {n} كلمة، والحد الأقصى المسموح به 50,000 كلمة. يُرجى تقسيم الملف إلى أجزاء أصغر ورفع كل جزء في طلب مستقل.", sf_ai_warn_title:"تنبيه بشأن تقرير الذكاء الاصطناعي", sf_ai_warn:"يحتوي الملف على نحو {n} كلمة، وهو ما يتجاوز الحد الأقصى لكشف الذكاء الاصطناعي في Turnitin (30,000 كلمة). إذا تابعت بهذا الملف، فسيظهر تقرير الاقتباس فقط دون تقرير الذكاء الاصطناعي. للحصول على التقريرين معًا، يُرجى تقسيم الملف إلى أجزاء لا يتجاوز كل منها 30,000 كلمة ورفع كل جزء في طلب مستقل.", sf_err_words_title:"الملف يتجاوز الحد المسموح", sf_counting:"جارٍ التحقق من عدد كلمات الملف...", sf_terms_title:"شروط الاستخدام",
     sf_filters_title:"فلاتر التحليل", sf_f_bib:"استبعاد المراجع", sf_f_quo:"استبعاد الاقتباسات", sf_f_cit:"استبعاد الاستشهادات داخل النص",
-    sf_f_small:"استبعاد التطابقات الصغيرة أقل من", sf_f_words:"كلمة", sf_notice_title:"لا يتم حفظ الملف في أي مستودع",
+    sf_f_small:"استبعاد التطابقات الصغيرة أقل من", sf_f_words:"كلمة",
+    sf_hl_title:"تقرير تظليل الذكاء الاصطناعي", sf_hl_desc:"تظليل الجمل جملةً بجملة. يصدر فقط عندما تكون نسبة الذكاء الاصطناعي منخفضة (*% أو أقل من 20%).",
+    mf_hl_btn:"تظليل الذكاء الاصطناعي", mf_hl_tip:"تقرير تظليل الذكاء الاصطناعي: الجمل التي رصدها Turnitin مظللة داخل المستند", sf_notice_title:"لا يتم حفظ الملف في أي مستودع",
     sf_notice_body:"ملفك آمن 100%، ولن يُحفظ في أي قاعدة بيانات للطلاب أو مستودع مؤسسي.", sf_upload_btn:"رفع الملف",
     slot_unit:"فحص", slot_none_msg:"ماعندكش فحوصات من النوع ده. اشتري باقة وهتظهر هنا.", slot_buy_btn:"اشتري باقة",
     slot_maint_btn:"الموقع تحت الصيانة", slot_maint_default:"النظام تحت الصيانة حالياً، حاول بعد قليل.",
@@ -4917,7 +4945,9 @@ const I18N = {
     sf_opt_label:"Plagiarism + AI ({n} Slots Remaining - Next Expiry: {d})", sf_pick:"Drag & drop your research paper or thesis here", sf_formats:"PDF or DOCX only, up to 50MB · Plagiarism up to 50,000 words, AI detection up to 30,000", sf_browse:"Browse Local File",
     sf_err_format:"This file type isn't supported. Upload a DOCX or PDF file.", sf_err_size:"The file exceeds the maximum size of 50 MB. Please upload a smaller file.", sf_err_words:"The file contains about {n} words, and the maximum allowed is 50,000 words. Please split it into smaller parts and submit each part as a separate request.", sf_ai_warn_title:"About the AI report", sf_ai_warn:"This file contains about {n} words, which exceeds Turnitin's AI detection limit of 30,000 words. If you continue with this file, only the similarity report will be produced, without the AI report. To receive both reports, please split the file into parts of up to 30,000 words each and submit each part as a separate request.", sf_err_words_title:"File over the limit", sf_counting:"Checking the file's word count...", sf_terms_title:"Terms & Conditions",
     sf_filters_title:"Analysis filters", sf_f_bib:"Exclude bibliography", sf_f_quo:"Exclude quotes", sf_f_cit:"Exclude citations",
-    sf_f_small:"Exclude small matches under", sf_f_words:"words", sf_notice_title:"Your file is not saved in any repository",
+    sf_f_small:"Exclude small matches under", sf_f_words:"words",
+    sf_hl_title:"AI Highlights Report", sf_hl_desc:"Sentence-by-sentence highlights. Produced only when the AI score is low (*% or under 20%).",
+    mf_hl_btn:"AI Highlights", mf_hl_tip:"AI Highlights report: the sentences Turnitin flagged, highlighted in the document", sf_notice_title:"Your file is not saved in any repository",
     sf_notice_body:"Your file is 100% safe. It will NOT be saved in any student database or institutional repository.", sf_upload_btn:"Upload File",
     slot_unit:"slot", slot_none_msg:"You have no slots of this type. Buy a package and it will show here.", slot_buy_btn:"Buy a package",
     slot_maint_btn:"System under maintenance", slot_maint_default:"The system is under maintenance right now. Please try again shortly.",
@@ -11415,6 +11445,7 @@ async function insertOrderRow(fileName, fileToSubmit, checkTypeDb, willUseApi){
       exclude_small_matches_word_limit: (document.getElementById('sfSmall')?.checked ? (parseInt(document.getElementById('sfSmallWords')?.value)||8) : null),
       word_count: Number.isFinite(pendingWordCount) ? pendingWordCount : null,
       doc_lang: pendingDocLang || null,
+      ai_highlights: checkTypeDb !== 'sim_only' && sfWantsHighlights(),
     })
     .select()
     .single();
@@ -12436,6 +12467,20 @@ function sfSyncCheckType(){
   if (!simOk && checkType === 'sim') checkType = 'both';
   simBtn.classList.toggle('on', simOk && checkType === 'sim');
   bothBtn.classList.toggle('on', checkType !== 'sim');
+  sfSyncHighlights();
+}
+// AI Highlights report: offered on checks with AI detection, to testing accounts for now.
+// The choice is remembered on this device.
+function sfSyncHighlights(){
+  const row = document.getElementById('sfHlRow'), box = document.getElementById('sfHl');
+  if (!row || !box) return;
+  const show = !!PK_TESTER && checkType !== 'sim';
+  row.style.display = show ? '' : 'none';
+  if (show && !box.dataset.init) { box.dataset.init = '1'; try { box.checked = localStorage.getItem('pk_ai_hl') === '1'; } catch (e) {} }
+}
+function sfWantsHighlights(){
+  const box = document.getElementById('sfHl');
+  return !!(PK_TESTER && checkType !== 'sim' && box && box.checked);
 }
 function sfPickCheckType(type){
   // Switching to a check with AI for a file over 30,000 words: the same warning first.
@@ -12681,9 +12726,14 @@ function mfScoreCell(f, kind){
     label = pct + '%';
     high = pct > 20;
   }
-  return `<button class="mf-dl${high ? ' mf-dl-high' : ''}" type="button" ${hasReport ? '' : 'disabled'} onclick="downloadOrderReport('${f.id}', '${kind}')">
+  const btn = `<button class="mf-dl${high ? ' mf-dl-high' : ''}" type="button" ${hasReport ? '' : 'disabled'} onclick="downloadOrderReport('${f.id}', '${kind}')">
       ${label} <svg data-icon-key="my_files_download_icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/></svg> ${escapeHtml(t('mf_download'))}
     </button>`;
+  // AI Highlights report (asked for when sending, and received from the provider): blue, under the AI report.
+  if (kind === 'ai' && f.has_ai_highlights) {
+    return `<div class="mf-ai-stack">${btn}<button class="mf-dl mf-dl-hl" type="button" onclick="downloadOrderReport('${f.id}', 'highlights')" title="${escapeHtml(t('mf_hl_tip'))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 11-6 6v3h9l3-3"/><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/></svg> ${escapeHtml(t('mf_hl_btn'))}</button></div>`;
+  }
+  return btn;
 }
 
 // Frame colour follows the check: green = done, blue = still checking, red = failed.
@@ -12771,7 +12821,7 @@ async function downloadOrderReport(orderId, kind){
     const base = (file?.file_name || orderId).replace(/\.[^.]+$/, '');
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${kind === 'ai' ? 'AI' : 'Similarity'}_${base}.pdf`;
+    a.download = `${kind === 'highlights' ? 'AI_Highlights' : kind === 'ai' ? 'AI' : 'Similarity'}_${base}.pdf`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 5000);
   } catch (e) {
@@ -13033,6 +13083,7 @@ const DEV_API_BASE = 'https://www.pkchecker.com/v1';
 let _devNewKey = null;
 // The Developer API tab is offered to testing accounts only (for now).
 function showDevApiNav(){
+  if (typeof sfSyncHighlights === 'function') sfSyncHighlights();
   document.querySelectorAll('[data-tab="dev-api"]').forEach(el => { el.style.display = PK_TESTER ? '' : 'none'; });
   const root = document.getElementById('dvxRoot');
   if (root) root.style.display = PK_TESTER ? '' : 'none';
@@ -13090,15 +13141,17 @@ Fields:
 - service_type (optional): "Both" (default, similarity + AI) | "Turnitin AI" (same as Both) | "Turnitin Plagiarism" (similarity only)
 - exclude_quotes, exclude_biblio (alias exclude_bibliography), exclude_citations, exclude_small_matches: "0" | "1" (default 0)
 - small_match_threshold (alias exclude_words): integer 8-250, default 8
+- ai_highlights (optional): "1" to also get the AI Highlights report (sentences flagged as AI, highlighted). Only produced when the AI score is low (*% or under 20%).
 - custom_id (optional, <=100 chars): my own order id, echoed back
 Response 200: {"success": true, "file_id": "PK1-261124-21", "filename": "...", "custom_id": "...", "status": "Pending", "message": "...", "slots_remaining": 14}
 
 ### GET /scan/status?file_id={file_id}
 status: "Pending" | "Processing" | "Completed" | "Failed" (Failed includes "error").
 Completed response: {"success": true, "file_id": "...", "filename": "...", "custom_id": "...", "status": "Completed", "similarity_score": 14, "ai_score": 2, "word_count": 4850, "download_url": "${B}/scan/download?file_id=...", "ai_download_url": "${B}/scan/download?file_id=...&report_type=ai", "completed_at": 1727443320}
-ai_score is null when the AI result is "*%" (20% or less), not requested, or could not run. ai_download_url is absent when there is no AI report.
+ai_score is null when the AI result is "*%" (20% or less), not requested, or could not run. ai_download_url is null when there is no AI report.
+ai_highlights_url ("${B}/scan/download?file_id=...&report_type=highlights") is non-null only when ai_highlights=1 was sent and the report exists; it may appear a few minutes after Completed, so keep polling briefly if you need it.
 
-### GET /scan/download?file_id={file_id}&report_type={plagiarism|ai}
+### GET /scan/download?file_id={file_id}&report_type={plagiarism|ai|highlights}
 Returns the PDF (Content-Type: application/pdf). Default report_type is plagiarism (similarity report).
 409 = not ready yet, 410 = deleted (reports are kept 48 hours after delivery), 404 = unknown file or no such report.
 

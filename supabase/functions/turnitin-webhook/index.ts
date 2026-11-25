@@ -23,6 +23,66 @@ async function downloadReport(fileId: string, reportType: "sim" | "ai"): Promise
   return await res.arrayBuffer();
 }
 
+// ---- AI Highlights report (only for orders where the customer asked for it) ----
+// TurniScan serves it from /scan/download?report_type=highlights. Turnitin only produces it for some
+// files, so a missing one is normal. A reply is kept only when it is a PDF and is neither the similarity
+// nor the AI report (a provider fallback must never be shown as the highlights report).
+async function sha256(bytes: ArrayBuffer): Promise<string> {
+  const h = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(h)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function downloadHighlights(fileId: string): Promise<ArrayBuffer | null> {
+  try {
+    const res = await fetch(`${TURNISCAN_BASE}/scan/download?file_id=${encodeURIComponent(fileId)}&report_type=highlights`, {
+      headers: { Authorization: `Bearer ${TURNISCAN_API_KEY}` },
+      signal: AbortSignal.timeout(30000),
+    });
+    if (!res.ok) {
+      console.log("highlights: not available", fileId, res.status, (await res.text()).slice(0, 200));
+      return null;
+    }
+    const bytes = await res.arrayBuffer();
+    const head = new TextDecoder().decode(new Uint8Array(bytes.slice(0, 5)));
+    if (head !== "%PDF-") { console.log("highlights: reply is not a PDF", fileId); return null; }
+    return bytes;
+  } catch (e) {
+    console.error("highlights: fetch failed", fileId, String(e));
+    return null;
+  }
+}
+
+// deno-lint-ignore no-explicit-any
+async function storedBytes(supabase: any, stored: string | null | undefined): Promise<ArrayBuffer | null> {
+  if (!stored || !stored.startsWith("/storage/")) return null;
+  const { data } = await supabase.storage.from("order-reports").download(stored.replace("/storage/", ""));
+  return data ? await data.arrayBuffer() : null;
+}
+
+// Tries once; returns the stored path, or null (and counts the try).
+// deno-lint-ignore no-explicit-any
+async function fetchAndStoreHighlights(supabase: any, orderId: string, fileId: string, others: (ArrayBuffer | null)[]): Promise<string | null> {
+  const { data: row } = await supabase.from("orders").select("ai_highlights_tries").eq("id", orderId).maybeSingle();
+  await supabase.from("orders").update({ ai_highlights_tries: Number(row?.ai_highlights_tries ?? 0) + 1 }).eq("id", orderId);
+  // TurniScan's status names the highlights report when it exists; without it, the download endpoint
+  // answers with another report, so nothing is fetched.
+  const st = await fetchScanStatus(fileId);
+  if (!st || !st.ai_highlights_url) { console.log("highlights: none yet", orderId); return null; }
+  const bytes = await downloadHighlights(fileId);
+  if (!bytes) return null;
+  const hash = await sha256(bytes);
+  for (const o of others) {
+    if (o && await sha256(o) === hash) { console.log("highlights: same as another report, ignored", orderId); return null; }
+  }
+  const url = await storeFixed(supabase, `ai-highlights/${orderId}`, "ai_highlights.pdf", bytes);
+  if (url) {
+    const { error } = await supabase.from("orders").update({ ai_highlights_url: url }).eq("id", orderId);
+    if (error) { console.error("highlights: DB update failed", orderId, error.message); return null; }
+    console.log("highlights: stored", orderId);
+  }
+  return url;
+}
+
 // Fixed file name, and never overwrite: a stored report is kept as it is.
 async function storeFixed(
   supabase: ReturnType<typeof createClient>,
@@ -69,6 +129,7 @@ interface ScanStatus {
   similarity_score?: number;
   ai_score?: number;
   error?: string;
+  ai_highlights_url?: string | null;
 }
 
 // Returns null when TurniScan can't confirm the file, so the caller can ask for a retry.
@@ -142,6 +203,23 @@ Deno.serve(async (req: Request) => {
   try { payload = await req.json(); }
   catch { return new Response("Bad Request", { status: 400 }); }
 
+  // Scheduled retry (every 15 minutes, internal secret only): completed checks whose AI Highlights
+  // report was asked for but has not arrived yet.
+  if (payload.action === "highlights_sweep") {
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    const sent = req.headers.get("x-internal-secret") ?? "";
+    const { data: expected } = await supabase.rpc("get_internal_cron_secret");
+    if (!expected || sent !== expected) return new Response("Forbidden", { status: 403 });
+    const { data: due } = await supabase.rpc("orders_waiting_highlights");
+    let stored = 0;
+    for (const r of (due ?? []) as { id: string; external_order_id: string }[]) {
+      const { data: o } = await supabase.from("orders").select("report_url, ai_report_url").eq("id", r.id).maybeSingle();
+      const others = [await storedBytes(supabase, o?.report_url), await storedBytes(supabase, o?.ai_report_url)];
+      if (await fetchAndStoreHighlights(supabase, r.id, r.external_order_id, others)) stored++;
+    }
+    return new Response(JSON.stringify({ success: true, checked: (due ?? []).length, stored }), { headers: { "Content-Type": "application/json" } });
+  }
+
   const fileId   = typeof payload.file_id === "string" ? payload.file_id : undefined;
   const customId = typeof payload.custom_id === "string" ? payload.custom_id : undefined;
   if (!customId || !fileId) {
@@ -153,7 +231,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: order } = await supabase
     .from("orders")
-    .select("id, check_type, external_order_id, purged_at, completed_at, status, report_url")
+    .select("id, check_type, external_order_id, purged_at, completed_at, status, report_url, ai_report_url, ai_score, ai_highlights, ai_highlights_url")
     .eq("id", customId)
     .maybeSingle();
   if (!order) return new Response("OK", { status: 200 });
@@ -181,11 +259,14 @@ Deno.serve(async (req: Request) => {
 
   const updates: Record<string, unknown> = { status: internalStatus };
   if (!order.external_order_id) updates.external_order_id = fileId;
+  let simBytesKept: ArrayBuffer | null = null;
+  let aiBytesKept: ArrayBuffer | null = null;
 
   if (internalStatus === "completed") {
     const checkType = order.check_type as string | null;
 
     const simBytes = await downloadReport(fileId, "sim");
+    simBytesKept = simBytes;
     if (simBytes) {
       const simUrl = await storeFixed(supabase, `sim-reports/${customId}`, "sim_report.pdf", simBytes);
       if (simUrl) updates.report_url = simUrl;
@@ -199,6 +280,7 @@ Deno.serve(async (req: Request) => {
 
     if (checkType !== "sim_only") {
       const aiBytes = await downloadReport(fileId, "ai");
+      aiBytesKept = aiBytes;
       if (aiBytes) {
         const aiRead = await readAiPdf(aiBytes);
         console.log("webhook: AI download", customId, JSON.stringify(aiRead));
@@ -224,6 +306,17 @@ Deno.serve(async (req: Request) => {
   }
 
   const { error } = await supabase.from("orders").update(updates).eq("id", customId);
+  // AI Highlights: asked for, AI part checked and the AI score not above 20%. Never blocks the order.
+  if (!error && internalStatus === "completed" && order.ai_highlights && !order.ai_highlights_url && order.check_type !== "sim_only") {
+    const score = "ai_score" in updates ? updates.ai_score as number | null : order.ai_score as number | null;
+    if (score == null || score <= 20) {
+      try {
+        const simB = simBytesKept ?? await storedBytes(supabase, order.report_url as string | null);
+        const aiB = aiBytesKept ?? await storedBytes(supabase, order.ai_report_url as string | null);
+        await fetchAndStoreHighlights(supabase, customId, fileId, [simB, aiB]);
+      } catch (e) { console.error("highlights: failed", customId, String(e)); }
+    }
+  }
   if (error) {
     // Answer with an error so TurniScan retries the webhook.
     console.error("webhook: DB update failed", error, customId);

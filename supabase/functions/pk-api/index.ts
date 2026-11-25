@@ -2,7 +2,7 @@
 // Same shape as TurniScan's API, so a site built for theirs works with ours:
 //   POST /v1/scan/submit      send a file (or text) for checking          (1 check from the balance)
 //   GET  /v1/scan/status      state, scores and download links            (free)
-//   GET  /v1/scan/download    the PDF report (report_type=plagiarism|ai)  (free)
+//   GET  /v1/scan/download    the PDF report (report_type=plagiarism|ai|highlights)  (free)
 //   GET  /v1/account/balance  checks available                            (free)
 // Served at https://www.pkchecker.com/v1/... (Vercel rewrite) and at
 // https://<project>.supabase.co/functions/v1/pk-api/v1/....
@@ -87,6 +87,7 @@ async function submit(req: Request, db: Db, userId: string, keyId: string) {
     exclude_quotes: isOn(fd.get("exclude_quotes")), exclude_abstract: false,
     exclude_small_matches_word_limit: threshold,
     source: "api", api_key_id: keyId, custom_id: customId,
+    ai_highlights: checkType !== "sim_only" && isOn(fd.get("ai_highlights")),
   }).select("id, display_id").single();
   if (insErr || !order) { console.error("pk-api: order insert failed", insErr?.message); return fail(500, "Could not create the order."); }
 
@@ -133,7 +134,7 @@ async function status(url: URL, db: Db, userId: string) {
   const fileId = url.searchParams.get("file_id");
   if (!fileId) return fail(400, "Missing required parameter: file_id");
   const { data: o } = await db.from("orders")
-    .select("display_id, file_name, custom_id, status, similarity_score, ai_score, word_count, report_url, ai_report_url, completed_at, error_reason, purged_at, check_type")
+    .select("display_id, file_name, custom_id, status, similarity_score, ai_score, word_count, report_url, ai_report_url, completed_at, error_reason, purged_at, check_type, ai_highlights_url")
     .eq("user_id", userId).eq("display_id", fileId).maybeSingle();
   if (!o) return fail(404, "File not found.");
   const st = publicStatus(o.status);
@@ -145,6 +146,7 @@ async function status(url: URL, db: Db, userId: string) {
     word_count: o.word_count ?? null,
     download_url: done && o.report_url && !o.purged_at ? `${PUBLIC_BASE}/scan/download?file_id=${encodeURIComponent(o.display_id)}` : null,
     ai_download_url: done && o.ai_report_url && !o.purged_at ? `${PUBLIC_BASE}/scan/download?file_id=${encodeURIComponent(o.display_id)}&report_type=ai` : null,
+    ai_highlights_url: done && o.ai_highlights_url && !o.purged_at ? `${PUBLIC_BASE}/scan/download?file_id=${encodeURIComponent(o.display_id)}&report_type=highlights` : null,
     completed_at: done ? epoch(o.completed_at) : null,
   };
   if (st === "Failed") out.error = o.status === "cancelled" ? "Cancelled." : (o.error_reason || "The check could not be completed.");
@@ -157,21 +159,21 @@ async function download(url: URL, db: Db, userId: string) {
   const fileId = url.searchParams.get("file_id");
   if (!fileId) return fail(400, "Missing required parameter: file_id");
   const type = (url.searchParams.get("report_type") || "plagiarism").toLowerCase();
-  if (["highlights", "ai_highlights"].includes(type)) return fail(404, "The AI highlights report is not available.");
-  if (!["plagiarism", "similarity", "ai"].includes(type)) return fail(400, 'report_type must be "plagiarism" or "ai".');
-  const { data: o } = await db.from("orders").select("display_id, status, report_url, ai_report_url, purged_at")
+  const hl = ["highlights", "ai_highlights"].includes(type);
+  if (!hl && !["plagiarism", "similarity", "ai"].includes(type)) return fail(400, 'report_type must be "plagiarism", "ai" or "highlights".');
+  const { data: o } = await db.from("orders").select("display_id, status, report_url, ai_report_url, ai_highlights_url, purged_at")
     .eq("user_id", userId).eq("display_id", fileId).maybeSingle();
   if (!o) return fail(404, "File not found.");
   if (o.status !== "completed") return fail(409, "The report is not ready yet.");
   if (o.purged_at) return fail(410, "Reports are deleted 48 hours after delivery.");
-  const link = String((type === "ai" ? o.ai_report_url : o.report_url) || "");
-  if (!link) return fail(404, type === "ai" ? "There is no AI report for this file." : "The report is not available.");
+  const link = String((hl ? o.ai_highlights_url : type === "ai" ? o.ai_report_url : o.report_url) || "");
+  if (!link) return fail(404, hl ? "There is no AI highlights report for this file." : type === "ai" ? "There is no AI report for this file." : "The report is not available.");
   const m = link.match(/\/storage\/(.+)$/);
   if (!m) return fail(404, "The report is not available.");
   const path = m[1].split("/").map(decodeURIComponent).join("/");
   const { data: blob, error } = await db.storage.from("order-reports").download(path);
   if (error || !blob) return fail(404, "The report is not available.");
-  const name = `${o.display_id}-${type === "ai" ? "AI" : "Similarity"}-Report.pdf`;
+  const name = `${o.display_id}-${hl ? "AI-Highlights" : type === "ai" ? "AI" : "Similarity"}-Report.pdf`;
   return new Response(blob, { headers: { ...CORS, "Content-Type": "application/pdf", "Content-Disposition": `attachment; filename="${name}"` } });
 }
 

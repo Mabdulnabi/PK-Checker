@@ -42,13 +42,18 @@ Deno.serve(async (req: Request) => {
     const isAdmin = profile?.role === "admin";
 
     // Fetch order
-    const orderQuery = supabase.from("orders").select("id, external_order_id, user_id, report_url, ai_report_url").eq("id", orderId);
+    const orderQuery = supabase.from("orders").select("id, external_order_id, user_id, report_url, ai_report_url, ai_highlights_url").eq("id", orderId);
     if (!isAdmin) orderQuery.eq("user_id", user.id);
     const { data: order, error: orderErr } = await orderQuery.single();
     if (orderErr || !order) return new Response(JSON.stringify({ error: "Order not found" }), { status: 404, headers: { ...cors, "Content-Type": "application/json" } });
 
-    const storedUrl: string | undefined = reportType === "sim" ? order.report_url : order.ai_report_url;
-    const filename = reportType === "sim" ? "sim_report.pdf" : "ai_report.pdf";
+    // "highlights" = the AI Highlights report: only ever the stored file, no provider fallback.
+    const storedUrl: string | undefined = reportType === "sim" ? order.report_url
+      : reportType === "highlights" ? order.ai_highlights_url : order.ai_report_url;
+    const filename = reportType === "sim" ? "sim_report.pdf" : reportType === "highlights" ? "ai_highlights.pdf" : "ai_report.pdf";
+    if (reportType === "highlights" && !(storedUrl && storedUrl.startsWith("/storage/"))) {
+      return new Response(JSON.stringify({ error: "Report not ready" }), { status: 404, headers: { ...cors, "Content-Type": "application/json" } });
+    }
 
     let downloadUrl: string | null = null;
     let needsAuth = false;

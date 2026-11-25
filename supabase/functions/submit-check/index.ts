@@ -124,7 +124,7 @@ async function logApiCredit(client: any, orderId: string, event: string, before:
 }
 
 // ---- Sending to TurniScan (shared by the first send and the queue) ----
-type SendOpts = { exQuotes: boolean; exBiblio: boolean; exCit: boolean; exSmallLim: string | null };
+type SendOpts = { exQuotes: boolean; exBiblio: boolean; exCit: boolean; exSmallLim: string | null; aiHighlights?: boolean };
 type SubmitResult =
   | { ok: true; fileId: string }
   | { ok: false; unavailable: boolean; ambiguous: boolean; detail: string; providerMessage: string };
@@ -141,6 +141,8 @@ function buildProviderForm(file: File, orderId: string, service: ServiceKey, o: 
     f.append("exclude_small_matches", "1");
     f.append("small_match_threshold", o.exSmallLim);
   }
+  // AI Highlights report asked for (same field name as TurniScan's own upload form; ignored if unknown).
+  if (o.aiHighlights && service !== "plag_only") f.append("ai_highlights", "1");
   f.append("webhook_url", `${SUPABASE_URL}/functions/v1/turnitin-webhook`);
   return f;
 }
@@ -204,7 +206,7 @@ const QUEUE_MAX_HOURS = 12;   // a queued file still not accepted after this fai
 async function processQueue(admin: any) {
   const out: Record<string, unknown>[] = [];
   const { data: rows } = await admin.from("orders")
-    .select("id, user_id, file_name, check_type, source_file_path, exclude_quotes, exclude_bibliography, exclude_small_matches_word_limit, submitted_at")
+    .select("id, user_id, file_name, check_type, source_file_path, exclude_quotes, exclude_bibliography, exclude_small_matches_word_limit, submitted_at, ai_highlights")
     .eq("status", "queued").order("submitted_at", { ascending: true }).limit(5);
   for (const o of rows ?? []) {
     const ageH = (Date.now() - new Date(o.submitted_at).getTime()) / 3600000;
@@ -236,6 +238,7 @@ async function processQueue(admin: any) {
     const form = buildProviderForm(file, o.id, service, {
       exQuotes: !!o.exclude_quotes, exBiblio: !!o.exclude_bibliography, exCit: false,
       exSmallLim: o.exclude_small_matches_word_limit ? String(o.exclude_small_matches_word_limit) : null,
+      aiHighlights: !!o.ai_highlights,
     });
     // Cancelled meanwhile (by the customer or an admin): not sent.
     const { data: now } = await admin.from("orders").select("status").eq("id", o.id).maybeSingle();
@@ -317,7 +320,7 @@ Deno.serve(async (req: Request) => {
     const { data: adminRow } = apiUserId ? { data: null } : await admin.from("admins").select("id").eq("id", user.id).maybeSingle();
     const isAdmin = !!adminRow;
 
-    let orderQuery = admin.from("orders").select("id, user_id, status, check_type, external_order_id").eq("id", orderId);
+    let orderQuery = admin.from("orders").select("id, user_id, status, check_type, external_order_id, ai_highlights").eq("id", orderId);
     if (!isAdmin) orderQuery = orderQuery.eq("user_id", user.id);
     const { data: order, error: orderErr } = await orderQuery.maybeSingle();
     if (orderErr || !order) return cors_json({ success: false, error: "Order not found" }, 404);
@@ -407,7 +410,7 @@ Deno.serve(async (req: Request) => {
       return cors_json({ success: false, code: "CANCELLED", error: "This order was cancelled." }, 409);
     }
 
-    const tsForm = buildProviderForm(file, orderId, service, { exQuotes, exBiblio, exCit, exSmallLim });
+    const tsForm = buildProviderForm(file, orderId, service, { exQuotes, exBiblio, exCit, exSmallLim, aiHighlights: !!order.ai_highlights });
 
     // One send only: a second send could create a second check at the provider.
     const apiBefore = await providerBalance();

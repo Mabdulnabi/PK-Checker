@@ -27,7 +27,7 @@ async function purgeOrder(admin: ReturnType<typeof createClient>, orderId: strin
   }
   const paths: string[] = [];
   // "" = reports an admin uploaded before they were filed with the API ones (<order>/<file>).
-  for (const folder of ["sim-reports", "ai-reports", ""]) {
+  for (const folder of ["sim-reports", "ai-reports", "ai-highlights", ""]) {
     const dir = folder ? `${folder}/${orderId}` : orderId;
     const { data, error } = await admin.storage.from(BUCKET).list(dir, { limit: 100 });
     if (error) throw error;
