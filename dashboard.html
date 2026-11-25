@@ -12469,18 +12469,17 @@ function sfSyncCheckType(){
   bothBtn.classList.toggle('on', checkType !== 'sim');
   sfSyncHighlights();
 }
-// AI Highlights report: offered on checks with AI detection, to testing accounts for now.
-// The choice is remembered on this device.
+// AI Highlights report: offered on every check with AI detection. The choice is remembered on this device.
 function sfSyncHighlights(){
   const row = document.getElementById('sfHlRow'), box = document.getElementById('sfHl');
   if (!row || !box) return;
-  const show = !!PK_TESTER && checkType !== 'sim';
+  const show = checkType !== 'sim';
   row.style.display = show ? '' : 'none';
   if (show && !box.dataset.init) { box.dataset.init = '1'; try { box.checked = localStorage.getItem('pk_ai_hl') === '1'; } catch (e) {} }
 }
 function sfWantsHighlights(){
   const box = document.getElementById('sfHl');
-  return !!(PK_TESTER && checkType !== 'sim' && box && box.checked);
+  return !!(checkType !== 'sim' && box && box.checked);
 }
 function sfPickCheckType(type){
   // Switching to a check with AI for a file over 30,000 words: the same warning first.
