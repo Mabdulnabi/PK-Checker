@@ -928,6 +928,13 @@
   .sf-switch i{position:absolute;inset:0;border-radius:999px;background:#d1d5db;transition:background .18s;}
   .sf-switch i::after{content:'';position:absolute;top:3px;inset-inline-start:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .18s;}
   .sf-switch input:checked + i{background:#4f46e5;}
+  /* Not available yet (the provider has not enabled it): shown, switched off, with a "Soon" badge */
+  .sf-hl.off{cursor:default;}
+  .sf-hl.off .sf-hl-txt b > span:first-of-type, .sf-hl.off .sf-hl-txt small{opacity:.55;}
+  .sf-hl.off .sf-hl-txt b svg{stroke:#94a3b8;}
+  .sf-hl.off .sf-switch{opacity:.45;}
+  .sf-hl.off .sf-switch input{cursor:not-allowed;}
+  .sf-hl .soon-badge{font-size:9px;padding:1px 7px;}
   html[dir="ltr"] .sf-switch input:checked + i::after{transform:translateX(18px);}
   html[dir="rtl"] .sf-switch input:checked + i::after{transform:translateX(-18px);}
   .sf-num{width:64px;padding:5px 8px;border:1.5px solid var(--paper-line);border-radius:8px;font-family:'Cairo',sans-serif;background:var(--paper);color:var(--navy);}
@@ -4396,7 +4403,7 @@ if (s.status === "Completed") {
           <input type="number" id="sfSmallWords" class="sf-num" min="8" max="250" value="8"> <span data-i18n="sf_f_words">كلمة</span></label>
         <label class="sf-hl" id="sfHlRow" style="display:none;" for="sfHl">
           <span class="sf-hl-txt">
-            <b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 11-6 6v3h9l3-3"/><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/></svg><span data-i18n="sf_hl_title">تقرير تظليل الذكاء الاصطناعي</span></b>
+            <b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 11-6 6v3h9l3-3"/><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/></svg><span data-i18n="sf_hl_title">تقرير تظليل الذكاء الاصطناعي</span><span class="soon-badge" id="sfHlSoon" data-i18n="plan_soon">قريباً</span></b>
             <small data-i18n="sf_hl_desc">تظليل الجمل جملةً بجملة. يصدر فقط عندما تكون نسبة الذكاء الاصطناعي منخفضة (*% أو أقل من 20%).</small>
           </span>
           <span class="sf-switch"><input type="checkbox" id="sfHl" onchange="try{localStorage.setItem('pk_ai_hl', this.checked ? '1' : '0')}catch(e){}"><i></i></span>
@@ -12470,17 +12477,24 @@ function sfSyncCheckType(){
   bothBtn.classList.toggle('on', checkType !== 'sim');
   sfSyncHighlights();
 }
-// AI Highlights report: offered on every check with AI detection. The choice is remembered on this device.
+// AI Highlights report: shown on every check with AI detection. Until TurniScan turns it on for our
+// account it is switched off and marked "Soon" (set AI_HIGHLIGHTS_READY = true to open it).
+const AI_HIGHLIGHTS_READY = false;
 function sfSyncHighlights(){
   const row = document.getElementById('sfHlRow'), box = document.getElementById('sfHl');
   if (!row || !box) return;
   const show = checkType !== 'sim';
   row.style.display = show ? '' : 'none';
+  row.classList.toggle('off', !AI_HIGHLIGHTS_READY);
+  const soon = document.getElementById('sfHlSoon');
+  if (soon) soon.style.display = AI_HIGHLIGHTS_READY ? 'none' : '';
+  box.disabled = !AI_HIGHLIGHTS_READY;
+  if (!AI_HIGHLIGHTS_READY) { box.checked = false; return; }
   if (show && !box.dataset.init) { box.dataset.init = '1'; try { box.checked = localStorage.getItem('pk_ai_hl') === '1'; } catch (e) {} }
 }
 function sfWantsHighlights(){
   const box = document.getElementById('sfHl');
-  return !!(checkType !== 'sim' && box && box.checked);
+  return !!(AI_HIGHLIGHTS_READY && checkType !== 'sim' && box && box.checked);
 }
 function sfPickCheckType(type){
   // Switching to a check with AI for a file over 30,000 words: the same warning first.
